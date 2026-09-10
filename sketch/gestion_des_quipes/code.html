@@ -1,0 +1,272 @@
+<html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={theme:{extend:{"colors":{"on-surface":"#071e27","on-surface-variant":"#40493d","inverse-primary":"#88d982","on-tertiary-fixed":"#3f001c","status-on-route":"#FB8C00","on-primary-fixed-variant":"#005312","surface-container-lowest":"#ffffff","inverse-surface":"#1e333c","surface-bright":"#f3faff","error":"#ba1a1a","surface-container-highest":"#cfe6f2","surface-dim":"#c7dde9","on-secondary-fixed":"#001946","surface-container-low":"#e6f6ff","surface-variant":"#cfe6f2","background":"#f3faff","secondary-fixed-dim":"#b1c5ff","tertiary-container":"#b14b6f","on-primary":"#ffffff","on-secondary-fixed-variant":"#274484","tertiary-fixed":"#ffd9e2","on-tertiary-fixed-variant":"#7f2448","outline":"#707a6c","secondary":"#405c9e","secondary-container":"#9cb7ff","status-in-progress":"#1976D2","status-planned":"#546E7A","on-background":"#071e27","tertiary":"#923357","on-error":"#ffffff","surface-tint":"#1b6d24","on-tertiary-container":"#ffedf0","on-secondary-container":"#294787","surface-container":"#dbf1fe","primary-fixed":"#a3f69c","error-container":"#ffdad6","status-action-req":"#D32F2F","status-completed":"#2E7D32","status-assigned":"#3949AB","outline-variant":"#bfcaba","primary-fixed-dim":"#88d982","status-reported":"#1B5E20","secondary-fixed":"#dae2ff","inverse-on-surface":"#dff4ff","on-tertiary":"#ffffff","status-delayed":"#E65100","tertiary-fixed-dim":"#ffb1c7","on-primary-container":"#cbffc2","primary":"#0d631b","primary-container":"#2e7d32","on-secondary":"#ffffff","surface":"#f3faff","on-primary-fixed":"#002204","status-cancelled":"#C62828","on-error-container":"#93000a","surface-container-high":"#d5ecf8"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"sidebar-width":"260px","margin-mobile":"16px","margin-desktop":"32px","unit":"4px","gutter-sm":"12px","gutter-md":"20px"},"fontFamily":{"headline-lg-mobile":["Hanken Grotesk"],"kpi-value":["Hanken Grotesk"],"body-md":["Hanken Grotesk"],"label-md":["Hanken Grotesk"],"body-lg":["Hanken Grotesk"],"headline-lg":["Hanken Grotesk"],"headline-md":["Hanken Grotesk"],"headline-sm":["Hanken Grotesk"],"label-sm":["Hanken Grotesk"]},"fontSize":{"headline-lg-mobile":["24px",{"lineHeight":"32px","fontWeight":"700"}],"kpi-value":["48px",{"lineHeight":"48px","fontWeight":"700"}],"body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}],"label-md":["13px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"headline-lg":["32px",{"lineHeight":"40px","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"32px","fontWeight":"600"}],"headline-sm":["20px",{"lineHeight":"28px","fontWeight":"600"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.05em","fontWeight":"700"}]}}}}</script><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/></head><body class="bg-background font-body-md text-on-surface"><aside class="fixed left-0 top-0 h-full w-[260px] bg-surface-container-low z-50 flex flex-col border-r border-outline-variant"><div class="h-16 flex items-center px-6 gap-3"><img alt="SRH Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XNW4yv8_XsTCVWiMMTLD1_hfjitZawc8YSbnm9mmSIksIYfeSAN8yFCGoJQM26mXl2bOAQVwGTpyMW-7wExIHnDuQAK1v08tukyAGpod1mCxgPuIYwzMjj3WTPMYLxR_sX0nQJJ73eIZnrEP0dNsMOrFpxlHZ9CVppIAUcDV4FAxTH3JtdmoMi8Vq3OmlQr-nQ42kWxUIxqOhZ4x5SQB_4DFAtYRTvMCZWoBcEUDGupQyhY6_9PKqwP_FV66wDdJM4Y1WQCNtpkw"/><span class="font-headline-sm text-primary tracking-tight">SRH Ops</span></div><nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto" data-active-classes="bg-primary-container text-on-primary-container font-semibold"><a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all group" data-path="tableau-de-bord" href="#"><span class="material-symbols-outlined text-[22px]">dashboard</span><span class="text-label-md">Tableau de bord</span></a><a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all group" data-path="planning" href="#"><span class="material-symbols-outlined text-[22px]">calendar_month</span><span class="text-label-md">Planning</span></a><a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all group" data-path="interventions" href="#"><span class="material-symbols-outlined text-[22px]">engineering</span><span class="text-label-md">Interventions</span></a><a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all group" data-path="demandes" href="#"><span class="material-symbols-outlined text-[22px]">pending_actions</span><span class="text-label-md">Demandes</span></a><a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all group" data-path="clients-sites" href="#"><span class="material-symbols-outlined text-[22px]">location_on</span><span class="text-label-md">Clients &amp; Sites</span></a><div class="pt-4 pb-2 px-4 text-label-sm text-outline uppercase">Ressources</div><a class="flex items-center gap-3 px-4 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all group" data-path="equipes" href="#"><span class="material-symbols-outlined text-[22px]">groups</span><span class="text-label-md">Équipes</span></a><a class="flex items-center gap-3 px-4 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all group" data-path="vehicules" href="#"><span class="material-symbols-outlined text-[22px]">local_shipping</span><span class="text-label-md">Véhicules</span></a><a class="flex items-center gap-3 px-4 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all group" data-path="equipements" href="#"><span class="material-symbols-outlined text-[22px]">construction</span><span class="text-label-md">Équipements</span></a><div class="pt-4 pb-2 px-4 text-label-sm text-outline uppercase">Analyse</div><a class="flex items-center gap-3 px-4 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all group" data-path="tracabilite" href="#"><span class="material-symbols-outlined text-[22px]">history_edu</span><span class="text-label-md">Traçabilité</span></a><a class="flex items-center gap-3 px-4 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all group" data-path="rapports" href="#"><span class="material-symbols-outlined text-[22px]">analytics</span><span class="text-label-md">Rapports</span></a><a class="flex items-center gap-3 px-4 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all group" data-path="pilotage" href="#"><span class="material-symbols-outlined text-[22px]">insights</span><span class="text-label-md">Pilotage</span></a></nav></aside><div class="pl-[260px]"><header class="fixed top-0 left-[260px] right-0 h-16 bg-surface/80 backdrop-blur-xl border-b border-outline-variant z-40 flex items-center justify-between px-8"><div class="flex items-center gap-4 text-on-surface-variant text-body-md font-semibold">SRH Back-Office <span class="text-outline-variant">/</span> <span class="text-on-surface">Opérations</span></div><div class="flex items-center gap-6"><div class="flex items-center gap-2 px-3 py-1.5 bg-surface-container rounded-full text-status-reported font-semibold text-label-sm"><span class="w-2 h-2 rounded-full bg-status-reported animate-pulse"></span> Système Opérationnel</div><div class="flex items-center gap-4"><button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">search</span></button><button class="relative text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">notifications</span><span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full border-2 border-surface"></span></button><div class="flex items-center gap-3 pl-4 border-l border-outline-variant"><div class="text-right hidden sm:block"><div class="text-label-md text-on-surface leading-tight">Admin SRH</div><div class="text-label-sm text-on-surface-variant">Superviseur</div></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><main class="pt-16 min-h-screen bg-background"><div class="flex flex-col w-full px-8 pb-12">
+<!-- Header Actions & KPIs -->
+<div class="flex items-end justify-between w-full mt-8 mb-10">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-2">Équipes Techniques</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xl">Supervision et affectation des équipes d'intervention sur le terrain. 8 équipes actuellement déployées sur 12.</p>
+</div>
+<div class="flex gap-4">
+<button class="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-surface-container border border-outline-variant text-on-surface hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+<span class="font-label-md text-label-md">Filtrer</span>
+</button>
+<button class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-on-primary hover:bg-primary-container transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span class="font-label-md text-label-md">Nouvelle Équipe</span>
+</button>
+</div>
+</div>
+<!-- Quick Stats Grid -->
+<div class="grid grid-cols-4 gap-6 mb-12">
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant relative overflow-hidden group hover:border-primary/50 transition-colors">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 rounded-full bg-status-completed/10 flex items-center justify-center text-status-completed">
+<span class="material-symbols-outlined text-[22px]">engineering</span>
+</div>
+<span class="font-label-sm text-label-sm text-status-completed bg-status-completed/10 px-2 py-1 rounded-full">+2 ce matin</span>
+</div>
+<div class="font-kpi-value text-kpi-value text-on-surface mb-1">8</div>
+<div class="font-label-md text-label-md text-on-surface-variant">Équipes en intervention</div>
+<div class="absolute bottom-0 left-0 w-full h-1 bg-surface-container">
+<div class="h-full bg-status-completed w-[66%]"></div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant relative overflow-hidden group hover:border-primary/50 transition-colors">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 rounded-full bg-status-assigned/10 flex items-center justify-center text-status-assigned">
+<span class="material-symbols-outlined text-[22px]">groups</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline px-2 py-1">Dispo</span>
+</div>
+<div class="font-kpi-value text-kpi-value text-on-surface mb-1">4</div>
+<div class="font-label-md text-label-md text-on-surface-variant">Équipes en base</div>
+<div class="absolute bottom-0 left-0 w-full h-1 bg-surface-container">
+<div class="h-full bg-status-assigned w-[33%]"></div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant relative overflow-hidden group hover:border-primary/50 transition-colors">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 rounded-full bg-status-on-route/10 flex items-center justify-center text-status-on-route">
+<span class="material-symbols-outlined text-[22px]">local_shipping</span>
+</div>
+<span class="font-label-sm text-label-sm text-status-on-route bg-status-on-route/10 px-2 py-1 rounded-full">Trajet long</span>
+</div>
+<div class="font-kpi-value text-kpi-value text-on-surface mb-1">3</div>
+<div class="font-label-md text-label-md text-on-surface-variant">Véhicules en transit</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant relative overflow-hidden group hover:border-primary/50 transition-colors">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 rounded-full bg-error/10 flex items-center justify-center text-error">
+<span class="material-symbols-outlined text-[22px]">warning</span>
+</div>
+</div>
+<div class="font-kpi-value text-kpi-value text-on-surface mb-1">0</div>
+<div class="font-label-md text-label-md text-on-surface-variant">Incidents techniques</div>
+</div>
+</div>
+<!-- Teams List & Workload Split Layout -->
+<div class="flex gap-8">
+<!-- Teams List Column -->
+<div class="w-2/3 flex flex-col gap-4">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">view_list</span>
+                Annuaire des Équipes
+            </h2>
+<!-- Team Card 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden">
+<div class="absolute right-0 top-0 w-2 h-full bg-status-completed"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center border border-outline-variant">
+<span class="font-headline-md text-headline-md text-primary">A1</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Équipe Alpha - Haute Pression</h3>
+<div class="flex items-center gap-2 mt-1">
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded">
+<span class="material-symbols-outlined text-[14px]">water_drop</span> Curage
+                                </span>
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded">
+<span class="material-symbols-outlined text-[14px]">location_on</span> Secteur Nord
+                                </span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end gap-2">
+<div class="flex items-center gap-1.5 px-3 py-1 bg-status-completed/10 border border-status-completed rounded-full">
+<span class="w-2 h-2 rounded-full bg-status-completed"></span>
+<span class="font-label-md text-label-md text-status-completed">En intervention</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">Site: TOTAL Raffinerie</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-6 pt-4 border-t border-outline-variant">
+<div class="flex items-center gap-3">
+<span class="font-label-sm text-label-sm text-outline uppercase">Membres:</span>
+<div class="flex -space-x-2">
+<img class="w-8 h-8 rounded-full border-2 border-surface-container-lowest object-cover" data-alt="Corporate headshot of an industrial worker, male, late 30s, wearing safety glasses and a hard hat. Modern industrial background, sharp focus, professional lighting, conveying reliability and expertise. SRH brand colors subtle in background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWRbddq0d3ohrQfBri6kA4CZRi89KMjuZKfABajbpMjo3A1Jzux5bECGl7XeXR4P-3JgUvziQSmuZMavoAJwjcdqGIputrMWptrsmtyM6LHiMxFZgzJxgcRg78Ys_PYiz9R0NN9QdOYXgxtfJtNVRYle1k5H0rtXVijYjAB4GJBwsjPJtQhfuCJK7oV1m0ptdOGRh2lm9DzO9ngIj9cIYTAD7iavw4BSatFcTohP4qeSagGhQszBGB" title="Chef d'équipe"/>
+<img class="w-8 h-8 rounded-full border-2 border-surface-container-lowest object-cover" data-alt="Corporate headshot of an industrial technician, female, mid 20s, wearing high-vis gear. Bright day lighting, outdoor industrial setting blurred in background. Professional, focused expression." src="https://lh3.googleusercontent.com/aida-public/AB6AXuALOheIdV4a6GG5TbdPhQsGFoeZz6fDKFpBXMQvC_HKFRDAHEeJco965ENekMFlQZzsQCHPd9PtThXW-YjrylMMwAgqI-iAZHyxFc0USqzkzxeigM--wXn7AWyOLNeT-E9GcSxOscLVU0dLXLlrAY0_b6keOR9p6HO7XOXo51yvp5z7dWgB0v4IZ3Q-2s3FAS4ELok-_zm75-7yV9TZ8P25zjmraAxBRsKJEaAOkpqCe1JVaXAcFi84"/>
+<img class="w-8 h-8 rounded-full border-2 border-surface-container-lowest object-cover" data-alt="Corporate headshot of an industrial driver, male, 40s, slightly bearded, wearing a company polo. Neutral grey background, sharp focus, dependable look." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYPd8baG6Ac5NwBSpHNBq15iOQGvmXdWU22qkJBaQVi1rjp55OjQ_p31nTxrKA_nraeB04JP-DsvYcrgwDDyil25H9LAnq4BE2G7xnhdYEGImvCrfz8cmN-c4USFFi6xrBMvjENR-5xIzF8iF0sqeQ3YT2gSAPJpcdrPpeLgIlawXsUJdEBF88zwOG459selNDEXp_8TXiAGiihNisQXfo3PiK-Xe8GaEVK58WgtKl_eEHipsTJDkJ"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-[18px]">local_shipping</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Camion Hydrocureur #42</span>
+</div>
+<button class="text-primary hover:text-primary-container font-label-md text-label-md flex items-center gap-1">
+                            Détails <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Team Card 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden">
+<div class="absolute right-0 top-0 w-2 h-full bg-status-on-route"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center border border-outline-variant">
+<span class="font-headline-md text-headline-md text-status-on-route">B2</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Équipe Bravo - Pompage Lourd</h3>
+<div class="flex items-center gap-2 mt-1">
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded">
+<span class="material-symbols-outlined text-[14px]">oil_barrel</span> Pompage
+                                </span>
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded">
+<span class="material-symbols-outlined text-[14px]">location_on</span> Secteur Est
+                                </span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end gap-2">
+<div class="flex items-center gap-1.5 px-3 py-1 bg-status-on-route/10 border border-status-on-route rounded-full">
+<span class="material-symbols-outlined text-[16px] text-status-on-route">local_shipping</span>
+<span class="font-label-md text-label-md text-status-on-route">En route</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">ETA: 14:30 - Site Usine Chimique</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-6 pt-4 border-t border-outline-variant">
+<div class="flex items-center gap-3">
+<span class="font-label-sm text-label-sm text-outline uppercase">Membres:</span>
+<div class="flex -space-x-2">
+<img class="w-8 h-8 rounded-full border-2 border-surface-container-lowest object-cover" data-alt="Corporate headshot of an older male industrial supervisor, grey hair, wearing a clean white hard hat. Serious, experienced expression. Industrial facility background with SRH green accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMIqRIPGgw0_RXZh3VIlS09NUO_3y8QwwGvghzxZLRMAbtZ3VKv5kNipFm34E4KKzFxY1caodDQt615WPsV-RTpG3Wo5cvq4Qo6umWZtn78MshM89D8HA8ZsdrkpsvXbt4f1jyBYwFdbzzh2yxRYmh8HaPe2K9v8JZttPzN6-RDMrwDlwkG97m4NxEhP9NbGeHR7nY7KqNUCkhEJIdA9xiJGINHCf6WvnUIFd4HA5zeb-_cIffROmB" title="Superviseur"/>
+<img class="w-8 h-8 rounded-full border-2 border-surface-container-lowest object-cover" data-alt="Corporate headshot of a young male technician, wearing ear protection around neck. Clear lighting, focused look." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmgYNCu1x75eILkN_oa6WceZGbwm6IkwpOIJaHvHtc_BP3u72NHmMHvwxlTq7ZM0iFycq3h9xi2qEbZes_FiEW6eBo1SOVcDI1jRte9Tz1l8YwmldYfmz6xAyLCFi1MCAmOdl7Di8NhV4HxDdKiyElR90Il8E7k_HF0xa6_JdfDvOto-liQ4Ze90ifHQqrZkMrECqJ6xjg_-xyggGVRAIFQ9R0p1Dfa-5SIrpxL_a3L716Mk9bY5Of"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-[18px]">local_shipping</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Citerne Pompe #18</span>
+</div>
+<button class="text-primary hover:text-primary-container font-label-md text-label-md flex items-center gap-1">
+                            Détails <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Team Card 3 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden opacity-75">
+<div class="absolute right-0 top-0 w-2 h-full bg-status-assigned"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center border border-outline-variant">
+<span class="font-headline-md text-headline-md text-status-assigned">C3</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Équipe Charlie - Polyvalente</h3>
+<div class="flex items-center gap-2 mt-1">
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded">
+<span class="material-symbols-outlined text-[14px]">build</span> Maintenance
+                                </span>
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded">
+<span class="material-symbols-outlined text-[14px]">location_on</span> Base Dépôt
+                                </span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end gap-2">
+<div class="flex items-center gap-1.5 px-3 py-1 bg-status-assigned/10 border border-status-assigned rounded-full">
+<span class="material-symbols-outlined text-[16px] text-status-assigned">schedule</span>
+<span class="font-label-md text-label-md text-status-assigned">Disponible</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">Aucune mission planifiée</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Workload Sidebar -->
+<div class="w-1/3 flex flex-col gap-6">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">bar_chart</span>
+                    Charge de Travail (Jour)
+                </h2>
+<div class="space-y-6">
+<!-- Progress Bar 1 -->
+<div>
+<div class="flex justify-between items-end mb-2">
+<span class="font-label-md text-label-md text-on-surface">Pompage Lourd</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">85% Capacité</span>
+</div>
+<div class="w-full h-2.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-status-delayed rounded-full" style="width: 85%"></div>
+</div>
+</div>
+<!-- Progress Bar 2 -->
+<div>
+<div class="flex justify-between items-end mb-2">
+<span class="font-label-md text-label-md text-on-surface">Curage Haute Pression</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">60% Capacité</span>
+</div>
+<div class="w-full h-2.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-status-in-progress rounded-full" style="width: 60%"></div>
+</div>
+</div>
+<!-- Progress Bar 3 -->
+<div>
+<div class="flex justify-between items-end mb-2">
+<span class="font-label-md text-label-md text-on-surface">Maintenance Générale</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">30% Capacité</span>
+</div>
+<div class="w-full h-2.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-status-completed rounded-full" style="width: 30%"></div>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-outline-variant">
+<h3 class="font-label-md text-label-md text-on-surface mb-4">Répartition Spatiale Actuelle</h3>
+<div class="w-full h-48 rounded-lg overflow-hidden border border-outline-variant bg-surface-container flex items-center justify-center relative">
+<!-- SVG Map Placeholder mimicking a basic sector map -->
+<svg class="absolute inset-0 opacity-20" height="100%" preserveaspectratio="none" viewbox="0 0 400 200" width="100%">
+<path class="text-primary" d="M50,50 Q150,20 250,80 T350,150 L350,200 L50,200 Z" fill="currentColor"></path>
+<path class="text-secondary" d="M0,100 Q100,50 200,120 T400,100 L400,200 L0,200 Z" fill="currentColor"></path>
+</svg>
+<!-- Map Pins -->
+<div class="absolute top-1/4 left-1/3 flex flex-col items-center">
+<div class="w-3 h-3 bg-status-completed rounded-full border border-surface shadow-sm animate-pulse"></div>
+<span class="font-label-sm text-label-sm text-on-surface mt-1 bg-surface-container/80 px-1 rounded backdrop-blur">Alpha</span>
+</div>
+<div class="absolute top-1/2 right-1/4 flex flex-col items-center">
+<div class="w-3 h-3 bg-status-on-route rounded-full border border-surface shadow-sm"></div>
+<span class="font-label-sm text-label-sm text-on-surface mt-1 bg-surface-container/80 px-1 rounded backdrop-blur">Bravo</span>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-primary/5 border border-primary/20 rounded-xl p-6">
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary text-[24px]">info</span>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface mb-1">Alerte de Capacité</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">La demande en pompage lourd approche de la capacité maximale pour le secteur Nord. Envisagez de réaffecter l'équipe Charlie en renfort d'ici 14h.</p>
+<button class="mt-3 font-label-md text-label-md text-primary hover:underline">Planifier un renfort</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div></main></div></body></html>

@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={theme:{extend:{"colors":{"status-on-route":"#FB8C00","primary-fixed-dim":"#88d982","on-surface-variant":"#40493d","on-tertiary-fixed":"#3f001c","surface-container-lowest":"#ffffff","status-in-progress":"#1976D2","background":"#f3faff","on-tertiary":"#ffffff","on-primary-container":"#cbffc2","inverse-on-surface":"#dff4ff","tertiary-fixed-dim":"#ffb1c7","outline":"#707a6c","tertiary":"#923357","tertiary-container":"#b14b6f","outline-variant":"#bfcaba","on-primary-fixed":"#002204","surface-variant":"#cfe6f2","inverse-surface":"#1e333c","surface":"#f3faff","surface-container-low":"#e6f6ff","error":"#ba1a1a","primary-container":"#2e7d32","status-planned":"#546E7A","on-secondary-container":"#294787","surface-container":"#dbf1fe","on-primary":"#ffffff","status-cancelled":"#C62828","secondary-fixed":"#dae2ff","surface-container-high":"#d5ecf8","on-secondary-fixed-variant":"#274484","status-reported":"#1B5E20","on-surface":"#071e27","on-background":"#071e27","status-assigned":"#3949AB","on-secondary-fixed":"#001946","on-error":"#ffffff","surface-dim":"#c7dde9","primary":"#0d631b","error-container":"#ffdad6","on-tertiary-fixed-variant":"#7f2448","inverse-primary":"#88d982","secondary":"#405c9e","tertiary-fixed":"#ffd9e2","status-delayed":"#E65100","secondary-container":"#9cb7ff","status-completed":"#2E7D32","surface-tint":"#1b6d24","surface-bright":"#f3faff","on-secondary":"#ffffff","status-action-req":"#D32F2F","surface-container-highest":"#cfe6f2","on-error-container":"#93000a","primary-fixed":"#a3f69c","on-tertiary-container":"#ffedf0","on-primary-fixed-variant":"#005312","secondary-fixed-dim":"#b1c5ff"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"unit":"4px","gutter-md":"20px","margin-desktop":"32px","gutter-sm":"12px","margin-mobile":"16px","sidebar-width":"260px"},"fontFamily":{"body-md":["Hanken Grotesk"],"kpi-value":["Hanken Grotesk"],"headline-lg":["Hanken Grotesk"],"headline-sm":["Hanken Grotesk"],"headline-lg-mobile":["Hanken Grotesk"],"body-lg":["Hanken Grotesk"],"headline-md":["Hanken Grotesk"],"label-sm":["Hanken Grotesk"],"label-md":["Hanken Grotesk"]},"fontSize":{"body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}],"kpi-value":["48px",{"lineHeight":"48px","fontWeight":"700"}],"headline-lg":["32px",{"lineHeight":"40px","fontWeight":"700"}],"headline-sm":["20px",{"lineHeight":"28px","fontWeight":"600"}],"headline-lg-mobile":["24px",{"lineHeight":"32px","fontWeight":"700"}],"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"headline-md":["24px",{"lineHeight":"32px","fontWeight":"600"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.05em","fontWeight":"700"}],"label-md":["13px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}]}}}}</script></head><body class="bg-surface font-body-md text-body-md text-on-surface"><aside class="fixed left-0 top-0 h-full w-sidebar-width bg-surface-container-low shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between overflow-y-auto"><div class="flex flex-col"><div class="h-16 flex items-center gap-3 px-gutter-md bg-surface-container-low"><img alt="logo-D4pSjO7j.png" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1UIOMOlwpX4WXcEJVQ2Ohnr_h8CJr8ezeAviwWd6bfftDfVYPIHz7hMK1R8At9R37SRIjsDzZHGgXwp7eYlpJZJj8cOIqbXk-0m3ywbzjSN4ZgLm4M1ssU9PKwfychAFZEOmhDJJGzY8OVK5QwCYl8QQT2Om6hjZLJSR5FnZqNP_hasv6LbUU1UBo9xK-OyywfTZmk6No7iNtUiNgFcRwQetY0ebRGhHR2YO9vWUV0tbrQcl_EYwfTc5xxs_vA8BAjmFAKzspyUYQ"/><div class="flex flex-col"><span class="font-label-md text-label-md text-primary font-bold tracking-tight uppercase">SRH Logistique</span><span class="font-label-sm text-label-sm text-on-surface-variant">Régulation d'Huiles</span></div></div><nav class="flex flex-col px-gutter-sm py-unit space-y-unit" data-active-classes="bg-primary-container text-on-primary font-bold shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="px-unit pt-gutter-sm pb-unit"><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Tableau de bord</span></div><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-xl text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="tableau-de-bord" href="#"><span class="material-symbols-outlined text-[20px]">dashboard</span><span>Tableau de bord</span></a><div class="px-unit pt-gutter-sm pb-unit"><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Opérations</span></div><a aria-current="page" class="flex items-center gap-3 px-gutter-sm py-2 rounded-xl transition-all bg-primary-container text-on-primary font-bold shadow-[0_1px_8px_rgba(0,0,0,0.04)]" data-path="planning" href="#"><span class="material-symbols-outlined text-[20px]">calendar_month</span><span>Planning</span></a><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-xl text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="interventions" href="#"><span class="material-symbols-outlined text-[20px]">local_shipping</span><span>Interventions</span></a><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-xl text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="demandes-de-collecte" href="#"><span class="material-symbols-outlined text-[20px]">assignment_late</span><span>Demandes de collecte</span></a><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-xl text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="collectes-recurrentes" href="#"><span class="material-symbols-outlined text-[20px]">event_repeat</span><span>Collectes récurrentes</span></a><div class="px-unit pt-gutter-sm pb-unit"><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Gestion</span></div><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-xl text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="clients-et-sites" href="#"><span class="material-symbols-outlined text-[20px]">store</span><span>Clients &amp; Sites</span></a><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-xl text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="ressources-equipes" href="#"><span class="material-symbols-outlined text-[20px]">groups</span><span>Équipes &amp; Chauffeurs</span></a><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-xl text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="ressources-flotte" href="#"><span class="material-symbols-outlined text-[20px]">directions_car</span><span>Flotte de véhicules</span></a><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-xl text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="ressources-equipements" href="#"><span class="material-symbols-outlined text-[20px]">oil_barrel</span><span>Équipements &amp; Cuves</span></a><div class="px-unit pt-gutter-sm pb-unit"><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Suivi &amp; Régulation</span></div><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-xl text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="tracabilite-bsd" href="#"><span class="material-symbols-outlined text-[20px]">description</span><span>Traçabilité BSD</span></a><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-xl text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="rapports-et-bilans" href="#"><span class="material-symbols-outlined text-[20px]">analytics</span><span>Rapports &amp; Bilans</span></a><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-xl text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="alertes-operationnelles" href="#"><span class="material-symbols-outlined text-[20px]">notification_important</span><span>Alertes opérationnelles</span></a><div class="px-unit pt-gutter-sm pb-unit"><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Configuration</span></div><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-xl text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="parametres" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span>Paramètres</span></a></nav></div><div class="p-gutter-sm bg-surface-container-lowest m-gutter-sm rounded-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex items-center gap-3"><div class="relative"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><span class="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-status-reported"></span></div><div class="flex flex-col min-w-0 flex-1"><span class="font-label-md text-label-md text-on-surface font-bold truncate">Jean Dupont</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Resp. Opérations</span></div><span class="material-symbols-outlined text-on-surface-variant text-[18px]">more_vert</span></div></div></aside><div class="pl-sidebar-width"><header class="fixed top-0 left-sidebar-width right-0 h-16 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-margin-desktop"><div class="flex items-center gap-gutter-sm flex-1 max-w-xl"><div class="flex items-center gap-2 px-gutter-sm py-1.5 rounded-xl bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] w-full"><span class="material-symbols-outlined text-on-surface-variant text-[20px]">search</span><input class="bg-transparent border-0 outline-none w-full font-body-md text-body-md text-on-surface placeholder:text-outline" placeholder="Rechercher une opération, client, site..." type="text"/></div></div><div class="flex items-center gap-gutter-md"><div class="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-low text-status-reported font-label-sm text-label-sm"><span class="w-2 h-2 rounded-full bg-status-reported animate-pulse"></span><span>Système opérationnel en temps réel</span></div><div class="h-6 w-[1px] bg-surface-variant hidden lg:block"></div><button class="relative p-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 bg-status-action-req rounded-full"></span></button><div class="flex items-center gap-3 pl-2"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="hidden xl:flex flex-col text-left"><span class="font-label-md text-label-md text-on-surface font-semibold leading-tight">Jean Dupont</span><span class="font-label-sm text-label-sm text-on-surface-variant leading-tight">Responsable d'Exploitation</span></div></div></div></header><main class="w-full pt-16 bg-surface px-margin-desktop py-gutter-md min-h-screen"><div class="flex flex-col w-full">
+<!-- Fil d'Ariane & Barre d'Actions Supérieure -->
+<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-gutter-sm pb-gutter-md">
+<div class="flex flex-col gap-1">
+<nav class="flex items-center gap-2 font-label-sm text-label-sm text-outline tracking-wider uppercase">
+<a class="hover:text-primary transition-colors" href="#">Opérations</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">Planning</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-primary font-bold">Nouvelle collecte</span>
+</nav>
+<div class="flex items-baseline gap-3 mt-1">
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Planifier une nouvelle collecte</h1>
+<span class="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-status-in-progress/10 text-status-in-progress font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-status-in-progress"></span>
+          Mode brouillon dynamique
+        </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-3xl">
+        Définition des paramètres de l'intervention, des déchets à collecter et affectation prévisionnelle des ressources.
+      </p>
+</div>
+<div class="flex items-center gap-3 self-start lg:self-auto pt-2 lg:pt-0">
+<button class="px-4 py-2.5 rounded-xl bg-surface-container-high hover:bg-surface-variant text-on-surface font-label-md text-label-md transition-colors flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-[18px]">close</span>
+<span>Annuler</span>
+</button>
+<button class="px-4 py-2.5 rounded-xl bg-surface-container-lowest shadow-sm hover:bg-surface-container text-secondary font-label-md text-label-md transition-all flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-[18px]">save</span>
+<span>Enregistrer brouillon</span>
+</button>
+<button class="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md shadow-sm transition-all flex items-center gap-2.5" type="button">
+<span class="material-symbols-outlined text-[18px]">event_available</span>
+<span>Planifier &amp; Confirmer l'opération</span>
+</button>
+</div>
+</div>
+<!-- Layout Principal 2 Colonnes (2/3 - 1/3) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-md items-start">
+<!-- COLONNE GAUCHE (Formulaire 8 colonnes) -->
+<div class="lg:col-span-8 flex flex-col gap-gutter-md">
+<!-- 1. INFORMATIONS DU SITE & CLIENT -->
+<section class="bg-surface-container-lowest rounded-xl p-gutter-md shadow-sm flex flex-col gap-5">
+<div class="flex items-center justify-between border-b-0 pb-1">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high text-primary flex items-center justify-center font-bold font-label-md text-label-md">
+              01
+            </div>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Informations du Site &amp; Client</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Identification de l'exploitant et du point de prélèvement certifié</p>
+</div>
+</div>
+<span class="px-3 py-1 rounded-full bg-status-completed/10 text-status-completed font-label-sm text-label-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]">verified</span> Compte certifié Seveso
+          </span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+<!-- Client -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface-variant flex items-center gap-1.5">
+<span>Client émetteur</span>
+<span class="text-status-action-req">*</span>
+</label>
+<div class="relative">
+<select class="w-full h-11 px-3.5 pr-10 rounded-xl bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer">
+<option selected="">TotalEnergies Raffinerie Normandie</option>
+<option>ExxonMobil Chemical France</option>
+<option>Lubrizol France SAS</option>
+<option>Port Autonome du Havre</option>
+</select>
+<span class="material-symbols-outlined pointer-events-none absolute right-3 top-3 text-outline text-[20px]">expand_more</span>
+</div>
+</div>
+<!-- Site -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface-variant flex items-center gap-1.5">
+<span>Site d'intervention</span>
+<span class="text-status-action-req">*</span>
+</label>
+<div class="relative">
+<select class="w-full h-11 px-3.5 pr-10 rounded-xl bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer">
+<option selected="">Site Pétrochimique - Dépôt Cuves Nord</option>
+<option>Unité Distillation Sud - Quai C4</option>
+<option>Station Épuration Industrielle STEP 2</option>
+</select>
+<span class="material-symbols-outlined pointer-events-none absolute right-3 top-3 text-outline text-[20px]">store</span>
+</div>
+</div>
+</div>
+<!-- Coordonnées & Badge Adresse -->
+<div class="bg-surface-container-low rounded-xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary mt-0.5 text-[20px]">pin_drop</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Route Industrielle, 76700 Harfleur</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Accès Nord - Sas Portes 04 &amp; 05 (Contrôle pesée automatique)</span>
+</div>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-lowest px-3 py-1.5 rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-secondary text-[18px]">contact_phone</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface leading-tight">Marc Valadier</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant leading-tight">Sécurité (+33 6 12 34 56 78)</span>
+</div>
+</div>
+</div>
+<!-- Instructions d'accès et contraintes -->
+<div class="flex flex-col gap-2">
+<label class="font-label-md text-label-md text-on-surface-variant flex items-center justify-between">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-status-delayed">security</span>
+              Instructions d'accès &amp; Contraintes HSE requises
+            </span>
+<span class="text-status-delayed font-label-sm text-label-sm uppercase tracking-wider font-bold">Protocole Niveau 3</span>
+</label>
+<div class="bg-surface-container-low/70 rounded-xl p-3.5 flex flex-col sm:flex-row gap-3 items-start">
+<div class="flex-1 flex flex-wrap gap-2">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-container-highest text-on-surface font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px] text-primary">badge</span> Zone badge Vigipirate
+              </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-status-action-req/10 text-status-action-req font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px]">local_fire_department</span> Permis de feu requis
+              </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-secondary/10 text-secondary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px]">masks</span> EPI complets (Casque, Lunettes, Masque vapeurs)
+              </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-container-highest text-on-surface font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px] text-status-reported">sensors</span> Détecteur 4 gaz étalonné
+              </span>
+</div>
+</div>
+</div>
+</section>
+<!-- 2. CARACTÉRISTIQUES DE LA COLLECTE & DÉCHETS -->
+<section class="bg-surface-container-lowest rounded-xl p-gutter-md shadow-sm flex flex-col gap-5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high text-primary flex items-center justify-center font-bold font-label-md text-label-md">
+              02
+            </div>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Caractéristiques de la Collecte &amp; Déchets</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Typologie des hydrocarbures, classification CED et volume estimé</p>
+</div>
+</div>
+<span class="px-3 py-1 rounded-full bg-status-delayed/10 text-status-delayed font-label-sm text-label-sm flex items-center gap-1.5 font-bold">
+<span class="material-symbols-outlined text-[14px]">warning</span> Réglementation ADR
+          </span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Nature intervention -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface-variant">Nature de l'intervention</label>
+<div class="relative">
+<select class="w-full h-11 px-3.5 pr-10 rounded-xl bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer">
+<option selected="">Pompage et évacuation boues hydrocarburées</option>
+<option>Nettoyage haute pression déshuileur</option>
+<option>Vidange cuve fioul lourd / résidus</option>
+<option>Collecte huiles usagées moteur vrac</option>
+</select>
+<span class="material-symbols-outlined pointer-events-none absolute right-3 top-3 text-outline text-[20px]">expand_more</span>
+</div>
+</div>
+<!-- Conditionnement -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface-variant">Conditionnement sur site</label>
+<div class="relative">
+<select class="w-full h-11 px-3.5 pr-10 rounded-xl bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer">
+<option selected="">Fosse de décantation &amp; Cuve enterrée</option>
+<option>Bacs de rétention hors-sol (IBC 1000L)</option>
+<option>Fûts métalliques cerclés 200L</option>
+<option>Citerne fixe aérienne</option>
+</select>
+<span class="material-symbols-outlined pointer-events-none absolute right-3 top-3 text-outline text-[20px]">oil_barrel</span>
+</div>
+</div>
+</div>
+<!-- Rubrique CED & Transport -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+<div class="md:col-span-7 flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface-variant">Code Déchet Européen (CED homologué)</label>
+<div class="p-2.5 rounded-xl bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="px-2 py-1 bg-surface-container-highest rounded-lg font-label-md text-label-md text-tertiary font-bold">13 05 02*</span>
+<span class="font-body-md text-body-md text-on-surface truncate">Boues de séparateurs d'hydrocarbures</span>
+</div>
+<span class="material-symbols-outlined text-primary text-[18px]">verified</span>
+</div>
+</div>
+<div class="md:col-span-5 flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface-variant">Volume estimé à collecter</label>
+<div class="flex rounded-xl bg-surface-container-low overflow-hidden focus-within:ring-2 focus-within:ring-primary">
+<input class="w-full h-11 px-3.5 bg-transparent font-headline-sm text-headline-sm text-on-surface font-bold outline-none" step="50" type="number" value="4500"/>
+<span class="inline-flex items-center px-3.5 bg-surface-container-high text-on-surface font-label-md text-label-md">Litres (L)</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 3. CRÉNEAU D'INTERVENTION SOUHAITÉ -->
+<section class="bg-surface-container-lowest rounded-xl p-gutter-md shadow-sm flex flex-col gap-5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high text-primary flex items-center justify-center font-bold font-label-md text-label-md">
+              03
+            </div>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Créneau d'Intervention Souhaité</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Planification temporelle, amplitude de travail et périodicité</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
+<input checked="" class="accent-primary w-4 h-4" name="recurrence" type="radio"/>
+<span class="font-label-md text-label-md text-on-surface">Ponctuelle</span>
+</label>
+<label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
+<input class="accent-primary w-4 h-4" name="recurrence" type="radio"/>
+<span class="font-label-md text-label-md text-on-surface-variant">Récurrente</span>
+</label>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<!-- Date -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface-variant">Date d'intervention</label>
+<div class="relative">
+<input class="w-full h-11 pl-10 pr-3 rounded-xl bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary outline-none transition-all" type="text" value="24 Octobre 2024"/>
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-outline text-[20px]">calendar_today</span>
+</div>
+</div>
+<!-- Plage horaire début/fin -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface-variant">Plage horaire sur site</label>
+<div class="grid grid-cols-2 gap-2">
+<div class="relative">
+<input class="w-full h-11 px-2.5 text-center rounded-xl bg-surface-container-low text-on-surface font-label-md text-label-md focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary outline-none" type="text" value="08:30"/>
+</div>
+<div class="relative">
+<input class="w-full h-11 px-2.5 text-center rounded-xl bg-surface-container-low text-on-surface font-label-md text-label-md focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary outline-none" type="text" value="12:00"/>
+</div>
+</div>
+</div>
+<!-- Durée calculée -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface-variant">Durée estimée d'opération</label>
+<div class="h-11 px-3.5 rounded-xl bg-surface-container-low flex items-center justify-between text-on-surface">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">timer</span>
+<span class="font-body-md text-body-md font-bold">3 heures 30 min</span>
+</div>
+<span class="text-outline font-label-sm text-label-sm">Inclus SAS sécurisé</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. AFFECTATION DES RESSOURCES -->
+<section class="bg-surface-container-lowest rounded-xl p-gutter-md shadow-sm flex flex-col gap-5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high text-primary flex items-center justify-center font-bold font-label-md text-label-md">
+              04
+            </div>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Affectation des Ressources</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Contrôle en direct des habilitations, de la flotte et du matériel mobile</p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-status-completed/10 text-status-completed font-label-sm text-label-sm flex items-center gap-1 font-bold">
+<span class="material-symbols-outlined text-[16px]">check_circle</span> Ressources validées
+          </span>
+</div>
+<!-- Sélection Équipe & Véhicule -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Équipe -->
+<div class="p-3.5 rounded-xl bg-surface-container-low flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface font-bold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[18px]">groups</span>
+                Équipe technique
+              </span>
+<span class="px-2 py-0.5 rounded-full bg-status-completed/10 text-status-completed font-label-sm text-label-sm font-bold">
+                Disponible
+              </span>
+</div>
+<div class="relative">
+<select class="w-full h-11 px-3 pr-10 rounded-xl bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer">
+<option selected="">Équipe Alpha (Thomas L. &amp; David M.)</option>
+<option>Équipe Bravo (Karim B. &amp; Stéphane T.)</option>
+<option>Équipe Charlie (Alexandre R. &amp; Pierre K.)</option>
+</select>
+<span class="material-symbols-outlined pointer-events-none absolute right-3 top-3 text-outline text-[20px]">expand_more</span>
+</div>
+<div class="flex items-center gap-2 pt-1 font-label-sm text-label-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-status-completed">verified_user</span>
+<span>Certifications CACES + Habilitation N2 Pétrochimie à jour</span>
+</div>
+</div>
+<!-- Véhicule -->
+<div class="p-3.5 rounded-xl bg-surface-container-low flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface font-bold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-[18px]">local_shipping</span>
+                Véhicule &amp; Citerne
+              </span>
+<span class="px-2 py-0.5 rounded-full bg-status-completed/10 text-status-completed font-label-sm text-label-sm font-bold">
+                Conforme ADR
+              </span>
+</div>
+<div class="relative">
+<select class="w-full h-11 px-3 pr-10 rounded-xl bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:ring-2 focus:ring-primary outline-none transition-all appearance-none cursor-pointer">
+<option selected="">Camion Hydrocureur Lourd #V-012 (12 000 L)</option>
+<option>Citerne Aspiration Moyenne #V-008 (7 500 L)</option>
+<option>Porteur Combiné Haute-Pression #V-015 (14 000 L)</option>
+</select>
+<span class="material-symbols-outlined pointer-events-none absolute right-3 top-3 text-outline text-[20px]">expand_more</span>
+</div>
+<div class="flex items-center justify-between pt-1 font-label-sm text-label-sm text-on-surface-variant">
+<span>Capacité totale : 12 000 L</span>
+<span class="font-bold text-secondary">Reste libre : 7 500 L</span>
+</div>
+</div>
+</div>
+<!-- Checkboxes Équipements spécifiques -->
+<div class="flex flex-col gap-2 pt-1">
+<label class="font-label-md text-label-md text-on-surface-variant">Équipements et matériels spécifiques embarqués :</label>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+<label class="flex items-center gap-2.5 p-3 rounded-xl bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
+<input checked="" class="w-4 h-4 accent-primary rounded" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-bold">Pompe thermique H-Débit</span>
+<span class="font-label-sm text-label-sm text-outline">EQ-POM-042 (Atex Zone 1)</span>
+</div>
+</label>
+<label class="flex items-center gap-2.5 p-3 rounded-xl bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
+<input checked="" class="w-4 h-4 accent-primary rounded" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-bold">Tuyaux aspiration 50m</span>
+<span class="font-label-sm text-label-sm text-outline">DN 80 renforcé pétrole</span>
+</div>
+</label>
+<label class="flex items-center gap-2.5 p-3 rounded-xl bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
+<input checked="" class="w-4 h-4 accent-primary rounded" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-bold">Kit antipollution d'urgence</span>
+<span class="font-label-sm text-label-sm text-outline">Boudins &amp; buvards 400L</span>
+</div>
+</label>
+</div>
+</div>
+</section>
+</div>
+<!-- COLONNE DROITE (Panneau Latéral de Contrôle & Disponibilité 4 colonnes) -->
+<div class="lg:col-span-4 flex flex-col gap-gutter-md sticky top-20">
+<!-- CARTE RÉSUMÉ DE DISPONIBILITÉ & CONFLITS -->
+<section class="bg-surface-container-lowest rounded-xl p-gutter-md shadow-sm flex flex-col gap-5">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Vérification en Direct</h3>
+<span class="flex h-2.5 w-2.5 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-status-completed opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-status-completed"></span>
+</span>
+</div>
+<!-- Statut Global de Conflit -->
+<div class="p-3.5 rounded-xl bg-status-completed/10 flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-status-completed text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">check</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-status-completed font-bold">Aucun conflit détecté</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Tous les feux sont au vert pour ce créneau</span>
+</div>
+</div>
+<!-- Jauge d'Occupation de la Citerne (#V-012) -->
+<div class="flex flex-col gap-2 p-3.5 rounded-xl bg-surface-container-low">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface font-semibold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-secondary">local_gas_station</span>
+              Charge Citerne #V-012
+            </span>
+<span class="text-primary font-bold">38% (4 500 L)</span>
+</div>
+<div class="w-full h-3 bg-surface-container-highest rounded-full overflow-hidden flex">
+<div class="h-full bg-primary rounded-full transition-all" style="width: 38%;"></div>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>0 L</span>
+<span>Alloué : 4 500 L</span>
+<span>Max : 12 000 L</span>
+</div>
+</div>
+<!-- Fiches de Validation Ressources -->
+<div class="flex flex-col gap-3">
+<!-- Validation Équipe -->
+<div class="flex items-center justify-between p-3 rounded-lg bg-surface-container-low/70">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-status-completed text-[20px]">how_to_reg</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Équipe Alpha</span>
+<span class="font-label-sm text-label-sm text-outline">100% libre matin du 24/10</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-status-completed font-bold px-2 py-0.5 rounded bg-status-completed/10">OK</span>
+</div>
+<!-- Validation Véhicule -->
+<div class="flex items-center justify-between p-3 rounded-lg bg-surface-container-low/70">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-status-completed text-[20px]">rv_hookup</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Hydrocureur #V-012</span>
+<span class="font-label-sm text-label-sm text-outline">Contrôle tech. val. 15 Nov.</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-status-completed font-bold px-2 py-0.5 rounded bg-status-completed/10">Valide</span>
+</div>
+</div>
+</section>
+<!-- ESTIMATION LOGISTIQUE & TRAJET -->
+<section class="bg-surface-container-lowest rounded-xl p-gutter-md shadow-sm flex flex-col gap-4">
+<h3 class="font-headline-sm text-headline-sm text-on-surface flex items-center justify-between">
+<span>Logistique &amp; Trajet</span>
+<span class="material-symbols-outlined text-outline text-[20px]">alt_route</span>
+</h3>
+<div class="space-y-3">
+<div class="flex items-start gap-3">
+<div class="flex flex-col items-center gap-1 mt-1">
+<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+<span class="w-0.5 h-6 bg-outline-variant"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+</div>
+<div class="flex flex-col gap-2 flex-1">
+<div class="flex justify-between items-baseline">
+<span class="font-label-md text-label-md text-on-surface">Dépôt SRH Le Havre</span>
+<span class="font-label-sm text-label-sm text-outline">Départ 08:05</span>
+</div>
+<div class="flex justify-between items-baseline">
+<span class="font-label-md text-label-md text-on-surface">TotalEnergies (Harfleur)</span>
+<span class="font-label-sm text-label-sm text-outline">Arrivée 08:30</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2 pt-2">
+<div class="bg-surface-container-low p-2.5 rounded-xl flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Distance &amp; Temps</span>
+<span class="font-headline-sm text-headline-sm text-on-surface mt-0.5">18 km <span class="font-body-md text-body-md text-outline">/ 25 min</span></span>
+</div>
+<div class="bg-surface-container-low p-2.5 rounded-xl flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Empreinte carbone</span>
+<span class="font-headline-sm text-headline-sm text-primary mt-0.5">14.2 <span class="font-body-md text-body-md text-outline">kg CO2e</span></span>
+</div>
+</div>
+</div>
+</section>
+<!-- NOTIFICATIONS & ALERTES AUTOMATIQUES -->
+<section class="bg-surface-container-lowest rounded-xl p-gutter-md shadow-sm flex flex-col gap-4">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Notifications Opérationnelles</h3>
+<div class="flex flex-col gap-3.5">
+<!-- Switch Mobile Équipe -->
+<label class="flex items-center justify-between cursor-pointer group">
+<div class="flex flex-col pr-2">
+<span class="font-label-md text-label-md text-on-surface font-semibold group-hover:text-primary transition-colors">Notifier l'équipe sur mobile</span>
+<span class="font-label-sm text-label-sm text-outline">Envoi direct de l'ordre de mission sur smartphone</span>
+</div>
+<div class="relative inline-flex items-center shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</div>
+</label>
+<div class="w-full h-px bg-surface-container-high"></div>
+<!-- Switch Confirmation Client -->
+<label class="flex items-center justify-between cursor-pointer group">
+<div class="flex flex-col pr-2">
+<span class="font-label-md text-label-md text-on-surface font-semibold group-hover:text-primary transition-colors">Confirmation au client</span>
+<span class="font-label-sm text-label-sm text-outline">Email récapitulatif avec BSD prérempli (Marc V.)</span>
+</div>
+<div class="relative inline-flex items-center shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</div>
+</label>
+</div>
+</section>
+<!-- Bouton d'action direct mobile/tablette compact -->
+<div class="flex flex-col gap-2 pt-2">
+<button class="w-full py-3.5 px-4 rounded-xl bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md font-bold shadow-md transition-all flex items-center justify-center gap-2" type="button">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+<span>Planifier &amp; Confirmer l'opération</span>
+</button>
+<span class="font-label-sm text-label-sm text-outline text-center">Génération automatique du BSD Trackdéchets n° BSD-2024-1024</span>
+</div>
+</div>
+</div>
+</div></main></div></body></html>

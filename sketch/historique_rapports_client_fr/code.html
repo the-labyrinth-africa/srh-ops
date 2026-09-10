@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={theme:{extend:{"colors":{"inverse-on-surface":"#dff4ff","surface":"#f3faff","surface-dim":"#c7dde9","on-primary-container":"#cbffc2","inverse-surface":"#1e333c","surface-bright":"#f3faff","on-surface":"#071e27","background":"#f3faff","surface-container-low":"#e6f6ff","on-secondary-fixed":"#001946","on-primary-fixed-variant":"#005312","on-background":"#071e27","secondary-container":"#9cb7ff","tertiary-fixed-dim":"#ffb1c7","status-cancelled":"#C62828","on-error-container":"#93000a","primary-fixed":"#a3f69c","surface-container":"#dbf1fe","outline-variant":"#bfcaba","on-surface-variant":"#40493d","status-completed":"#2E7D32","on-primary":"#ffffff","status-reported":"#1B5E20","surface-variant":"#cfe6f2","on-tertiary-fixed-variant":"#7f2448","on-tertiary":"#ffffff","secondary-fixed":"#dae2ff","status-in-progress":"#1976D2","inverse-primary":"#88d982","outline":"#707a6c","primary-fixed-dim":"#88d982","primary-container":"#2e7d32","on-error":"#ffffff","tertiary-fixed":"#ffd9e2","error":"#ba1a1a","secondary":"#405c9e","on-secondary":"#ffffff","tertiary-container":"#b14b6f","surface-container-highest":"#cfe6f2","status-planned":"#546E7A","on-secondary-container":"#294787","status-on-route":"#FB8C00","on-tertiary-container":"#ffedf0","tertiary":"#923357","surface-container-lowest":"#ffffff","status-assigned":"#3949AB","surface-container-high":"#d5ecf8","on-tertiary-fixed":"#3f001c","error-container":"#ffdad6","status-delayed":"#E65100","on-secondary-fixed-variant":"#274484","primary":"#0d631b","on-primary-fixed":"#002204","secondary-fixed-dim":"#b1c5ff","status-action-req":"#D32F2F","surface-tint":"#1b6d24"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"unit":"4px","sidebar-width":"260px","margin-desktop":"32px","gutter-md":"20px","margin-mobile":"16px","gutter-sm":"12px"},"fontFamily":{"label-sm":["Hanken Grotesk"],"headline-lg-mobile":["Hanken Grotesk"],"kpi-value":["Hanken Grotesk"],"body-lg":["Hanken Grotesk"],"headline-sm":["Hanken Grotesk"],"body-md":["Hanken Grotesk"],"headline-md":["Hanken Grotesk"],"label-md":["Hanken Grotesk"],"headline-lg":["Hanken Grotesk"]},"fontSize":{"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.05em","fontWeight":"700"}],"headline-lg-mobile":["24px",{"lineHeight":"32px","fontWeight":"700"}],"kpi-value":["48px",{"lineHeight":"48px","fontWeight":"700"}],"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"headline-sm":["20px",{"lineHeight":"28px","fontWeight":"600"}],"body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}],"headline-md":["24px",{"lineHeight":"32px","fontWeight":"600"}],"label-md":["13px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"headline-lg":["32px",{"lineHeight":"40px","fontWeight":"700"}]}}}}</script><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/></head><body class="bg-background font-body-md text-on-surface"><aside class="fixed left-0 top-0 h-full w-sidebar-width bg-surface-container border-r border-outline-variant z-50 flex flex-col pt-6 pb-8 transition-all"><div class="px-6 mb-8 flex flex-col gap-2"><span class="font-headline-sm text-headline-sm text-primary uppercase tracking-wider">Client Space</span><span class="text-label-sm font-label-sm text-on-surface-variant">Espace Client SRH</span></div><nav class="flex-1 px-4 flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary-container font-bold"><a class="flex items-center px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-all group" data-path="dashboard" href="#"><span class="material-symbols-outlined mr-3">dashboard</span><span class="font-label-md text-label-md">Tableau de bord</span></a><a class="flex items-center px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-all group" data-path="new-requests" href="#"><span class="material-symbols-outlined mr-3">add_circle</span><span class="font-label-md text-label-md">Nouvelles demandes</span></a><a class="flex items-center px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-all group" data-path="my-collections" href="#"><span class="material-symbols-outlined mr-3">local_shipping</span><span class="font-label-md text-label-md">Mes collectes</span></a><a class="flex items-center px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-all group" data-path="history-reports" href="#"><span class="material-symbols-outlined mr-3">history</span><span class="font-label-md text-label-md">Historique &amp; rapports</span></a><a class="flex items-center px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-all group" data-path="documents" href="#"><span class="material-symbols-outlined mr-3">description</span><span class="font-label-md text-label-md">Documents</span></a></nav><div class="px-4 mt-auto border-t border-outline-variant pt-4"><a class="flex items-center px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-all" data-path="support" href="#"><span class="material-symbols-outlined mr-3">help</span><span class="font-label-md text-label-md">Support</span></a></div></aside><div class="pl-sidebar-width min-h-screen flex flex-col"><header class="fixed top-0 left-sidebar-width right-0 h-16 bg-surface/90 backdrop-blur-md border-b border-outline-variant z-40 px-margin-desktop flex items-center justify-between shadow-[0_1px_8px_rgba(0,0,0,0.02)]"><div class="flex items-center gap-4"><img alt="logo-D4pSjO7j.png" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XNW4yv8_XsTCVWiMMTLD1_hfjitZawc8YSbnm9mmSIksIYfeSAN8yFCGoJQM26mXl2bOAQVwGTpyMW-7wExIHnDuQAK1v08tukyAGpod1mCxgPuIYwzMjj3WTPMYLxR_sX0nQJJ73eIZnrEP0dNsMOrFpxlHZ9CVppIAUcDV4FAxTH3JtdmoMi8Vq3OmlQr-nQ42kWxUIxqOhZ4x5SQB_4DFAtYRTvMCZWoBcEUDGupQyhY6_9PKqwP_FV66wDdJM4Y1WQCNtpkw"/><div class="h-6 w-px bg-outline-variant"></div><span class="font-headline-sm text-headline-sm text-on-surface">SRH Espace Client</span></div><div class="flex items-center gap-6"><button class="text-on-surface-variant hover:text-primary transition-colors flex items-center"><span class="material-symbols-outlined">search</span></button><button class="text-on-surface-variant hover:text-primary transition-colors relative flex items-center"><span class="material-symbols-outlined">notifications</span><span class="absolute -top-1 -right-1 w-2 h-2 bg-error rounded-full"></span></button><div class="flex items-center gap-3 ml-2 border-l border-outline-variant pl-6"><div class="flex flex-col items-end hidden sm:flex"><span class="font-label-md text-label-md text-on-surface">Planificateur d'opérations</span><span class="text-label-sm font-label-sm text-on-surface-variant">Siège social</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-md"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 pt-16 bg-surface"><div class="flex flex-col w-full p-margin-desktop gap-margin-desktop">
+<div class="flex justify-between items-end">
+<div class="flex flex-col gap-2">
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Historique &amp; Rapports</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+        Consultez vos interventions passées, suivez vos performances environnementales et téléchargez vos documents de conformité.
+      </p>
+</div>
+<div class="flex gap-4">
+<button class="bg-primary text-on-primary font-label-md text-label-md px-6 py-3 rounded-lg shadow-sm hover:shadow-md transition-shadow flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">download</span>
+        Tout exporter
+      </button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter-md">
+<div class="bg-surface-container rounded-xl p-6 shadow-sm flex flex-col gap-4 relative overflow-hidden group">
+<div class="absolute -right-6 -bottom-6 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors"></div>
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">VOLUME TOTAL RÉCUPÉRÉ</span>
+<div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">water_drop</span>
+</div>
+</div>
+<div class="flex items-baseline gap-2 mt-2">
+<span class="font-kpi-value text-kpi-value text-on-surface">1,452</span>
+<span class="font-body-md text-body-md text-on-surface-variant">m³</span>
+</div>
+<div class="flex items-center gap-2 text-status-completed mt-2">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+<span class="font-label-sm text-label-sm">+12% vs last period</span>
+</div>
+</div>
+<div class="bg-surface-container rounded-xl p-6 shadow-sm flex flex-col gap-4 relative overflow-hidden group">
+<div class="absolute -right-6 -bottom-6 w-32 h-32 bg-secondary/5 rounded-full blur-2xl group-hover:bg-secondary/10 transition-colors"></div>
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">TOTAL INTERVENTIONS</span>
+<div class="w-10 h-10 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">handyman</span>
+</div>
+</div>
+<div class="flex items-baseline gap-2 mt-2">
+<span class="font-kpi-value text-kpi-value text-on-surface">87</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant mt-2">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span class="font-label-sm text-label-sm">Sur 14 sites actifs</span>
+</div>
+</div>
+<div class="bg-surface-container rounded-xl p-6 shadow-sm flex flex-col gap-4 relative overflow-hidden group">
+<div class="absolute -right-6 -bottom-6 w-32 h-32 bg-status-completed/5 rounded-full blur-2xl group-hover:bg-status-completed/10 transition-colors"></div>
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">TAUX DE CONFORMITÉ</span>
+<div class="w-10 h-10 rounded-full bg-status-completed/10 flex items-center justify-center text-status-completed">
+<span class="material-symbols-outlined">verified</span>
+</div>
+</div>
+<div class="flex items-baseline gap-2 mt-2">
+<span class="font-kpi-value text-kpi-value text-on-surface">99.8</span>
+<span class="font-body-md text-body-md text-on-surface-variant">%</span>
+</div>
+<div class="w-full bg-surface-variant h-1.5 rounded-full mt-3 overflow-hidden">
+<div class="bg-status-completed h-full rounded-full" style="width: 99.8%"></div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container rounded-xl shadow-sm flex flex-col">
+<div class="p-6 border-b border-surface-variant flex flex-col md:flex-row gap-4 items-center justify-between bg-surface-container-low rounded-t-xl">
+<div class="flex flex-1 w-full gap-4 items-center">
+<div class="relative flex-1 max-w-md">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface py-3 pl-12 pr-4 rounded-lg text-on-surface font-body-md text-body-md border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-on-surface-variant" placeholder="Rechercher par site ou ID d'intervention..." type="text"/>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-3 bg-surface border border-outline-variant rounded-lg flex items-center gap-2 hover:bg-surface-variant transition-colors text-on-surface font-label-md text-label-md">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+                    Derniers 90 jours
+                    <span class="material-symbols-outlined text-[18px]">arrow_drop_down</span>
+</button>
+<button class="px-4 py-3 bg-surface border border-outline-variant rounded-lg flex items-center gap-2 hover:bg-surface-variant transition-colors text-on-surface font-label-md text-label-md">
+<span class="material-symbols-outlined text-[18px]">filter_alt</span>
+                    Filtrer
+                </button>
+</div>
+</div>
+<div class="flex gap-2 bg-surface-variant p-1 rounded-lg">
+<button class="p-2 rounded bg-surface shadow-sm text-on-surface flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">view_list</span></button>
+<button class="p-2 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface/50 transition-colors flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">grid_view</span></button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low">
+<th class="py-4 px-6 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider border-b border-surface-variant w-16">ID</th>
+<th class="py-4 px-6 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider border-b border-surface-variant">DATE</th>
+<th class="py-4 px-6 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider border-b border-surface-variant">SITE</th>
+<th class="py-4 px-6 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider border-b border-surface-variant">NATURE DU DÉCHET</th>
+<th class="py-4 px-6 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider border-b border-surface-variant text-right">VOLUME</th>
+<th class="py-4 px-6 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider border-b border-surface-variant">STATUT</th>
+<th class="py-4 px-6 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider border-b border-surface-variant text-right">RAPPORT</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-variant">
+<tr class="hover:bg-surface-variant/50 transition-colors group">
+<td class="py-4 px-6 font-body-md text-body-md text-on-surface-variant">#8492</td>
+<td class="py-4 px-6 font-body-md text-body-md text-on-surface">Oct 24, 2023</td>
+<td class="py-4 px-6 font-body-md text-body-md text-on-surface">North Sea Platform Alpha</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-status-delayed"></div>
+<span class="font-body-md text-body-md text-on-surface">Sol contaminé (hydrocarbures)</span>
+</div>
+</td>
+<td class="py-4 px-6 font-body-md text-body-md text-on-surface text-right font-medium">45 m³</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-status-completed/10 border border-status-completed text-status-completed font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                Terminé
+              </span>
+</td>
+<td class="py-4 px-6 text-right">
+<button class="text-primary hover:text-primary-container p-2 rounded-full hover:bg-primary/10 transition-colors flex items-center justify-center ml-auto group-hover:scale-110 duration-200">
+<span class="material-symbols-outlined text-[20px]">picture_as_pdf</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-variant/50 transition-colors group">
+<td class="py-4 px-6 font-body-md text-body-md text-on-surface-variant">#8488</td>
+<td class="py-4 px-6 font-body-md text-body-md text-on-surface">Oct 21, 2023</td>
+<td class="py-4 px-6 font-body-md text-body-md text-on-surface">Refinery Delta, Sector 4</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-error"></div>
+<span class="font-body-md text-body-md text-on-surface">Boues chimiques</span>
+</div>
+</td>
+<td class="py-4 px-6 font-body-md text-body-md text-on-surface text-right font-medium">120 m³</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-status-completed/10 border border-status-completed text-status-completed font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                Terminé
+              </span>
+</td>
+<td class="py-4 px-6 text-right">
+<button class="text-primary hover:text-primary-container p-2 rounded-full hover:bg-primary/10 transition-colors flex items-center justify-center ml-auto group-hover:scale-110 duration-200">
+<span class="material-symbols-outlined text-[20px]">picture_as_pdf</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-variant/50 transition-colors group">
+<td class="py-4 px-6 font-body-md text-body-md text-on-surface-variant">#8475</td>
+<td class="py-4 px-6 font-body-md text-body-md text-on-surface">Oct 18, 2023</td>
+<td class="py-4 px-6 font-body-md text-body-md text-on-surface">Terminal Echo</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-status-delayed"></div>
+<span class="font-body-md text-body-md text-on-surface">Mélange eau/huile</span>
+</div>
+</td>
+<td class="py-4 px-6 font-body-md text-body-md text-on-surface text-right font-medium">85 m³</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-status-completed/10 border border-status-completed text-status-completed font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                Terminé
+              </span>
+</td>
+<td class="py-4 px-6 text-right">
+<button class="text-primary hover:text-primary-container p-2 rounded-full hover:bg-primary/10 transition-colors flex items-center justify-center ml-auto group-hover:scale-110 duration-200">
+<span class="material-symbols-outlined text-[20px]">picture_as_pdf</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-variant/50 transition-colors group">
+<td class="py-4 px-6 font-body-md text-body-md text-on-surface-variant">#8462</td>
+<td class="py-4 px-6 font-body-md text-body-md text-on-surface">Oct 12, 2023</td>
+<td class="py-4 px-6 font-body-md text-body-md text-on-surface">Port Facility Bravo</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="font-body-md text-body-md text-on-surface">Déchets industriels solides</span>
+</div>
+</td>
+<td class="py-4 px-6 font-body-md text-body-md text-on-surface text-right font-medium">30 m³</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-status-completed/10 border border-status-completed text-status-completed font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                Terminé
+              </span>
+</td>
+<td class="py-4 px-6 text-right">
+<button class="text-primary hover:text-primary-container p-2 rounded-full hover:bg-primary/10 transition-colors flex items-center justify-center ml-auto group-hover:scale-110 duration-200">
+<span class="material-symbols-outlined text-[20px]">picture_as_pdf</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 border-t border-surface-variant flex items-center justify-between text-on-surface-variant font-body-md text-body-md">
+<span>Affichage de 1 à 4 sur 87 entrées</span>
+<div class="flex gap-1">
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-variant transition-colors disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-primary text-on-primary font-medium">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-variant transition-colors">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-variant transition-colors">3</button>
+<span class="w-8 h-8 flex items-center justify-center">...</span>
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div></main></div></body></html>

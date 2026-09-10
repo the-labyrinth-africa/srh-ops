@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={theme:{extend:{"colors":{"inverse-on-surface":"#dff4ff","surface":"#f3faff","surface-dim":"#c7dde9","on-primary-container":"#cbffc2","inverse-surface":"#1e333c","surface-bright":"#f3faff","on-surface":"#071e27","background":"#f3faff","surface-container-low":"#e6f6ff","on-secondary-fixed":"#001946","on-primary-fixed-variant":"#005312","on-background":"#071e27","secondary-container":"#9cb7ff","tertiary-fixed-dim":"#ffb1c7","status-cancelled":"#C62828","on-error-container":"#93000a","primary-fixed":"#a3f69c","surface-container":"#dbf1fe","outline-variant":"#bfcaba","on-surface-variant":"#40493d","status-completed":"#2E7D32","on-primary":"#ffffff","status-reported":"#1B5E20","surface-variant":"#cfe6f2","on-tertiary-fixed-variant":"#7f2448","on-tertiary":"#ffffff","secondary-fixed":"#dae2ff","status-in-progress":"#1976D2","inverse-primary":"#88d982","outline":"#707a6c","primary-fixed-dim":"#88d982","primary-container":"#2e7d32","on-error":"#ffffff","tertiary-fixed":"#ffd9e2","error":"#ba1a1a","secondary":"#405c9e","on-secondary":"#ffffff","tertiary-container":"#b14b6f","surface-container-highest":"#cfe6f2","status-planned":"#546E7A","on-secondary-container":"#294787","status-on-route":"#FB8C00","on-tertiary-container":"#ffedf0","tertiary":"#923357","surface-container-lowest":"#ffffff","status-assigned":"#3949AB","surface-container-high":"#d5ecf8","on-tertiary-fixed":"#3f001c","error-container":"#ffdad6","status-delayed":"#E65100","on-secondary-fixed-variant":"#274484","primary":"#0d631b","on-primary-fixed":"#002204","secondary-fixed-dim":"#b1c5ff","status-action-req":"#D32F2F","surface-tint":"#1b6d24"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"unit":"4px","sidebar-width":"260px","margin-desktop":"32px","gutter-md":"20px","margin-mobile":"16px","gutter-sm":"12px"},"fontFamily":{"label-sm":["Hanken Grotesk"],"headline-lg-mobile":["Hanken Grotesk"],"kpi-value":["Hanken Grotesk"],"body-lg":["Hanken Grotesk"],"headline-sm":["Hanken Grotesk"],"body-md":["Hanken Grotesk"],"headline-md":["Hanken Grotesk"],"label-md":["Hanken Grotesk"],"headline-lg":["Hanken Grotesk"]},"fontSize":{"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.05em","fontWeight":"700"}],"headline-lg-mobile":["24px",{"lineHeight":"32px","fontWeight":"700"}],"kpi-value":["48px",{"lineHeight":"48px","fontWeight":"700"}],"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"headline-sm":["20px",{"lineHeight":"28px","fontWeight":"600"}],"body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}],"headline-md":["24px",{"lineHeight":"32px","fontWeight":"600"}],"label-md":["13px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"headline-lg":["32px",{"lineHeight":"40px","fontWeight":"700"}]}}}}</script><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/></head><body class="bg-background font-body-md text-on-surface"><aside class="fixed left-0 top-0 h-full w-sidebar-width bg-surface-container border-r border-outline-variant z-50 flex flex-col pt-6 pb-8 transition-all"><div class="px-6 mb-8 flex flex-col gap-2"><span class="font-headline-sm text-headline-sm text-primary uppercase tracking-wider">Client Space</span><span class="text-label-sm font-label-sm text-on-surface-variant">Espace Client SRH</span></div><nav class="flex-1 px-4 flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary-container font-bold"><a aria-current="page" class="flex items-center px-4 py-3 rounded-lg transition-all group bg-primary-container text-on-primary-container font-bold" data-path="dashboard" href="#"><span class="material-symbols-outlined mr-3">dashboard</span><span class="font-label-md text-label-md">Tableau de bord</span></a><a class="flex items-center px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-all group" data-path="new-requests" href="#"><span class="material-symbols-outlined mr-3">add_circle</span><span class="font-label-md text-label-md">Nouvelles demandes</span></a><a class="flex items-center px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-all group" data-path="my-collections" href="#"><span class="material-symbols-outlined mr-3">local_shipping</span><span class="font-label-md text-label-md">Mes collectes</span></a><a class="flex items-center px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-all group" data-path="history-reports" href="#"><span class="material-symbols-outlined mr-3">history</span><span class="font-label-md text-label-md">Historique &amp; rapports</span></a><a class="flex items-center px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-all group" data-path="documents" href="#"><span class="material-symbols-outlined mr-3">description</span><span class="font-label-md text-label-md">Documents</span></a></nav><div class="px-4 mt-auto border-t border-outline-variant pt-4"><a class="flex items-center px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-all" data-path="support" href="#"><span class="material-symbols-outlined mr-3">help</span><span class="font-label-md text-label-md">Support</span></a></div></aside><div class="pl-sidebar-width min-h-screen flex flex-col"><header class="fixed top-0 left-sidebar-width right-0 h-16 bg-surface/90 backdrop-blur-md border-b border-outline-variant z-40 px-margin-desktop flex items-center justify-between shadow-[0_1px_8px_rgba(0,0,0,0.02)]"><div class="flex items-center gap-4"><img alt="logo-D4pSjO7j.png" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XNW4yv8_XsTCVWiMMTLD1_hfjitZawc8YSbnm9mmSIksIYfeSAN8yFCGoJQM26mXl2bOAQVwGTpyMW-7wExIHnDuQAK1v08tukyAGpod1mCxgPuIYwzMjj3WTPMYLxR_sX0nQJJ73eIZnrEP0dNsMOrFpxlHZ9CVppIAUcDV4FAxTH3JtdmoMi8Vq3OmlQr-nQ42kWxUIxqOhZ4x5SQB_4DFAtYRTvMCZWoBcEUDGupQyhY6_9PKqwP_FV66wDdJM4Y1WQCNtpkw"/><div class="h-6 w-px bg-outline-variant"></div><span class="font-headline-sm text-headline-sm text-on-surface">SRH Espace Client</span></div><div class="flex items-center gap-6"><button class="text-on-surface-variant hover:text-primary transition-colors flex items-center"><span class="material-symbols-outlined">search</span></button><button class="text-on-surface-variant hover:text-primary transition-colors relative flex items-center"><span class="material-symbols-outlined">notifications</span><span class="absolute -top-1 -right-1 w-2 h-2 bg-error rounded-full"></span></button><div class="flex items-center gap-3 ml-2 border-l border-outline-variant pl-6"><div class="flex flex-col items-end hidden sm:flex"><span class="font-label-md text-label-md text-on-surface">Responsable Opérationnel</span><span class="text-label-sm font-label-sm text-on-surface-variant">Main Office</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-md"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 pt-16 bg-surface"><div class="flex flex-col w-full h-full relative overflow-hidden bg-background">
+<!-- Ambient Background Element -->
+<div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
+<svg class="absolute top-[-10%] right-[-5%] w-[60%] h-[60%] opacity-[0.03] text-primary" fill="currentColor" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="40" stroke="currentColor" stroke-dasharray="4 4" stroke-width="2"></circle>
+<circle cx="50" cy="50" fill="none" r="30" stroke="currentColor" stroke-width="1"></circle>
+<path d="M 50 10 L 50 90 M 10 50 L 90 50" fill="none" stroke="currentColor" stroke-width="1"></path>
+</svg>
+</div>
+<!-- Main Content Area -->
+<div class="flex-1 w-full flex flex-col md:flex-row gap-gutter-md p-margin-desktop relative z-10">
+<!-- Left Column: KPIs & Map -->
+<div class="flex-1 flex flex-col gap-gutter-md">
+<!-- Header Section -->
+<div class="flex flex-col gap-2 mb-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[32px] text-primary" style="font-variation-settings: 'FILL' 1;">handshake</span>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Bienvenue, Responsable Opérationnel</h1>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+                    Vos opérations de récupération de déchets industriels se déroulent de manière optimale. Consultez votre planning et vos indicateurs ci-dessous.
+                </p>
+<div class="mt-4 flex gap-4">
+<button class="bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md py-3 px-6 rounded-lg transition-colors flex items-center shadow-md">
+<span class="material-symbols-outlined mr-2 text-[20px]">add_circle</span>
+                        Nouvelle demande de collecte
+                    </button>
+<button class="border border-secondary text-secondary hover:bg-secondary hover:text-on-secondary font-label-md text-label-md py-3 px-6 rounded-lg transition-colors flex items-center bg-transparent">
+<span class="material-symbols-outlined mr-2 text-[20px]">description</span>
+                        Générer le rapport annuel
+                    </button>
+</div>
+</div>
+<!-- KPI Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter-md">
+<!-- KPI 1 -->
+<div class="bg-surface-container rounded-xl p-6 shadow-sm flex flex-col relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="absolute -right-6 -top-6 w-24 h-24 bg-primary/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+<div class="flex items-center justify-between mb-4 relative z-10">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">PROCHAINE COLLECTE</span>
+<div class="w-10 h-10 rounded-full bg-status-on-route/10 border border-status-on-route flex items-center justify-center">
+<span class="material-symbols-outlined text-status-on-route text-[20px]">local_shipping</span>
+</div>
+</div>
+<div class="flex flex-col relative z-10">
+<span class="font-kpi-value text-kpi-value text-on-surface">Oct 14</span>
+<span class="font-headline-sm text-headline-sm text-status-on-route mt-1">En route (Est. 14:00)</span>
+</div>
+</div>
+<!-- KPI 2 -->
+<div class="bg-surface-container rounded-xl p-6 shadow-sm flex flex-col relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="absolute -right-6 -top-6 w-24 h-24 bg-secondary/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+<div class="flex items-center justify-between mb-4 relative z-10">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">VOLUME ANNUEL (L)</span>
+<div class="w-10 h-10 rounded-full bg-secondary/10 border border-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-[20px]">water_drop</span>
+</div>
+</div>
+<div class="flex flex-col relative z-10">
+<span class="font-kpi-value text-kpi-value text-on-surface">142,500</span>
+<span class="font-body-md text-body-md text-status-completed flex items-center mt-2">
+<span class="material-symbols-outlined text-[16px] mr-1">trending_up</span> +12% vs Last Year
+                        </span>
+</div>
+<!-- Micro Chart -->
+<div class="mt-4 h-8 w-full flex items-end gap-1 opacity-60">
+<div class="w-full bg-secondary/20 h-[30%] rounded-t-sm"></div>
+<div class="w-full bg-secondary/30 h-[50%] rounded-t-sm"></div>
+<div class="w-full bg-secondary/40 h-[40%] rounded-t-sm"></div>
+<div class="w-full bg-secondary/60 h-[70%] rounded-t-sm"></div>
+<div class="w-full bg-secondary h-[100%] rounded-t-sm"></div>
+</div>
+</div>
+<!-- KPI 3 -->
+<div class="bg-surface-container rounded-xl p-6 shadow-sm flex flex-col relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="absolute -right-6 -top-6 w-24 h-24 bg-tertiary/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+<div class="flex items-center justify-between mb-4 relative z-10">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">DEMANDES EN ATTENTE</span>
+<div class="w-10 h-10 rounded-full bg-tertiary/10 border border-tertiary flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary text-[20px]">pending_actions</span>
+</div>
+</div>
+<div class="flex flex-col relative z-10">
+<span class="font-kpi-value text-kpi-value text-on-surface">3</span>
+<span class="font-body-md text-body-md text-on-surface-variant mt-2">En attente de confirmation</span>
+</div>
+</div>
+</div>
+<!-- Map Section -->
+<div class="bg-surface-container rounded-xl shadow-sm flex flex-col h-[400px] overflow-hidden">
+<div class="px-6 py-4 border-b border-outline-variant flex items-center justify-between bg-surface-container">
+<h2 class="font-headline-sm text-headline-sm text-on-surface flex items-center">
+<span class="material-symbols-outlined mr-2 text-primary" style="font-variation-settings: 'FILL' 1;">my_location</span>
+                        Suivi véhicule en temps réel
+                    </h2>
+<span class="font-label-md text-label-md px-3 py-1 bg-status-on-route/10 border border-status-on-route text-status-on-route rounded-full flex items-center">
+<span class="w-2 h-2 rounded-full bg-status-on-route mr-2 animate-pulse"></span>
+                        Mission active
+                    </span>
+</div>
+<div class="flex-1 relative w-full h-full" data-location="Industrial Zone, Lyon, France" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAPbfeaiViYcMP1pLZEUgvuppgD4s5YYuUbH3kXbAdPY__mC1-mCm0foSc1FwEn02SEXOLBT4RQ6U4yoivGjM81H-xwo7DCWzPig_aWRpwVAStTs7G_VSTOjqwPA2ePwijJCbYn-sWmBl0BV0vZ5227jcvWJTjtjEGBV3vz8WQq9Hg9jFTn1Q8NfiaoRbknDPa57PTsjL16nOKs1UooZHkRzbRkQ1c85A-goBoXgFvZ_r9iqIB68XdN')">
+<!-- Map Overlay Elements (Simulated markers for design richness) -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+<div class="relative w-12 h-12 flex items-center justify-center">
+<div class="absolute inset-0 bg-primary/20 rounded-full animate-ping"></div>
+<div class="w-8 h-8 bg-surface rounded-full shadow-lg flex items-center justify-center border-2 border-primary z-10">
+<span class="material-symbols-outlined text-primary text-[18px]">local_shipping</span>
+</div>
+</div>
+</div>
+<!-- Contextual Map Info Card -->
+<div class="absolute bottom-4 left-4 bg-surface/95 backdrop-blur-sm p-4 rounded-lg shadow-lg border border-outline-variant max-w-[280px]">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">person</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Vehicle FR-782-XY</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1">Chauffeur: M. Dupont</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Arrivée prévue: 45 mins</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Recent Reports -->
+<div class="w-full md:w-[400px] flex flex-col gap-gutter-md">
+<div class="bg-surface-container rounded-xl shadow-sm flex flex-col h-full overflow-hidden">
+<div class="px-6 py-5 border-b border-outline-variant bg-surface-container">
+<h2 class="font-headline-sm text-headline-sm text-on-surface flex items-center">
+<span class="material-symbols-outlined mr-2 text-secondary" style="font-variation-settings: 'FILL' 1;">history</span>
+                        Rapports récents
+                    </h2>
+</div>
+<div class="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+<!-- Report Item 1 -->
+<div class="p-4 rounded-lg border border-outline-variant hover:bg-surface-variant transition-colors group cursor-pointer">
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-md text-label-md text-on-surface">Intervention #INT-8492</span>
+<span class="font-label-sm text-label-sm px-2 py-1 bg-status-completed/10 border border-status-completed text-status-completed rounded-full">Terminé</span>
+</div>
+<div class="flex flex-col gap-1 mb-3">
+<span class="font-body-md text-body-md text-on-surface-variant flex items-center">
+<span class="material-symbols-outlined text-[16px] mr-2">calendar_today</span> Oct 12, 2023
+                            </span>
+<span class="font-body-md text-body-md text-on-surface-variant flex items-center">
+<span class="material-symbols-outlined text-[16px] mr-2">water_drop</span> 4,500 L - Used Oil
+                            </span>
+</div>
+<button class="w-full flex items-center justify-center gap-2 py-2 bg-surface text-on-surface border border-outline-variant rounded group-hover:border-primary group-hover:text-primary transition-colors font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                            Télécharger BSD
+                        </button>
+</div>
+<!-- Report Item 2 -->
+<div class="p-4 rounded-lg border border-outline-variant hover:bg-surface-variant transition-colors group cursor-pointer">
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-md text-label-md text-on-surface">Intervention #INT-8488</span>
+<span class="font-label-sm text-label-sm px-2 py-1 bg-status-completed/10 border border-status-completed text-status-completed rounded-full">Terminé</span>
+</div>
+<div class="flex flex-col gap-1 mb-3">
+<span class="font-body-md text-body-md text-on-surface-variant flex items-center">
+<span class="material-symbols-outlined text-[16px] mr-2">calendar_today</span> Sep 28, 2023
+                            </span>
+<span class="font-body-md text-body-md text-on-surface-variant flex items-center">
+<span class="material-symbols-outlined text-[16px] mr-2">water_drop</span> 3,200 L - Solvents
+                            </span>
+</div>
+<button class="w-full flex items-center justify-center gap-2 py-2 bg-surface text-on-surface border border-outline-variant rounded group-hover:border-primary group-hover:text-primary transition-colors font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                            Télécharger BSD
+                        </button>
+</div>
+<!-- Report Item 3 -->
+<div class="p-4 rounded-lg border border-outline-variant hover:bg-surface-variant transition-colors group cursor-pointer opacity-70">
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-md text-label-md text-on-surface">Intervention #INT-8450</span>
+<span class="font-label-sm text-label-sm px-2 py-1 bg-status-cancelled/10 border border-status-cancelled text-status-cancelled rounded-full">Annulé</span>
+</div>
+<div class="flex flex-col gap-1 mb-3">
+<span class="font-body-md text-body-md text-on-surface-variant flex items-center">
+<span class="material-symbols-outlined text-[16px] mr-2">calendar_today</span> Sep 15, 2023
+                            </span>
+<span class="font-body-md text-body-md text-on-surface-variant flex items-center">
+<span class="material-symbols-outlined text-[16px] mr-2">info</span> Accès site refusé
+                            </span>
+</div>
+<button class="w-full flex items-center justify-center gap-2 py-2 bg-surface text-on-surface border border-outline-variant rounded group-hover:border-primary group-hover:text-primary transition-colors font-label-sm text-label-sm cursor-not-allowed" disabled="">
+<span class="material-symbols-outlined text-[18px]">block</span>
+                            Aucun document
+                        </button>
+</div>
+</div>
+<div class="p-4 border-t border-outline-variant bg-surface-container mt-auto">
+<a class="font-label-md text-label-md text-primary hover:text-on-primary-fixed-variant flex items-center justify-center transition-colors" href="#">
+                        Voir tout l'historique <span class="material-symbols-outlined ml-1 text-[18px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div></main></div></body></html>

@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"status-cancelled":"#C62828","background":"#f3faff","status-completed":"#2E7D32","secondary":"#405c9e","on-primary-container":"#cbffc2","on-surface-variant":"#40493d","on-primary":"#ffffff","surface-container-lowest":"#ffffff","surface-container":"#dbf1fe","on-tertiary-fixed-variant":"#7f2448","on-background":"#071e27","outline":"#707a6c","secondary-fixed":"#dae2ff","on-primary-fixed":"#002204","status-reported":"#1B5E20","inverse-surface":"#1e333c","surface":"#f3faff","status-action-req":"#D32F2F","inverse-primary":"#88d982","inverse-on-surface":"#dff4ff","status-on-route":"#FB8C00","on-secondary-fixed":"#001946","surface-variant":"#cfe6f2","on-tertiary-container":"#ffedf0","surface-bright":"#f3faff","surface-tint":"#1b6d24","surface-container-highest":"#cfe6f2","surface-container-high":"#d5ecf8","on-primary-fixed-variant":"#005312","surface-dim":"#c7dde9","status-delayed":"#E65100","tertiary":"#923357","on-secondary-fixed-variant":"#274484","status-assigned":"#3949AB","outline-variant":"#bfcaba","status-planned":"#546E7A","error":"#ba1a1a","on-error-container":"#93000a","primary-fixed":"#a3f69c","on-tertiary":"#ffffff","secondary-container":"#9cb7ff","primary-fixed-dim":"#88d982","on-secondary":"#ffffff","primary":"#0d631b","surface-container-low":"#e6f6ff","primary-container":"#2e7d32","tertiary-fixed-dim":"#ffb1c7","tertiary-fixed":"#ffd9e2","status-in-progress":"#1976D2","tertiary-container":"#b14b6f","on-tertiary-fixed":"#3f001c","secondary-fixed-dim":"#b1c5ff","on-secondary-container":"#294787","on-error":"#ffffff","error-container":"#ffdad6","on-surface":"#071e27"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"unit":"4px","sidebar-width":"260px","margin-desktop":"32px","gutter-md":"20px","margin-mobile":"16px","gutter-sm":"12px"},fontFamily:{"headline-lg-mobile":["Hanken Grotesk"],"kpi-value":["Hanken Grotesk"],"label-sm":["Hanken Grotesk"],"headline-sm":["Hanken Grotesk"],"label-md":["Hanken Grotesk"],"headline-lg":["Hanken Grotesk"],"headline-md":["Hanken Grotesk"],"body-md":["Hanken Grotesk"],"body-lg":["Hanken Grotesk"]},fontSize:{"headline-lg-mobile":["24px",{lineHeight:"32px",fontWeight:"700"}],"kpi-value":["48px",{lineHeight:"48px",fontWeight:"700"}],"label-sm":["11px",{lineHeight:"14px",letterSpacing:"0.05em",fontWeight:"700"}],"headline-sm":["20px",{lineHeight:"28px",fontWeight:"600"}],"label-md":["13px",{lineHeight:"16px",letterSpacing:"0.02em",fontWeight:"600"}],"headline-lg":["32px",{lineHeight:"40px",fontWeight:"700"}],"headline-md":["24px",{lineHeight:"32px",fontWeight:"600"}],"body-md":["14px",{lineHeight:"20px",fontWeight:"400"}],"body-lg":["16px",{lineHeight:"24px",fontWeight:"400"}]}}}};</script></head><body class="bg-surface font-body-md text-body-md text-on-surface"><aside class="fixed left-0 top-0 h-full w-[260px] bg-surface-container-low shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col"><div class="h-16 px-gutter-md flex items-center gap-3 bg-secondary text-on-secondary"><img alt="logo-D4pSjO7j.png" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1UIOMOlwpX4WXcEJVQ2Ohnr_h8CJr8ezeAviwWd6bfftDfVYPIHz7hMK1R8At9R37SRIjsDzZHGgXwp7eYlpJZJj8cOIqbXk-0m3ywbzjSN4ZgLm4M1ssU9PKwfychAFZEOmhDJJGzY8OVK5QwCYl8QQT2Om6hjZLJSR5FnZqNP_hasv6LbUU1UBo9xK-OyywfTZmk6No7iNtUiNgFcRwQetY0ebRGhHR2YO9vWUV0tbrQcl_EYwfTc5xxs_vA8BAjmFAKzspyUYQ"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm tracking-tight leading-none text-on-secondary">SRH</span><span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary-fixed opacity-90">Régulation Huiles</span></div></div><div class="flex-1 overflow-y-auto py-unit px-unit"><nav class="flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary font-bold"><div class="px-gutter-sm pt-unit pb-1 font-label-sm text-label-sm uppercase text-on-surface-variant tracking-wider">Tableau de bord</div><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="tableau-de-bord" href="#"><span class="material-symbols-outlined text-[20px]">grid_view</span><span class="font-label-md text-label-md">Tableau de bord</span></a><div class="px-gutter-sm pt-3 pb-1 font-label-sm text-label-sm uppercase text-on-surface-variant tracking-wider">Opérations</div><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="planning" href="#"><span class="material-symbols-outlined text-[20px]">calendar_month</span><span class="font-label-md text-label-md">Planning</span></a><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="interventions" href="#"><span class="material-symbols-outlined text-[20px]">local_shipping</span><span class="font-label-md text-label-md">Interventions</span></a><a aria-current="page" class="flex items-center gap-3 px-gutter-sm py-2 rounded-lg transition-colors bg-primary-container text-on-primary font-bold" data-path="demandes-de-collecte" href="#"><span class="material-symbols-outlined text-[20px]">pending_actions</span><span class="font-label-md text-label-md">Demandes de collecte</span></a><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="collectes-recurrentes" href="#"><span class="material-symbols-outlined text-[20px]">repeat</span><span class="font-label-md text-label-md">Collectes récurrentes</span></a><div class="px-gutter-sm pt-3 pb-1 font-label-sm text-label-sm uppercase text-on-surface-variant tracking-wider">Gestion</div><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="clients-et-sites" href="#"><span class="material-symbols-outlined text-[20px]">domain</span><span class="font-label-md text-label-md">Clients &amp; Sites</span></a><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="equipes-et-chauffeurs" href="#"><span class="material-symbols-outlined text-[20px]">badge</span><span class="font-label-md text-label-md">Équipes &amp; Chauffeurs</span></a><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="flotte-de-vehicules" href="#"><span class="material-symbols-outlined text-[20px]">rv_hookup</span><span class="font-label-md text-label-md">Flotte de véhicules</span></a><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="equipements-et-cuves" href="#"><span class="material-symbols-outlined text-[20px]">propane_tank</span><span class="font-label-md text-label-md">Équipements &amp; Cuves</span></a><div class="px-gutter-sm pt-3 pb-1 font-label-sm text-label-sm uppercase text-on-surface-variant tracking-wider">Suivi &amp; Régulation</div><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="tracabilite-bsd" href="#"><span class="material-symbols-outlined text-[20px]">assignment_turned_in</span><span class="font-label-md text-label-md">Traçabilité BSD</span></a><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="rapports-et-bilans" href="#"><span class="material-symbols-outlined text-[20px]">analytics</span><span class="font-label-md text-label-md">Rapports &amp; Bilans</span></a><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="alertes-operationnelles" href="#"><span class="material-symbols-outlined text-[20px]">notification_important</span><span class="font-label-md text-label-md">Alertes opérationnelles</span></a><div class="px-gutter-sm pt-3 pb-1 font-label-sm text-label-sm uppercase text-on-surface-variant tracking-wider">Configuration</div><a class="flex items-center gap-3 px-gutter-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="parametres" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span class="font-label-md text-label-md">Paramètres</span></a></nav></div><div class="p-gutter-sm bg-surface-container"><div class="flex items-center gap-2 px-gutter-sm py-unit text-status-reported"><span class="w-2 h-2 rounded-full bg-status-reported animate-pulse"></span><span class="font-label-sm text-label-sm">SRH HUB v2.4</span></div></div></aside><div class="pl-[260px]"><header class="fixed top-0 left-[260px] right-0 h-16 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 px-gutter-md flex items-center justify-between gap-gutter-md"><div class="flex items-center gap-3 flex-1 max-w-lg"><div class="flex items-center gap-2 w-full px-3 py-1.5 rounded-lg bg-surface-container-lowest shadow-[0_1px_4px_rgba(0,0,0,0.03)]"><span class="material-symbols-outlined text-outline text-[20px]">search</span><input class="w-full bg-transparent border-none outline-none font-body-md text-body-md text-on-surface placeholder:text-outline" placeholder="Rechercher intervention, client, bordereau BSD, immatriculation..." type="text"/></div></div><div class="flex items-center gap-gutter-md"><div class="flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-low"><span class="w-2.5 h-2.5 rounded-full bg-status-completed"></span><span class="font-label-sm text-label-sm text-on-surface font-semibold">Système opérationnel en temps réel</span></div><div class="h-6 w-px bg-outline-variant opacity-40"></div><button class="relative p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-error"></span></button><div class="flex items-center gap-3 pl-2"><div class="text-right"><div class="font-label-md text-label-md text-on-surface leading-tight">Jean Dupont</div><div class="font-label-sm text-label-sm text-on-surface-variant leading-tight">Responsable d'Exploitation / Régulateur</div></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 px-margin-desktop bg-surface"><div class="flex flex-col w-full pb-16">
+<!-- Top Context & Stepper Header -->
+<div class="w-full bg-surface-container-low px-gutter-md py-6 rounded-xl shadow-sm mb-6">
+<!-- Breadcrumb & Direct Action Buttons -->
+<div class="flex flex-wrap items-center justify-between gap-4 pb-4">
+<div class="flex items-center gap-2 font-label-md text-label-md text-on-surface-variant">
+<span class="flex items-center gap-1.5 hover:text-on-surface transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-[18px]">local_shipping</span>
+<span>Opérations</span>
+</span>
+<span class="opacity-40">/</span>
+<span class="hover:text-on-surface transition-colors cursor-pointer">Demandes de collecte</span>
+<span class="opacity-40">/</span>
+<span class="text-primary font-bold">Demande #DEM-2024-108</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-surface-container-highest text-status-cancelled hover:bg-error-container hover:text-on-error-container transition-colors font-label-md text-label-md font-semibold" type="button">
+<span class="material-symbols-outlined text-[18px]">cancel</span>
+<span>Rejeter / Demander précisions</span>
+</button>
+<button class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-on-primary hover:bg-primary-container shadow-sm transition-all font-label-md text-label-md font-bold" onclick="document.getElementById('action-convert-btn').scrollIntoView({behavior: 'smooth'})" type="button">
+<span class="material-symbols-outlined text-[20px]">verified</span>
+<span>Valider &amp; Convertir au Planning</span>
+</button>
+</div>
+</div>
+<!-- Title & Status Badges Strip -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-2 pb-6">
+<div class="flex flex-col">
+<div class="flex items-center gap-3 flex-wrap">
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">
+            Traitement &amp; Validation — Demande #DEM-2024-108
+          </h1>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">
+          Dossier reçu le 22/10/2024 à 14:15 • Procédure réglementaire de requalification ADR et enregistrement au registre Trackdéchets.
+        </p>
+</div>
+<div class="flex items-center gap-2 flex-wrap self-start md:self-auto">
+<div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-status-delayed/10 text-status-delayed font-label-sm text-label-sm uppercase">
+<span class="material-symbols-outlined text-[15px]">hourglass_top</span>
+<span>En attente de validation</span>
+</div>
+<div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm uppercase">
+<span class="material-symbols-outlined text-[15px]">encrypted</span>
+<span>Origine : Espace Client Sécurisé</span>
+</div>
+<div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-highest text-on-surface font-label-sm text-label-sm uppercase">
+<span class="material-symbols-outlined text-[15px]">flag</span>
+<span>Priorité Normale</span>
+</div>
+</div>
+</div>
+<!-- Process Stepper -->
+<div class="pt-4 px-2">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
+<!-- Step 1 (Completed) -->
+<div class="flex flex-col gap-2 p-3 rounded-lg bg-surface-container-lowest shadow-sm">
+<div class="flex items-center justify-between">
+<span class="flex items-center justify-center w-6 h-6 rounded-full bg-status-completed text-on-primary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</span>
+<span class="font-label-sm text-label-sm text-status-completed font-bold">1. Complète</span>
+</div>
+<div class="font-label-md text-label-md text-on-surface font-bold">Demande Client</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Soumise le 22 Oct. 14:15</div>
+</div>
+<!-- Step 2 (Active) -->
+<div class="flex flex-col gap-2 p-3 rounded-lg bg-secondary text-on-secondary shadow-md ring-2 ring-secondary/20">
+<div class="flex items-center justify-between">
+<span class="flex items-center justify-center w-6 h-6 rounded-full bg-on-secondary text-secondary font-label-sm text-label-sm font-bold">
+              2
+            </span>
+<span class="font-label-sm text-label-sm text-secondary-fixed uppercase tracking-wider font-bold">En cours</span>
+</div>
+<div class="font-label-md text-label-md text-on-secondary font-bold">Revue &amp; Qualification</div>
+<div class="font-label-sm text-label-sm text-secondary-fixed opacity-90">Contrôles réglementaires</div>
+</div>
+<!-- Step 3 (Pending Validation) -->
+<div class="flex flex-col gap-2 p-3 rounded-lg bg-surface-container-highest opacity-90 shadow-sm">
+<div class="flex items-center justify-between">
+<span class="flex items-center justify-center w-6 h-6 rounded-full bg-outline-variant text-on-surface font-label-sm text-label-sm">
+              3
+            </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-bold">À valider</span>
+</div>
+<div class="font-label-md text-label-md text-on-surface font-bold">Affectation &amp; Planification</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Allocation ressource &amp; créneau</div>
+</div>
+<!-- Step 4 (Next) -->
+<div class="flex flex-col gap-2 p-3 rounded-lg bg-surface-container-high opacity-60">
+<div class="flex items-center justify-between">
+<span class="flex items-center justify-center w-6 h-6 rounded-full bg-outline-variant/60 text-on-surface font-label-sm text-label-sm">
+              4
+            </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">En attente</span>
+</div>
+<div class="font-label-md text-label-md text-on-surface font-bold">Ordre de Mission &amp; BSD</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Signature électronique Trackdéchets</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Asymmetric 2-Column Grid (65% / 35%) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-md items-start">
+<!-- LEFT COLUMN: Dossier Demande & Qualification (65% -> col-span-8 approx ~66%) -->
+<div class="lg:col-span-8 flex flex-col gap-6">
+<!-- BLOC 1: Informations Client & Point de prélèvement -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm flex flex-col gap-6">
+<div class="flex items-center justify-between pb-3 border-b border-surface-variant/50">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center text-on-primary-fixed">
+<span class="material-symbols-outlined text-[24px]">factory</span>
+</div>
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Section 14 • Identification</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Client &amp; Point de Prélèvement</h2>
+</div>
+</div>
+<span class="px-3 py-1 rounded-full bg-primary/10 text-primary font-label-sm text-label-sm font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">verified_user</span>
+            Compte sous contrat annuel (Cadre 2024-2026)
+          </span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Client Identity Card -->
+<div class="flex flex-col gap-3 p-4 rounded-lg bg-surface-container-low">
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant tracking-wider">Établissement Demandeur</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-[22px] mt-0.5">domain</span>
+<div>
+<div class="font-headline-sm text-headline-sm text-on-surface">ArcelorMittal France</div>
+<div class="font-body-md text-body-md text-on-surface-variant font-medium">Usine Sidérurgique Dunkerque</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant mt-1">SIRET : 562 043 644 00214 • Code NAF : 24.10Z</div>
+</div>
+</div>
+<div class="mt-2 pt-2 border-t border-surface-variant/40 flex flex-col gap-1.5">
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant">Interlocuteur Technique Référent</div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface font-semibold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-primary">person</span>
+                  Marc Valadier
+                </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Resp. Maintenance Fluides</span>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant font-body-md text-body-md">
+<a class="flex items-center gap-1 text-secondary hover:underline" href="tel:+33328001234">
+<span class="material-symbols-outlined text-[16px]">call</span>
+                  +33 3 28 00 12 34
+                </a>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">mail</span>
+                  m.valadier@arcelormittal.com
+                </span>
+</div>
+</div>
+</div>
+<!-- Site d'enlèvement -->
+<div class="flex flex-col gap-3 p-4 rounded-lg bg-surface-container-low">
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant tracking-wider">Localisation de l'Enlèvement</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-status-on-route text-[22px] mt-0.5">location_on</span>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-bold">Parc Énergie — Zone Nord, Hangar B3</div>
+<div class="font-body-md text-body-md text-on-surface">Route de l'Écluse Charles de Gaulle</div>
+<div class="font-body-md text-body-md text-on-surface-variant">59140 Dunkerque • Coordonnées GPS : 51.0428, 2.3481</div>
+</div>
+</div>
+<div class="mt-1 flex items-center gap-2">
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface font-label-sm text-label-sm">Site Seveso Seuil Haut</span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface font-label-sm text-label-sm">Poste de garde Nord</span>
+</div>
+</div>
+</div>
+<!-- Contraintes d'accès terrain -->
+<div class="p-4 rounded-lg bg-status-delayed/10 flex flex-col gap-2">
+<div class="flex items-center gap-2 text-status-delayed">
+<span class="material-symbols-outlined text-[20px]">warning</span>
+<span class="font-label-md text-label-md font-bold uppercase tracking-wide">Contraintes d'accès signalées par l'exploitant</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+<div class="flex items-center gap-2 bg-surface-container-lowest p-2.5 rounded shadow-sm">
+<span class="material-symbols-outlined text-status-action-req text-[20px]">local_fire_department</span>
+<span class="font-body-md text-body-md text-on-surface font-medium">Permis de feu requis</span>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-lowest p-2.5 rounded shadow-sm">
+<span class="material-symbols-outlined text-secondary text-[20px]">shield</span>
+<span class="font-body-md text-body-md text-on-surface font-medium">Protocole Vigipirate renforcé</span>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-lowest p-2.5 rounded shadow-sm">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">height</span>
+<span class="font-body-md text-body-md text-on-surface font-medium">Hauteur max pont : 4.20 m</span>
+</div>
+</div>
+</div>
+</div>
+<!-- BLOC 2: Caractéristiques du Déchet & Vérification Homologation -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm flex flex-col gap-6">
+<div class="flex items-center justify-between pb-3 border-b border-surface-variant/50">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined text-[24px]">oil_barrel</span>
+</div>
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Section 33 • Conformité ADR &amp; Trackdéchets</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Matière, Conditionnement &amp; Homologation</h2>
+</div>
+</div>
+<span class="px-3 py-1 rounded-full bg-status-completed/10 text-status-completed font-label-sm text-label-sm font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+            Matière Homologuée Filière R9
+          </span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<!-- Item Déchet -->
+<div class="p-4 rounded-lg bg-surface-container-low flex flex-col justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">Déchet Déclaré</span>
+<div class="font-label-md text-label-md text-on-surface font-bold mt-1">Huiles hydrauliques et résidus d'usinage</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1 text-xs">Origine : Vidange laminoir chaud &amp; centrales HP</p>
+</div>
+<div class="mt-3 inline-flex items-center gap-1.5 text-on-surface font-mono text-xs font-semibold px-2 py-1 rounded bg-surface-container-highest">
+<span class="w-2 h-2 rounded-full bg-status-completed"></span>
+              ADR Classe 9 - Dangereux
+            </div>
+</div>
+<!-- Code Déchet CED -->
+<div class="p-4 rounded-lg bg-surface-container-low flex flex-col justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">Code CED Homologué</span>
+<div class="font-headline-sm text-headline-sm text-primary font-bold mt-1">13 01 10*</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1 text-xs">Huiles hydrauliques minérales non chlorées</p>
+</div>
+<div class="mt-3 flex items-center gap-1 text-status-completed text-xs font-semibold">
+<span class="material-symbols-outlined text-[16px]">task_alt</span>
+              Conforme à l'arrêté préfectoral
+            </div>
+</div>
+<!-- Volume & Cuve -->
+<div class="p-4 rounded-lg bg-surface-container-low flex flex-col justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">Volume Estimé Client</span>
+<div class="font-kpi-value text-headline-lg text-secondary font-bold mt-1 leading-none">5 800 <span class="font-headline-sm text-headline-sm">L</span></div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1 text-xs">1 Cuve aérienne fixe 10 m³</p>
+</div>
+<div class="mt-3 inline-flex items-center gap-1 text-xs font-medium text-on-surface">
+<span class="material-symbols-outlined text-[16px] text-secondary">tune</span>
+              Vanne 3 pouces DN80
+            </div>
+</div>
+</div>
+<!-- FDS Card & Visual Document Attachment -->
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between p-4 rounded-lg bg-surface-container-high gap-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-surface-container-lowest flex items-center justify-center text-status-completed shadow-sm">
+<span class="material-symbols-outlined text-[24px]">description</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-bold flex items-center gap-2">
+<span>FDS-2024-ARC.pdf</span>
+<span class="px-2 py-0.5 rounded-full bg-status-completed text-on-primary font-label-sm text-label-sm">Conforme • 0% PCB</span>
+</div>
+<div class="font-body-md text-body-md text-on-surface-variant text-xs mt-0.5">
+                Certificat de test laboratoire eurofins n°EF-88392 • Teneur en eau &lt; 1.2% • Point éclair &gt; 165°C
+              </div>
+</div>
+</div>
+<button class="px-3 py-1.5 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface transition-colors font-label-sm text-label-sm flex items-center gap-1.5 shadow-sm" type="button">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+<span>Consulter le rapport FDS</span>
+</button>
+</div>
+<!-- Consigne Régulateur Éditable -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-on-surface font-bold flex items-center gap-2" for="regulator-note">
+<span class="material-symbols-outlined text-primary text-[18px]">edit_note</span>
+              Note interne du régulateur (Transmise directement au chauffeur dans l'application terrain)
+            </label>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Modifiable avant validation</span>
+</div>
+<div class="relative">
+<textarea class="w-full p-3.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-primary shadow-sm" id="regulator-note" placeholder="Ajouter des consignes de sécurité ou d'équipement..." rows="3">Prévoir raccord Guillemin symétrique et flexible 30m. Stationnement camion à l'arrière de la travée 4. Présentation obligatoire au poste de sécurité avec CACES et carte BTP en règle.</textarea>
+<div class="absolute bottom-2.5 right-3 flex items-center gap-1 text-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">history</span>
+<span>Modifié il y a 4 min</span>
+</div>
+</div>
+</div>
+<!-- Photo du site d'intervention transmise par le client -->
+<div class="flex flex-col gap-2">
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant tracking-wider">Aperçu du bac de rétention et vanne (Pris par le client)</div>
+<div class="relative w-full h-44 rounded-lg overflow-hidden shadow-sm bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Industrial steel oil storage tank in a concrete safety retention basin located in a modern manufacturing plant, metallic pipes with yellow safety valves, spotless industrial environment, cool daylight lighting, professional architectural industrial photography with high contrast" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQ6H9CYLQjaEfR3nKqWQ6_feGu_jeIk2w5te8-KktC0P4i4CTqNcn40udx-B8U1mDhAF4fFEV1nMgSYxmiqJ1fBF1eZsXVc8CSdFgYzy95rc7TiWbSY6AMu-60YgvqAobGqrY8tkZACex79BKH5np5GFgrDHst0emvZ8HIcwVigpYf628LV7FFbIlrgb8Mp0o9MAED_cnEbh6iEuLp9Pqs7rX7HM-bb421cyQc_1rTEcNRgd4Ixcai"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-3">
+<div class="flex items-center justify-between w-full text-on-primary">
+<span class="font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">photo_camera</span>
+                  Vanne DN80 • Cuve B3 • Inspection visuelle validée
+                </span>
+<span class="font-label-sm text-label-sm opacity-80">Photo client 22/10 14:12</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN: Assistant de Planification & Conversion Directe (35% -> col-span-4 approx ~33%) -->
+<div class="lg:col-span-4 flex flex-col gap-6">
+<!-- CARTE D'AFFECTATION & ASSISTANT DE PLANIFICATION -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm flex flex-col gap-6">
+<div class="flex items-center justify-between pb-3 border-b border-surface-variant/50">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-lg bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[22px]">bolt</span>
+</div>
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-primary font-bold">Assistant IA • Régulation</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Planification Directe</h2>
+</div>
+</div>
+<span class="w-2.5 h-2.5 rounded-full bg-status-completed animate-pulse" title="Moteur temps réel"></span>
+</div>
+<!-- Date suggérée vs Date retenue -->
+<div class="flex flex-col gap-3 p-3.5 rounded-lg bg-surface-container-low">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant font-bold">Souhait du client</span>
+<span class="font-label-sm text-label-sm text-primary font-semibold bg-primary-fixed/50 px-2 py-0.5 rounded">Priorité Matin</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[20px]">event</span>
+<span class="font-label-md text-label-md font-bold">25 Octobre 2024 (Matinée)</span>
+</div>
+<!-- Selecteur créneau régulateur -->
+<div class="mt-2 pt-2 border-t border-surface-variant/40 flex flex-col gap-2">
+<label class="font-label-sm text-label-sm uppercase text-on-surface-variant font-bold">Créneau retenu par la régulation</label>
+<div class="grid grid-cols-2 gap-2">
+<div class="p-2 rounded bg-surface-container-lowest flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-outline text-[18px]">calendar_today</span>
+<span class="font-label-md text-label-md font-bold text-on-surface">25/10/2024</span>
+</div>
+<div class="p-2 rounded bg-surface-container-lowest flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-outline text-[18px]">schedule</span>
+<span class="font-label-md text-label-md font-bold text-primary">08:30 - 11:30</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Suggestion Équipe & Chauffeurs -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant font-bold">Équipe Chauffeur / Opérateur</span>
+<span class="font-label-sm text-label-sm text-status-completed font-bold flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-status-completed"></span>
+              Disponible
+            </span>
+</div>
+<div class="p-3.5 rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary text-on-secondary flex items-center justify-center font-bold font-label-md text-label-md">
+                ED
+              </div>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-bold">Équipe Delta (Marc L. &amp; Kévin R.)</div>
+<div class="font-body-md text-body-md text-on-surface-variant text-xs">Habilitation ADR Spéciale Citernes • N2 Seveso</div>
+</div>
+</div>
+<button class="p-1 rounded text-on-surface-variant hover:text-on-surface" title="Changer d'équipe" type="button">
+<span class="material-symbols-outlined text-[20px]">swap_horiz</span>
+</button>
+</div>
+</div>
+<!-- Suggestion Véhicule Hydrocureur -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant font-bold">Véhicule Citerne Recommandé</span>
+<span class="font-label-sm text-label-sm text-status-completed font-bold">Compatible ADR</span>
+</div>
+<div class="p-3.5 rounded-lg bg-surface-container-low flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-secondary text-[22px]">local_shipping</span>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-bold">Hydrocureur Citerne #V-012</div>
+<div class="font-body-md text-body-md text-on-surface-variant text-xs">Immat: FW-892-KJ • PTAC 26T</div>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded bg-primary/10 text-primary font-label-sm text-label-sm font-bold">Adéquat</span>
+</div>
+<!-- Jauge capacité libre citerne -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Capacité cuve après collecte :</span>
+<span class="font-bold text-on-surface">10 300 / 12 000 L (85%)</span>
+</div>
+<div class="w-full h-2.5 rounded-full bg-surface-container-highest overflow-hidden">
+<div class="h-full bg-status-completed rounded-full" style="width: 85.8%;"></div>
+</div>
+<div class="text-xs text-on-surface-variant flex items-center justify-between mt-0.5">
+<span>En cours : 4 500 L</span>
+<span class="text-primary font-semibold">+ 5 800 L (Cette collecte)</span>
+<span>Reste : 1 700 L</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Équipements spécifiques requis -->
+<div class="flex flex-col gap-2">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant font-bold">Équipements Embarqués Requis</span>
+<div class="flex flex-wrap gap-2">
+<span class="px-2.5 py-1 rounded bg-surface-container text-on-surface font-label-sm text-label-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-secondary">speed</span>
+              Pompe grand débit 80 m³/h
+            </span>
+<span class="px-2.5 py-1 rounded bg-surface-container text-on-surface font-label-sm text-label-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-status-completed">cleaning_services</span>
+              Kit antipollution 400 L
+            </span>
+<span class="px-2.5 py-1 rounded bg-surface-container text-on-surface font-label-sm text-label-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-secondary">cable</span>
+              Flexible aspiration 30m
+            </span>
+</div>
+</div>
+<!-- Contrôles et Impact en direct -->
+<div class="p-4 rounded-lg bg-surface-container-low flex flex-col gap-3">
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant font-bold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-status-completed">check_circle</span>
+            Impact &amp; Contrôles de Tournée
+          </div>
+<!-- Direct Check Indicators -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between text-body-md text-on-surface">
+<span class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-status-completed"></span>
+                Conflit de tournée
+              </span>
+<span class="font-label-sm text-label-sm text-status-completed font-bold">Aucun conflit détecté</span>
+</div>
+<div class="flex items-center justify-between text-body-md text-on-surface">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">route</span>
+                Trajet estimé
+              </span>
+<span class="font-label-md text-label-md font-semibold text-on-surface">Dépôt Littoral → Dunkerque (24 km • 32 min)</span>
+</div>
+<div class="flex items-start gap-2 pt-2 border-t border-surface-variant/50 text-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-secondary mt-0.5">mark_email_read</span>
+<span>Notification automatique prête : Envoi immédiat confirmation email + SMS client avec confirmation du créneau.</span>
+</div>
+</div>
+</div>
+<!-- Direct CTA Action Button -->
+<div class="flex flex-col gap-2 pt-2">
+<button class="w-full py-3.5 px-4 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-headline-sm text-headline-sm flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98]" id="action-convert-btn" onclick="handleConversion()" type="button">
+<span class="material-symbols-outlined text-[22px]">add_task</span>
+<span>Valider et Inscrire au Planning #COL-8498</span>
+</button>
+<div class="hidden p-3 rounded-lg bg-status-completed/10 text-status-completed font-label-md text-label-md text-center" id="conversion-feedback">
+            ✓ Collecte créée avec succès ! Redirection vers la tournée #TRN-104 en cours...
+          </div>
+<span class="text-center font-label-sm text-label-sm text-on-surface-variant">
+            Génère instantanément le brouillon BSD Trackdéchets n°BSD-2024-8849
+          </span>
+</div>
+</div>
+<!-- Quick Contact & Agency Help Module -->
+<div class="p-4 rounded-xl bg-surface-container-low flex items-center justify-between text-on-surface">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary text-[24px]">support_agent</span>
+<div>
+<div class="font-label-md text-label-md font-bold">Régulateur Astreinte Nord</div>
+<div class="font-body-md text-body-md text-on-surface-variant text-xs">Poste 402 • Centre Régional Grande-Synthe</div>
+</div>
+</div>
+<button class="px-2.5 py-1.5 rounded bg-surface-container-lowest text-secondary hover:bg-secondary-fixed text-xs font-semibold shadow-sm">
+          Aide
+        </button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  function handleConversion() {
+    const btn = document.getElementById('action-convert-btn');
+    const feedback = document.getElementById('conversion-feedback');
+    btn.disabled = true;
+    btn.classList.add('opacity-80', 'cursor-not-allowed');
+    btn.innerHTML = '<span class="material-symbols-outlined text-[22px] animate-spin">sync</span><span>Génération Ordre de Mission...</span>';
+    
+    setTimeout(() => {
+      btn.innerHTML = '<span class="material-symbols-outlined text-[22px]">task_alt</span><span>Planifié &amp; BSD Créé</span>';
+      btn.classList.remove('bg-primary');
+      btn.classList.add('bg-status-completed');
+      feedback.classList.remove('hidden');
+    }, 900);
+  }
+</script></main></div></body></html>

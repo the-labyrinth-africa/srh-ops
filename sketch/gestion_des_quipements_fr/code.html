@@ -1,0 +1,273 @@
+<html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={theme:{extend:{"colors":{"primary-fixed":"#a3f69c","surface-container-lowest":"#ffffff","on-tertiary-fixed-variant":"#7f2448","secondary-fixed-dim":"#b1c5ff","secondary-fixed":"#dae2ff","background":"#f3faff","surface-container-low":"#e6f6ff","secondary-container":"#9cb7ff","status-assigned":"#3949AB","tertiary":"#923357","status-delayed":"#E65100","primary":"#0d631b","surface-dim":"#c7dde9","primary-fixed-dim":"#88d982","on-tertiary":"#ffffff","outline":"#707a6c","error":"#ba1a1a","surface":"#f3faff","on-primary-fixed":"#002204","on-secondary-fixed-variant":"#274484","on-primary":"#ffffff","surface-container-high":"#d5ecf8","tertiary-fixed":"#ffd9e2","on-secondary-container":"#294787","on-surface-variant":"#40493d","on-primary-container":"#cbffc2","surface-container":"#dbf1fe","inverse-primary":"#88d982","surface-container-highest":"#cfe6f2","outline-variant":"#bfcaba","status-reported":"#1B5E20","on-surface":"#071e27","status-completed":"#2E7D32","status-planned":"#546E7A","on-secondary-fixed":"#001946","tertiary-container":"#b14b6f","on-error-container":"#93000a","surface-tint":"#1b6d24","on-tertiary-fixed":"#3f001c","status-in-progress":"#1976D2","surface-bright":"#f3faff","secondary":"#405c9e","on-background":"#071e27","tertiary-fixed-dim":"#ffb1c7","on-error":"#ffffff","status-action-req":"#D32F2F","error-container":"#ffdad6","status-cancelled":"#C62828","primary-container":"#2e7d32","on-primary-fixed-variant":"#005312","status-on-route":"#FB8C00","on-secondary":"#ffffff","on-tertiary-container":"#ffedf0"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"sidebar-width":"260px","unit":"4px","gutter-md":"20px","gutter-sm":"12px","margin-mobile":"16px","margin-desktop":"32px"},"fontFamily":{"body-lg":["Hanken Grotesk"],"body-md":["Hanken Grotesk"],"kpi-value":["Hanken Grotesk"],"headline-lg":["Hanken Grotesk"],"headline-sm":["Hanken Grotesk"],"headline-lg-mobile":["Hanken Grotesk"],"label-sm":["Hanken Grotesk"],"headline-md":["Hanken Grotesk"],"label-md":["Hanken Grotesk"]},"fontSize":{"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}],"kpi-value":["48px",{"lineHeight":"48px","fontWeight":"700"}],"headline-lg":["32px",{"lineHeight":"40px","fontWeight":"700"}],"headline-sm":["20px",{"lineHeight":"28px","fontWeight":"600"}],"headline-lg-mobile":["24px",{"lineHeight":"32px","fontWeight":"700"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.05em","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"32px","fontWeight":"600"}],"label-md":["13px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}]}}}}</script><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/></head><body class="bg-background font-body-md text-on-surface"><aside class="fixed left-0 top-0 h-full w-[260px] bg-surface-container-low z-50 flex flex-col border-r border-outline-variant"><div class="p-6 flex items-center gap-3"><img alt="logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XNW4yv8_XsTCVWiMMTLD1_hfjitZawc8YSbnm9mmSIksIYfeSAN8yFCGoJQM26mXl2bOAQVwGTpyMW-7wExIHnDuQAK1v08tukyAGpod1mCxgPuIYwzMjj3WTPMYLxR_sX0nQJJ73eIZnrEP0dNsMOrFpxlHZ9CVppIAUcDV4FAxTH3JtdmoMi8Vq3OmlQr-nQ42kWxUIxqOhZ4x5SQB_4DFAtYRTvMCZWoBcEUDGupQyhY6_9PKqwP_FV66wDdJM4Y1WQCNtpkw"/><span class="font-headline-sm text-headline-sm text-primary uppercase tracking-wider">SRH Ops</span></div><nav class="flex-1 px-3 space-y-1 overflow-y-auto" data-active-classes="bg-primary-container text-on-primary-container font-bold"><a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all font-label-md text-label-md" data-path="tableau-de-bord" href="#"><span class="material-symbols-outlined">dashboard</span>Tableau de bord</a><a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all font-label-md text-label-md" data-path="planning" href="#"><span class="material-symbols-outlined">calendar_month</span>Planning</a><a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all font-label-md text-label-md" data-path="interventions" href="#"><span class="material-symbols-outlined">engineering</span>Interventions</a><a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all font-label-md text-label-md" data-path="demandes" href="#"><span class="material-symbols-outlined">assignment</span>Demandes</a><a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all font-label-md text-label-md" data-path="clients" href="#"><span class="material-symbols-outlined">corporate_fare</span>Clients</a><a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all font-label-md text-label-md" data-path="equipes" href="#"><span class="material-symbols-outlined">groups</span>Équipes</a><a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all font-label-md text-label-md" data-path="vehicules" href="#"><span class="material-symbols-outlined">local_shipping</span>Véhicules</a><a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all font-label-md text-label-md" data-path="equipements" href="#"><span class="material-symbols-outlined">construction</span>Équipements</a><a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all font-label-md text-label-md" data-path="tracabilite" href="#"><span class="material-symbols-outlined">history_edu</span>Traçabilité</a><a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all font-label-md text-label-md" data-path="rapports" href="#"><span class="material-symbols-outlined">analytics</span>Rapports</a><a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all font-label-md text-label-md" data-path="pilotage" href="#"><span class="material-symbols-outlined">insights</span>Pilotage</a></nav><div class="p-4 border-t border-outline-variant bg-surface-container-lowest"><div class="flex items-center gap-3 px-2 text-on-surface"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="flex flex-col"><span class="font-label-md text-label-md">Resp. Opérations</span><span class="text-[11px] text-on-surface-variant">Secteur Nord</span></div></div></div></aside><div class="pl-[260px]"><header class="fixed top-0 left-[260px] right-0 h-16 bg-surface/90 backdrop-blur-md z-40 flex items-center justify-between px-8 border-b border-outline-variant"><div class="flex items-center gap-4 text-on-surface-variant"><span class="material-symbols-outlined">search</span><input class="bg-transparent border-none focus:ring-0 text-body-md font-body-md w-64" placeholder="Rechercher un dossier, une équipe..." type="text"/></div><div class="flex items-center gap-6"><div class="flex gap-4"><button class="relative p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full"><span class="material-symbols-outlined">notifications</span><span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span></button><button class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full"><span class="material-symbols-outlined">settings</span></button></div></div></header><main class="relative pt-16 bg-background min-h-screen"><div class="flex flex-col w-full">
+<!-- Header Section with KPIs -->
+<div class="bg-surface-container-lowest px-8 py-10 flex flex-col gap-8 rounded-b-[32px] shadow-sm relative overflow-hidden z-10">
+<!-- Decorative abstract shape -->
+<div class="absolute -top-32 -right-32 w-[500px] h-[500px] bg-primary-fixed-dim/20 rounded-full blur-3xl mix-blend-multiply pointer-events-none"></div>
+<div class="absolute top-20 right-40 w-64 h-64 bg-secondary-container/20 rounded-full blur-3xl pointer-events-none"></div>
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-10">
+<div class="flex flex-col max-w-2xl">
+<span class="font-label-md text-label-md text-primary uppercase tracking-[0.1em] mb-2">Flotte Opérationnelle</span>
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-2 tracking-tight">Parc Équipements</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Gestion détaillée, maintenance et suivi d'affectation du matériel technique d'intervention.</p>
+</div>
+<button class="bg-primary text-on-primary h-12 px-6 rounded-xl font-label-md text-label-md flex items-center justify-center gap-2 shadow-md hover:bg-surface-tint hover:shadow-lg hover:-translate-y-0.5 transition-all w-full md:w-auto shrink-0">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                Ajouter un équipement
+            </button>
+</div>
+<!-- KPI Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+<!-- Total -->
+<div class="bg-surface-container p-6 rounded-2xl flex flex-col justify-between h-40 group hover:bg-surface-container-high transition-colors">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">INVENTAIRE TOTAL</span>
+<div class="flex items-end justify-between">
+<span class="font-kpi-value text-kpi-value text-on-surface leading-none tracking-tight">342</span>
+<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[24px]">precision_manufacturing</span>
+</div>
+</div>
+</div>
+<!-- Availability -->
+<div class="bg-surface-container p-6 rounded-2xl flex flex-col justify-between h-40 group hover:bg-surface-container-high transition-colors relative overflow-hidden">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider relative z-10">DISPONIBILITÉ</span>
+<div class="flex flex-col gap-2 relative z-10">
+<span class="font-kpi-value text-kpi-value text-status-completed leading-none tracking-tight">88<span class="text-headline-md font-headline-md">%</span></span>
+<div class="w-full bg-surface-container-highest h-1.5 rounded-full overflow-hidden">
+<div class="bg-status-completed h-full w-[88%] rounded-full"></div>
+</div>
+</div>
+<!-- Sparkline decorative -->
+<svg class="absolute bottom-0 right-0 w-32 h-16 text-status-completed/20" preserveaspectratio="none" viewbox="0 0 100 50">
+<path d="M0,50 L0,30 L20,40 L40,20 L60,35 L80,10 L100,25 L100,50 Z" fill="currentColor"></path>
+</svg>
+</div>
+<!-- Maintenance -->
+<div class="bg-error-container/50 p-6 rounded-2xl flex flex-col justify-between h-40 group hover:bg-error-container transition-colors">
+<span class="font-label-sm text-label-sm text-on-error-container uppercase tracking-wider">EN RÉPARATION</span>
+<div class="flex items-end justify-between">
+<span class="font-kpi-value text-kpi-value text-error leading-none tracking-tight">14</span>
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full bg-error text-on-error flex items-center justify-center shadow-sm"><span class="material-symbols-outlined text-[16px]">build</span></div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-surface-container-lowest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm shadow-sm">+3</div>
+</div>
+</div>
+</div>
+<!-- Upcoming Checks -->
+<div class="bg-surface-container-highest p-6 rounded-2xl flex flex-col justify-between h-40 group hover:bg-surface-container transition-colors">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">CONTRÔLES (7J)</span>
+<div class="flex items-end justify-between">
+<span class="font-kpi-value text-kpi-value text-status-on-route leading-none tracking-tight">27</span>
+<div class="w-12 h-12 rounded-full bg-surface-container-lowest flex items-center justify-center text-status-on-route shadow-sm">
+<span class="material-symbols-outlined text-[24px]">event_upcoming</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Content Area: Filters & Table -->
+<div class="flex-1 p-8 flex flex-col gap-6 -mt-4 relative z-0">
+<!-- Action & Filter Bar -->
+<div class="bg-surface-container-lowest rounded-2xl p-3 shadow-md shadow-surface-dim/20 flex flex-col lg:flex-row items-center justify-between gap-4">
+<div class="flex flex-wrap gap-2 w-full lg:w-auto">
+<button class="bg-surface-container px-4 py-2.5 rounded-lg flex items-center gap-2 hover:bg-surface-container-high transition-colors font-body-md text-body-md text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">filter_alt</span>
+                    Catégorie : <strong class="text-on-surface font-headline-sm text-[14px]">Toutes</strong>
+<span class="material-symbols-outlined text-[18px] ml-1">expand_more</span>
+</button>
+<button class="bg-surface-container px-4 py-2.5 rounded-lg flex items-center gap-2 hover:bg-surface-container-high transition-colors font-body-md text-body-md text-on-surface-variant">
+                    État : <strong class="text-on-surface font-headline-sm text-[14px]">Tous les états</strong>
+<span class="material-symbols-outlined text-[18px] ml-1">expand_more</span>
+</button>
+</div>
+<div class="bg-surface-container px-4 py-2.5 rounded-lg flex items-center gap-3 w-full lg:w-80 group focus-within:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">search</span>
+<input class="bg-transparent border-none outline-none focus:ring-0 font-body-md text-body-md text-on-surface placeholder-on-surface-variant w-full p-0" placeholder="Rechercher ID, Véhicule..." type="text"/>
+</div>
+</div>
+<!-- Data Table -->
+<div class="bg-surface-container-lowest rounded-2xl shadow-md shadow-surface-dim/10 overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low/50 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+<tr>
+<th class="p-4 font-bold whitespace-nowrap">ID ÉQUIPEMENT</th>
+<th class="p-4 font-bold">CATÉGORIE</th>
+<th class="p-4 font-bold">ÉTAT ACTUEL</th>
+<th class="p-4 font-bold">AFFECTATION</th>
+<th class="p-4 font-bold">PROCHAIN CONTRÔLE</th>
+<th class="p-4 font-bold text-right">ACTIONS</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md text-on-surface">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="p-4">
+<div class="font-headline-sm text-[14px] text-on-surface">EQ-POM-042</div>
+<div class="text-[12px] text-on-surface-variant mt-0.5 font-mono">SN: 883-991-A</div>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container overflow-hidden shrink-0 shadow-sm relative">
+<div class="absolute inset-0 bg-gradient-to-tr from-surface-dim/20 to-transparent mix-blend-overlay"></div>
+<img class="w-full h-full object-cover" data-alt="A rugged, industrial heavy-duty water pump painted bright green, sitting on a concrete floor in a well-lit warehouse setting, highly detailed." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAm169rE_DIOESlYZ2Gn9-tpPrI_TAfUXTaehNlbfTrEFPmyu3KddUxzTIvjeHdnJOUl4ew13Ita_CChA4emu-DzCY4R3DbTZvuyg2z0HNDJSi0GWg69VGs31k826MCB8MWQ5rmt7vK7riOV7SPJ5LDH-hnT__QnXByptIlpVmZdGJnIcCEJVr0ucpCkWokESqAUJ2FYftFUcTEDJS86nCpDaugW0V6USpKqHYfQoy2PiuRsXebtx1"/>
+</div>
+<span class="font-headline-sm text-[14px]">Pompe Thermique H-Débit</span>
+</div>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-status-completed/10 text-status-completed font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] fill-current" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                    Opérationnel
+                                </span>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">local_shipping</span>
+<span>Véhicule V-012</span>
+</div>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px]">calendar_today</span>
+<span>12 oct. 2024</span>
+</div>
+</td>
+<td class="p-4 text-right">
+<button class="w-8 h-8 rounded-full hover:bg-surface-container-highest text-on-surface-variant flex items-center justify-center transition-colors ml-auto">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 (Zebra stripe using bg-surface) -->
+<tr class="bg-surface/50 hover:bg-surface-container-low/30 transition-colors group">
+<td class="p-4">
+<div class="font-headline-sm text-[14px] text-on-surface">EQ-CUV-018</div>
+<div class="text-[12px] text-on-surface-variant mt-0.5 font-mono">SN: 112-44X-B</div>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container overflow-hidden shrink-0 shadow-sm relative flex items-center justify-center">
+<div class="absolute inset-0 bg-gradient-to-br from-secondary-container/50 to-transparent"></div>
+<span class="material-symbols-outlined text-on-secondary-container z-10">propane_tank</span>
+</div>
+<span class="font-headline-sm text-[14px]">Cuve Mobile 1000L</span>
+</div>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-error/10 text-error font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] fill-current" style="font-variation-settings: 'FILL' 1;">build</span>
+                                    En maintenance
+                                </span>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">home_repair_service</span>
+<span>Atelier Central</span>
+</div>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-2 text-error font-headline-sm text-[14px]">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+<span>Dépassé (01 oct.)</span>
+</div>
+</td>
+<td class="p-4 text-right">
+<button class="w-8 h-8 rounded-full hover:bg-surface-container-highest text-on-surface-variant flex items-center justify-center transition-colors ml-auto">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="p-4">
+<div class="font-headline-sm text-[14px] text-on-surface">EQ-NET-088</div>
+<div class="text-[12px] text-on-surface-variant mt-0.5 font-mono">SN: 775-121-C</div>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container overflow-hidden shrink-0 shadow-sm relative flex items-center justify-center">
+<div class="absolute inset-0 bg-gradient-to-br from-tertiary-container/50 to-transparent"></div>
+<span class="material-symbols-outlined text-on-tertiary-container z-10">water_damage</span>
+</div>
+<span class="font-headline-sm text-[14px]">Nettoyeur HP 250bar</span>
+</div>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-status-action-req/10 text-status-action-req font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] fill-current" style="font-variation-settings: 'FILL' 1;">error</span>
+                                    Défectueux
+                                </span>
+</td>
+<td class="p-4">
+<span class="text-on-surface-variant italic">Non affecté (Dépôt)</span>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px]">calendar_today</span>
+<span>25 nov. 2024</span>
+</div>
+</td>
+<td class="p-4 text-right">
+<button class="w-8 h-8 rounded-full hover:bg-surface-container-highest text-on-surface-variant flex items-center justify-center transition-colors ml-auto">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 (Zebra) -->
+<tr class="bg-surface/50 hover:bg-surface-container-low/30 transition-colors group">
+<td class="p-4">
+<div class="font-headline-sm text-[14px] text-on-surface">EQ-POM-045</div>
+<div class="text-[12px] text-on-surface-variant mt-0.5 font-mono">SN: 883-994-A</div>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container overflow-hidden shrink-0 shadow-sm relative">
+<div class="absolute inset-0 bg-gradient-to-tr from-surface-dim/20 to-transparent mix-blend-overlay"></div>
+<img class="w-full h-full object-cover" data-alt="Close up of a metallic heavy duty industrial water pump component, showing signs of light use, clean industrial aesthetic, shallow depth of field." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtvoy3koOSJKIowHOvCmr2SoLjOqFUhYrZqzMXLQL6ALm5pTc1dY1GOupieGrCtJxS0_yD5NPg48gMqeUMcTFWpzuP-LNcFTFpLEstsgvLjUwZ9eatmf7uIvrsojalxSNfEBK20c-LgCBU43G4oYCb-B5gcS9dt_0koaVBSA45B62QOFqMP6aiXPcw6ekSDfpnJFuTuVT00fcuwBQOFvwZVatnUpN7TXYtFT26rpJdNeL17Hq-CRoc"/>
+</div>
+<span class="font-headline-sm text-[14px]">Pompe Thermique Standard</span>
+</div>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-status-completed/10 text-status-completed font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] fill-current" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                    Opérationnel
+                                </span>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">group</span>
+<span>Équipe Delta (Intervention)</span>
+</div>
+</td>
+<td class="p-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px]">calendar_today</span>
+<span>05 janv. 2025</span>
+</div>
+</td>
+<td class="p-4 text-right">
+<button class="w-8 h-8 rounded-full hover:bg-surface-container-highest text-on-surface-variant flex items-center justify-center transition-colors ml-auto">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination / Footer simple -->
+<div class="bg-surface-container-lowest p-4 border-t border-outline-variant/30 flex items-center justify-between text-on-surface-variant font-body-md text-body-md">
+<span>Affichage de 1-4 sur 342 équipements</span>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded hover:bg-surface-container-high flex items-center justify-center transition-colors"><span class="material-symbols-outlined text-[18px]">chevron_left</span></button>
+<button class="w-8 h-8 rounded bg-primary-container text-on-primary-container font-bold flex items-center justify-center">1</button>
+<button class="w-8 h-8 rounded hover:bg-surface-container-high flex items-center justify-center transition-colors">2</button>
+<button class="w-8 h-8 rounded hover:bg-surface-container-high flex items-center justify-center transition-colors">3</button>
+<span class="px-1">...</span>
+<button class="w-8 h-8 rounded hover:bg-surface-container-high flex items-center justify-center transition-colors"><span class="material-symbols-outlined text-[18px]">chevron_right</span></button>
+</div>
+</div>
+</div>
+</div>
+</div></main></div></body></html>

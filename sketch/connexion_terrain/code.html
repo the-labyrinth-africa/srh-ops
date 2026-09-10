@@ -1,0 +1,89 @@
+<html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "primary-fixed": "#a3f69c", "tertiary-container": "#b14b6f", "surface-bright": "#f3faff", "on-tertiary-container": "#ffedf0", "surface-container-highest": "#cfe6f2", "on-secondary-fixed": "#001946", "on-primary-container": "#cbffc2", "secondary-fixed-dim": "#b1c5ff", "background": "#f3faff", "surface": "#f3faff", "on-primary": "#ffffff", "on-background": "#071e27", "on-tertiary-fixed-variant": "#7f2448", "surface-tint": "#1b6d24", "status-in-progress": "#1976D2", "primary": "#0d631b", "surface-variant": "#cfe6f2", "secondary-container": "#9cb7ff", "surface-container-high": "#d5ecf8", "on-surface": "#071e27", "status-planned": "#546E7A", "on-secondary-fixed-variant": "#274484", "on-secondary": "#ffffff", "status-on-route": "#FB8C00", "inverse-surface": "#1e333c", "tertiary-fixed": "#ffd9e2", "on-secondary-container": "#294787", "on-tertiary": "#ffffff", "on-surface-variant": "#40493d", "on-error": "#ffffff", "inverse-primary": "#88d982", "tertiary": "#923357", "on-tertiary-fixed": "#3f001c", "status-completed": "#2E7D32", "primary-container": "#2e7d32", "tertiary-fixed-dim": "#ffb1c7", "surface-container-lowest": "#ffffff", "on-primary-fixed-variant": "#005312", "inverse-on-surface": "#dff4ff", "on-error-container": "#93000a", "outline": "#707a6c", "status-action-req": "#D32F2F", "error-container": "#ffdad6", "on-primary-fixed": "#002204", "status-cancelled": "#C62828", "status-reported": "#1B5E20", "secondary-fixed": "#dae2ff", "surface-dim": "#c7dde9", "status-assigned": "#3949AB", "primary-fixed-dim": "#88d982", "surface-container-low": "#e6f6ff", "outline-variant": "#bfcaba", "error": "#ba1a1a", "status-delayed": "#E65100", "secondary": "#405c9e", "surface-container": "#dbf1fe" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "sidebar-width": "260px", "margin-mobile": "16px", "margin-desktop": "32px", "gutter-md": "20px", "gutter-sm": "12px", "unit": "4px" }, "fontFamily": { "headline-lg": ["Hanken Grotesk"], "kpi-value": ["Hanken Grotesk"], "headline-sm": ["Hanken Grotesk"], "body-md": ["Hanken Grotesk"], "label-md": ["Hanken Grotesk"], "headline-md": ["Hanken Grotesk"], "body-lg": ["Hanken Grotesk"], "label-sm": ["Hanken Grotesk"], "headline-lg-mobile": ["Hanken Grotesk"] }, "fontSize": { "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}], "kpi-value": ["48px", {"lineHeight": "48px", "fontWeight": "700"}], "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}], "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}], "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600"}], "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}], "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}], "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "700"}], "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}] } } } }</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-background font-body-md text-on-surface flex flex-col items-center justify-center min-h-screen pt-safe pb-safe"><main class="w-full flex-1"><div class="flex flex-col w-full px-margin-mobile pb-margin-mobile">
+<div class="flex flex-col items-center pt-8 pb-12">
+<div class="w-20 h-20 rounded-2xl bg-surface-container flex items-center justify-center mb-6 shadow-sm border border-outline-variant">
+<span class="material-symbols-outlined text-primary text-4xl" style="font-variation-settings: 'FILL' 1;">
+                oil_barrel
+            </span>
+</div>
+<h1 class="text-headline-lg-mobile text-on-surface mb-2 text-center">SRH Ops</h1>
+<p class="text-body-md text-on-surface-variant text-center">Accès sécurisé à votre espace opérationnel</p>
+</div>
+<form class="flex flex-col gap-gutter-sm w-full" id="loginForm">
+<div class="flex flex-col gap-1 w-full relative">
+<label class="text-label-md text-on-surface" for="email">Email professionnel</label>
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">
+                    mail
+                </span>
+<input class="w-full h-12 pl-10 pr-4 rounded-lg bg-surface border border-outline-variant text-body-lg text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors placeholder:text-on-surface-variant/50" id="email" placeholder="nom@entreprise.com" required="" type="email"/>
+</div>
+</div>
+<div class="flex flex-col gap-1 w-full relative mt-2">
+<label class="text-label-md text-on-surface" for="password">Mot de passe</label>
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">
+                    lock
+                </span>
+<input class="w-full h-12 pl-10 pr-12 rounded-lg bg-surface border border-outline-variant text-body-lg text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors placeholder:text-on-surface-variant/50" id="password" placeholder="••••••••" required="" type="password"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant p-1 flex items-center justify-center focus:outline-none" id="togglePassword" type="button">
+<span class="material-symbols-outlined text-[20px]" id="visibilityIcon">visibility</span>
+</button>
+</div>
+<div class="flex justify-end mt-1">
+<a class="text-label-sm text-primary hover:underline" href="#">Mot de passe oublié ?</a>
+</div>
+</div>
+<div class="mt-6 flex flex-col gap-4">
+<button class="w-full h-12 rounded-lg bg-primary text-on-primary font-label-md flex items-center justify-center gap-2 active:bg-primary-container transition-colors shadow-sm relative overflow-hidden group" type="submit">
+<span class="relative z-10 flex items-center gap-2">
+                    Se connecter
+                    <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</span>
+<div class="absolute inset-0 bg-white/20 translate-y-full group-active:translate-y-0 transition-transform duration-200"></div>
+</button>
+<div class="flex items-center justify-center gap-2 mt-4 text-label-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">shield</span>
+                Connexion chiffrée de bout en bout
+            </div>
+</div>
+</form>
+<script>
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const icon = document.getElementById('visibilityIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.textContent = 'visibility_off';
+            } else {
+                passwordInput.type = 'password';
+                icon.textContent = 'visibility';
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = this.querySelector('button[type="submit"]');
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = `<span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span> Authentification...`;
+            btn.disabled = true;
+            btn.classList.add('opacity-80');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+                btn.classList.remove('opacity-80');
+                // Simulate success
+                btn.innerHTML = `<span class="material-symbols-outlined text-[18px]">check</span> Connecté`;
+                btn.classList.remove('bg-primary');
+                btn.classList.add('bg-status-completed');
+            }, 1500);
+        });
+    </script>
+</div></main></body></html>

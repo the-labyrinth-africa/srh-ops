@@ -1,0 +1,49 @@
+.fc {
+  --fc-border-color: #bfcaba;
+  --fc-button-bg-color: #0d631b;
+  --fc-button-border-color: #0d631b;
+  --fc-button-hover-bg-color: #2e7d32;
+  --fc-button-hover-border-color: #2e7d32;
+  --fc-button-active-bg-color: #005312;
+  --fc-today-bg-color: rgba(13, 99, 27, 0.08);
+  font-family: "Hanken Grotesk", sans-serif;
+  font-size: 13px;
+}
+
+.fc .fc-toolbar-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #071e27;
+}
+
+.fc .fc-col-header-cell-cushion,
+.fc .fc-daygrid-day-number,
+.fc .fc-timegrid-slot-label-cushion {
+  color: #40493d;
+  text-decoration: none;
+}
+
+.fc .fc-event {
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.fc .fc-button {
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+@media (max-width: 768px) {
+  .fc .fc-toolbar {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .fc .fc-toolbar-chunk {
+    display: flex;
+    justify-content: center;
+  }
+}

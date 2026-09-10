@@ -1,0 +1,342 @@
+<html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={theme:{extend:{"colors":{"on-surface":"#071e27","on-surface-variant":"#40493d","inverse-primary":"#88d982","on-tertiary-fixed":"#3f001c","status-on-route":"#FB8C00","on-primary-fixed-variant":"#005312","surface-container-lowest":"#ffffff","inverse-surface":"#1e333c","surface-bright":"#f3faff","error":"#ba1a1a","surface-container-highest":"#cfe6f2","surface-dim":"#c7dde9","on-secondary-fixed":"#001946","surface-container-low":"#e6f6ff","surface-variant":"#cfe6f2","background":"#f3faff","secondary-fixed-dim":"#b1c5ff","tertiary-container":"#b14b6f","on-primary":"#ffffff","on-secondary-fixed-variant":"#274484","tertiary-fixed":"#ffd9e2","on-tertiary-fixed-variant":"#7f2448","outline":"#707a6c","secondary":"#405c9e","secondary-container":"#9cb7ff","status-in-progress":"#1976D2","status-planned":"#546E7A","on-background":"#071e27","tertiary":"#923357","on-error":"#ffffff","surface-tint":"#1b6d24","on-tertiary-container":"#ffedf0","on-secondary-container":"#294787","surface-container":"#dbf1fe","primary-fixed":"#a3f69c","error-container":"#ffdad6","status-action-req":"#D32F2F","status-completed":"#2E7D32","status-assigned":"#3949AB","outline-variant":"#bfcaba","primary-fixed-dim":"#88d982","status-reported":"#1B5E20","secondary-fixed":"#dae2ff","inverse-on-surface":"#dff4ff","on-tertiary":"#ffffff","status-delayed":"#E65100","tertiary-fixed-dim":"#ffb1c7","on-primary-container":"#cbffc2","primary":"#0d631b","primary-container":"#2e7d32","on-secondary":"#ffffff","surface":"#f3faff","on-primary-fixed":"#002204","status-cancelled":"#C62828","on-error-container":"#93000a","surface-container-high":"#d5ecf8"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"sidebar-width":"260px","margin-mobile":"16px","margin-desktop":"32px","unit":"4px","gutter-sm":"12px","gutter-md":"20px"},"fontFamily":{"headline-lg-mobile":["Hanken Grotesk"],"kpi-value":["Hanken Grotesk"],"body-md":["Hanken Grotesk"],"label-md":["Hanken Grotesk"],"body-lg":["Hanken Grotesk"],"headline-lg":["Hanken Grotesk"],"headline-md":["Hanken Grotesk"],"headline-sm":["Hanken Grotesk"],"label-sm":["Hanken Grotesk"]},"fontSize":{"headline-lg-mobile":["24px",{"lineHeight":"32px","fontWeight":"700"}],"kpi-value":["48px",{"lineHeight":"48px","fontWeight":"700"}],"body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}],"label-md":["13px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"headline-lg":["32px",{"lineHeight":"40px","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"32px","fontWeight":"600"}],"headline-sm":["20px",{"lineHeight":"28px","fontWeight":"600"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.05em","fontWeight":"700"}]}}}}</script><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/></head><body class="bg-background font-body-md text-on-surface"><aside class="fixed left-0 top-0 h-full w-[260px] bg-surface-container-low z-50 flex flex-col border-r border-outline-variant"><div class="h-16 flex items-center px-6 gap-3"><img alt="SRH Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XNW4yv8_XsTCVWiMMTLD1_hfjitZawc8YSbnm9mmSIksIYfeSAN8yFCGoJQM26mXl2bOAQVwGTpyMW-7wExIHnDuQAK1v08tukyAGpod1mCxgPuIYwzMjj3WTPMYLxR_sX0nQJJ73eIZnrEP0dNsMOrFpxlHZ9CVppIAUcDV4FAxTH3JtdmoMi8Vq3OmlQr-nQ42kWxUIxqOhZ4x5SQB_4DFAtYRTvMCZWoBcEUDGupQyhY6_9PKqwP_FV66wDdJM4Y1WQCNtpkw"/><span class="font-headline-sm text-primary tracking-tight">SRH Ops</span></div><nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto" data-active-classes="bg-primary-container text-on-primary-container font-semibold"><a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all group" data-path="tableau-de-bord" href="#"><span class="material-symbols-outlined text-[22px]">dashboard</span><span class="text-label-md">Tableau de bord</span></a><a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all group" data-path="planning" href="#"><span class="material-symbols-outlined text-[22px]">calendar_month</span><span class="text-label-md">Planning</span></a><a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all group" data-path="interventions" href="#"><span class="material-symbols-outlined text-[22px]">engineering</span><span class="text-label-md">Interventions</span></a><a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all group" data-path="demandes" href="#"><span class="material-symbols-outlined text-[22px]">pending_actions</span><span class="text-label-md">Demandes</span></a><a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all group" data-path="clients-sites" href="#"><span class="material-symbols-outlined text-[22px]">location_on</span><span class="text-label-md">Clients &amp; Sites</span></a><div class="pt-4 pb-2 px-4 text-label-sm text-outline uppercase">Ressources</div><a class="flex items-center gap-3 px-4 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all group" data-path="equipes" href="#"><span class="material-symbols-outlined text-[22px]">groups</span><span class="text-label-md">Équipes</span></a><a class="flex items-center gap-3 px-4 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all group" data-path="vehicules" href="#"><span class="material-symbols-outlined text-[22px]">local_shipping</span><span class="text-label-md">Véhicules</span></a><a class="flex items-center gap-3 px-4 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all group" data-path="equipements" href="#"><span class="material-symbols-outlined text-[22px]">construction</span><span class="text-label-md">Équipements</span></a><div class="pt-4 pb-2 px-4 text-label-sm text-outline uppercase">Analyse</div><a class="flex items-center gap-3 px-4 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all group" data-path="tracabilite" href="#"><span class="material-symbols-outlined text-[22px]">history_edu</span><span class="text-label-md">Traçabilité</span></a><a class="flex items-center gap-3 px-4 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all group" data-path="rapports" href="#"><span class="material-symbols-outlined text-[22px]">analytics</span><span class="text-label-md">Rapports</span></a><a aria-current="page" class="flex items-center gap-3 px-4 py-2 rounded-lg transition-all group bg-primary-container text-on-primary-container font-semibold" data-path="pilotage" href="#"><span class="material-symbols-outlined text-[22px]">insights</span><span class="text-label-md">Pilotage</span></a></nav></aside><div class="pl-[260px]"><header class="fixed top-0 left-[260px] right-0 h-16 bg-surface/80 backdrop-blur-xl border-b border-outline-variant z-40 flex items-center justify-between px-8"><div class="flex items-center gap-4 text-on-surface-variant text-body-md font-semibold">SRH Back-Office <span class="text-outline-variant">/</span> <span class="text-on-surface">Opérations</span></div><div class="flex items-center gap-6"><div class="flex items-center gap-2 px-3 py-1.5 bg-surface-container rounded-full text-status-reported font-semibold text-label-sm"><span class="w-2 h-2 rounded-full bg-status-reported animate-pulse"></span> Système Opérationnel</div><div class="flex items-center gap-4"><button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">search</span></button><button class="relative text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">notifications</span><span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full border-2 border-surface"></span></button><div class="flex items-center gap-3 pl-4 border-l border-outline-variant"><div class="text-right hidden sm:block"><div class="text-label-md text-on-surface leading-tight">Administrateur SRH</div><div class="text-label-sm text-on-surface-variant">Superviseur</div></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><main class="pt-16 min-h-screen bg-background"><div class="flex flex-col w-full px-8 pb-12 gap-8">
+<div class="flex items-end justify-between w-full pt-8 relative z-10">
+<div class="flex flex-col gap-2">
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Pilotage Direction</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xl">Synthèse de la performance opérationnelle et financière. Les données sont agrégées sur l'ensemble des secteurs d'intervention.</p>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-high p-1 rounded-full shadow-sm">
+<button class="px-4 py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md shadow-sm transition-all">Mois</button>
+<button class="px-4 py-1.5 rounded-full text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all">Trimestre</button>
+<button class="px-4 py-1.5 rounded-full text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all">Année</button>
+<div class="w-px h-4 bg-outline-variant mx-2"></div>
+<button class="w-8 h-8 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-all">
+<span class="material-symbols-outlined text-[20px]">calendar_today</span>
+</button>
+</div>
+</div>
+<!-- KPI Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+<!-- KPI 1: Volumes -->
+<div class="flex flex-col bg-surface-container p-6 rounded-2xl shadow-sm relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-primary-fixed/20 rounded-full blur-xl group-hover:scale-110 transition-transform duration-700"></div>
+<div class="flex items-start justify-between mb-4 relative z-10">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Volume Collecté</span>
+<span class="material-symbols-outlined text-primary">local_shipping</span>
+</div>
+<div class="flex items-baseline gap-2 mb-1 relative z-10">
+<span class="font-kpi-value text-kpi-value text-on-surface tracking-tight">14.2<span class="text-headline-md font-headline-md text-on-surface-variant">kT</span></span>
+</div>
+<div class="flex items-center gap-2 mt-auto pt-4 relative z-10">
+<div class="flex items-center gap-1 text-primary-container bg-primary-fixed px-2 py-0.5 rounded text-[11px] font-bold">
+<span class="material-symbols-outlined text-[14px]">trending_up</span> +8%
+                </div>
+<span class="font-body-md text-label-sm text-on-surface-variant">vs obj. mensuel</span>
+</div>
+</div>
+<!-- KPI 2: Conformité -->
+<div class="flex flex-col bg-surface-container p-6 rounded-2xl shadow-sm relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-secondary-fixed/20 rounded-full blur-xl group-hover:scale-110 transition-transform duration-700"></div>
+<div class="flex items-start justify-between mb-4 relative z-10">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Taux Conformité</span>
+<span class="material-symbols-outlined text-secondary">verified</span>
+</div>
+<div class="flex items-baseline gap-2 mb-1 relative z-10">
+<span class="font-kpi-value text-kpi-value text-on-surface tracking-tight">96.8<span class="text-headline-md font-headline-md text-on-surface-variant">%</span></span>
+</div>
+<div class="flex items-center gap-2 mt-auto pt-4 relative z-10">
+<div class="flex items-center gap-1 text-error-container bg-error px-2 py-0.5 rounded text-[11px] font-bold">
+<span class="material-symbols-outlined text-[14px]">trending_down</span> -1.2%
+                </div>
+<span class="font-body-md text-label-sm text-on-surface-variant">vs mois précédent</span>
+</div>
+</div>
+<!-- KPI 3: Rentabilité -->
+<div class="flex flex-col bg-surface-container p-6 rounded-2xl shadow-sm relative overflow-hidden group lg:col-span-2">
+<div class="bg-cover bg-right opacity-20 mix-blend-multiply" data-alt="A subtle, abstract data visualization background featuring soft glowing isometric blocks in corporate blue and green tones, representing financial growth and stability. The image is highly faded and acts as a textural backdrop for UI elements." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCiH4Qfq9BPsSo9CzsOhO1399U9LMvL-KSR8X2hWIHyPXHAH42ym806IyOUAq9gEg3e8dzwPOFDOmqRvij8mcBkPSymG-qhXwxKPDt5jIp2nhwFYLMJUWXDcIa8bizRWsd7Sd4tD4d4u1Rk0REJkrRLSGuA6xmOxzRKeuQAuYAAQeA2yfI2nBOOV2j_iMfvwabGdlHGbi5MaVTAfhhg_PJgNmAbTQS3lULp-SEcF9X7ThC23S1M2WrQ')"></div>
+<div class="flex flex-col h-full relative z-10">
+<div class="flex items-start justify-between mb-2">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Marge Opérationnelle Globale</span>
+<span class="material-symbols-outlined text-tertiary">euro_symbol</span>
+</div>
+<div class="flex items-end gap-6 mt-2">
+<div class="flex flex-col">
+<span class="font-kpi-value text-kpi-value text-on-surface tracking-tight">32.4<span class="text-headline-md font-headline-md text-on-surface-variant">%</span></span>
+<div class="flex items-center gap-2 mt-1">
+<div class="flex items-center gap-1 text-primary-container bg-primary-fixed px-2 py-0.5 rounded text-[11px] font-bold">
+<span class="material-symbols-outlined text-[14px]">arrow_upward</span> +2.1 pts
+                            </div>
+<span class="font-body-md text-label-sm text-on-surface-variant">YTD</span>
+</div>
+</div>
+<!-- Sparkline -->
+<div class="flex-1 h-16 ml-4 hidden sm:block relative">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 200 50">
+<defs>
+<lineargradient id="spark-gradient" x1="0" x2="0" y1="0" y2="1">
+<stop class="text-primary" offset="0%" stop-color="currentColor" stop-opacity="0.2"></stop>
+<stop class="text-primary" offset="100%" stop-color="currentColor" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<path class="text-primary" d="M0,40 Q20,35 40,42 T80,30 T120,25 T160,15 T200,5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3"></path>
+<path d="M0,40 Q20,35 40,42 T80,30 T120,25 T160,15 T200,5 L200,50 L0,50 Z" fill="url(#spark-gradient)"></path>
+<!-- Current value dot -->
+<circle class="text-primary" cx="200" cy="5" fill="currentColor" r="4"></circle>
+<circle class="text-primary opacity-30 animate-ping" cx="200" cy="5" fill="currentColor" r="8"></circle>
+</svg>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Charts Section -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full mt-4">
+<!-- Bar Chart: Évolution vs Objectifs -->
+<div class="bg-surface-container-lowest rounded-2xl shadow-md p-6 lg:col-span-2 flex flex-col">
+<div class="flex items-center justify-between mb-6">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Volumes vs Objectifs</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Évolution mensuelle par type de déchet (en tonnes)</p>
+</div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="flex-1 min-h-[300px] w-full relative flex items-end justify-between pt-10 px-4">
+<!-- Y-Axis Lines -->
+<div class="absolute inset-0 flex flex-col justify-between pb-8 pointer-events-none">
+<div class="w-full h-px bg-outline-variant/30 relative"><span class="absolute -left-2 -top-2 -translate-x-full font-label-sm text-label-sm text-on-surface-variant">5k</span></div>
+<div class="w-full h-px bg-outline-variant/30 relative"><span class="absolute -left-2 -top-2 -translate-x-full font-label-sm text-label-sm text-on-surface-variant">4k</span></div>
+<div class="w-full h-px bg-outline-variant/30 relative"><span class="absolute -left-2 -top-2 -translate-x-full font-label-sm text-label-sm text-on-surface-variant">3k</span></div>
+<div class="w-full h-px bg-outline-variant/30 relative"><span class="absolute -left-2 -top-2 -translate-x-full font-label-sm text-label-sm text-on-surface-variant">2k</span></div>
+<div class="w-full h-px bg-outline-variant/30 relative"><span class="absolute -left-2 -top-2 -translate-x-full font-label-sm text-label-sm text-on-surface-variant">1k</span></div>
+<div class="w-full h-px bg-outline-variant border-b relative"><span class="absolute -left-2 -top-2 -translate-x-full font-label-sm text-label-sm text-on-surface-variant">0</span></div>
+</div>
+<!-- Bar Groups -->
+<!-- Jan -->
+<div class="relative flex flex-col items-center gap-2 group w-1/6 h-full justify-end pb-8 z-10">
+<div class="flex items-end gap-1 w-full justify-center h-full">
+<div class="w-3 md:w-6 bg-primary rounded-t-sm h-[40%] transition-all duration-500 hover:opacity-80 relative cursor-pointer">
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface font-label-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 whitespace-nowrap">Réalisé: 2.0k</div>
+</div>
+<div class="w-3 md:w-6 bg-outline-variant rounded-t-sm h-[45%] transition-all duration-500 opacity-60 relative"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase absolute bottom-0">Jan</span>
+</div>
+<!-- Fev -->
+<div class="relative flex flex-col items-center gap-2 group w-1/6 h-full justify-end pb-8 z-10">
+<div class="flex items-end gap-1 w-full justify-center h-full">
+<div class="w-3 md:w-6 bg-primary rounded-t-sm h-[55%] transition-all duration-500 hover:opacity-80 relative cursor-pointer">
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface font-label-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 whitespace-nowrap">Réalisé: 2.7k</div>
+</div>
+<div class="w-3 md:w-6 bg-outline-variant rounded-t-sm h-[50%] transition-all duration-500 opacity-60 relative"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase absolute bottom-0">Fév</span>
+</div>
+<!-- Mar -->
+<div class="relative flex flex-col items-center gap-2 group w-1/6 h-full justify-end pb-8 z-10">
+<div class="flex items-end gap-1 w-full justify-center h-full">
+<div class="w-3 md:w-6 bg-primary rounded-t-sm h-[48%] transition-all duration-500 hover:opacity-80 relative cursor-pointer">
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface font-label-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 whitespace-nowrap">Réalisé: 2.4k</div>
+</div>
+<div class="w-3 md:w-6 bg-outline-variant rounded-t-sm h-[60%] transition-all duration-500 opacity-60 relative"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase absolute bottom-0">Mar</span>
+</div>
+<!-- Avr -->
+<div class="relative flex flex-col items-center gap-2 group w-1/6 h-full justify-end pb-8 z-10">
+<div class="flex items-end gap-1 w-full justify-center h-full">
+<div class="w-3 md:w-6 bg-primary rounded-t-sm h-[75%] transition-all duration-500 hover:opacity-80 relative cursor-pointer">
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface font-label-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 whitespace-nowrap">Réalisé: 3.7k</div>
+</div>
+<div class="w-3 md:w-6 bg-outline-variant rounded-t-sm h-[65%] transition-all duration-500 opacity-60 relative"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase absolute bottom-0">Avr</span>
+</div>
+<!-- Mai -->
+<div class="relative flex flex-col items-center gap-2 group w-1/6 h-full justify-end pb-8 z-10">
+<div class="flex items-end gap-1 w-full justify-center h-full">
+<div class="w-3 md:w-6 bg-primary rounded-t-sm h-[85%] transition-all duration-500 hover:opacity-80 relative cursor-pointer">
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface font-label-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 whitespace-nowrap">Réalisé: 4.2k</div>
+</div>
+<div class="w-3 md:w-6 bg-outline-variant rounded-t-sm h-[70%] transition-all duration-500 opacity-60 relative"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase absolute bottom-0 text-primary font-bold">Mai</span>
+</div>
+</div>
+<div class="flex items-center justify-center gap-6 mt-6 pt-4 border-t border-outline-variant/30">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-sm bg-primary"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Volume Réalisé</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-sm bg-outline-variant opacity-60"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Objectif Planifié</span>
+</div>
+</div>
+</div>
+<!-- Right Column: Donut & Times -->
+<div class="flex flex-col gap-6 lg:col-span-1">
+<!-- Rentabilité Secteur -->
+<div class="bg-surface-container-lowest rounded-2xl shadow-md p-6 flex flex-col relative overflow-hidden">
+<div class="flex items-center justify-between mb-4 relative z-10">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">CA par Secteur</h3>
+</div>
+<div class="relative flex items-center justify-center h-48 my-4 z-10">
+<!-- SVG Donut Chart -->
+<svg class="w-48 h-48 -rotate-90" viewbox="0 0 100 100">
+<!-- Background ring -->
+<circle class="text-surface-variant" cx="50" cy="50" fill="none" r="40" stroke="currentColor" stroke-width="12"></circle>
+<!-- Segment 1: Nord (45%) -->
+<circle class="text-primary transition-all duration-1000 origin-center" cx="50" cy="50" fill="none" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="138.16" stroke-width="12"></circle>
+<!-- Segment 2: Sud (30%) - Offset starts at 45% of 251.2 = 113.04 -->
+<circle class="text-secondary transition-all duration-1000 origin-center" cx="50" cy="50" fill="none" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="175.84" stroke-width="12" style="transform: rotate(162deg);"></circle>
+<!-- Segment 3: Est (15%) -->
+<circle class="text-tertiary transition-all duration-1000 origin-center" cx="50" cy="50" fill="none" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="213.52" stroke-width="12" style="transform: rotate(270deg);"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-kpi-value text-[24px] text-on-surface font-bold leading-none">2.4M</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant">CA Total</span>
+</div>
+</div>
+<div class="flex flex-col gap-3 relative z-10">
+<div class="flex items-center justify-between group cursor-pointer">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-primary group-hover:scale-125 transition-transform"></div>
+<span class="font-label-md text-label-md text-on-surface">Zone Nord</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface font-semibold">45%</span>
+</div>
+<div class="flex items-center justify-between group cursor-pointer">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-secondary group-hover:scale-125 transition-transform"></div>
+<span class="font-label-md text-label-md text-on-surface">Zone Sud</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface font-semibold">30%</span>
+</div>
+<div class="flex items-center justify-between group cursor-pointer">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-tertiary group-hover:scale-125 transition-transform"></div>
+<span class="font-label-md text-label-md text-on-surface">Zone Est</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface font-semibold">15%</span>
+</div>
+</div>
+</div>
+<!-- Temps Moyen -->
+<div class="bg-primary text-on-primary rounded-2xl shadow-md p-6 flex items-center justify-between relative overflow-hidden">
+<div class="absolute -right-8 -top-8 w-32 h-32 bg-on-primary/10 rounded-full blur-2xl"></div>
+<div class="flex flex-col relative z-10">
+<span class="font-label-md text-label-md text-primary-container uppercase tracking-wider mb-1">Durée moy. inter.</span>
+<div class="flex items-baseline gap-1">
+<span class="font-kpi-value text-[32px] font-bold tracking-tight">1h 45</span>
+</div>
+</div>
+<div class="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center relative z-10 shadow-inner">
+<span class="material-symbols-outlined text-primary-fixed">timer</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Alertes Critiques -->
+<div class="bg-surface-container-lowest rounded-2xl shadow-md w-full flex flex-col mt-4 overflow-hidden">
+<div class="flex items-center justify-between p-6 border-b border-outline-variant/30 bg-surface/50">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center text-error">
+<span class="material-symbols-outlined">warning</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Alertes Opérationnelles</h3>
+<p class="font-body-md text-label-sm text-on-surface-variant">Incidents et retards nécessitant une action</p>
+</div>
+</div>
+<button class="font-label-md text-label-md text-primary hover:text-on-primary-fixed-variant transition-colors flex items-center gap-1">
+                Voir tout <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+<div class="w-full overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant font-label-md text-label-md uppercase tracking-wider border-b border-outline-variant/30">
+<th class="p-4 pl-6 font-semibold w-1/4">Intervention</th>
+<th class="p-4 font-semibold w-1/6">Site</th>
+<th class="p-4 font-semibold w-1/6">Type d'Alerte</th>
+<th class="p-4 font-semibold w-1/4">Détail</th>
+<th class="p-4 pr-6 font-semibold text-right">Action</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md">
+<tr class="border-b border-outline-variant/10 hover:bg-surface transition-colors group">
+<td class="p-4 pl-6">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-error shrink-0"></div>
+<div class="flex flex-col min-w-0">
+<span class="font-semibold text-on-surface truncate">INT-2023-4589</span>
+<span class="text-label-sm text-on-surface-variant font-mono">Eq. Alpha-3</span>
+</div>
+</div>
+</td>
+<td class="p-4 text-on-surface truncate">Raffinerie Nord, Dépôt B</td>
+<td class="p-4">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-error-container/30 border border-error/50 text-error font-label-sm text-[11px] whitespace-nowrap">
+<span class="material-symbols-outlined text-[14px]">timer_off</span> Retard Critique
+                            </div>
+</td>
+<td class="p-4 text-on-surface-variant truncate">&gt; 2h de retard sur planning initial</td>
+<td class="p-4 pr-6 text-right">
+<button class="px-3 py-1.5 bg-surface-container hover:bg-surface-variant text-on-surface rounded border border-outline-variant font-label-md text-[12px] transition-colors shadow-sm opacity-0 group-hover:opacity-100 focus:opacity-100">
+                                Gérer
+                            </button>
+</td>
+</tr>
+<tr class="border-b border-outline-variant/10 hover:bg-surface transition-colors group">
+<td class="p-4 pl-6">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-status-on-route shrink-0"></div>
+<div class="flex flex-col min-w-0">
+<span class="font-semibold text-on-surface truncate">INT-2023-4592</span>
+<span class="text-label-sm text-on-surface-variant font-mono">Eq. Delta-1</span>
+</div>
+</div>
+</td>
+<td class="p-4 text-on-surface truncate">Zone Industrielle Est, Lot 4</td>
+<td class="p-4">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-status-on-route/10 border border-status-on-route/50 text-status-on-route font-label-sm text-[11px] whitespace-nowrap">
+<span class="material-symbols-outlined text-[14px]">report_problem</span> Incident Mineur
+                            </div>
+</td>
+<td class="p-4 text-on-surface-variant truncate">Véhicule immobilisé, attente dépanneuse</td>
+<td class="p-4 pr-6 text-right">
+<button class="px-3 py-1.5 bg-surface-container hover:bg-surface-variant text-on-surface rounded border border-outline-variant font-label-md text-[12px] transition-colors shadow-sm opacity-0 group-hover:opacity-100 focus:opacity-100">
+                                Gérer
+                            </button>
+</td>
+</tr>
+<tr class="hover:bg-surface transition-colors group">
+<td class="p-4 pl-6">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-status-on-route shrink-0"></div>
+<div class="flex flex-col min-w-0">
+<span class="font-semibold text-on-surface truncate">INT-2023-4601</span>
+<span class="text-label-sm text-on-surface-variant font-mono">Eq. Bravo-2</span>
+</div>
+</div>
+</td>
+<td class="p-4 text-on-surface truncate">Port Autonome, Quai Sud</td>
+<td class="p-4">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-status-on-route/10 border border-status-on-route/50 text-status-on-route font-label-sm text-[11px] whitespace-nowrap">
+<span class="material-symbols-outlined text-[14px]">assignment_late</span> Non-conformité
+                            </div>
+</td>
+<td class="p-4 text-on-surface-variant truncate">Absence document de transport matières dangeureuses</td>
+<td class="p-4 pr-6 text-right">
+<button class="px-3 py-1.5 bg-surface-container hover:bg-surface-variant text-on-surface rounded border border-outline-variant font-label-md text-[12px] transition-colors shadow-sm opacity-0 group-hover:opacity-100 focus:opacity-100">
+                                Gérer
+                            </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div></main></div></body></html>
