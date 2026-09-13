@@ -7,10 +7,10 @@
   },
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "npm run seed && next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "tsx --env-file=.env.local scripts/seed-admin.ts",
+    "seed": "tsx scripts/seed-admin.ts",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage"
   },

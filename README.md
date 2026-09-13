@@ -48,8 +48,8 @@ NEXTAUTH_URL=http://localhost:3000
    | `NEXTAUTH_URL` | URL publique du déploiement, ex. `https://<projet>.vercel.app` |
 
 3. Dans MongoDB Atlas → **Network Access**, autoriser `0.0.0.0/0` (Vercel n'a pas d'IP sortante fixe sur le plan standard), ou utiliser une IP fixe via [Vercel Secure Compute](https://vercel.com/docs/secure-compute) si nécessaire.
-4. Déployer. Le build (`next build`) et le démarrage (`next start`) sont gérés automatiquement par Vercel.
-5. Pour peupler les comptes de démonstration en production, exécuter `npm run seed` en local avec `MONGODB_URI` pointant vers la base de production (ou une commande équivalente côté Atlas), plutôt que de committer des identifiants.
+4. Déployer. Le build Vercel exécute automatiquement `npm run seed`, puis `next build`. Le seed crée les comptes et les données de démonstration lors du premier déploiement uniquement ; les déploiements suivants l'ignorent si les deux comptes de base existent déjà.
+5. Le seed utilise `MONGODB_URI` fourni par Vercel. Pour l'exécuter manuellement, définir cette variable dans l'environnement avant de lancer `npm run seed`, plutôt que de committer des identifiants.
 
 ## Documentation
 

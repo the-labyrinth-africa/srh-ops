@@ -11,6 +11,17 @@ import { Operation } from "../models/Operation";
 async function seed() {
   await connectDB();
 
+  const [adminExists, dispatcherExists] = await Promise.all([
+    User.exists({ email: "admin@srh.com" }),
+    User.exists({ email: "dispatcher@srh.com" }),
+  ]);
+
+  if (adminExists && dispatcherExists) {
+    console.log("Seed ignoré — les utilisateurs de base existent déjà");
+    await User.db.close();
+    return;
+  }
+
   const hash = await bcrypt.hash("admin123", 10);
   await User.findOneAndUpdate(
     { email: "admin@srh.com" },
@@ -93,10 +104,10 @@ async function seed() {
   }
 
   console.log("Seed terminé — admin@srh.com / admin123");
-  process.exit(0);
+  await User.db.close();
 }
 
 seed().catch((err) => {
   console.error(err);
-  process.exit(1);
+  User.db.close().finally(() => process.exit(1));
 });
