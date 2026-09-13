@@ -26,7 +26,7 @@ async function seed() {
   await User.findOneAndUpdate(
     { email: "admin@srh.com" },
     {
-      nom: "Jean Dupont",
+      nom: "Modeste Kouassi",
       email: "admin@srh.com",
       motDePasseHash: hash,
       role: "admin",
@@ -37,7 +37,7 @@ async function seed() {
   await User.findOneAndUpdate(
     { email: "dispatcher@srh.com" },
     {
-      nom: "Marie Martin",
+      nom: "Jeanne Silué",
       email: "dispatcher@srh.com",
       motDePasseHash: await bcrypt.hash("dispatch123", 10),
       role: "dispatcher",
@@ -62,7 +62,7 @@ async function seed() {
 
     const equipe = await Equipe.create({
       nom: "Équipe Alpha",
-      membres: ["Pierre Durand", "Luc Bernard"],
+      membres: ["Pierre Koné", "Luc OFFO"],
       disponibilite: true,
     });
 
