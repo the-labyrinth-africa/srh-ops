@@ -48,7 +48,7 @@ export function Header({
         </button>
         <button
           type="button"
-          onClick={() => signOut({ callbackUrl: "/login" })}
+          onClick={() => signOut({ callbackUrl: `${window.location.origin}/login` })}
           className="flex items-center gap-3 pl-2"
           title="Déconnexion"
         >

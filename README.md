@@ -45,7 +45,7 @@ NEXTAUTH_URL=http://localhost:3000
    |----------|--------|
    | `MONGODB_URI` | URI de connexion MongoDB Atlas |
    | `NEXTAUTH_SECRET` | secret généré via `openssl rand -base64 32` (différent du secret de dev) |
-   | `NEXTAUTH_URL` | URL publique du déploiement, ex. `https://<projet>.vercel.app` |
+   | `NEXTAUTH_URL` | URL publique du déploiement, ex. `https://<projet>.vercel.app` (ne pas laisser `http://localhost:3000`) |
 
 3. Dans MongoDB Atlas → **Network Access**, autoriser `0.0.0.0/0` (Vercel n'a pas d'IP sortante fixe sur le plan standard), ou utiliser une IP fixe via [Vercel Secure Compute](https://vercel.com/docs/secure-compute) si nécessaire.
 4. Déployer. Le build Vercel exécute automatiquement `npm run seed`, puis `next build`. Le seed crée les comptes et les données de démonstration lors du premier déploiement uniquement ; les déploiements suivants l'ignorent si les deux comptes de base existent déjà.
