@@ -5,15 +5,18 @@ import { requireAuth } from "@/lib/api-auth";
 import { canTransition } from "@/lib/status-transitions";
 import { Operation } from "@/models/Operation";
 import { statusUpdateSchema } from "@/lib/validators/operation";
+import { guardObjectId } from "@/lib/mongo-id";
 import type { OperationStatus } from "@/types";
 
 type Params = { params: Promise<{ id: string }> };
 
 export async function PATCH(req: NextRequest, { params }: Params) {
-  const auth = await requireAuth(true);
+  const auth = await requireAuth();
   if (auth.error) return auth.error;
 
   const { id } = await params;
+  const guard = guardObjectId(id);
+  if (!guard.valid) return guard.error;
   const body = await req.json();
   const parsed = statusUpdateSchema.safeParse(body);
   if (!parsed.success) {
@@ -42,6 +45,26 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   }
 
   operation.statut = newStatus;
+
+  if (parsed.data.quantiteCollectee !== undefined) {
+    operation.quantiteCollectee = parsed.data.quantiteCollectee;
+  }
+  if (parsed.data.uniteQuantite) {
+    operation.uniteQuantite = parsed.data.uniteQuantite;
+  }
+  if (parsed.data.remarquesTerrain !== undefined) {
+    operation.remarquesTerrain = parsed.data.remarquesTerrain;
+  }
+  if (parsed.data.nomSignataireClient !== undefined) {
+    operation.nomSignataireClient = parsed.data.nomSignataireClient;
+  }
+  if (parsed.data.signatureClient !== undefined) {
+    operation.signatureClient = parsed.data.signatureClient;
+  }
+  if (parsed.data.photos !== undefined) {
+    operation.photos = parsed.data.photos;
+  }
+
   operation.historiqueStatuts.push({
     statut: newStatus,
     date: new Date(),
@@ -53,9 +76,10 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
   const populated = await Operation.findById(id)
     .populate("clientId", "nom")
-    .populate("siteId", "nom")
+    .populate("siteId", "nom adresse")
     .populate("equipeId", "nom")
     .populate("vehiculeId", "identification")
+    .populate("equipementIds", "nom")
     .lean();
 
   return NextResponse.json(populated);

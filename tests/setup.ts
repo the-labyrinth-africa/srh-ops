@@ -1,7 +1,13 @@
 import { beforeAll, afterAll, beforeEach } from "vitest";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
+import "fake-indexeddb/auto";
 
+// Réinitialise la base hors-ligne entre chaque test d'outbox.
+beforeEach(async () => {
+  const { clearOutbox } = await import("@/lib/offline/outbox");
+  await clearOutbox().catch(() => {});
+});
 let mongoServer: MongoMemoryServer;
 
 beforeAll(async () => {

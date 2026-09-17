@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import { requireAuth } from "@/lib/api-auth";
 import { Site } from "@/models/Site";
 import { siteSchema } from "@/lib/validators/site";
+import { guardObjectId } from "@/lib/mongo-id";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -11,6 +12,8 @@ export async function GET(_req: NextRequest, { params }: Params) {
   if (auth.error) return auth.error;
 
   const { id } = await params;
+  const guard = guardObjectId(id);
+  if (!guard.valid) return guard.error;
   await connectDB();
   const site = await Site.findById(id).populate("clientId", "nom").lean();
   if (!site) return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
@@ -22,6 +25,8 @@ export async function PUT(req: NextRequest, { params }: Params) {
   if (auth.error) return auth.error;
 
   const { id } = await params;
+  const guard = guardObjectId(id);
+  if (!guard.valid) return guard.error;
   const body = await req.json();
   const parsed = siteSchema.safeParse(body);
   if (!parsed.success) {
@@ -39,6 +44,8 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   if (auth.error) return auth.error;
 
   const { id } = await params;
+  const guard = guardObjectId(id);
+  if (!guard.valid) return guard.error;
   await connectDB();
   const site = await Site.findByIdAndDelete(id);
   if (!site) return NextResponse.json({ error: "Non trouvé" }, { status: 404 });

@@ -14,7 +14,7 @@ Le module doit permettre :
 - Le suivi de leur statut du début à la fin.
 - Une vision globale et filtrable de l'ensemble des opérations pour la direction.
 
-Ce module constitue la **Phase 1** du projet global et sert de fondation aux modules suivants (application mobile, traçabilité, tableau de bord, etc.).
+Ce module constitue la **Phase 1** du projet global et sert de fondation aux modules suivants (PWA terrain, traçabilité, tableau de bord, etc.).
 
 ---
 
@@ -33,7 +33,7 @@ Ce module constitue la **Phase 1** du projet global et sert de fondation aux mod
 10. Authentification et gestion des rôles (Admin / Dispatcher / Lecture seule).
 
 ### 2.2 Hors périmètre (modules suivants)
-- Application mobile terrain (Phase 2).
+- PWA terrain : application installable et utilisable hors-ligne (Phase 2).
 - Rapport digital d'intervention détaillé avec photos/signature (Phase 2).
 - Traçabilité des déchets (Phase 3).
 - Espace client / demandes en ligne (Phase 4).
@@ -303,7 +303,7 @@ srh-planification/
 - Endpoint `/api/dashboard/stats` (compteurs : prévues, en cours, terminées, retardées, annulées).
 - Page tableau de bord avec indicateurs synthétiques.
 - Gestion des rôles/permissions sur les actions sensibles.
-- Responsive / adaptation mobile-web (en attendant l'app mobile Phase 2).
+- Responsive / adaptation mobile-web (base de la PWA Phase 2).
 
 ### Sprint 5 — Tests, recette & déploiement (1 semaine)
 - Tests fonctionnels avec l'équipe SRH (recette utilisateur).
@@ -338,7 +338,7 @@ srh-planification/
 ## 10. ÉVOLUTIVITÉ VERS LES MODULES SUIVANTS
 
 Le modèle de données et l'architecture sont conçus pour permettre l'ajout progressif de :
-- **Phase 2** : champ `rapportId`, `photos`, `signatureClient` sur `Operation` + endpoint mobile.
+- **Phase 2** : champ `rapportId`, `photos`, `signatureClient` sur `Operation` + console terrain en PWA (installable, hors-ligne).
 - **Phase 3** : collection `traçabilite` liée à `Operation` (identifiant de suivi, volumes, traitement).
 - **Phase 4** : espace client (lecture seule sur `Operation` filtrée par `clientId`) + formulaire de demande en ligne créant une `Operation` en statut `Demande`.
 - **Phase 5** : enrichissement du tableau de bord (graphiques, exports).

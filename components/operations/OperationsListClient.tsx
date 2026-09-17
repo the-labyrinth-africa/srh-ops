@@ -12,6 +12,12 @@ interface OperationItem {
   natureIntervention: string;
   dateHeurePrevue: string;
   statut: OperationStatus;
+  quantiteCollectee?: number;
+  uniteQuantite?: "Litres" | "Kg" | "M3" | "Bacs";
+  nomSignataireClient?: string;
+  signatureClient?: string;
+  photos?: { url: string; nom: string }[];
+  rapportPdf?: string;
   clientId?: { nom: string };
   siteId?: { nom: string };
   equipeId?: { nom: string };
@@ -96,14 +102,15 @@ export function OperationsListClient() {
                 <th className="px-4 py-3 text-left font-label-md text-label-md uppercase text-on-surface-variant">Client / Site</th>
                 <th className="px-4 py-3 text-left font-label-md text-label-md uppercase text-on-surface-variant">Date</th>
                 <th className="px-4 py-3 text-left font-label-md text-label-md uppercase text-on-surface-variant">Ressources</th>
+                <th className="px-4 py-3 text-left font-label-md text-label-md uppercase text-on-surface-variant">Suivi terrain</th>
                 <th className="px-4 py-3 text-left font-label-md text-label-md uppercase text-on-surface-variant">Statut</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={5} className="px-4 py-8 text-center font-body-md text-body-md text-on-surface-variant">Chargement...</td></tr>
+                <tr><td colSpan={6} className="px-4 py-8 text-center font-body-md text-body-md text-on-surface-variant">Chargement...</td></tr>
               ) : items.length === 0 ? (
-                <tr><td colSpan={5} className="px-4 py-8 text-center font-body-md text-body-md text-on-surface-variant">Aucune opération</td></tr>
+                <tr><td colSpan={6} className="px-4 py-8 text-center font-body-md text-body-md text-on-surface-variant">Aucune opération</td></tr>
               ) : (
                 items.map((op, i) => (
                   <tr key={op._id} className={`cursor-pointer hover:bg-surface-container-high/50 ${i % 2 === 0 ? "bg-surface-container-lowest" : ""}`}>
@@ -120,6 +127,46 @@ export function OperationsListClient() {
                     </td>
                     <td className="px-4 py-4 font-label-sm text-label-sm text-on-surface-variant">
                       {op.equipeId?.nom ?? "—"} / {op.vehiculeId?.identification ?? "—"}
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {op.quantiteCollectee !== undefined && op.quantiteCollectee > 0 && (
+                          <span
+                            title={`${op.quantiteCollectee.toLocaleString("fr-FR")} ${op.uniteQuantite || "L"}`}
+                            className="flex items-center gap-0.5 rounded-full bg-surface-container-low px-2 py-0.5 font-label-sm text-label-sm text-on-surface-variant"
+                          >
+                            <span className="material-symbols-outlined text-[13px]">oil_barrel</span>
+                            {op.quantiteCollectee.toLocaleString("fr-FR")} {op.uniteQuantite === "Litres" ? "L" : op.uniteQuantite}
+                          </span>
+                        )}
+                        {op.signatureClient && (
+                          <span
+                            title={op.nomSignataireClient ? `Signé par ${op.nomSignataireClient}` : "Signé"}
+                            className="flex items-center gap-0.5 rounded-full bg-status-completed/10 px-2 py-0.5 font-label-sm text-label-sm text-status-completed"
+                          >
+                            <span className="material-symbols-outlined text-[13px]">draw</span>
+                            Signé
+                          </span>
+                        )}
+                        {(op.photos?.length ?? 0) > 0 && (
+                          <span
+                            title={`${op.photos?.length} photo(s)`}
+                            className="flex items-center gap-0.5 rounded-full bg-secondary-container/30 px-2 py-0.5 font-label-sm text-label-sm text-on-surface-variant"
+                          >
+                            <span className="material-symbols-outlined text-[13px]">photo_library</span>
+                            {op.photos?.length}
+                          </span>
+                        )}
+                        {op.rapportPdf && (
+                          <span
+                            title="Rapport PDF généré"
+                            className="flex items-center gap-0.5 rounded-full bg-status-reported/10 px-2 py-0.5 font-label-sm text-label-sm text-status-reported"
+                          >
+                            <span className="material-symbols-outlined text-[13px]">picture_as_pdf</span>
+                            PDF
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-4">
                       <StatusBadge status={op.statut} />

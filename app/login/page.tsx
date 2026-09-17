@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -10,7 +11,7 @@ const LOGO_URL =
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -22,7 +23,7 @@ export default function LoginPage() {
     setError("");
 
     const result = await signIn("credentials", {
-      email,
+      identifier,
       password,
       redirect: false,
     });
@@ -30,7 +31,7 @@ export default function LoginPage() {
     setLoading(false);
 
     if (result?.error) {
-      setError("Identifiants incorrects");
+      setError("Identifiants incorrects (username/email ou mot de passe)");
       return;
     }
 
@@ -72,20 +73,20 @@ export default function LoginPage() {
           )}
 
           <div className="relative flex flex-col gap-1">
-            <label htmlFor="email" className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface">
-              Adresse Email
+            <label htmlFor="identifier" className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface">
+              Nom d&apos;utilisateur ou Email
             </label>
             <div className="relative flex items-center">
               <span className="material-symbols-outlined pointer-events-none absolute left-3 text-on-surface-variant/50">
-                mail
+                person
               </span>
               <input
-                id="email"
-                type="email"
+                id="identifier"
+                type="text"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="identifiant@srh.com"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                placeholder="username ou email@srh.com"
                 className="h-12 w-full rounded-DEFAULT border-none bg-surface-container-low pl-10 pr-4 font-body-md text-body-md text-on-surface outline-none transition-all placeholder:text-on-surface-variant/40 focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary"
               />
             </div>
@@ -96,6 +97,12 @@ export default function LoginPage() {
               <label htmlFor="password" className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface">
                 Mot de passe
               </label>
+              <Link
+                href="/forgot-password"
+                className="font-label-sm text-label-sm text-primary hover:underline"
+              >
+                Mot de passe oublié ?
+              </Link>
             </div>
             <div className="relative flex items-center">
               <span className="material-symbols-outlined pointer-events-none absolute left-3 text-on-surface-variant/50">
@@ -145,7 +152,7 @@ export default function LoginPage() {
       </div>
 
       <div className="absolute bottom-margin-mobile text-center font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant/40 lg:bottom-margin-desktop">
-        © 2024 SRH Platform
+        © 2026 SRH Ops Platform
       </div>
     </main>
   );

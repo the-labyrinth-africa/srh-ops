@@ -1,4 +1,6 @@
 import bcrypt from "bcryptjs";
+import { loadEnvConfig } from "@next/env";
+loadEnvConfig(process.cwd());
 import { connectDB } from "../lib/db";
 import { User } from "../models/User";
 import { Client } from "../models/Client";
@@ -9,7 +11,32 @@ import { Equipement } from "../models/Equipement";
 import { Operation } from "../models/Operation";
 
 async function seed() {
+  process.env.MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/srh-ops";
   await connectDB();
+
+  const backfillUsername = async () => {
+    const missing = await User.find({
+      $or: [{ username: { $exists: false } }, { username: null }, { username: "" }],
+    });
+    for (const u of missing) {
+      const base = (u.email || "user")
+        .split("@")[0]
+        .toLowerCase()
+        .replace(/[^a-z0-9_.-]/g, "")
+        .slice(0, 24);
+      let candidate = base || "user";
+      let suffix = 1;
+      while (await User.exists({ username: candidate, _id: { $ne: u._id } })) {
+        candidate = `${base}${suffix++}`;
+      }
+      await User.updateOne({ _id: u._id }, { $set: { username: candidate } });
+    }
+    if (missing.length > 0) {
+      console.log(`Username rétabli pour ${missing.length} utilisateur(s)`);
+    }
+  };
+
+  await backfillUsername();
 
   const [adminExists, dispatcherExists] = await Promise.all([
     User.exists({ email: "admin@srh.com" }),
@@ -26,6 +53,7 @@ async function seed() {
   await User.findOneAndUpdate(
     { email: "admin@srh.com" },
     {
+      username: "admin",
       nom: "Modeste Kouassi",
       email: "admin@srh.com",
       motDePasseHash: hash,
@@ -37,6 +65,7 @@ async function seed() {
   await User.findOneAndUpdate(
     { email: "dispatcher@srh.com" },
     {
+      username: "dispatcher",
       nom: "Jeanne Silué",
       email: "dispatcher@srh.com",
       motDePasseHash: await bcrypt.hash("dispatch123", 10),

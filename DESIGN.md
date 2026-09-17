@@ -140,7 +140,7 @@ The hierarchy is structured to support high-density data visualization. We intro
 The layout follows a **Fluid Grid** model with a base 4px/8px rhythm to ensure perfect alignment of modular components. 
 
 - **Desktop (Back-office):** Utilizes a persistent 260px lateral sidebar for primary navigation. The content area uses a 12-column grid with 20px gutters. Information density is high, favoring "compact" views for data tables.
-- **Mobile (Field App):** Shifts to a "Bottom Navigation" model to prioritize one-handed thumb access. Margins are fixed at 16px to maximize the width of action cards. 
+- **Mobile (PWA Terrain):** Shifts to a "Bottom Navigation" model to prioritize one-handed thumb access. Margins are fixed at 16px to maximize the width of action cards. 
 - **Reflow Rules:** Components like KPIs and Status Badges stack vertically on mobile but align horizontally in desktop table cells. Modular "Phases" are designed to be inserted as new grid rows or sidebar modules without disrupting existing workflows.
 
 ## Elevation & Depth

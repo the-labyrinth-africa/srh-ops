@@ -1,28 +1,46 @@
 import mongoose, { Schema, models, model } from "mongoose";
 import type { UserRole } from "@/types";
 
-export interface IUser {
+export interface IUserModel {
   _id: mongoose.Types.ObjectId;
+  username: string;
   nom: string;
   email: string;
   motDePasseHash: string;
   role: UserRole;
+  clientId?: mongoose.Types.ObjectId;
+  equipeId?: mongoose.Types.ObjectId;
+  telephone?: string;
+  mustChangePassword?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
 
-const UserSchema = new Schema<IUser>(
+const UserSchema = new Schema<IUserModel>(
   {
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
     nom: { type: String, required: true },
-    email: { type: String, required: true, unique: true, lowercase: true },
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     motDePasseHash: { type: String, required: true },
     role: {
       type: String,
-      enum: ["admin", "dispatcher", "lecture"],
+      enum: ["admin", "dispatcher", "chauffeur", "client", "lecture"],
       default: "dispatcher",
     },
+    clientId: { type: Schema.Types.ObjectId, ref: "Client" },
+    equipeId: { type: Schema.Types.ObjectId, ref: "Equipe" },
+    telephone: { type: String, default: "" },
+    mustChangePassword: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
 
-export const User = models.User || model<IUser>("User", UserSchema);
+UserSchema.index({ role: 1 });
+
+export const User = models.User || model<IUserModel>("User", UserSchema);

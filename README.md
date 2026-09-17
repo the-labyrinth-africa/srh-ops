@@ -51,6 +51,32 @@ NEXTAUTH_URL=http://localhost:3000
 4. Déployer. Le build Vercel exécute automatiquement `npm run seed`, puis `next build`. Le seed crée les comptes et les données de démonstration lors du premier déploiement uniquement ; les déploiements suivants l'ignorent si les deux comptes de base existent déjà.
 5. Le seed utilise `MONGODB_URI` fourni par Vercel. Pour l'exécuter manuellement, définir cette variable dans l'environnement avant de lancer `npm run seed`, plutôt que de committer des identifiants.
 
+## Phase 2 — PWA terrain (installable + hors-ligne)
+
+La plateforme est une **PWA installable** : ajout à l'écran d'accueil, service worker
+et rejeu des données saisies hors-ligne (outbox FIFO).
+
+### Installer sur mobile / desktop
+
+1. **Déployer sur HTTPS** (Vercel ou localhost via HTTP — le prompt d'installation
+   n'apparaît pas en HTTP sans navigateur Chrome/Brave/Edge visible).
+2. Ouvrir l'app dans **Chrome** (Android) ou **Edge/Chrome** (desktop) :
+   - Android : menu ⋮ → « Ajouter à l'écran d'accueil » / bannière d'installation.
+   - Desktop : icône d'installation dans la barre d'adresse (＋ voir infobulle).
+3. L'app se lance en plein écran (`display: standalone`) et affiche l'icône SRH.
+
+### Mode hors-ligne
+
+Le service worker (`public/sw.js`) met en cache les assets ; toute la navigation
+(planning, opérations du jour, listes) reste consultable sans réseau.
+
+### Saisie hors-ligne (outbox)
+
+Les actions (changement de statut, ajout de photos) sont **mises en file** dans
+IndexedDB (`lib/offline/outbox.ts`) puis **rejouées en FIFO** lors du retour de la
+connexion via `replayOutbox()`. Les mutations échouées restent en file et sont
+rejouées au prochain passage.
+
 ## Documentation
 
 - [PLAN.md](./PLAN.md) — plan d'exécution

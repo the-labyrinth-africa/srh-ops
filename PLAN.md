@@ -18,6 +18,7 @@
 | S3 | Statuts & Planning | 1–2 sem. | Terminé | Historique statuts, calendrier, vue du jour |
 | S4 | Dashboard & Finitions | 1 sem. | Terminé | KPI, permissions, responsive mobile |
 | S5 | Recette & Déploiement | 1 sem. | Terminé | Tests unitaires & E2E (100%), build prod, docs, validation |
+| S1.5 | Collectes Récurrentes | 1 sem. | Terminé | Modèle Recurrence, Moteur de génération auto sans doublon, UI /recurrences, tests (49/49) |
 
 ---
 
@@ -31,7 +32,7 @@ Développer un système permettant de **créer, planifier, affecter et suivre** 
 2. **Suivre le statut** de chaque opération du début à la fin.
 3. **Offrir une vision globale** filtrable de l'ensemble des opérations pour la direction.
 
-Ce module constitue la **Phase 1** du projet global et sert de fondation aux modules suivants (application mobile, traçabilité, tableau de bord avancé, etc.).
+Ce module constitue la **Phase 1** du projet global et sert de fondation aux modules suivants (PWA terrain, traçabilité, tableau de bord avancé, etc.).
 
 ---
 
@@ -52,7 +53,7 @@ Ce module constitue la **Phase 1** du projet global et sert de fondation aux mod
 
 ### 2.2 Hors périmètre (modules suivants)
 
-- Application mobile terrain (Phase 2).
+- PWA terrain : application installable et utilisable hors-ligne (Phase 2).
 - Rapport digital d'intervention détaillé avec photos/signature (Phase 2).
 - Traçabilité des déchets (Phase 3).
 - Espace client / demandes en ligne (Phase 4).
@@ -575,7 +576,7 @@ Avant et pendant le développement, SRH doit fournir :
 
 | Phase | Module | Évolutions prévues |
 |-------|--------|-------------------|
-| 2 | App mobile terrain | `rapportId`, `photos`, `signatureClient` sur Operation + endpoint mobile |
+| 2 | PWA terrain & rapport digital | `rapportId`, `photos`, `signatureClient` sur Operation + installabilité hors-ligne (manifest & service worker) |
 | 3 | Traçabilité | Collection `tracabilite` liée à Operation (identifiant suivi, volumes, traitement) |
 | 4 | Espace client | Lecture seule sur Operation filtrée par `clientId` + formulaire demande en ligne |
 | 5 | Notifications | Enrichissement dashboard (graphiques, exports), alertes automatisées |

@@ -11,19 +11,31 @@ declare module "next-auth" {
       id: string;
       name: string;
       email: string;
+      username: string;
       role: UserRole;
+      clientId?: string;
+      equipeId?: string;
+      mustChangePassword?: boolean;
     };
   }
 
   interface User {
+    username: string;
     role: UserRole;
+    clientId?: string;
+    equipeId?: string;
+    mustChangePassword?: boolean;
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
     id: string;
+    username: string;
     role: UserRole;
+    clientId?: string;
+    equipeId?: string;
+    mustChangePassword?: boolean;
   }
 }
 
@@ -32,27 +44,35 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
+        identifier: { label: "Email ou Nom d'utilisateur", type: "text" },
+        password: { label: "Mot de passe", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        const identifier = credentials?.identifier?.trim() || (credentials as Record<string, string>)?.email?.trim();
+        const password = credentials?.password;
+
+        if (!identifier || !password) return null;
 
         await connectDB();
-        const user = await User.findOne({ email: credentials.email.toLowerCase() });
+        const query = identifier.includes("@")
+          ? { email: identifier.toLowerCase() }
+          : { username: identifier.toLowerCase() };
+
+        const user = await User.findOne(query);
         if (!user) return null;
 
-        const valid = await bcrypt.compare(
-          credentials.password,
-          user.motDePasseHash
-        );
+        const valid = await bcrypt.compare(password, user.motDePasseHash);
         if (!valid) return null;
 
         return {
           id: user._id.toString(),
           name: user.nom,
           email: user.email,
+          username: user.username || user.email.split("@")[0],
           role: user.role,
+          clientId: user.clientId ? user.clientId.toString() : undefined,
+          equipeId: user.equipeId ? user.equipeId.toString() : undefined,
+          mustChangePassword: user.mustChangePassword,
         };
       },
     }),
@@ -63,14 +83,22 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.username = user.username;
         token.role = user.role;
+        token.clientId = user.clientId;
+        token.equipeId = user.equipeId;
+        token.mustChangePassword = user.mustChangePassword;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id;
+        session.user.username = token.username;
         session.user.role = token.role;
+        session.user.clientId = token.clientId;
+        session.user.equipeId = token.equipeId;
+        session.user.mustChangePassword = token.mustChangePassword;
       }
       return session;
     },
