@@ -10,6 +10,7 @@ import { Vehicule } from "@/models/Vehicule";
 import { Equipement } from "@/models/Equipement";
 import { User } from "@/models/User";
 import { operationSchema } from "@/lib/validators/operation";
+import { guardObjectId } from "@/lib/mongo-id";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -18,6 +19,8 @@ export async function GET(_req: NextRequest, { params }: Params) {
   if (auth.error) return auth.error;
 
   const { id } = await params;
+  const guard = guardObjectId(id);
+  if (!guard.valid) return guard.error;
   await connectDB();
   // Ensure models are registered for populate
   void Client; void Site; void Equipe; void Vehicule; void Equipement; void User;
@@ -40,6 +43,8 @@ export async function PUT(req: NextRequest, { params }: Params) {
   if (auth.error) return auth.error;
 
   const { id } = await params;
+  const guard = guardObjectId(id);
+  if (!guard.valid) return guard.error;
   const body = await req.json();
   const parsed = operationSchema.safeParse(body);
   if (!parsed.success) {
@@ -85,6 +90,8 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   if (auth.error) return auth.error;
 
   const { id } = await params;
+  const guard = guardObjectId(id);
+  if (!guard.valid) return guard.error;
   await connectDB();
   const operation = await Operation.findByIdAndDelete(id);
   if (!operation) return NextResponse.json({ error: "Non trouvé" }, { status: 404 });

@@ -1,4 +1,30 @@
-export type UserRole = "admin" | "dispatcher" | "lecture";
+export type UserRole = "admin" | "dispatcher" | "chauffeur" | "client" | "lecture";
+
+export const USER_ROLES: UserRole[] = [
+  "admin",
+  "dispatcher",
+  "chauffeur",
+  "client",
+  "lecture",
+];
+
+export type QuantiteUnite = "Litres" | "Kg" | "M3" | "Bacs";
+
+export const QUANTITE_UNITES: QuantiteUnite[] = ["Litres", "Kg", "M3", "Bacs"];
+
+export interface IUser {
+  _id: string;
+  username: string;
+  nom: string;
+  email: string;
+  role: UserRole;
+  telephone?: string;
+  clientId?: string;
+  equipeId?: string;
+  mustChangePassword?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 export type OperationStatus =
   | "Planifiée"
@@ -33,3 +59,10 @@ export interface StatusHistoryEntry {
   parUtilisateur?: string;
   ancienStatut?: OperationStatus;
 }
+
+export type RecurrenceFrequency =
+  | "hebdomadaire"
+  | "mensuelle"
+  | "personnalisee";
+
+

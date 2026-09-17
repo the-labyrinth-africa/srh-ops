@@ -1,11 +1,17 @@
 import mongoose, { Schema, models, model } from "mongoose";
-import type { OperationStatus } from "@/types";
+import type { OperationStatus, QuantiteUnite } from "@/types";
 
 export interface IStatusHistory {
   statut: OperationStatus;
   date: Date;
   parUtilisateur?: mongoose.Types.ObjectId;
   ancienStatut?: OperationStatus;
+}
+
+export interface IOperationPhoto {
+  url: string;
+  nom: string;
+  uploadedAt: Date;
 }
 
 export interface IOperation {
@@ -21,6 +27,13 @@ export interface IOperation {
   informationsParticulieres: string;
   statut: OperationStatus;
   historiqueStatuts: IStatusHistory[];
+  quantiteCollectee?: number;
+  uniteQuantite?: QuantiteUnite;
+  remarquesTerrain?: string;
+  nomSignataireClient?: string;
+  signatureClient?: string;
+  photos: IOperationPhoto[];
+  rapportPdf?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -31,6 +44,15 @@ const StatusHistorySchema = new Schema<IStatusHistory>(
     date: { type: Date, default: Date.now },
     parUtilisateur: { type: Schema.Types.ObjectId, ref: "User" },
     ancienStatut: { type: String },
+  },
+  { _id: false }
+);
+
+const PhotoSchema = new Schema<IOperationPhoto>(
+  {
+    url: { type: String, required: true },
+    nom: { type: String, default: "" },
+    uploadedAt: { type: Date, default: Date.now },
   },
   { _id: false }
 );
@@ -61,6 +83,17 @@ const OperationSchema = new Schema<IOperation>(
       default: "Planifiée",
     },
     historiqueStatuts: [StatusHistorySchema],
+    quantiteCollectee: { type: Number, min: 0 },
+    uniteQuantite: {
+      type: String,
+      enum: ["Litres", "Kg", "M3", "Bacs"],
+      default: "Litres",
+    },
+    remarquesTerrain: { type: String, default: "" },
+    nomSignataireClient: { type: String, default: "" },
+    signatureClient: { type: String, default: "" },
+    photos: { type: [PhotoSchema], default: [] },
+    rapportPdf: { type: String, default: "" },
   },
   { timestamps: true }
 );

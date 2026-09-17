@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { roleLabel } from "@/lib/permissions";
 
 const LOGO_URL =
   "https://lh3.googleusercontent.com/aida/AEtjO1UIOMOlwpX4WXcEJVQ2Ohnr_h8CJr8ezeAviwWd6bfftDfVYPIHz7hMK1R8At9R37SRIjsDzZHGgXwp7eYlpJZJj8cOIqbXk-0m3ywbzjSN4ZgLm4M1ssU9PKwfychAFZEOmhDJJGzY8OVK5QwCYl8QQT2Om6hjZLJSR5FnZqNP_hasv6LbUU1UBo9xK-OyywfTZmk6No7iNtUiNgFcRwQetY0ebRGhHR2YO9vWUV0tbrQcl_EYwfTc5xxs_vA8BAjmFAKzspyUYQ";
@@ -12,6 +13,7 @@ interface NavItem {
   href: string;
   label: string;
   icon: string;
+  roles?: string[];
   match?: (path: string) => boolean;
 }
 
@@ -24,6 +26,12 @@ const NAV_SECTIONS: NavSection[] = [
   {
     items: [
       { href: "/", label: "Tableau de bord", icon: "dashboard", match: (p) => p === "/" },
+      {
+        href: "/terrain",
+        label: "Console Web Terrain",
+        icon: "touch_app",
+        match: (p) => p.startsWith("/terrain"),
+      },
     ],
   },
   {
@@ -42,10 +50,23 @@ const NAV_SECTIONS: NavSection[] = [
         match: (p) =>
           p.startsWith("/operations") && !p.startsWith("/operations/planning"),
       },
+      {
+        href: "/recurrences",
+        label: "Collectes Récurrentes",
+        icon: "update",
+        match: (p) => p.startsWith("/recurrences"),
+      },
+      {
+        href: "/import",
+        label: "Import Excel",
+        icon: "upload_file",
+        roles: ["admin", "dispatcher"],
+        match: (p) => p.startsWith("/import"),
+      },
     ],
   },
   {
-    title: "Gestion",
+    title: "Référentiels & Administration",
     items: [
       {
         href: "/clients",
@@ -70,6 +91,13 @@ const NAV_SECTIONS: NavSection[] = [
         label: "Équipements & Cuves",
         icon: "oil_barrel",
         match: (p) => p.startsWith("/equipements"),
+      },
+      {
+        href: "/utilisateurs",
+        label: "Utilisateurs & Rôles",
+        icon: "manage_accounts",
+        roles: ["admin"],
+        match: (p) => p.startsWith("/utilisateurs"),
       },
     ],
   },
@@ -109,14 +137,14 @@ export function Sidebar({
           open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
-        <div className="flex h-16 items-center gap-3 px-gutter-md">
+        <div className="flex h-16 items-center gap-3 px-gutter-md border-b border-surface-container-high">
           <Image src={LOGO_URL} alt="SRH Logo" width={32} height={32} className="h-8 w-auto object-contain" />
           <div className="flex flex-col">
             <span className="font-label-md text-label-md font-bold uppercase tracking-tight text-primary">
               SRH Recyclage
             </span>
             <span className="font-label-sm text-label-sm text-on-surface-variant">
-              Service de Récupération d&apos;Huiles Usagées
+              Digitalisation des Opérations
             </span>
           </div>
           <button
@@ -130,56 +158,68 @@ export function Sidebar({
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-gutter-sm py-unit">
-          {NAV_SECTIONS.map((section, si) => (
-            <div key={si}>
-              {section.title && (
-                <div className="px-unit pb-unit pt-gutter-sm">
-                  <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline">
-                    {section.title}
-                  </span>
-                </div>
-              )}
-              {section.items.map((item) => {
-                const active = isActive(pathname, item);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={onClose}
-                    className={cn(
-                      "flex items-center gap-3 rounded-xl px-gutter-sm py-2 font-label-md text-label-md transition-all",
-                      active
-                        ? "bg-primary-container font-bold text-on-primary shadow-[0_1px_8px_rgba(0,0,0,0.04)]"
-                        : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
-                    )}
-                  >
-                    <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          ))}
+          {NAV_SECTIONS.map((section, si) => {
+            const visibleItems = section.items.filter(
+              (item) => !item.roles || (userRole && item.roles.includes(userRole))
+            );
+
+            if (visibleItems.length === 0) return null;
+
+            return (
+              <div key={si}>
+                {section.title && (
+                  <div className="px-unit pb-unit pt-gutter-sm">
+                    <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline">
+                      {section.title}
+                    </span>
+                  </div>
+                )}
+                {visibleItems.map((item) => {
+                  const active = isActive(pathname, item);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={onClose}
+                      className={cn(
+                        "flex items-center gap-3 rounded-xl px-gutter-sm py-2 font-label-md text-label-md transition-all",
+                        active
+                          ? "bg-primary-container font-bold text-on-primary shadow-[0_1px_8px_rgba(0,0,0,0.04)]"
+                          : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
+                      )}
+                    >
+                      <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            );
+          })}
         </nav>
 
-        <div className="m-gutter-sm rounded-xl bg-surface-container-lowest p-gutter-sm shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+        <Link
+          href="/profil"
+          onClick={onClose}
+          className="m-gutter-sm rounded-xl bg-surface-container-lowest p-gutter-sm shadow-[0_1px_8px_rgba(0,0,0,0.04)] hover:bg-surface-container-high transition-colors"
+        >
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
-                <span className="material-symbols-outlined text-[18px] text-on-primary">person</span>
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary font-bold text-on-primary">
+                <span className="material-symbols-outlined text-[18px]">person</span>
               </div>
-              <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-status-reported" />
+              <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-status-reported border-2 border-white" />
             </div>
             <div className="min-w-0 flex-1">
               <span className="block truncate font-label-md text-label-md font-bold text-on-surface">
                 {userName ?? "Utilisateur"}
               </span>
               <span className="block truncate font-label-sm text-label-sm text-on-surface-variant">
-                {userRole ?? "Admin"}
+                {roleLabel(userRole)}
               </span>
             </div>
           </div>
-        </div>
+        </Link>
       </aside>
     </>
   );

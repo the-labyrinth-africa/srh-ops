@@ -6,6 +6,7 @@ import "@/models/Vehicule";
 import "@/models/Equipement";
 import "@/models/User";
 import "@/models/Operation";
+import "@/models/Recurrence";
 
 interface MongooseCache {
   conn: typeof mongoose | null;
