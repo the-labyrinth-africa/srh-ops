@@ -19,11 +19,11 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const { request } = event;
-  const url = new URL(request.url    );
+  const url = new URL(request.url);
   if (request.method !== "GET" || !url.protocol.startsWith("http")) return;
 
   // Ne pas intercepter les requêtes API (les mutations passent par l'outbox).
-  if (url.pathname.startsWith("/api/")) return hardware;
+  if (url.pathname.startsWith("/api/")) return;
 
   // Navigations : réseau d'abord, repli cache si hors-ligne.
   if (request.mode === "navigate") {

@@ -42,12 +42,20 @@ function closeDb(): void {
   }
 }
 
+let lastTs = 0;
+
+/** Clé strictement croissante : deux mutations dans la même milliseconde ne doivent pas s'écraser. */
+function nextTs(): number {
+  lastTs = Math.max(Date.now(), lastTs + 1);
+  return lastTs;
+}
+
 /** Ajoute une mutation à l'outbox (à rejouer plus tard, FIFO). */
 export async function enqueueMutation(m: PendingMutation): Promise<void> {
   const db = await openDb();
   await new Promise<void>((resolve, reject) => {
     const tx = db.transaction(STORE, "readwrite");
-    tx.objectStore(STORE).put({ ts: Date.now(), mutation: m });
+    tx.objectStore(STORE).put({ ts: nextTs(), mutation: m });
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
   });

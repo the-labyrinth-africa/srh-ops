@@ -43,14 +43,17 @@ export function TerrainViewClient() {
   const [nomSignataire, setNomSignataire] = useState("");
   const [signatureData, setSignatureData] = useState("");
   const pendingPhotosRef = useRef<string[]>([]);
+  const [pendingPhotoCount, setPendingPhotoCount] = useState(0);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [photoUploading, setPhotoUploading] = useState(false);
 
+  const equipeId = session?.user?.equipeId;
+
   const fetchMissions = useCallback(async () => {
     setLoading(true);
     try {
-      const equipeParam = session?.user?.equipeId ? `&equipeId=${session.user.equipeId}` : "";
+      const equipeParam = equipeId ? `&equipeId=${equipeId}` : "";
       const res = await fetch(`/api/operations?limit=50${equipeParam}`);
       const data = await res.json();
       setOperations(data.items || []);
@@ -59,7 +62,7 @@ export function TerrainViewClient() {
     } finally {
       setLoading(false);
     }
-  }, [session?.user?.equipeId]);
+  }, [equipeId]);
 
   useEffect(() => {
     fetchMissions();
@@ -74,6 +77,7 @@ export function TerrainViewClient() {
     setNomSignataire(op.nomSignataireClient || "");
     setSignatureData(op.signatureClient || "");
     pendingPhotosRef.current = [];
+    setPendingPhotoCount(0);
   }
 
   async function uploadPendingPhotos(opId: string) {
@@ -172,6 +176,7 @@ export function TerrainViewClient() {
       ...pendingPhotosRef.current,
       ...dataUrls.filter(Boolean),
     ];
+    setPendingPhotoCount(pendingPhotosRef.current.length);
     if (photoInputRef.current) photoInputRef.current.value = "";
     if (cameraInputRef.current) cameraInputRef.current.value = "";
     setPhotoUploading(false);
@@ -393,9 +398,9 @@ export function TerrainViewClient() {
                         Prendre une photo
                       </button>
                     </div>
-                    {pendingPhotosRef.current.length > 0 && (
+                    {pendingPhotoCount > 0 && (
                       <p className="mt-2 font-label-sm text-label-sm text-primary">
-                        {pendingPhotosRef.current.length} photo(s) sélectionnée(s) — seront jointes au rapport
+                        {pendingPhotoCount} photo(s) sélectionnée(s) — seront jointes au rapport
                       </p>
                     )}
                   </div>
