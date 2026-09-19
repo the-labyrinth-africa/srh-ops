@@ -4,7 +4,7 @@ Plateforme back-office de planification et suivi des opérations de collecte SRH
 
 ## Stack
 
-- Next.js 15 (App Router) + TypeScript
+- Next.js 16 (App Router) + TypeScript
 - MongoDB Atlas + Mongoose
 - NextAuth.js (credentials + rôles)
 - Tailwind CSS v4 (design system Industrial Integrity)
@@ -51,34 +51,47 @@ NEXTAUTH_URL=http://localhost:3000
 4. Déployer. Le build Vercel n'alimente plus la base par défaut : le seed au build n'a lieu que si `SEED_ON_BUILD=true` (à définir temporairement pour le premier déploiement SRH, puis à retirer). `npm run seed` lancé à la main seed toujours ; il ignore l'étape si les deux comptes de base existent déjà.
 5. Le seed utilise `MONGODB_URI` fourni par Vercel. Pour l'exécuter manuellement, définir cette variable dans l'environnement avant de lancer `npm run seed`, plutôt que de committer des identifiants.
 
-## Phase 2 — PWA terrain (installable + hors-ligne)
+## Phase 2 — Console terrain (PWA) — livraison partielle
 
-La plateforme est une **PWA installable** : ajout à l'écran d'accueil, service worker
-et rejeu des données saisies hors-ligne (outbox FIFO).
+La console terrain est accessible sur **`/terrain`** (rôle Chauffeur). Elle est
+prévue pour être installée comme PWA et pour fonctionner avec une connexion instable,
+mais cette partie est **partiellement livrée** : voir « Limites connues » ci-dessous.
 
-### Installer sur mobile / desktop
+### Installer depuis le navigateur
 
-1. **Déployer sur HTTPS** (Vercel ou localhost via HTTP — le prompt d'installation
-   n'apparaît pas en HTTP sans navigateur Chrome/Brave/Edge visible).
-2. Ouvrir l'app dans **Chrome** (Android) ou **Edge/Chrome** (desktop) :
-   - Android : menu ⋮ → « Ajouter à l'écran d'accueil » / bannière d'installation.
-   - Desktop : icône d'installation dans la barre d'adresse (＋ voir infobulle).
-3. L'app se lance en plein écran (`display: standalone`) et affiche l'icône SRH.
+1. Ouvrir l'application en HTTPS (déploiement Vercel) dans Chrome/Edge (Android ou desktop).
+2. Android : menu ⋮ → « Ajouter à l'écran d'accueil » ; desktop : icône d'installation
+   dans la barre d'adresse. L'app se lance alors en plein écran (`display: standalone`).
+3. Le manifest est servi par `app/manifest.ts`, le service worker par `public/sw.js`.
 
-### Mode hors-ligne
+### Comportement hors-ligne (outbox)
 
-Le service worker (`public/sw.js`) met en cache les assets ; toute la navigation
-(planning, opérations du jour, listes) reste consultable sans réseau.
+Les actions saisies sur `/terrain` (changement de statut, photos) sont mises en file dans
+IndexedDB (`lib/offline/outbox.ts`) puis rejouées dans l'ordre (FIFO) au retour du réseau
+(`hooks/useOfflineSync.ts`). Une action qui échoue reste en file et est retentée au
+passage suivant.
 
-### Saisie hors-ligne (outbox)
+### Limites connues (à corriger avant toute activation pour de vrais utilisateurs)
 
-Les actions (changement de statut, ajout de photos) sont **mises en file** dans
-IndexedDB (`lib/offline/outbox.ts`) puis **rejouées en FIFO** lors du retour de la
-connexion via `replayOutbox()`. Les mutations échouées restent en file et sont
-rejouées au prochain passage.
+L'installabilité et le mode hors-ligne n'ont pas été validés de bout en bout. Défauts
+identifiés et non encore corrigés :
+
+- **Outbox** : les photos sont envoyées sous la forme `{ photos }` alors que l'API attend
+  `{ photo }` (réponse 400) ; un `fetch` est exécuté à l'intérieur d'une transaction
+  IndexedDB (la transaction peut se fermer avant la fin de la requête).
+- **Service worker** : les pages authentifiées peuvent être mises en cache sous `/`, les
+  requêtes RSC sont servies en cache-first (contenu périmé), et le précache échoue sur
+  une redirection.
+- **Stockage** : photos et signature sont conservées en base64 dans le document
+  `Operation` (limite Mongo de 16 Mo par document).
+- **Rapport** : l'envoi du rapport d'intervention par e-mail au client n'existe pas encore.
+
+Ne pas ouvrir la PWA aux utilisateurs terrain tant que ces points ne sont pas traités
+(Lot « Phase 2 — finition » du plan d'alignement).
 
 ## Documentation
 
 - [PLAN.md](./PLAN.md) — plan d'exécution
+- [docs/superpowers/plans/2026-09-19-alignement-proposition-digitalisation.md](./docs/superpowers/plans/2026-09-19-alignement-proposition-digitalisation.md) — alignement avec la proposition (docs/proposition-digitalisation.pdf)
 - [AGENTS.md](./AGENTS.md) — spec technique
 - [DESIGN.md](./DESIGN.md) — design system

@@ -1,8 +1,8 @@
 # Module 1 — Planification des Collectes — SRH Ops
 
 **Projet :** SRH — Digitalisation des Opérations  
-**Stack :** Next.js 14+ / TypeScript / MongoDB / NextAuth  
-**État actuel :** Sprints 0–5 entièrement finalisés (100 %)  
+**Stack :** Next.js 16 / TypeScript / MongoDB / NextAuth  
+**État actuel :** Phase 1 (Sprints 0–5 + S1.5) terminée (100 %) ; Phase 2 (PWA terrain) livrée partiellement (≈ 70 %), non ouverte aux utilisateurs terrain  
 **Durée estimée :** 7 à 9 semaines  
 **Spec de référence :** [AGENTS.md](./AGENTS.md)
 
@@ -18,7 +18,19 @@
 | S3 | Statuts & Planning | 1–2 sem. | Terminé | Historique statuts, calendrier, vue du jour |
 | S4 | Dashboard & Finitions | 1 sem. | Terminé | KPI, permissions, responsive mobile |
 | S5 | Recette & Déploiement | 1 sem. | Terminé | Tests unitaires & E2E (100%), build prod, docs, validation |
-| S1.5 | Collectes Récurrentes | 1 sem. | Terminé | Modèle Recurrence, Moteur de génération auto sans doublon, UI /recurrences, tests (49/49) |
+| S1.5 | Collectes Récurrentes | 1 sem. | Terminé | Modèle Recurrence, Moteur de génération auto sans doublon, UI /recurrences, tests dédiés (suite complète : 74/74 au 19/09/2026) |
+| P2 | PWA terrain & rapport digital | — | Partiel (≈ 70 %) | Console `/terrain`, rôle chauffeur, photos, signature, quantités, rapport PDF, manifest, service worker, outbox hors-ligne. Reste : correctifs outbox/SW, stockage des photos hors du document, envoi du rapport par e-mail, validation de l'installabilité |
+
+### Avancement par phase (mesuré sur le code au 19 septembre 2026)
+
+| Phase | Module | Avancement |
+|-------|--------|-----------|
+| 1 | Planification des collectes | 100 % |
+| 2 | PWA terrain & rapport digital | 70 % (partiellement livrée, défauts connus, voir README) |
+| 3 | Traçabilité des déchets | 0 % |
+| 4 | Espace client & demandes en ligne | 5 % |
+| 5 | Notifications & dashboard avancé | 10 % |
+| 6 | Optimisation des tournées | 5 % |
 
 ---
 
@@ -517,12 +529,12 @@ stateDiagram-v2
 **Tâches :**
 
 - [x] Préparer scénarios de recette utilisateur (création opération, changement statut, planning, filtres).
-- [x] Développer et valider la suite complète de tests unitaires et d'intégration E2E avec Vitest et MongoMemoryServer (47/47 tests validés).
+- [x] Développer et valider la suite complète de tests unitaires et d'intégration E2E avec Vitest et MongoMemoryServer (47/47 tests à la clôture du Sprint 5 ; 74/74 au 19 septembre 2026 après Phase 2).
 - [x] Validation et corrections de bugs (gestion des imports Mongoose et initialisation dynamique de la base de données).
 - [x] Vérification TypeScript (`npx tsc --noEmit`) et ESLint (`npm run lint`).
 - [x] Rédiger et vérifier la documentation technique (`README.md`, `DESIGN.md`, `AGENTS.md`, `PLAN.md`).
 - [x] Guide utilisateur et de recettes pour la direction et les dispatchers SRH.
-- [x] Déploiement et compilation de production Next.js validée (`npm run build`).
+- [x] Déploiement et compilation de production Next.js validée (`npm run build`) lors du Sprint 5 (sur Next 15 ; non rejouée depuis le passage à Next 16).
 - [x] Vérification post-déploiement et tests de fumée.
 
 **Critères d'acceptation S5 :**
@@ -576,7 +588,7 @@ Avant et pendant le développement, SRH doit fournir :
 
 | Phase | Module | Évolutions prévues |
 |-------|--------|-------------------|
-| 2 | PWA terrain & rapport digital | `rapportId`, `photos`, `signatureClient` sur Operation + installabilité hors-ligne (manifest & service worker) |
+| 2 | PWA terrain & rapport digital | **Partiellement livrée (≈ 70 %)** : `photos`, `signatureClient`, quantités, rapport PDF, `/terrain`, manifest, service worker et outbox présents ; correctifs restants (outbox, SW, stockage des photos, e-mail du rapport) |
 | 3 | Traçabilité | Collection `tracabilite` liée à Operation (identifiant suivi, volumes, traitement) |
 | 4 | Espace client | Lecture seule sur Operation filtrée par `clientId` + formulaire demande en ligne |
 | 5 | Notifications | Enrichissement dashboard (graphiques, exports), alertes automatisées |
@@ -593,7 +605,13 @@ Avant et pendant le développement, SRH doit fournir :
 | 2026-09-09 | — | Création du plan d'exécution (PLAN.md) | Fait |
 | 2026-09-09 | S0–S4 | Implémentation complète Module 1 (YOLO) | Fait |
 | 2026-09-09 | S5 | Développement suite de tests unitaires & E2E Vitest (47/47 passés), corrections & finalisation à 100% | Fait |
+| 2026-09-17 | S1.5 / P2 | Collectes récurrentes, console `/terrain`, PDF, photos, signature, manifest, service worker, outbox (commit 7995783) | Fait (partiel, voir P2) |
+| 2026-09-19 | P2 | Récupération du commit 7995783 perdu après un reset (branche de sauvegarde `recovery/phase2-pwa-7995783`, réintégration par cherry-pick) | Fait |
+| 2026-09-19 | Lot 0 | Stabilisation : passage à Next 16, script `lint` ESLint (config flat), 0 erreur / 9 avertissements, 74/74 tests | Fait |
+| 2026-09-19 | Lot 0 | Garde du seed : le build n'alimente la base que si `SEED_ON_BUILD=true` | Fait |
+| 2026-09-19 | Lot 0 | Correctif de la détection de conflits pour les opérations longues (> 2 h) | Fait |
+| 2026-09-19 | Lot 0 | Alignement README / PLAN / rapport d'avancement sur le code réel ; plan d'alignement avec la proposition | Fait |
 
 ---
 
-*Dernière mise à jour : 9 septembre 2026*
+*Dernière mise à jour : 19 septembre 2026*
