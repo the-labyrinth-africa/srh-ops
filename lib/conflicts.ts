@@ -41,12 +41,21 @@ export async function checkAssignmentConflicts(params: {
   const end = getEndDate(start, dureeEstimeeMinutes);
   const conflicts: ConflictResult[] = [];
 
+  const resourceFilters: Record<string, unknown>[] = [];
+  if (equipeId) {
+    resourceFilters.push({ equipeId: new mongoose.Types.ObjectId(equipeId) });
+  }
+  if (vehiculeId) {
+    resourceFilters.push({ vehiculeId: new mongoose.Types.ObjectId(vehiculeId) });
+  }
+  if (resourceFilters.length === 0) return conflicts;
+
+  // Pas de borne basse sur la date : une opération longue démarrée bien avant
+  // `start` peut encore chevaucher. Le chevauchement exact est testé en mémoire.
   const filter: Record<string, unknown> = {
     statut: { $nin: ["Annulée", "Terminée", "Rapportée"] },
-    dateHeurePrevue: {
-      $gte: new Date(start.getTime() - DEFAULT_DURATION_MINUTES * 60 * 1000),
-      $lte: end,
-    },
+    dateHeurePrevue: { $lt: end },
+    $or: resourceFilters,
   };
 
   if (excludeOperationId) {
