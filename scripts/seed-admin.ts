@@ -1,6 +1,5 @@
 import bcrypt from "bcryptjs";
 import { loadEnvConfig } from "@next/env";
-loadEnvConfig(process.cwd());
 import { connectDB } from "../lib/db";
 import { User } from "../models/User";
 import { Client } from "../models/Client";
@@ -9,6 +8,14 @@ import { Equipe } from "../models/Equipe";
 import { Vehicule } from "../models/Vehicule";
 import { Equipement } from "../models/Equipement";
 import { Operation } from "../models/Operation";
+
+export function shouldSeed(
+  env: Record<string, string | undefined>,
+  argv: string[]
+): boolean {
+  if (!argv.includes("--on-build")) return true;
+  return env.SEED_ON_BUILD === "true";
+}
 
 async function seed() {
   process.env.MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/srh-ops";
@@ -136,7 +143,16 @@ async function seed() {
   await User.db.close();
 }
 
-seed().catch((err) => {
-  console.error(err);
-  User.db.close().finally(() => process.exit(1));
-});
+// Exécuté uniquement en lancement direct (npm run seed / npm run build) :
+// l'import du module (tests) n'a aucun effet de bord.
+if (require.main === module) {
+  loadEnvConfig(process.cwd());
+  if (!shouldSeed(process.env, process.argv.slice(2))) {
+    console.log("Seed ignoré (build sans SEED_ON_BUILD=true)");
+    process.exit(0);
+  }
+  seed().catch((err) => {
+    console.error(err);
+    User.db.close().finally(() => process.exit(1));
+  });
+}
