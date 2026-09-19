@@ -35,27 +35,30 @@ const phases: Phase[] = [
       "Rapport d'intervention PDF, signature et photos (préparation Phase 2)",
     ],
     restante: ["Aucun élément bloquant - module opérationnel"],
-    note: "Sprints S0 à S5 + S1.5 validés. 62/62 tests automatisés verts.",
+    note: "Sprints S0 à S5 + S1.5 validés. Suite de tests automatisés : 74/74 verts au 19 septembre 2026.",
   },
   {
     num: 2,
     nom: "PWA terrain & rapport digital",
-    statut: "En développement",
-    pct: 75,
+    statut: "Livrée partiellement",
+    pct: 70,
     livree: [
       "Console terrain web (/terrain) avec rôle Chauffeur",
       "Interface responsive utilisable sur téléphone et tablette",
-      "Capture photo sur intervention (max 10, base 64)",
+      "Capture photo sur intervention (max 10, stockées en base 64)",
       "Signature client (écran tactile)",
       "Relevé des quantités collectées et unités",
       "Génération PDF du rapport d'intervention (détails, quantités, historique, signature, photos)",
+      "Manifest PWA, icônes, service worker et outbox hors-ligne (file FIFO IndexedDB) : présents dans le code, non validés",
     ],
     restante: [
-      "Manifest PWA, icônes et installabilité (ajout à l'écran d'accueil)",
-      "Service worker et mode hors-ligne",
-      "Synchronisation des données saisies hors-ligne",
+      "PWA : installabilité (ajout à l'écran d'accueil) à valider sur appareil",
+      "Outbox : les photos sont envoyées sous {photos} alors que l'API attend {photo} (réponse 400) ; un fetch est exécuté dans une transaction IndexedDB",
+      "Service worker : pages authentifiées mises en cache sous \"/\", cache-first sur les requêtes RSC, précache qui échoue sur une redirection",
+      "Stockage des photos et de la signature en base64 dans le document Operation (limite Mongo de 16 Mo)",
+      "Envoi du rapport d'intervention par e-mail au client",
     ],
-    note: "App mobile native abandonnée au profit d'une PWA : la console web existante couvre déjà l'essentiel du périmètre terrain.",
+    note: "Phase partiellement livrée : la PWA ne doit pas être ouverte aux utilisateurs terrain avant correction des points ci-dessus. App mobile native abandonnée au profit d'une PWA.",
   },
   {
     num: 3,
@@ -165,7 +168,7 @@ y += 6;
 doc.setFont("helvetica", "normal");
 doc.setFontSize(10);
 const intro = doc.splitTextToSize(
-  "La plateforme SRH Ops digitalise les opérations de collecte de SRH. La Phase 1 (Module 1 - Planification des Collectes) est terminée à 100% et sert de socle aux phases suivantes. Ce rapport présente l'état d'avancement réel de chaque phase, les livrables terminés et le reste à faire, sur la base des contrôles effectués le 17 septembre 2026 (tests 62/62, lint, build de production, vérification des routes et des API).",
+  "La plateforme SRH Ops digitalise les opérations de collecte de SRH. La Phase 1 (Module 1 - Planification des Collectes) est terminée à 100% et sert de socle aux phases suivantes. Ce rapport présente l'état d'avancement réel de chaque phase, les livrables terminés et le reste à faire, sur la base des contrôles rejoués le 19 septembre 2026 (tests, lint, TypeScript) et d'une relecture du code. Le build de production et les vérifications navigateur/API n'ont pas été rejoués depuis le passage à Next 16.",
   pageWidth - 2 * MARGIN
 );
 doc.text(intro, MARGIN, y);
@@ -304,13 +307,14 @@ doc.text("4. Santé du projet et contrôles effectués", MARGIN, y);
 y += 6;
 
 const checks: [string, string][] = [
-  ["Tests unitaires et d'intégration", "62/62 validés (Vitest + MongoDB en mémoire)"],
-  ["Lint (ESLint)", "Aucune erreur (3 avertissements cosmétiques sur les polices)"],
-  ["Build de production", "Validé - 31 pages/routes générées"],
-  ["Pages surfacées (navigateur)", "14/14 accessibles en 200"],
-  ["Endpoints API", "10/10 en 200, workflow complet testé"],
-  ["Règles métier", "Conflits (409), transitions de statut, retard automatique validés"],
-  ["Robustesse", "IDs invalides → 400 (au lieu de 500), comptes semés corrigés"],
+  ["Date des contrôles", "19 septembre 2026"],
+  ["Tests unitaires et d'intégration", "74/74 validés (Vitest + MongoDB en mémoire)"],
+  ["Lint (ESLint)", "0 erreur, 9 avertissements"],
+  ["TypeScript (tsc --noEmit)", "Propre"],
+  ["Build de production", "Non rejoué depuis le passage à Next 16"],
+  ["Pages navigateur et endpoints API", "Non rejoués (vérification de fumée à refaire)"],
+  ["Règles métier", "Conflits (409, y compris opérations longues), transitions de statut et retard automatique couverts par les tests"],
+  ["Sécurité du build", "Seed au build désactivé sauf SEED_ON_BUILD=true"],
 ];
 
 doc.setTextColor(...DARK);
@@ -337,7 +341,7 @@ doc.setFont("helvetica", "italic");
 const pct2to6 = Math.round((phases.slice(1).reduce((a, p) => a + p.pct, 0) / (phases.length - 1)) * 10) / 10;
 const pctGlobal = Math.round((phases.reduce((a, p) => a + p.pct, 0) / phases.length) * 10) / 10;
 const rapide = doc.splitTextToSize(
-  `Moyenne d'avancement des phases 2 à 6 : ${pct2to6}%. Prise en compte de la Phase 1, l'avancement global du projet est d'environ ${pctGlobal}%. Le socle (Phase 1) est totalement opérationnel et stabilisé.`,
+  `Moyenne d'avancement des phases 2 à 6 : ${pct2to6}%. Prise en compte de la Phase 1, l'avancement global du projet est d'environ ${pctGlobal}%. Le socle (Phase 1) est opérationnel ; la Phase 2 est partiellement livrée et comporte des défauts connus (voir section 3).`,
   colW
 );
 rapide.forEach((l: string) => {
