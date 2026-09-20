@@ -7,7 +7,8 @@ export class EquipeRepositoryEnMemoire implements EquipeRepository {
   private compteur = 0;
 
   async lister(): Promise<Equipe[]> {
-    return [...this.donnees.values()].sort((a, b) => a.nom.localeCompare(b.nom));
+    // Tri binaire (point de code) sur `nom`, comme MongoDB sans collation : « Zeta » précède « alpha ».
+    return [...this.donnees.values()].sort((a, b) => (a.nom < b.nom ? -1 : a.nom > b.nom ? 1 : 0));
   }
 
   async trouverParId(id: string): Promise<Equipe | null> {
@@ -17,7 +18,13 @@ export class EquipeRepositoryEnMemoire implements EquipeRepository {
   async creer(saisie: EquipeSaisie): Promise<Equipe> {
     this.compteur += 1;
     const maintenant = new Date();
-    const equipe: Equipe = { id: `equipe-${this.compteur}`, ...saisie, createdAt: maintenant, updatedAt: maintenant };
+    const equipe: Equipe = {
+      id: `equipe-${this.compteur}`,
+      ...saisie,
+      createdAt: maintenant,
+      updatedAt: maintenant,
+      revision: 0, // `__v` d'un document Mongoose fraîchement créé
+    };
     this.donnees.set(equipe.id, equipe);
     return equipe;
   }

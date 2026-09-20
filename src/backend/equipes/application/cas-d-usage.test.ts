@@ -25,6 +25,19 @@ describe("cas d'usage des équipes", () => {
     expect((await cas.lister()).map((e) => e.nom)).toEqual(["Alpha", "Zeta"]);
   });
 
+  it("trie par nom en ordre binaire comme MongoDB (majuscules avant minuscules)", async () => {
+    await cas.creer(saisie("alpha"));
+    await cas.creer(saisie("Zeta"));
+    // Sans collation, MongoDB ordonne par point de code : « Zeta » (Z = 90) précède « alpha » (a = 97).
+    // Un tri `localeCompare` donnerait l'ordre inverse : le faux en mémoire doit rester fidèle.
+    expect((await cas.lister()).map((e) => e.nom)).toEqual(["Zeta", "alpha"]);
+  });
+
+  it("une équipe créée porte la révision 0 (`__v` d'un nouveau document)", async () => {
+    const creee = await cas.creer(saisie("A"));
+    expect(creee.revision).toBe(0);
+  });
+
   it("crée puis obtient une équipe", async () => {
     const creee = await cas.creer({ nom: "A", membres: ["x", "y"], disponibilite: false });
     expect(await cas.obtenir(creee.id)).toMatchObject({ nom: "A", membres: ["x", "y"], disponibilite: false });

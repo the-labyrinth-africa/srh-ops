@@ -65,6 +65,22 @@ describe("equipes — caractérisation de l'API", () => {
       for (const e of liste) expect(Object.keys(e).sort()).toEqual(CLES_EQUIPE);
     });
 
+    it("renvoie les valeurs saisies (pas seulement les noms) et des dates/révisions cohérentes", async () => {
+      await creer({ nom: "Zeta", membres: ["Awa", "Koffi"], disponibilite: false });
+      await creer({ nom: "Alpha" });
+      const liste = await (await listerEquipes()).json();
+      expect(liste).toHaveLength(2);
+      const [alpha, zeta] = liste;
+      expect(alpha).toMatchObject({ nom: "Alpha", membres: [], disponibilite: true, __v: 0 });
+      expect(zeta).toMatchObject({ nom: "Zeta", membres: ["Awa", "Koffi"], disponibilite: false, __v: 0 });
+      for (const e of liste) {
+        expect(e._id).toMatch(/^[a-f\d]{24}$/);
+        expect(new Date(e.createdAt).toISOString()).toBe(e.createdAt);
+        expect(e.updatedAt).toBe(e.createdAt);
+      }
+      expect(alpha._id).not.toBe(zeta._id);
+    });
+
     it("401 sans session", async () => {
       session(null);
       const res = await listerEquipes();
@@ -352,6 +368,25 @@ describe("equipes — caractérisation de l'API", () => {
       const res = await supprimerEquipe(vide("DELETE", ID_INCONNU), ctx(ID_INCONNU));
       expect(res.status).toBe(403);
       expect((await res.json()).code).toBe("MUST_CHANGE_PASSWORD");
+    });
+  });
+
+  describe("corps JSON malformé (comportement actuel : la requête lève, sans réponse 400)", () => {
+    const malforme = (method: string, url: string) =>
+      new NextRequest(`http://localhost:3000${url}`, { method, body: "{ceci n'est pas du json" });
+
+    it("POST : le gestionnaire rejette (req.json() n'est pas protégé) et rien n'est créé", async () => {
+      await expect(creerEquipe(malforme("POST", "/api/equipes"))).rejects.toThrow();
+      expect(await (await listerEquipes()).json()).toEqual([]);
+    });
+
+    it("PUT : le gestionnaire rejette et l'équipe reste inchangée", async () => {
+      const creee = await creer({ nom: "Avant" });
+      await expect(
+        modifierEquipe(malforme("PUT", `/api/equipes/${creee._id}`), ctx(creee._id))
+      ).rejects.toThrow();
+      const res = await lireEquipe(vide("GET", creee._id), ctx(creee._id));
+      expect(await res.json()).toEqual(creee);
     });
   });
 });
