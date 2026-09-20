@@ -32,7 +32,7 @@ Règles de dépendance R1 à R5, vérifiées par `tests/architecture/regles-de-d
 
 Ajouter un cas d'usage : déclarer le port dans `domain/ports.ts` ; écrire le cas d'usage dans `application/` avec son test sur le faux en mémoire (`infrastructure/en-memoire/`) ; implémenter l'adaptateur Mongoose (`infrastructure/mongoose/`) ; brancher le tout dans `composition.ts` ; écrire le contrôleur dans `http/` ; enfin ré-exporter le gestionnaire depuis le `route.ts` concerné (exemple : `src/app/api/equipes/route.ts`).
 
-État de la migration : le domaine `equipes` (backend `src/backend/equipes`, frontend `src/frontend/equipes`) est migré et sert de modèle. Les autres domaines restent dans les dossiers hérités `src/lib`, `src/models`, `src/components` et `src/hooks` pendant la transition (jalons R1 à R9 de `docs/superpowers/plans/2026-09-20-refactor-architecture-master.md`) ; le test d'architecture ne s'applique aux règles fines qu'aux domaines déjà migrés.
+État de la migration : les domaines `equipes`, `vehicules` et `equipements` (backend `src/backend/<domaine>`, frontend `src/frontend/<domaine>`) sont migrés ; `equipes` sert de modèle. Les autres domaines (clients et sites, comptes, opérations, récurrences, import de données, pilotage) restent dans les dossiers hérités `src/lib`, `src/models`, `src/components` et `src/hooks` pendant la transition (jalons R2 à R9 de `docs/superpowers/plans/2026-09-20-refactor-architecture-master.md`) ; le test d'architecture ne s'applique aux règles fines qu'aux domaines déjà migrés.
 
 Vérifier la compilation Next sans toucher à la vraie base (variables factices, jamais l'URI réelle) :
 
@@ -41,10 +41,10 @@ MONGODB_URI="mongodb://127.0.0.1:9/inexistant" NEXTAUTH_SECRET="verification-bui
 NEXTAUTH_URL="http://localhost:3000" NEXT_TELEMETRY_DISABLED=1 npx next build
 ```
 
-### Notes de migration (écarts connus et voulus du pilote `equipes`)
+### Notes de migration (écarts connus et voulus des domaines migrés)
 
-- La réponse JSON du `POST /api/equipes` (201) liste `_id` en premier ; les clés et les valeurs sont celles d'avant.
-- Les lectures « lean » passent par l'entité : un champ absent du schéma (écrit hors Mongoose) n'est plus renvoyé.
+- La réponse JSON du `POST /api/equipes`, `/api/vehicules` et `/api/equipements` (201) liste `_id` en premier ; les clés et les valeurs sont celles d'avant.
+- Les lectures « lean » passent par l'entité : un champ absent du schéma (écrit hors Mongoose) n'est plus renvoyé ; un document écrit hors Mongoose est présenté avec les valeurs par défaut (`type` → chaîne vide, `capacite` → 0, `membres` → liste vide pour les équipes).
 
 ## Démarrage
 

@@ -31,7 +31,7 @@ NEXTAUTH_URL="http://localhost:3000" NEXT_TELEMETRY_DISABLED=1 npx next build
 | Jalon | Contenu | Dépend de | Statut du plan |
 |---|---|---|---|
 | **R0** | Fondations (`src/`, `shared/`, `platform/` base + identifiants, test d'architecture, ESLint) + **pilote `equipes`** (backend et frontend) | — | **Réalisé** |
-| R1 | `vehicules`, `equipements` (répétition du modèle, ≈ 1 jour chacun) | R0 | À détailler après R0 |
+| **R1** | `vehicules`, `equipements` (répétition du modèle, ≈ 1 jour chacun) | R0 | **Réalisé** |
 | R2 | `clients-sites` (règle de périmètre du compte client, garde de suppression) | R0 | À détailler après R0 |
 | R3 | `comptes` (utilisateurs, authentification, invitation, réinitialisation, jetons, limiteur, e-mail) — **sensible**, en 3 sous-plans : 3a `platform` (e-mail, limiteur, exécution différée, horloge, URL) ; 3b cas d'usage et adaptateurs ; 3c NextAuth, `Acteur`, gardes de pages et de routes | R1, R2 | À détailler |
 | R4 | `operations` (le plus gros), en sous-plans : 4a domaine (statuts, conflits, visibilité) ; 4b cas d'usage CRUD + planning ; 4c statut/terrain/photos ; 4d rapport PDF | R3 | À détailler |
@@ -70,6 +70,12 @@ Ordre recommandé : R0 → R1 → R2 → R3 → R4 → (R5, R6, R7) → R8 → R
 - Codemod : après un passage de `remplacer-imports.mjs`, relire le diff et **annuler les modifications collatérales** (fixtures de test, commentaires et chaînes qui contenaient un ancien chemin).
 - `git add` avec des pathspecs d'exclusion pour des dossiers ignorés par Git (`.agents/`, `.claude/`, `rapports/`…) retourne un code non nul mais **indexe correctement** les autres fichiers : vérifier avec `git status` plutôt que se fier au code de retour.
 - `MongoMemoryServer` démarre **une fois par fichier de test** (y compris les tests collés au code, comme `equipe.repository.mongoose.test.ts`) ; un échec intermittent de démarrage se règle par une relance.
+
+## Enseignements de R1
+
+- Le modèle du pilote se reproduit sans écart (deux domaines migrés en un jalon) ; le vérificateur interdit désormais `mongodb`/`bson` dans le métier et le frontend n'importe plus `src/app`.
+- La sonde de parité (anciennes et nouvelles routes comparées sur corps bruts, via `git archive`), rejouée par le relecteur de chaque tâche, n'a trouvé que les deux écarts acceptés : le corps du `POST` 201 liste `_id` en premier (mêmes clés et valeurs) ; les documents écrits hors Mongoose sont présentés à travers l'entité (champs inconnus retirés, `type` absent → `""`, `capacite` absent → `0`, `membres` par défaut pour les équipes).
+- Un commit de tests de caractérisation doit passer `tsc` **seul** : celui de `vehicules` ne le faisait pas (typage d'une union issue de `.lean()`), corrigé dans le commit de migration.
 
 ## Critères de sortie du chantier
 
