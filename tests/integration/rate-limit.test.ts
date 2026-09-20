@@ -5,6 +5,17 @@ import { RateLimit } from "@/models/RateLimit";
 const HOUR = 3_600_000;
 const opts = { limit: 3, windowMs: HOUR };
 
+describe("index du limiteur", () => {
+  it("l'index unique sur key et l'index TTL sur expiresAt existent", async () => {
+    await RateLimit.init();
+    const indexes = await RateLimit.collection.indexes();
+    const byKey = indexes.find((i) => i.key.key === 1);
+    const byExpiry = indexes.find((i) => i.key.expiresAt === 1);
+    expect(byKey?.unique).toBe(true);
+    expect(byExpiry?.expireAfterSeconds).toBe(0);
+  });
+});
+
 describe("consumeRateLimit", () => {
   it("autorise jusqu'à la limite puis refuse, avec remaining et retryAfter", async () => {
     const now = Date.UTC(2026, 8, 20, 10, 0, 0);
@@ -33,6 +44,7 @@ describe("consumeRateLimit", () => {
   });
 
   it("est atomique : 10 appels concurrents, limite 5 → exactement 5 autorisés", async () => {
+    await RateLimit.init(); // indépendant de l'ordre des tests : l'index unique est construit
     const now = Date.UTC(2026, 8, 20, 10, 0, 0);
     const results = await Promise.all(
       Array.from({ length: 10 }, () => consumeRateLimit("c", "x", { limit: 5, windowMs: HOUR }, now))
@@ -59,6 +71,21 @@ describe("consumeRateLimit", () => {
 describe("clientIp", () => {
   const req = (headers: Record<string, string>) =>
     new Request("http://localhost/x", { headers });
+  it("prend x-vercel-forwarded-for seul", () => {
+    expect(clientIp(req({ "x-vercel-forwarded-for": "198.51.100.4" }))).toBe("198.51.100.4");
+  });
+  it("prend x-real-ip seul", () => {
+    expect(clientIp(req({ "x-real-ip": "198.51.100.5" }))).toBe("198.51.100.5");
+  });
+  it("priorité : x-vercel-forwarded-for > x-real-ip > x-forwarded-for", () => {
+    const all = {
+      "x-vercel-forwarded-for": "198.51.100.4",
+      "x-real-ip": "198.51.100.5",
+      "x-forwarded-for": "203.0.113.7, 10.0.0.1",
+    };
+    expect(clientIp(req(all))).toBe("198.51.100.4");
+    expect(clientIp(req({ "x-real-ip": all["x-real-ip"], "x-forwarded-for": all["x-forwarded-for"] }))).toBe("198.51.100.5");
+  });
   it("prend le premier saut de x-forwarded-for", () => {
     expect(clientIp(req({ "x-forwarded-for": "203.0.113.7, 10.0.0.1" }))).toBe("203.0.113.7");
   });

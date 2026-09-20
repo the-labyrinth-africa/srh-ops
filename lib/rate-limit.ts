@@ -17,6 +17,9 @@ function isDuplicateKey(error: unknown): boolean {
 }
 
 /**
+ * `scope` est stocké en clair dans la clé : il ne doit JAMAIS contenir de donnée personnelle
+ * (les identifiants passent par `hashId`).
+ *
  * Fenêtre fixe : au plus `limit` appels par `windowMs` et par (portée, identifiant).
  * Un salve à cheval sur deux fenêtres peut atteindre 2 × limit : acceptable ici.
  */
@@ -27,6 +30,10 @@ export async function consumeRateLimit(
   now: number = Date.now()
 ): Promise<RateLimitResult> {
   await connectDB();
+  // Garantit que l'index unique sur `key` existe avant tout upsert (mémoïsé par Mongoose ;
+  // échoue fermé si la construction de l'index échoue). Sans lui, des upserts concurrents
+  // sur une nouvelle clé créeraient chacun un document et contourneraient la limite.
+  await RateLimit.init();
 
   const windowStart = Math.floor(now / opts.windowMs) * opts.windowMs;
   const windowEnd = windowStart + opts.windowMs;
@@ -55,9 +62,15 @@ export async function consumeRateLimit(
   };
 }
 
-/** Adresse du client : premier saut de x-forwarded-for (posé par la plateforme). */
+/**
+ * Adresse du client, par ordre de priorité : `x-vercel-forwarded-for`, `x-real-ip`,
+ * premier saut de `x-forwarded-for` (en-têtes posés par la plateforme), sinon "unknown".
+ */
 export function clientIp(req: Request): string {
-  const forwarded = req.headers.get("x-forwarded-for");
-  const first = forwarded?.split(",")[0]?.trim();
+  const vercel = req.headers.get("x-vercel-forwarded-for")?.split(",")[0]?.trim();
+  if (vercel) return vercel;
+  const real = req.headers.get("x-real-ip")?.trim();
+  if (real) return real;
+  const first = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
   return first || "unknown";
 }
