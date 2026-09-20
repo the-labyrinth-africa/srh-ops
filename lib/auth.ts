@@ -96,7 +96,9 @@ export const authOptions: NextAuthOptions = {
         token.refreshedAt = Date.now();
         return token;
       }
-      if (trigger === "update" || needsRefresh(token)) {
+      // Tant que le jeton porte le drapeau « mot de passe temporaire », on relit la base à chaque
+      // appel : il tombe dès le changement effectué, même si update() côté client n'a pas abouti.
+      if (trigger === "update" || token.mustChangePassword || needsRefresh(token)) {
         return refreshTokenFromDb(token);
       }
       return token;

@@ -4,9 +4,8 @@ import path from "node:path";
 
 const ROOT = path.join(process.cwd(), "app", "(dashboard)");
 
-// /profil est un composant client : l'authentification est assurée par le middleware
-// et la page est ouverte à tous les rôles.
-const EXEMPT = new Set(["profil/page.tsx"]);
+// Aucune page n'est exemptée : /profil est aussi une page serveur gardée (ouverte à tous les rôles).
+const EXEMPT = new Set<string>();
 
 describe("pages du tableau de bord", () => {
   const pages = (readdirSync(ROOT, { recursive: true }) as string[])

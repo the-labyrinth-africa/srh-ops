@@ -28,6 +28,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Mot de passe actuel incorrect" }, { status: 400 });
   }
 
+  if (currentPassword === newPassword) {
+    return NextResponse.json(
+      { error: "Le nouveau mot de passe doit être différent de l'ancien" },
+      { status: 400 }
+    );
+  }
+
   const newHash = await bcrypt.hash(newPassword, 10);
   await User.updateOne(
     { _id: user._id },

@@ -57,4 +57,26 @@ describe("changement de mot de passe obligatoire", () => {
     expect(after?.mustChangePassword).toBe(false);
     expect(await bcrypt.compare("NouveauMdp1", after!.motDePasseHash)).toBe(true);
   });
+
+  it("refuse un nouveau mot de passe identique à l'actuel", async () => {
+    const hash = await bcrypt.hash("Temp0raire!", 10);
+    const user = await User.create({
+      username: "same", nom: "Same", email: "same@srh.ci",
+      motDePasseHash: hash, role: "dispatcher", mustChangePassword: true,
+    });
+    session({ id: String(user._id), role: "dispatcher", mustChangePassword: true });
+
+    const res = await changePassword(
+      new NextRequest("http://localhost:3000/api/auth/change-password", {
+        method: "POST",
+        body: JSON.stringify({ currentPassword: "Temp0raire!", newPassword: "Temp0raire!" }),
+      })
+    );
+
+    expect(res.status).toBe(400);
+    expect((await res.json()).error).toBe("Le nouveau mot de passe doit être différent de l'ancien");
+    const after = await User.findById(user._id);
+    expect(after?.motDePasseHash).toBe(hash);
+    expect(after?.mustChangePassword).toBe(true);
+  });
 });
