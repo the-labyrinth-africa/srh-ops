@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { NextRequest } from "next/server";
 import * as nextAuth from "next-auth";
 
@@ -12,6 +12,12 @@ import { POST as generateOperations } from "@/app/api/recurrences/generate/route
 import { POST as createClient } from "@/app/api/clients/route";
 import { POST as createSite } from "@/app/api/sites/route";
 import { GET as getOperations } from "@/app/api/operations/route";
+import { Client } from "@/models/Client";
+import { Site } from "@/models/Site";
+import { Equipe } from "@/models/Equipe";
+import { Vehicule } from "@/models/Vehicule";
+import { Operation } from "@/models/Operation";
+import { Recurrence } from "@/models/Recurrence";
 
 describe("Collectes Récurrentes API Integration Tests", () => {
   beforeEach(() => {
@@ -173,5 +179,140 @@ describe("Collectes Récurrentes API Integration Tests", () => {
     const resGen2 = await generateOperations(reqGen);
     const genData2 = await resGen2.json();
     expect(genData2.generatedCount).toBe(0);
+  });
+
+  describe("Récurrences personnalisées — ancrage et conflits (I6, I7)", () => {
+    const START = new Date(2026, 8, 1, 6, 0, 0);
+
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(START);
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    async function seedRecurrence(extra: Record<string, unknown> = {}) {
+      const client = await Client.create({ nom: "Client Récurrence" });
+      const site = await Site.create({ clientId: client._id, nom: "Site Récurrence" });
+      const rec = await Recurrence.create({
+        clientId: client._id,
+        siteId: site._id,
+        natureIntervention: "Collecte tous les 7 jours",
+        frequence: "personnalisee",
+        intervalleJours: 7,
+        heurePrevue: "08:00",
+        dureeEstimeeMinutes: 120,
+        active: true,
+        ...extra,
+      });
+      return { client, site, rec };
+    }
+
+    function generate(horizonDays: number) {
+      return generateOperations(
+        new NextRequest("http://localhost:3000/api/recurrences/generate", {
+          method: "POST",
+          body: JSON.stringify({ horizonDays }),
+        })
+      );
+    }
+
+    it("ne génère que les occasions dues et ne glisse jamais (I6)", async () => {
+      const { site } = await seedRecurrence();
+
+      // Jour 0 : seule l'occurrence à J+7 tient dans un horizon de 10 jours
+      const first = await (await generate(10)).json();
+      expect(first.generatedCount).toBe(1);
+
+      // Deuxième passage le même jour : rien de neuf
+      const again = await (await generate(10)).json();
+      expect(again.generatedCount).toBe(0);
+
+      // Jour 1 puis jour 2 : l'occurrence suivante n'est pas encore due
+      vi.setSystemTime(new Date(2026, 8, 2, 6, 0, 0));
+      expect((await (await generate(10)).json()).generatedCount).toBe(0);
+      vi.setSystemTime(new Date(2026, 8, 3, 6, 0, 0));
+      expect((await (await generate(10)).json()).generatedCount).toBe(0);
+
+      // Jour 8 : la suivante tombe exactement 7 jours après la précédente
+      vi.setSystemTime(new Date(2026, 8, 9, 6, 0, 0));
+      expect((await (await generate(10)).json()).generatedCount).toBe(1);
+
+      const ops = await Operation.find({ siteId: site._id }).sort({ dateHeurePrevue: 1 });
+      expect(ops).toHaveLength(2);
+      expect(ops[0].dateHeurePrevue.getTime()).toBe(new Date(2026, 8, 8, 8, 0, 0).getTime());
+      expect(ops[1].dateHeurePrevue.getTime()).toBe(new Date(2026, 8, 15, 8, 0, 0).getTime());
+    });
+
+    it("n'enregistre derniereGeneration que sur une occurrence réellement créée (I6)", async () => {
+      const { rec } = await seedRecurrence();
+
+      // Horizon trop court : rien à générer, l'ancre ne doit pas bouger
+      const res = await (await generate(3)).json();
+      expect(res.generatedCount).toBe(0);
+      const untouched = await Recurrence.findById(rec._id);
+      expect(untouched!.derniereGeneration).toBeUndefined();
+
+      await generate(10);
+      const updated = await Recurrence.findById(rec._id);
+      expect(updated!.derniereGeneration!.getTime()).toBe(
+        new Date(2026, 8, 8, 8, 0, 0).getTime()
+      );
+    });
+
+    it("crée l'occurrence en Planifiée sans ressource et signale le conflit (I7)", async () => {
+      const equipe = await Equipe.create({ nom: "Équipe Conflit" });
+      const vehicule = await Vehicule.create({ identification: "V-CONFLIT" });
+      const { rec } = await seedRecurrence({
+        equipeId: equipe._id,
+        vehiculeId: vehicule._id,
+      });
+
+      // Une opération occupe déjà l'équipe sur le créneau de l'occurrence J+7
+      const autreClient = await Client.create({ nom: "Autre Client" });
+      const autreSite = await Site.create({ clientId: autreClient._id, nom: "Autre Site" });
+      await Operation.create({
+        clientId: autreClient._id,
+        siteId: autreSite._id,
+        natureIntervention: "Occupation du créneau",
+        dateHeurePrevue: new Date(2026, 8, 8, 8, 0, 0),
+        dureeEstimeeMinutes: 120,
+        equipeId: equipe._id,
+        statut: "Affectée",
+      });
+
+      const data = await (await generate(10)).json();
+      expect(data.generatedCount).toBe(1);
+      expect(data.conflits).toHaveLength(1);
+      expect(data.conflits[0].recurrenceId).toBe(String(rec._id));
+      expect(new Date(data.conflits[0].date).getTime()).toBe(
+        new Date(2026, 8, 8, 8, 0, 0).getTime()
+      );
+      expect(data.conflits[0].message).toBeTruthy();
+
+      const created = await Operation.findOne({ siteId: rec.siteId });
+      expect(created!.statut).toBe("Planifiée");
+      expect(created!.equipeId).toBeUndefined();
+      expect(created!.vehiculeId).toBeUndefined();
+    });
+
+    it("affecte normalement l'occurrence quand il n'y a pas de conflit (I7)", async () => {
+      const equipe = await Equipe.create({ nom: "Équipe Libre" });
+      const vehicule = await Vehicule.create({ identification: "V-LIBRE" });
+      const { rec } = await seedRecurrence({
+        equipeId: equipe._id,
+        vehiculeId: vehicule._id,
+      });
+
+      const data = await (await generate(10)).json();
+      expect(data.generatedCount).toBe(1);
+      expect(data.conflits).toHaveLength(0);
+
+      const created = await Operation.findOne({ siteId: rec.siteId });
+      expect(created!.statut).toBe("Affectée");
+      expect(String(created!.equipeId)).toBe(String(equipe._id));
+    });
   });
 });

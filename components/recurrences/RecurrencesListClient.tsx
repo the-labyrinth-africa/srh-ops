@@ -65,7 +65,13 @@ export function RecurrencesListClient() {
         body: JSON.stringify({ horizonDays: 30 }),
       });
       const data = await res.json();
-      setMessage(data.message || "Génération terminée.");
+      const conflits: { date: string; message: string }[] = data.conflits ?? [];
+      const base = data.message || "Génération terminée.";
+      setMessage(
+        conflits.length > 0
+          ? `${base} ${conflits.length} occurrence(s) créée(s) sans équipe ni véhicule pour cause de conflit d'affectation : à replanifier.`
+          : base
+      );
       fetchRecurrences();
     } catch (err) {
       setMessage("Erreur lors de la génération automatique.");
