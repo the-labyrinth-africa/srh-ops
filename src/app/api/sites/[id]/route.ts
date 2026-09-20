@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
+import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireAuth, requireReferentialRead, isWithinClientScope } from "@/lib/api-auth";
 import { Site } from "@/models/Site";
 import { siteSchema } from "@/lib/validators/site";
-import { guardObjectId } from "@/lib/mongo-id";
+import { guardObjectId } from "@/backend/platform/http/identifiants";
 
 type Params = { params: Promise<{ id: string }> };
 

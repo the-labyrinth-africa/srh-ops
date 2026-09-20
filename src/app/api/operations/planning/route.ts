@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
+import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireAuth, chauffeurWithoutTeamError } from "@/lib/api-auth";
 import { isChauffeur, isClientUser } from "@/shared/acces/permissions";
 import { computeEffectiveStatus } from "@/lib/status-transitions";

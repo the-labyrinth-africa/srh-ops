@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import { connectDB } from "@/lib/db";
+import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requirePageAccess } from "@/lib/page-auth";
 import { computeEffectiveStatus } from "@/lib/status-transitions";
 import { Client } from "@/models/Client";

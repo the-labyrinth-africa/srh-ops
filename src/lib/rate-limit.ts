@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { connectDB } from "@/lib/db";
+import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { RateLimit } from "@/models/RateLimit";
 
 export interface RateLimitResult {

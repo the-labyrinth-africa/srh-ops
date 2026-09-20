@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
-import { connectDB } from "@/lib/db";
+import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { consumeRateLimit, clientIp, type RateLimitResult } from "@/lib/rate-limit";
 import { runAfterResponse } from "@/lib/run-after";
 import { consumeResetToken } from "@/lib/auth/reset-token";

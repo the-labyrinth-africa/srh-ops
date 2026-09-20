@@ -1,12 +1,5 @@
 import mongoose from "mongoose";
-import "@/models/Client";
-import "@/models/Site";
-import "@/models/Equipe";
-import "@/models/Vehicule";
-import "@/models/Equipement";
-import "@/models/User";
-import "@/models/Operation";
-import "@/models/Recurrence";
+import "@/backend/platform/base-de-donnees/enregistrement-modeles";
 
 interface MongooseCache {
   conn: typeof mongoose | null;

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { connectDB } from "@/lib/db";
+import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireAuth } from "@/lib/api-auth";
 import { User } from "@/models/User";
-import { guardObjectId } from "@/lib/mongo-id";
+import { guardObjectId } from "@/backend/platform/http/identifiants";
 import { generateRandomPassword } from "@/lib/email";
 import { PasswordResetToken } from "@/models/PasswordResetToken";
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
+import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireInternalAuth } from "@/lib/api-auth";
 import { Vehicule } from "@/models/Vehicule";
 import { vehiculeSchema } from "@/lib/validators/vehicule";

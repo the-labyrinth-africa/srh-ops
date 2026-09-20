@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import mongoose from "mongoose";
-import { connectDB } from "@/lib/db";
+import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { PasswordResetToken } from "@/models/PasswordResetToken";
 
 export type TokenPurpose = "reset" | "invitation";

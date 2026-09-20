@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
+import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireAuth } from "@/lib/api-auth";
 import { User } from "@/models/User";
 import { userUpdateSchema } from "@/lib/validators/user";
-import { guardObjectId } from "@/lib/mongo-id";
+import { guardObjectId } from "@/backend/platform/http/identifiants";
 import { findScopeError } from "@/lib/users/scope";
 import { PasswordResetToken } from "@/models/PasswordResetToken";
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
+import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireAuth, isWithinClientScope, isWithinTeamScope, chauffeurWithoutTeamError } from "@/lib/api-auth";
 import { checkAssignmentConflicts } from "@/lib/conflicts";
 import { Operation } from "@/models/Operation";
@@ -10,7 +10,7 @@ import { Vehicule } from "@/models/Vehicule";
 import { Equipement } from "@/models/Equipement";
 import { User } from "@/models/User";
 import { operationSchema } from "@/lib/validators/operation";
-import { guardObjectId } from "@/lib/mongo-id";
+import { guardObjectId } from "@/backend/platform/http/identifiants";
 
 type Params = { params: Promise<{ id: string }> };
 

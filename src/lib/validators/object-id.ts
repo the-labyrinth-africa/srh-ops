@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { isValidObjectId } from "@/lib/mongo-id";
+import { isValidObjectId } from "@/backend/platform/http/identifiants";
 
 /**
  * Identifiant Mongo obligatoire. Sans cette validation, une chaîne quelconque

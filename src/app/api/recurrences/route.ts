@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
+import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireInternalAuth } from "@/lib/api-auth";
 import { Recurrence } from "@/models/Recurrence";
 import { recurrenceSchema } from "@/lib/validators/recurrence";

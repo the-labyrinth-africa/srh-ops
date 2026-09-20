@@ -7,7 +7,7 @@ vi.mock("next-auth", () => ({
   getServerSession: vi.fn(),
 }));
 
-import { connectDB } from "@/lib/db";
+import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { User } from "@/models/User";
 import { POST as resetPassword } from "@/app/api/users/[id]/reset-password/route";
 import { PUT as updateUser } from "@/app/api/users/[id]/route";

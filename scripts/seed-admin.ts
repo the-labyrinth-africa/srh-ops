@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { loadEnvConfig } from "@next/env";
-import { connectDB } from "../src/lib/db";
+import { connectDB } from "../src/backend/platform/base-de-donnees/connexion";
 import { User } from "../src/models/User";
 import { Client } from "../src/models/Client";
 import { Site } from "../src/models/Site";

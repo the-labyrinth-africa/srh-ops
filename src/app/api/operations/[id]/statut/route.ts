@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
-import { connectDB } from "@/lib/db";
+import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireTerrainWrite, isWithinTeamScope, chauffeurWithoutTeamError, TEAM_SCOPE_ERROR } from "@/lib/api-auth";
 import { canTransition } from "@/lib/status-transitions";
 import { Operation } from "@/models/Operation";
 import { statusUpdateSchema } from "@/lib/validators/operation";
-import { guardObjectId } from "@/lib/mongo-id";
+import { guardObjectId } from "@/backend/platform/http/identifiants";
 import type { OperationStatus } from "@/shared/operations/statuts";
 
 type Params = { params: Promise<{ id: string }> };

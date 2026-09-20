@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
+import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireAuth, requireReferentialRead, isWithinClientScope } from "@/lib/api-auth";
 import { Client } from "@/models/Client";
 import { User } from "@/models/User";
 import { clientSchema } from "@/lib/validators/client";
-import { guardObjectId } from "@/lib/mongo-id";
+import { guardObjectId } from "@/backend/platform/http/identifiants";
 
 type Params = { params: Promise<{ id: string }> };
 

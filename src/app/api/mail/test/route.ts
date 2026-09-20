@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
+import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireAuth } from "@/lib/api-auth";
 import { consumeRateLimit, type RateLimitResult } from "@/lib/rate-limit";
 import { sendMail } from "@/lib/mail";

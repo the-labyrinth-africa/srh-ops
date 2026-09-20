@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
+import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { appBaseUrl } from "@/lib/app-url";
 import { consumeRateLimit, clientIp, type RateLimitResult } from "@/lib/rate-limit";
 import { runAfterResponse } from "@/lib/run-after";

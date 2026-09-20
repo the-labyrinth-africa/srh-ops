@@ -7,7 +7,7 @@ vi.mock("next-auth", () => ({
   getServerSession: vi.fn(),
 }));
 
-import { connectDB } from "@/lib/db";
+import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { getMemoryTransport } from "@/lib/mail";
 import mongoose from "mongoose";
 import { User } from "@/models/User";

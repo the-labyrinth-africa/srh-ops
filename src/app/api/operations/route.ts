@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
-import { connectDB } from "@/lib/db";
+import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireAuth, chauffeurWithoutTeamError } from "@/lib/api-auth";
 import { isChauffeur, isClientUser } from "@/shared/acces/permissions";
 import { checkAssignmentConflicts } from "@/lib/conflicts";
