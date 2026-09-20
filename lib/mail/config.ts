@@ -29,10 +29,12 @@ export function readSmtpConfig(env: Env): SmtpConfig | null {
   const user = env.SMTP_USER?.trim();
   const pass = env.SMTP_PASSWORD;
   if (!user) missing.push("SMTP_USER");
-  if (!pass) missing.push("SMTP_PASSWORD");
+  // Un mot de passe uniquement fait d'espaces équivaut à un mot de passe absent.
+  if (!pass || !pass.trim()) missing.push("SMTP_PASSWORD");
 
+  // Décimal strict : « 0x1bb », « 1e3 » ou « 465x » ne sont pas des ports valides.
   const rawPort = env.SMTP_PORT?.trim();
-  const port = rawPort ? Number(rawPort) : 465;
+  const port = rawPort ? (/^\d+$/.test(rawPort) ? Number(rawPort) : Number.NaN) : 465;
   if (!Number.isInteger(port) || port < 1 || port > 65535) missing.push("SMTP_PORT");
 
   if (missing.length > 0) throw new MailConfigError(missing);

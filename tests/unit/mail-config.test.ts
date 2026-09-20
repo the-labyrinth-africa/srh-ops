@@ -60,4 +60,24 @@ describe("readSmtpConfig", () => {
       readSmtpConfig({ SMTP_HOST: "h", SMTP_USER: "u@x.org", SMTP_PASSWORD: "p", SMTP_PORT: "70000" })
     ).toThrow(MailConfigError);
   });
+
+  it("refuse un port non décimal ou hors bornes", () => {
+    const base = { SMTP_HOST: "h", SMTP_USER: "u@x.org", SMTP_PASSWORD: "p" };
+    for (const SMTP_PORT of ["0x1bb", "1e3", " 465x", "465.5", "-1", "0", "65536", "+465"]) {
+      expect(() => readSmtpConfig({ ...base, SMTP_PORT }), SMTP_PORT).toThrow(MailConfigError);
+    }
+    expect(readSmtpConfig({ ...base, SMTP_PORT: " 587 " })?.port).toBe(587);
+    expect(readSmtpConfig({ ...base, SMTP_PORT: "65535" })?.port).toBe(65535);
+  });
+
+  it("un SMTP_PASSWORD uniquement composé d'espaces compte comme absent", () => {
+    let error: unknown;
+    try {
+      readSmtpConfig({ SMTP_HOST: "h", SMTP_USER: "u@x.org", SMTP_PASSWORD: "   " });
+    } catch (e) {
+      error = e;
+    }
+    expect(error).toBeInstanceOf(MailConfigError);
+    expect((error as MailConfigError).missing).toEqual(["SMTP_PASSWORD"]);
+  });
 });

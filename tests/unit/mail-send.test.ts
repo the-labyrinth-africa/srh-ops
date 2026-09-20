@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { sendMail, resolveTransport, getMemoryTransport } from "@/lib/mail";
+import { MailConfigError } from "@/lib/mail/config";
 import { MemoryTransport } from "@/lib/mail/memory-transport";
 import { SmtpTransport } from "@/lib/mail/smtp-transport";
 
@@ -14,6 +15,16 @@ describe("resolveTransport", () => {
   it("utilise le transport mémoire en test ou avec MAIL_TRANSPORT=memory", () => {
     expect(resolveTransport({ NODE_ENV: "test" })).toBeInstanceOf(MemoryTransport);
     expect(resolveTransport({ MAIL_TRANSPORT: "memory" })).toBeInstanceOf(MemoryTransport);
+  });
+  it("refuse le transport mémoire en production (not_configured côté appelant)", () => {
+    expect(() => resolveTransport({ NODE_ENV: "production", MAIL_TRANSPORT: "memory" })).toThrow(MailConfigError);
+    expect(() =>
+      resolveTransport({ NODE_ENV: "production", MAIL_TRANSPORT: "memory", SMTP_HOST: "h", SMTP_USER: "u@x.org", SMTP_PASSWORD: "p" })
+    ).toThrow(MailConfigError);
+  });
+  it("en production sans MAIL_TRANSPORT=memory, SMTP reste utilisable", () => {
+    const t = resolveTransport({ NODE_ENV: "production", SMTP_HOST: "h", SMTP_USER: "u@x.org", SMTP_PASSWORD: "p" });
+    expect(t).toBeInstanceOf(SmtpTransport);
   });
   it("utilise SMTP quand il est configuré", () => {
     const t = resolveTransport({ SMTP_HOST: "h", SMTP_USER: "u@x.org", SMTP_PASSWORD: "p" });
@@ -39,6 +50,13 @@ describe("sendMail", () => {
   it("renvoie not_configured sur une configuration incomplète", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     expect(await sendMail(message, { SMTP_HOST: "h" })).toEqual({ ok: false, reason: "not_configured" });
+  });
+
+  it("refuse MAIL_TRANSPORT=memory en production : not_configured et aucun message stocké", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const result = await sendMail(message, { NODE_ENV: "production", MAIL_TRANSPORT: "memory" });
+    expect(result).toEqual({ ok: false, reason: "not_configured" });
+    expect(getMemoryTransport().sent).toHaveLength(0);
   });
 
   it("renvoie send_failed sur un échec d'envoi", async () => {

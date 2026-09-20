@@ -1,7 +1,19 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import nodemailer from "nodemailer";
 import { SmtpTransport } from "@/lib/mail/smtp-transport";
 import { MemoryTransport } from "@/lib/mail/memory-transport";
+
+describe("SmtpTransport.fromConfig", () => {
+  it("borne la résolution DNS et les délais de connexion", () => {
+    const spy = vi.spyOn(nodemailer, "createTransport");
+    SmtpTransport.fromConfig({ host: "h", port: 465, secure: true, user: "u", pass: "p", from: "SRH <u>" });
+    const options = spy.mock.calls[0][0] as unknown as Record<string, unknown>;
+    expect(options.dnsTimeout).toBe(10_000);
+    expect(options.connectionTimeout).toBe(10_000);
+    expect(options.socketTimeout).toBe(15_000);
+    spy.mockRestore();
+  });
+});
 
 describe("SmtpTransport", () => {
   it("construit le message avec l'expéditeur configuré, le texte, le html et les pièces jointes", async () => {

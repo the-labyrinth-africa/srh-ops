@@ -12,8 +12,14 @@ export function getMemoryTransport(): MemoryTransport {
   return memory;
 }
 
-/** null → aucun transport configuré. Lève MailConfigError si SMTP est mal configuré. */
+/**
+ * null → aucun transport configuré. Lève MailConfigError si SMTP est mal configuré, ou si le
+ * transport mémoire (réservé aux tests) est demandé en production : il avalerait les e-mails.
+ */
 export function resolveTransport(env: Env = process.env): MailTransport | null {
+  if (env.NODE_ENV === "production" && env.MAIL_TRANSPORT === "memory") {
+    throw new MailConfigError(["MAIL_TRANSPORT"]);
+  }
   if (env.MAIL_TRANSPORT === "memory" || env.NODE_ENV === "test") return getMemoryTransport();
   const config = readSmtpConfig(env);
   return config ? SmtpTransport.fromConfig(config) : null;

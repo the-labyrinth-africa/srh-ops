@@ -17,6 +17,7 @@ export class SmtpTransport implements MailTransport {
       requireTLS: !config.secure,
       auth: { user: config.user, pass: config.pass },
       // Une fonction serverless ne doit jamais rester suspendue sur un serveur muet.
+      dnsTimeout: 10_000,
       connectionTimeout: 10_000,
       greetingTimeout: 10_000,
       socketTimeout: 15_000,
