@@ -26,6 +26,18 @@ describe("navForRole", () => {
     expect(h).not.toContain("/utilisateurs");
   });
 
+  it("lecture : liste exacte des entrées", () => {
+    expect(hrefs("lecture")).toEqual([
+      "/", "/operations/planning", "/operations", "/recurrences", "/clients", "/equipes", "/vehicules", "/equipements",
+    ]);
+  });
+
+  it("dispatcher : liste exacte des entrées (lecture + terrain + import)", () => {
+    expect([...hrefs("dispatcher")].sort()).toEqual(
+      ["/", "/operations/planning", "/operations", "/recurrences", "/clients", "/equipes", "/vehicules", "/equipements", "/terrain", "/import"].sort()
+    );
+  });
+
   it("chauffeur ne voit que la console terrain", () => {
     expect(hrefs("chauffeur")).toEqual(["/terrain"]);
   });

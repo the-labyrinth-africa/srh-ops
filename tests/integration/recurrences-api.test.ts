@@ -282,6 +282,11 @@ describe("Collectes Récurrentes API Integration Tests", () => {
         new Date(2026, 8, 2, 8, 0, 0).getTime(),
         new Date(2026, 8, 3, 8, 0, 0).getTime(),
       ]);
+
+      // Second passage le même jour : rien de plus n'est généré.
+      const again = await (await generate(3)).json();
+      expect(again.generatedCount).toBe(0);
+      expect(await Operation.countDocuments({ siteId: site._id })).toBe(3);
     });
 
     it("crée l'occurrence en Planifiée sans ressource et signale le conflit (I7)", async () => {

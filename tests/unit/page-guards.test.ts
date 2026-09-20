@@ -10,7 +10,7 @@ const EXEMPT = new Set<string>();
 describe("pages du tableau de bord", () => {
   const pages = (readdirSync(ROOT, { recursive: true }) as string[])
     .map((p) => p.split(path.sep).join("/"))
-    .filter((p) => p === "page.tsx" || p.endsWith("/page.tsx"));
+    .filter((p) => /(^|\/)page\.(tsx|ts|jsx)$/.test(p));
 
   it("en trouve plus d'une dizaine (le test ne doit pas passer à vide)", () => {
     expect(pages.length).toBeGreaterThanOrEqual(13);
@@ -18,6 +18,6 @@ describe("pages du tableau de bord", () => {
 
   it.each(pages.filter((p) => !EXEMPT.has(p)))("%s appelle requirePageAccess", (page) => {
     const source = readFileSync(path.join(ROOT, page), "utf8");
-    expect(source).toContain("requirePageAccess(");
+    expect(source).toMatch(/await requirePageAccess\(/);
   });
 });
