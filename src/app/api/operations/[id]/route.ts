@@ -7,7 +7,7 @@ import { Client } from "@/models/Client";
 import { Site } from "@/models/Site";
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { Vehicule } from "@/backend/vehicules/infrastructure/mongoose/vehicule.model";
-import { Equipement } from "@/models/Equipement";
+import { Equipement } from "@/backend/equipements/infrastructure/mongoose/equipement.model";
 import { User } from "@/models/User";
 import { operationSchema } from "@/lib/validators/operation";
 import { guardObjectId } from "@/backend/platform/http/identifiants";

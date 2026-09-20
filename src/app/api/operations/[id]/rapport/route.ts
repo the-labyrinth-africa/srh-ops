@@ -6,7 +6,7 @@ import { Client } from "@/models/Client";
 import { Site } from "@/models/Site";
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { Vehicule } from "@/backend/vehicules/infrastructure/mongoose/vehicule.model";
-import { Equipement } from "@/models/Equipement";
+import { Equipement } from "@/backend/equipements/infrastructure/mongoose/equipement.model";
 import type { OperationStatus } from "@/shared/operations/statuts";
 import type { QuantiteUnite } from "@/shared/operations/quantites";
 import { guardObjectId } from "@/backend/platform/http/identifiants";

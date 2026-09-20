@@ -6,7 +6,7 @@ import { Client } from "../src/models/Client";
 import { Site } from "../src/models/Site";
 import { Equipe } from "../src/backend/equipes/infrastructure/mongoose/equipe.model";
 import { Vehicule } from "../src/backend/vehicules/infrastructure/mongoose/vehicule.model";
-import { Equipement } from "../src/models/Equipement";
+import { Equipement } from "../src/backend/equipements/infrastructure/mongoose/equipement.model";
 import { Operation } from "../src/models/Operation";
 
 export function shouldSeed(

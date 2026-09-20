@@ -3,7 +3,7 @@ import { clientSchema } from "@/lib/validators/client";
 import { siteSchema } from "@/lib/validators/site";
 import { equipeSchema } from "@/backend/equipes/http/equipe.schema";
 import { vehiculeSchema } from "@/backend/vehicules/http/vehicule.schema";
-import { equipementSchema } from "@/lib/validators/equipement";
+import { equipementSchema } from "@/backend/equipements/http/equipement.schema";
 import { operationSchema, statusUpdateSchema } from "@/lib/validators/operation";
 import { recurrenceSchema } from "@/lib/validators/recurrence";
 
