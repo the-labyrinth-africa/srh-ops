@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { requireAuth } from "@/lib/api-auth";
-import { consumeRateLimit } from "@/lib/rate-limit";
+import { consumeRateLimit, type RateLimitResult } from "@/lib/rate-limit";
 import { sendMail } from "@/lib/mail";
 import { User } from "@/models/User";
 
 const NO_STORE = { "Cache-Control": "no-store" };
+const UNAVAILABLE = "Service momentanément indisponible. Réessayez plus tard.";
 
 /** Envoie un e-mail de test à l'adresse du compte administrateur connecté. */
 export async function POST() {
@@ -16,7 +17,14 @@ export async function POST() {
     return NextResponse.json({ error: "Accès réservé aux administrateurs" }, { status: 403 });
   }
 
-  const limit = await consumeRateLimit("mail-test", auth.user.id, { limit: 5, windowMs: 3_600_000 });
+  let limit: RateLimitResult;
+  try {
+    limit = await consumeRateLimit("mail-test", auth.user.id, { limit: 5, windowMs: 3_600_000 });
+  } catch (error) {
+    // Jamais de 500 par défaut : Next journaliserait l'erreur complète (URI Mongo possible).
+    console.error("[mail-test] limiteur indisponible :", error instanceof Error ? error.name : "erreur");
+    return NextResponse.json({ error: UNAVAILABLE }, { status: 503, headers: NO_STORE });
+  }
   if (!limit.allowed) {
     return NextResponse.json(
       { error: "Trop d'e-mails de test. Réessayez plus tard." },

@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/db";
 import { requireAuth } from "@/lib/api-auth";
 import { isValidObjectId } from "@/lib/mongo-id";
 import { appBaseUrl } from "@/lib/app-url";
-import { consumeRateLimit } from "@/lib/rate-limit";
+import { consumeRateLimit, type RateLimitResult } from "@/lib/rate-limit";
 import { issueResetToken } from "@/lib/auth/reset-token";
 import { sendResetLinkMail } from "@/lib/auth/account-mail";
 import { User } from "@/models/User";
@@ -13,6 +13,7 @@ interface RouteParams {
 }
 
 const NO_STORE = { "Cache-Control": "no-store" };
+const UNAVAILABLE = "Service momentanément indisponible. Réessayez plus tard.";
 
 /** Envoie à l'utilisateur un lien de réinitialisation (administrateur uniquement). Ne modifie pas le mot de passe. */
 export async function POST(_req: NextRequest, { params }: RouteParams) {
@@ -28,7 +29,14 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: "Identifiant invalide" }, { status: 400, headers: NO_STORE });
   }
 
-  const limit = await consumeRateLimit("send-link", id, { limit: 5, windowMs: 3_600_000 });
+  let limit: RateLimitResult;
+  try {
+    limit = await consumeRateLimit("send-link", id, { limit: 5, windowMs: 3_600_000 });
+  } catch (error) {
+    // Jamais de 500 par défaut : Next journaliserait l'erreur complète (URI Mongo possible).
+    console.error("[send-reset-link] limiteur indisponible :", error instanceof Error ? error.name : "erreur");
+    return NextResponse.json({ error: UNAVAILABLE }, { status: 503, headers: NO_STORE });
+  }
   if (!limit.allowed) {
     return NextResponse.json(
       { error: "Trop de liens envoyés à ce compte. Réessayez plus tard." },

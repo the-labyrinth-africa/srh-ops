@@ -8,6 +8,7 @@ vi.mock("next-auth", () => ({ getServerSession: vi.fn() }));
 import { POST as sendLink } from "@/app/api/users/[id]/send-reset-link/route";
 import { consumeResetToken, issueResetToken } from "@/lib/auth/reset-token";
 import { getMemoryTransport } from "@/lib/mail";
+import * as rateLimit from "@/lib/rate-limit";
 import { User } from "@/models/User";
 import { PasswordResetToken } from "@/models/PasswordResetToken";
 
@@ -106,5 +107,27 @@ describe("POST /api/users/[id]/send-reset-link", () => {
     const statuses: number[] = [];
     for (let i = 0; i < 6; i++) statuses.push((await call(String(target._id))).status);
     expect(statuses).toEqual([200, 200, 200, 200, 200, 429]);
+  });
+
+  it("limiteur en panne : 503 générique, rien envoyé, aucun jeton créé, aucun secret journalisé", async () => {
+    const target = await seedTarget();
+    session("admin");
+    const spies = (["log", "info", "warn", "error", "debug"] as const).map((level) =>
+      vi.spyOn(console, level).mockImplementation(() => {})
+    );
+    vi.spyOn(rateLimit, "consumeRateLimit").mockRejectedValue(new Error("mongodb://secret@hote"));
+
+    const res = await call(String(target._id));
+
+    expect(res.status).toBe(503);
+    expect(await res.json()).toEqual({ error: "Service momentanément indisponible. Réessayez plus tard." });
+    expect(res.headers.get("Cache-Control")).toBe("no-store");
+    expect(getMemoryTransport().sent).toHaveLength(0);
+    expect(await PasswordResetToken.countDocuments({})).toBe(0);
+    const output = spies.flatMap((s) => s.mock.calls).flat().map(String).join("\n");
+    expect(output).toContain("[send-reset-link] limiteur indisponible");
+    expect(output).not.toContain("mongodb://");
+    expect(output).not.toContain("cible@srh.ci");
+    vi.restoreAllMocks();
   });
 });

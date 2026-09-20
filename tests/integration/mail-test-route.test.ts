@@ -5,6 +5,7 @@ vi.mock("next-auth", () => ({ getServerSession: vi.fn() }));
 
 import { POST as sendTest } from "@/app/api/mail/test/route";
 import { getMemoryTransport } from "@/lib/mail";
+import * as rateLimit from "@/lib/rate-limit";
 import { User } from "@/models/User";
 
 function session(role: string, id: string) {
@@ -71,5 +72,26 @@ describe("POST /api/mail/test", () => {
     for (let i = 0; i < 6; i++) statuses.push((await call()).status);
     expect(statuses).toEqual([200, 200, 200, 200, 200, 429]);
     expect(getMemoryTransport().sent).toHaveLength(5);
+  });
+
+  it("limiteur en panne : 503 générique, rien envoyé, aucun secret journalisé", async () => {
+    const admin = await seedAdmin();
+    session("admin", String(admin._id));
+    const spies = (["log", "info", "warn", "error", "debug"] as const).map((level) =>
+      vi.spyOn(console, level).mockImplementation(() => {})
+    );
+    vi.spyOn(rateLimit, "consumeRateLimit").mockRejectedValue(new Error("mongodb://secret@hote"));
+
+    const res = await call();
+
+    expect(res.status).toBe(503);
+    expect(await res.json()).toEqual({ error: "Service momentanément indisponible. Réessayez plus tard." });
+    expect(res.headers.get("Cache-Control")).toBe("no-store");
+    expect(getMemoryTransport().sent).toHaveLength(0);
+    const output = spies.flatMap((s) => s.mock.calls).flat().map(String).join("\n");
+    expect(output).toContain("[mail-test] limiteur indisponible");
+    expect(output).not.toContain("mongodb://");
+    expect(output).not.toContain("admin1@srh.ci");
+    vi.restoreAllMocks();
   });
 });

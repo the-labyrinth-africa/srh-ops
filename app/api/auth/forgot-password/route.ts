@@ -26,8 +26,10 @@ async function sendLinkIfAccountExists(identifier: string): Promise<void> {
   ).select("_id nom email");
   if (!user) return;
 
+  // Base d'URL calculée AVANT d'émettre le jeton : sans URL valide, le jeton précédent reste intact.
+  const base = appBaseUrl();
   const { token } = await issueResetToken(String(user._id), "reset");
-  const link = `${appBaseUrl()}/reset-password?token=${token}`;
+  const link = `${base}/reset-password?token=${token}`;
   await sendResetLinkMail({ nom: user.nom, email: user.email }, link);
 }
 
