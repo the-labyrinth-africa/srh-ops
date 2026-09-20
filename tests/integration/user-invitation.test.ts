@@ -48,6 +48,32 @@ describe("POST /api/users : invitation par e-mail", () => {
     expect(await PasswordResetToken.countDocuments({ purpose: "invitation" })).toBe(1);
   });
 
+  it("le mail d'invitation ne contient jamais le mot de passe temporaire d'un compte créé en repli", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    // Premier compte : envoi en échec pour obtenir un mot de passe temporaire P connu.
+    getMemoryTransport().failNext();
+    const first = await (await create()).json();
+    const password: string = first.generatedPassword;
+    expect(typeof password).toBe("string");
+
+    // Second compte (envoi réussi) : le mail ne contient que le lien, pas P ; et pas le mot de passe de ce compte non plus,
+    // qui n'est renvoyé nulle part (seul le hash existe en base).
+    const res = await createUser(
+      new NextRequest("http://localhost:3000/api/users", {
+        method: "POST",
+        body: JSON.stringify({ username: "kofi", nom: "Kofi Yao", email: "kofi@srh.ci", role: "dispatcher", telephone: "" }),
+      })
+    );
+    expect(res.status).toBe(201);
+    const mail = getMemoryTransport().sent.at(-1)!;
+    expect(mail.to).toBe("kofi@srh.ci");
+    expect(mail.text).not.toContain(password);
+    expect(mail.html ?? "").not.toContain(password);
+    expect((await res.json()).generatedPassword).toBeUndefined();
+    // Le seul secret du corps est le jeton du lien : 43 caractères base64url, une seule occurrence.
+    expect(mail.text.match(/token=[A-Za-z0-9_-]{43}/g)).toHaveLength(1);
+  });
+
   it("le lien d'invitation permet de choisir son mot de passe et de se connecter", async () => {
     await create();
     const text = getMemoryTransport().sent[0].text;
@@ -77,6 +103,10 @@ describe("POST /api/users : invitation par e-mail", () => {
     expect(typeof data.generatedPassword).toBe("string");
     expect(data.generatedPassword.length).toBeGreaterThanOrEqual(8);
     expect(data.message).not.toContain(data.generatedPassword);
+    for (const mail of getMemoryTransport().sent) {
+      expect(mail.text).not.toContain(data.generatedPassword);
+      expect(mail.html ?? "").not.toContain(data.generatedPassword);
+    }
 
     const user = await User.findOne({ email: "awa@srh.ci" });
     expect(await bcrypt.compare(data.generatedPassword, user!.motDePasseHash)).toBe(true);
@@ -89,5 +119,7 @@ describe("POST /api/users : invitation par e-mail", () => {
     const res = await create();
     expect(res.status).toBe(201);
     expect((await res.json()).invitation).toBe("not_sent");
+    // Aucune URL valide : aucun jeton n'est émis.
+    expect(await PasswordResetToken.countDocuments({})).toBe(0);
   });
 });

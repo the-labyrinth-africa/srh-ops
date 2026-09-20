@@ -5,6 +5,7 @@ import { requireAuth } from "@/lib/api-auth";
 import { User } from "@/models/User";
 import { guardObjectId } from "@/lib/mongo-id";
 import { generateRandomPassword } from "@/lib/email";
+import { PasswordResetToken } from "@/models/PasswordResetToken";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -43,6 +44,10 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
   if (!updated) {
     return NextResponse.json({ error: "Utilisateur non trouvé" }, { status: 404 });
   }
+
+  // Régénérer le mot de passe révoque aussi les liens en attente (invitation comprise) : un lien
+  // mal acheminé (adresse erronée) ne doit pas rester utilisable après la régénération.
+  await PasswordResetToken.deleteMany({ userId: id, usedAt: null });
 
   // Réponse contenant un secret : ne jamais la mettre en cache.
   return NextResponse.json({ generatedPassword }, { headers: { "Cache-Control": "no-store" } });

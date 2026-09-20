@@ -86,8 +86,10 @@ export async function POST(req: NextRequest) {
   // Invitation : lien d'activation valable 72 h ; le mot de passe temporaire ne sert qu'en repli.
   let invitationSent = false;
   try {
+    // Base d'URL calculée AVANT d'émettre le jeton : sans URL valide, aucun jeton n'est créé.
+    const base = appBaseUrl();
     const { token } = await issueResetToken(String(user._id), "invitation");
-    const link = `${appBaseUrl()}/reset-password?token=${token}`;
+    const link = `${base}/reset-password?token=${token}`;
     const result = await sendInvitationMail({ nom, email: email.toLowerCase() }, link);
     invitationSent = result.ok;
   } catch (error) {

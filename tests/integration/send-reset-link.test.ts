@@ -6,9 +6,10 @@ import bcrypt from "bcryptjs";
 vi.mock("next-auth", () => ({ getServerSession: vi.fn() }));
 
 import { POST as sendLink } from "@/app/api/users/[id]/send-reset-link/route";
-import { consumeResetToken } from "@/lib/auth/reset-token";
+import { consumeResetToken, issueResetToken } from "@/lib/auth/reset-token";
 import { getMemoryTransport } from "@/lib/mail";
 import { User } from "@/models/User";
+import { PasswordResetToken } from "@/models/PasswordResetToken";
 
 function session(role: string) {
   vi.mocked(nextAuth.getServerSession).mockResolvedValue({
@@ -54,12 +55,39 @@ describe("POST /api/users/[id]/send-reset-link", () => {
     session(role);
     expect((await call(String(target._id))).status).toBe(403);
     expect(getMemoryTransport().sent).toHaveLength(0);
+    expect(await PasswordResetToken.countDocuments({})).toBe(0);
   });
 
   it("identifiant invalide : 400 ; compte inconnu : 404", async () => {
     session("admin");
     expect((await call("pas-un-id")).status).toBe(400);
     expect((await call("507f1f77bcf86cd799439099")).status).toBe(404);
+  });
+
+  it("no-store sur les refus 403, 400 et 404", async () => {
+    const target = await seedTarget();
+    session("dispatcher");
+    expect((await call(String(target._id))).headers.get("Cache-Control")).toBe("no-store");
+    session("admin");
+    const bad = await call("pas-un-id");
+    expect(bad.status).toBe(400);
+    expect(bad.headers.get("Cache-Control")).toBe("no-store");
+    const unknown = await call("507f1f77bcf86cd799439099");
+    expect(unknown.status).toBe(404);
+    expect(unknown.headers.get("Cache-Control")).toBe("no-store");
+  });
+
+  it("NEXTAUTH_URL absent : 502 not_configured et le jeton précédent n'est pas remplacé", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const target = await seedTarget();
+    session("admin");
+    const { token } = await issueResetToken(String(target._id), "reset");
+    delete process.env.NEXTAUTH_URL;
+
+    const res = await call(String(target._id));
+    expect(res.status).toBe(502);
+    expect(await res.json()).toEqual({ sent: false, reason: "not_configured" });
+    expect(await consumeResetToken(token)).toEqual({ userId: String(target._id), purpose: "reset" });
   });
 
   it("échec d'envoi : 502 avec la raison", async () => {

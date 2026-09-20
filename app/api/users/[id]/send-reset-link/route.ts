@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { requireAuth } from "@/lib/api-auth";
-import { guardObjectId } from "@/lib/mongo-id";
+import { isValidObjectId } from "@/lib/mongo-id";
 import { appBaseUrl } from "@/lib/app-url";
 import { consumeRateLimit } from "@/lib/rate-limit";
 import { issueResetToken } from "@/lib/auth/reset-token";
@@ -20,12 +20,13 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
   if (auth.error) return auth.error;
 
   if (auth.role !== "admin") {
-    return NextResponse.json({ error: "Accès réservé aux administrateurs" }, { status: 403 });
+    return NextResponse.json({ error: "Accès réservé aux administrateurs" }, { status: 403, headers: NO_STORE });
   }
 
   const { id } = await params;
-  const guard = guardObjectId(id);
-  if (!guard.valid) return guard.error;
+  if (!isValidObjectId(id)) {
+    return NextResponse.json({ error: "Identifiant invalide" }, { status: 400, headers: NO_STORE });
+  }
 
   const limit = await consumeRateLimit("send-link", id, { limit: 5, windowMs: 3_600_000 });
   if (!limit.allowed) {
@@ -38,14 +39,17 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
   await connectDB();
   const user = await User.findById(id).select("nom email");
   if (!user) {
-    return NextResponse.json({ error: "Utilisateur non trouvé" }, { status: 404 });
+    return NextResponse.json({ error: "Utilisateur non trouvé" }, { status: 404, headers: NO_STORE });
   }
 
   let result: { ok: boolean; reason?: string };
   try {
+    // Base d'URL calculée AVANT d'émettre le jeton : sans URL valide, le jeton précédent reste intact.
+    const base = appBaseUrl();
     const { token } = await issueResetToken(id, "reset");
-    result = await sendResetLinkMail({ nom: user.nom, email: user.email }, `${appBaseUrl()}/reset-password?token=${token}`);
-  } catch {
+    result = await sendResetLinkMail({ nom: user.nom, email: user.email }, `${base}/reset-password?token=${token}`);
+  } catch (error) {
+    console.error("[send-reset-link] impossible de préparer l'e-mail :", error instanceof Error ? error.name : "erreur");
     result = { ok: false, reason: "not_configured" };
   }
 

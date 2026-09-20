@@ -5,6 +5,7 @@ import { User } from "@/models/User";
 import { userUpdateSchema } from "@/lib/validators/user";
 import { guardObjectId } from "@/lib/mongo-id";
 import { findScopeError } from "@/lib/users/scope";
+import { PasswordResetToken } from "@/models/PasswordResetToken";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -66,6 +67,9 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
   if (clientId) set.clientId = clientId; else unset.clientId = 1;
   if (equipeId) set.equipeId = equipeId; else unset.equipeId = 1;
 
+  // Adresse actuelle, pour révoquer les liens envoyés à l'ancienne adresse si elle change.
+  const previous = await User.findById(id).select("email");
+
   const updated = await User.findByIdAndUpdate(
     id,
     Object.keys(unset).length ? { $set: set, $unset: unset } : { $set: set },
@@ -78,6 +82,10 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
 
   if (!updated) {
     return NextResponse.json({ error: "Utilisateur non trouvé" }, { status: 404 });
+  }
+
+  if (previous && previous.email.toLowerCase() !== email.toLowerCase()) {
+    await PasswordResetToken.deleteMany({ userId: id, usedAt: null });
   }
 
   return NextResponse.json(updated);

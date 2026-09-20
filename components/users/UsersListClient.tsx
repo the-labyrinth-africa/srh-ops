@@ -29,15 +29,28 @@ export function UsersListClient() {
 
   // Mot de passe régénéré : uniquement en mémoire (état React), jamais persisté.
   const [resetResult, setResetResult] = useState<{ nom: string; password: string } | null>(null);
-  // Identifiant de l'utilisateur dont la régénération est en cours (garde anti-double-clic).
-  const [resettingId, setResettingId] = useState<string | null>(null);
-  // Miroir synchrone de resettingId : le state ne se met à jour qu'au rendu suivant,
+  // Identifiant de l'utilisateur dont une action de ligne (régénérer, envoyer un lien, modifier, supprimer)
+  // est en cours : garde anti-double-clic UNIQUE et partagée par les quatre actions.
+  const [busyId, setBusyId] = useState<string | null>(null);
+  // Miroir synchrone de busyId : le state ne se met à jour qu'au rendu suivant,
   // ce qui laisserait passer deux appels dans le même tick.
-  const resettingRef = useRef<string | null>(null);
+  const busyRef = useRef<string | null>(null);
+  // Action en cours de la ligne verrouillée (libellé de progression).
+  const [busyAction, setBusyAction] = useState<"reset" | "link" | "delete" | null>(null);
 
-  // Envoi d'un lien de réinitialisation par e-mail : même garde anti-double-clic (état + miroir synchrone).
-  const [sendingLinkId, setSendingLinkId] = useState<string | null>(null);
-  const sendingLinkRef = useRef<string | null>(null);
+  function lock(id: string, action: "reset" | "link" | "delete" | null): boolean {
+    if (busyRef.current !== null) return false;
+    busyRef.current = id;
+    setBusyId(id);
+    setBusyAction(action);
+    return true;
+  }
+
+  function unlock() {
+    busyRef.current = null;
+    setBusyId(null);
+    setBusyAction(null);
+  }
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -58,7 +71,9 @@ export function UsersListClient() {
   }, [fetchUsers]);
 
   async function handleDelete(id: string) {
+    if (busyRef.current !== null) return;
     if (!confirm("Voulez-vous vraiment supprimer cet utilisateur ?")) return;
+    if (!lock(id, "delete")) return;
     try {
       const res = await fetch(`/api/users/${id}`, { method: "DELETE" });
       if (res.ok) {
@@ -69,11 +84,13 @@ export function UsersListClient() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      unlock();
     }
   }
 
   async function handleResetPassword(user: UserItem) {
-    if (resettingRef.current !== null) return;
+    if (busyRef.current !== null) return;
     if (
       !confirm(
         `Régénérer le mot de passe de ${user.nom} ? L'ancien mot de passe ne fonctionnera plus et l'utilisateur devra en choisir un nouveau à sa prochaine connexion.`
@@ -81,13 +98,12 @@ export function UsersListClient() {
     ) {
       return;
     }
-    resettingRef.current = user._id;
-    setResettingId(user._id);
+    if (!lock(user._id, "reset")) return;
     try {
       const res = await fetch(`/api/users/${user._id}/reset-password`, { method: "POST" });
       const data = await res.json();
       // Ne publier le résultat que si cette requête est toujours la requête courante.
-      if (resettingRef.current !== user._id) return;
+      if (busyRef.current !== user._id) return;
       if (res.ok && typeof data.generatedPassword === "string") {
         setResetResult({ nom: user.nom, password: data.generatedPassword });
       } else {
@@ -96,16 +112,14 @@ export function UsersListClient() {
     } catch {
       alert("Erreur lors de la régénération du mot de passe");
     } finally {
-      resettingRef.current = null;
-      setResettingId(null);
+      unlock();
     }
   }
 
   async function handleSendResetLink(user: UserItem) {
-    if (sendingLinkRef.current !== null) return;
+    if (busyRef.current !== null) return;
     if (!confirm(`Envoyer un lien de réinitialisation du mot de passe à ${user.email} ?`)) return;
-    sendingLinkRef.current = user._id;
-    setSendingLinkId(user._id);
+    if (!lock(user._id, "link")) return;
     try {
       const res = await fetch(`/api/users/${user._id}/send-reset-link`, { method: "POST" });
       const data = await res.json().catch(() => ({}));
@@ -119,8 +133,7 @@ export function UsersListClient() {
     } catch {
       alert("Erreur lors de l'envoi du lien");
     } finally {
-      sendingLinkRef.current = null;
-      setSendingLinkId(null);
+      unlock();
     }
   }
 
@@ -236,37 +249,40 @@ export function UsersListClient() {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => {
+                            if (busyRef.current !== null) return;
                             setEditingUser(u);
                             setIsModalOpen(true);
                           }}
-                          className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container-high hover:text-primary"
+                          disabled={busyId !== null}
+                          className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container-high hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
                           title="Modifier"
                         >
                           <span className="material-symbols-outlined text-[18px]">edit</span>
                         </button>
                         <button
                           onClick={() => handleResetPassword(u)}
-                          disabled={resettingId !== null}
+                          disabled={busyId !== null}
                           className="flex items-center gap-1 rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container-high hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
                           title="Régénérer le mot de passe"
                           aria-label="Régénérer le mot de passe"
                         >
                           <span className="material-symbols-outlined text-[18px]">key</span>
-                          {resettingId === u._id && <span className="text-xs">Régénération…</span>}
+                          {busyId === u._id && busyAction === "reset" && <span className="text-xs">Régénération…</span>}
                         </button>
                         <button
                           onClick={() => handleSendResetLink(u)}
-                          disabled={sendingLinkId !== null}
+                          disabled={busyId !== null}
                           className="flex items-center gap-1 rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container-high hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
                           title="Envoyer un lien de réinitialisation"
                           aria-label="Envoyer un lien de réinitialisation"
                         >
                           <span className="material-symbols-outlined text-[18px]">forward_to_inbox</span>
-                          {sendingLinkId === u._id && <span className="text-xs">Envoi…</span>}
+                          {busyId === u._id && busyAction === "link" && <span className="text-xs">Envoi…</span>}
                         </button>
                         <button
                           onClick={() => handleDelete(u._id)}
-                          className="rounded-lg p-1.5 text-error hover:bg-error-container/20"
+                          disabled={busyId !== null}
+                          className="rounded-lg p-1.5 text-error hover:bg-error-container/20 disabled:cursor-not-allowed disabled:opacity-50"
                           title="Supprimer"
                         >
                           <span className="material-symbols-outlined text-[18px]">delete</span>
