@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { formatApiError } from "@/lib/api-error";
 
 interface Option {
   _id: string;
@@ -70,7 +71,7 @@ export function OperationFormClient() {
     setLoading(false);
 
     if (!res.ok) {
-      setError(data.error?.message ?? data.error ?? "Erreur lors de la création");
+      setError(formatApiError(data.error, "Erreur lors de la création"));
       if (data.conflicts) setError(data.conflicts.map((c: { message: string }) => c.message).join(", "));
       return;
     }

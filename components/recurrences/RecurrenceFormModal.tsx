@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { formatApiError } from "@/lib/api-error";
 
 interface Option {
   _id: string;
@@ -187,7 +188,7 @@ export function RecurrenceFormModal({
     setLoading(false);
 
     if (!res.ok) {
-      setError(data.error?.message ?? data.error ?? "Une erreur est survenue");
+      setError(formatApiError(data.error, "Une erreur est survenue"));
       return;
     }
 

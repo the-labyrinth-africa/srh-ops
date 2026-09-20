@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { SignaturePad } from "@/components/ui/SignaturePad";
 import { getNextStatuses } from "@/lib/status-transitions";
 import { compressImageFile } from "@/lib/image-compress";
+import { formatApiError } from "@/lib/api-error";
 import type { OperationStatus, QuantiteUnite } from "@/types";
 
 interface OperationTerrain {
@@ -160,7 +161,7 @@ export function TerrainViewClient() {
         fetchMissions();
       } else {
         const data = await res.json();
-        alert(data.error || "Erreur lors du changement de statut");
+        alert(formatApiError(data.error, "Erreur lors du changement de statut"));
       }
     } catch (err) {
       setUpdating(false);
