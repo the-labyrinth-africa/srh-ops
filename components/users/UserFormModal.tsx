@@ -127,7 +127,14 @@ export function UserFormModal({
       return;
     }
 
-    if (!isEdit && data.message) {
+    if (!isEdit && data.invitation === "sent") {
+      // Invitation envoyée : aucun mot de passe n'est renvoyé, l'utilisateur le choisira via le lien.
+      setGeneratedPasswordMessage(
+        `Invitation envoyée à ${form.email.trim().toLowerCase()}. L'utilisateur choisira son mot de passe via le lien (valable 72 h).`
+      );
+      onSuccess();
+    } else if (!isEdit && data.message) {
+      // Repli : e-mail non envoyé, mot de passe temporaire à communiquer par l'administrateur.
       setGeneratedPasswordMessage(data.message);
       setGeneratedPassword(typeof data.generatedPassword === "string" ? data.generatedPassword : "");
       onSuccess();
@@ -277,7 +284,7 @@ export function UserFormModal({
 
             {!initialData?._id && (
               <p className="text-xs text-on-surface-variant italic">
-                ℹ️ Un mot de passe temporaire sera généré automatiquement et affiché une seule fois après l&apos;enregistrement : vous devrez le communiquer à l&apos;utilisateur.
+                ℹ️ Une invitation sera envoyée par e-mail : l&apos;utilisateur choisira son mot de passe via le lien (valable 72 h). Si l&apos;e-mail ne peut pas partir, un mot de passe temporaire vous sera affiché une seule fois.
               </p>
             )}
 

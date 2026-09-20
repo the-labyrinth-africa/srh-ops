@@ -6,6 +6,9 @@ import { User } from "@/models/User";
 import { userCreateSchema } from "@/lib/validators/user";
 import { generateRandomPassword } from "@/lib/email";
 import { findScopeError } from "@/lib/users/scope";
+import { appBaseUrl } from "@/lib/app-url";
+import { issueResetToken } from "@/lib/auth/reset-token";
+import { sendInvitationMail } from "@/lib/auth/account-mail";
 
 export async function GET(req: NextRequest) {
   const auth = await requireAuth();
@@ -80,8 +83,16 @@ export async function POST(req: NextRequest) {
     mustChangePassword: true,
   });
 
-  // Aucun envoi d'e-mail : le mot de passe temporaire est communiqué par l'administrateur
-  // via `generatedPassword` dans la réponse.
+  // Invitation : lien d'activation valable 72 h ; le mot de passe temporaire ne sert qu'en repli.
+  let invitationSent = false;
+  try {
+    const { token } = await issueResetToken(String(user._id), "invitation");
+    const link = `${appBaseUrl()}/reset-password?token=${token}`;
+    const result = await sendInvitationMail({ nom, email: email.toLowerCase() }, link);
+    invitationSent = result.ok;
+  } catch (error) {
+    console.error("[invitation] impossible de préparer l'e-mail :", error instanceof Error ? error.name : "erreur");
+  }
 
   const createdUser = await User.findById(user._id)
     .select("-motDePasseHash")
@@ -89,13 +100,16 @@ export async function POST(req: NextRequest) {
     .populate("equipeId", "nom")
     .lean();
 
-  return NextResponse.json(
-    {
-      user: createdUser,
-      generatedPassword,
-      message: "Utilisateur créé. Un mot de passe temporaire a été généré.",
-    },
-    // Réponse contenant un secret : ne jamais la mettre en cache.
-    { status: 201, headers: { "Cache-Control": "no-store" } }
-  );
+  // Le mot de passe temporaire n'est renvoyé qu'en repli (e-mail non envoyé) ; jamais dans `message`.
+  const responseBody = invitationSent
+    ? { user: createdUser, invitation: "sent", message: `Invitation envoyée à ${email.toLowerCase()}.` }
+    : {
+        user: createdUser,
+        invitation: "not_sent",
+        generatedPassword,
+        message: "L'e-mail n'a pas pu être envoyé : communiquez le mot de passe temporaire à l'utilisateur.",
+      };
+
+  // Réponse pouvant contenir un secret : ne jamais la mettre en cache.
+  return NextResponse.json(responseBody, { status: 201, headers: { "Cache-Control": "no-store" } });
 }

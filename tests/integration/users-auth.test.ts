@@ -8,6 +8,7 @@ vi.mock("next-auth", () => ({
 }));
 
 import { connectDB } from "@/lib/db";
+import { getMemoryTransport } from "@/lib/mail";
 import mongoose from "mongoose";
 import { User } from "@/models/User";
 import { Equipe } from "@/models/Equipe";
@@ -22,6 +23,7 @@ import { PATCH as updateStatus } from "@/app/api/operations/[id]/statut/route";
 describe("Users, Authentication Roles & Operations Quantities Tests", () => {
   beforeEach(() => {
     vi.resetAllMocks();
+    getMemoryTransport().reset();
     vi.mocked(nextAuth.getServerSession).mockResolvedValue({
       user: {
         id: "507f1f77bcf86cd799439011",
@@ -35,6 +37,10 @@ describe("Users, Authentication Roles & Operations Quantities Tests", () => {
 
   describe("User Management API", () => {
     it("should allow admin to create user with auto generated password", async () => {
+      // Le transport de test est en mémoire : sans échec simulé, l'invitation réussit et aucun
+      // mot de passe n'est renvoyé. On force l'échec pour tester le repli (mot de passe temporaire).
+      getMemoryTransport().failNext();
+      vi.spyOn(console, "error").mockImplementation(() => {});
       // Un chauffeur doit désormais être rattaché à une équipe existante.
       const equipe = await Equipe.create({ nom: "Équipe test création" });
       const req = new NextRequest("http://localhost:3000/api/users", {
@@ -56,6 +62,7 @@ describe("Users, Authentication Roles & Operations Quantities Tests", () => {
       expect(data.user._id).toBeDefined();
       expect(data.user.username).toBe("chauffeur_jean");
       expect(data.user.role).toBe("chauffeur");
+      expect(data.invitation).toBe("not_sent");
       expect(data.generatedPassword).toBeDefined();
       expect(data.generatedPassword.length).toBeGreaterThanOrEqual(8);
 
@@ -68,6 +75,8 @@ describe("Users, Authentication Roles & Operations Quantities Tests", () => {
     });
 
     it("should never log or duplicate the generated password (C5)", async () => {
+      // Repli : l'envoi échoue pour que le mot de passe temporaire soit renvoyé (et donc vérifiable).
+      getMemoryTransport().failNext();
       const spies = (["log", "info", "warn", "error", "debug"] as const).map((level) =>
         vi.spyOn(console, level).mockImplementation(() => {})
       );

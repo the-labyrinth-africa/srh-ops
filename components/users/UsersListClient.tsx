@@ -35,6 +35,10 @@ export function UsersListClient() {
   // ce qui laisserait passer deux appels dans le même tick.
   const resettingRef = useRef<string | null>(null);
 
+  // Envoi d'un lien de réinitialisation par e-mail : même garde anti-double-clic (état + miroir synchrone).
+  const [sendingLinkId, setSendingLinkId] = useState<string | null>(null);
+  const sendingLinkRef = useRef<string | null>(null);
+
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
@@ -97,6 +101,29 @@ export function UsersListClient() {
     }
   }
 
+  async function handleSendResetLink(user: UserItem) {
+    if (sendingLinkRef.current !== null) return;
+    if (!confirm(`Envoyer un lien de réinitialisation du mot de passe à ${user.email} ?`)) return;
+    sendingLinkRef.current = user._id;
+    setSendingLinkId(user._id);
+    try {
+      const res = await fetch(`/api/users/${user._id}/send-reset-link`, { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.sent === true) {
+        alert(`Lien envoyé à ${user.email}.`);
+      } else if (res.status === 502) {
+        alert("L'envoi a échoué : vérifiez les paramètres SMTP.");
+      } else {
+        alert(formatApiError(data.error, "Erreur lors de l'envoi du lien"));
+      }
+    } catch {
+      alert("Erreur lors de l'envoi du lien");
+    } finally {
+      sendingLinkRef.current = null;
+      setSendingLinkId(null);
+    }
+  }
+
   const filteredUsers = users.filter((u) => {
     const query = searchQuery.toLowerCase();
     return (
@@ -114,7 +141,7 @@ export function UsersListClient() {
             Gestion des Utilisateurs & Accès
           </h1>
           <p className="mt-1 font-body-md text-body-md text-on-surface-variant">
-            Gestion des comptes, attribution des 5 rôles métier et communication des accès par un administrateur (mot de passe temporaire affiché à la création ou à la régénération).
+            Gestion des comptes, attribution des 5 rôles métier et communication des accès par un administrateur (invitation par e-mail à la création ; mot de passe temporaire affiché en repli ou à la régénération).
           </p>
         </div>
         <div>
@@ -226,6 +253,16 @@ export function UsersListClient() {
                         >
                           <span className="material-symbols-outlined text-[18px]">key</span>
                           {resettingId === u._id && <span className="text-xs">Régénération…</span>}
+                        </button>
+                        <button
+                          onClick={() => handleSendResetLink(u)}
+                          disabled={sendingLinkId !== null}
+                          className="flex items-center gap-1 rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container-high hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+                          title="Envoyer un lien de réinitialisation"
+                          aria-label="Envoyer un lien de réinitialisation"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">forward_to_inbox</span>
+                          {sendingLinkId === u._id && <span className="text-xs">Envoi…</span>}
                         </button>
                         <button
                           onClick={() => handleDelete(u._id)}
