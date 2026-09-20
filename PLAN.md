@@ -612,6 +612,7 @@ Avant et pendant le développement, SRH doit fournir :
 | 2026-09-19 | Lot 0 | Correctif de la détection de conflits pour les opérations longues (> 2 h) | Fait |
 | 2026-09-19 | Lot 0 | Alignement README / PLAN / rapport d'avancement sur le code réel ; plan d'alignement avec la proposition | Fait |
 | 2026-09-20 | Lot 1A | Lot 1A — fuites d'accès fermées : matrice d'accès unique des pages par rôle (tableau de bord, menu, `/acces-limite`), rattachement client/équipe imposé aux comptes, chauffeur limité à son équipe et fermé aux référentiels dans l'API, changement forcé du mot de passe temporaire, JWT relu en base toutes les 5 minutes | Fait |
+| 2026-09-20 | Lot 1B | Lot 1B — e-mail SMTP et réinitialisation par jeton : transport SMTP (`nodemailer`, mot de passe hors Git), invitation par e-mail à la création d'un compte (lien de 72 h), « mot de passe oublié » par jeton à usage unique (30 min, réponse identique, débit limité), action administrateur « Envoyer un lien de réinitialisation », liens en attente révoqués à la régénération du mot de passe ou au changement d'e-mail, sessions ouvertes invalidées après une réinitialisation, e-mail de test administrateur et script `scripts/send-test-mail.ts` | Fait |
 
 ---
 

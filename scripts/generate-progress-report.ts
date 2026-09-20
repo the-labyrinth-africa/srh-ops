@@ -94,14 +94,15 @@ const phases: Phase[] = [
     statut: "Socle en place",
     pct: 10,
     livree: [
-      "Service d'e-mail (lib/email) : journalisation seule, aucun transport configuré",
-      "Changement de mot de passe opérationnel et imposé à la première connexion (mot de passe temporaire) ; régénération par un administrateur depuis « Utilisateurs & Rôles » (réinitialisation en libre-service désactivée)",
+      "Canal e-mail livré : transport SMTP (mot de passe hors Git), invitation par e-mail à la création d'un compte, e-mail de test administrateur",
+      "Réinitialisation du mot de passe par jeton à usage unique (30 min, réponse identique, débit limité), action administrateur « Envoyer un lien de réinitialisation », liens révoqués à la régénération du mot de passe ou au changement d'e-mail",
+      "Changement de mot de passe opérationnel et imposé à la première connexion (mot de passe temporaire) ; régénération par un administrateur depuis « Utilisateurs & Rôles »",
     ],
     restante: [
       "Alertes automatiques (retards, conflits, opérations du jour)",
       "Graphiques et exports du tableau de bord",
     ],
-    note: "Aucun transport e-mail n'est encore configuré ; les notifications métier restent à bâtir.",
+    note: "Le canal e-mail est en place (SMTP, invitations, réinitialisation) ; les notifications métier et l'envoi du rapport d'intervention au client (Lot 1C.8) restent à bâtir.",
   },
   {
     num: 6,

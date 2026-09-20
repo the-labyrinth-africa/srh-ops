@@ -27,6 +27,13 @@ Ouvrir [http://localhost:3000](http://localhost:3000)
 MONGODB_URI=
 NEXTAUTH_SECRET=
 NEXTAUTH_URL=http://localhost:3000
+# E-mail (SMTP) : voir la section « E-mail (SMTP) »
+SMTP_HOST=
+SMTP_PORT=
+SMTP_SECURE=
+SMTP_USER=
+SMTP_PASSWORD=
+MAIL_FROM=
 ```
 
 ## Comptes seed
@@ -89,13 +96,105 @@ Côté API, un chauffeur est limité aux opérations de son équipe :
 ### Mot de passe temporaire
 
 Un mot de passe créé ou régénéré par un administrateur est temporaire (`mustChangePassword`).
-Tant qu'il n'est pas changé :
+Il n'est jamais envoyé par e-mail : l'administrateur le reçoit dans la réponse de l'API, une
+seule fois, à la régénération (et à la création uniquement en repli, si l'invitation n'a pas
+pu être envoyée). Tant qu'il n'est pas changé :
 
 - toute page du tableau de bord redirige vers `/profil?forcer=1` ;
 - toute route API répond 403 avec le code `MUST_CHANGE_PASSWORD`, sauf le changement de mot
   de passe lui-même (`POST /api/auth/change-password`) ;
 - le drapeau est relu en base à chaque requête tant qu'il est actif, et retombe dès que le
   mot de passe est changé.
+
+### Mot de passe oublié, invitations et liens de réinitialisation
+
+Les liens d'invitation et de réinitialisation sont des jetons aléatoires de 32 octets : seule
+leur empreinte SHA-256 est stockée (collection `passwordresettokens`), jamais le jeton lui-même.
+
+- **Invitation** : à la création d'un compte, l'utilisateur reçoit par e-mail un lien
+  d'activation valable **72 heures**, à **usage unique**, pour choisir son mot de passe. Le
+  mot de passe temporaire généré n'est affiché à l'administrateur qu'en repli, si l'e-mail
+  n'a pas pu être envoyé (voir « E-mail (SMTP) »).
+- **Mot de passe oublié** (`/forgot-password`, `POST /api/auth/forgot-password`) : l'utilisateur
+  saisit son identifiant ou son e-mail et reçoit un lien valable **30 minutes**, à **usage
+  unique**. La réponse est identique que le compte existe ou non (aucune énumération de
+  comptes) ; la recherche et l'envoi se font après la réponse.
+- **Limites de débit** : 5 demandes par heure et par identifiant, 10 par heure et par
+  adresse IP (réponse 429 au-delà, avec `Retry-After`). Note d'exploitation : un utilisateur
+  visé par des demandes répétées (volontaires ou non) peut se retrouver temporairement dans
+  l'impossibilité de demander un lien ; un administrateur peut alors lui envoyer un lien
+  lui-même. La consommation d'un lien (`POST /api/auth/reset-password`) est limitée à 20
+  tentatives par heure et par IP.
+- **Un seul lien actif par compte** : émettre un nouveau lien invalide le précédent non utilisé.
+- **Action administrateur « Envoyer un lien de réinitialisation »** (« Utilisateurs & Rôles »,
+  `POST /api/users/[id]/send-reset-link`) : envoie à l'utilisateur un lien de réinitialisation
+  (30 minutes) sans toucher à son mot de passe actuel ; limitée à 5 liens par heure et par
+  compte. Si l'e-mail ne peut pas partir, l'API répond 502 (`sent: false`) et l'administrateur
+  peut recourir à « Régénérer le mot de passe ».
+- **Révocation** : régénérer le mot de passe d'un utilisateur ou modifier son adresse e-mail
+  invalide tous ses liens en attente (invitation ou réinitialisation) ; l'administrateur peut
+  ensuite envoyer un nouveau lien.
+- **Sessions ouvertes** : une réinitialisation par lien (comme une régénération) renseigne
+  `passwordChangedAt` ; les sessions déjà ouvertes du compte sont invalidées au plus 5 minutes
+  plus tard (voir ci-dessous). Un e-mail de confirmation « mot de passe modifié » est envoyé
+  après une réinitialisation par lien.
+
+### E-mail (SMTP)
+
+L'envoi passe par SMTP (`nodemailer`). Sans `SMTP_HOST`, aucun transport n'est configuré :
+les e-mails ne partent pas (un avertissement sans contenu est journalisé). Si `SMTP_HOST` est
+renseigné mais que `SMTP_USER` ou `SMTP_PASSWORD` manque, ou que `SMTP_PORT` est invalide,
+l'envoi échoue avec une erreur de configuration qui ne nomme que les variables concernées.
+
+| Variable | Rôle | Valeur pour SRH |
+|---|---|---|
+| `SMTP_HOST` | serveur SMTP | `mail.thelabyrinth.africa` |
+| `SMTP_PORT` | port (465 par défaut) | `465` (SSL) ou `587` (STARTTLS) |
+| `SMTP_SECURE` | `true` = SSL dès la connexion ; `false` = STARTTLS ; absent = déduit du port (`true` pour 465) | `true` avec 465, `false` avec 587 |
+| `SMTP_USER` | boîte d'authentification | `contact@thelabyrinth.africa` |
+| `SMTP_PASSWORD` | mot de passe de cette boîte | **secret**, voir ci-dessous |
+| `MAIL_FROM` | expéditeur affiché | `"SRH <contact@thelabyrinth.africa>"` (par défaut : `SRH <SMTP_USER>`) |
+| `NEXTAUTH_URL` | URL publique servant à construire les liens des e-mails | voir ci-dessous |
+
+**Où renseigner le mot de passe SMTP** : uniquement dans `.env.local` en local (fichier ignoré
+par Git), et sur Vercel dans **Settings → Environment Variables** avec le mode **Sensitive**,
+pour les environnements **Production** et **Preview**. Ne jamais le committer ni le coller
+dans un ticket ou une conversation.
+
+**`NEXTAUTH_URL`** : les liens d'invitation et de réinitialisation sont construits à partir de
+cette variable. En production, elle doit être l'URL publique en `https://` (par exemple
+`https://<projet>.vercel.app` ou le domaine SRH) ; hors `https://`, aucun lien n'est émis en
+production (l'envoi est alors traité comme un échec). En local, `http://localhost:3000` convient.
+
+**Tester l'envoi** :
+
+- en ligne de commande, sans base de données (lit `.env.local`) :
+  `npx tsx scripts/send-test-mail.ts adresse@exemple.com` ;
+- depuis l'application, en tant qu'administrateur : page « Mon Compte & Sécurité » (`/profil`),
+  bouton « Envoyer un e-mail de test à mon adresse » (limité à 5 par heure).
+
+**Délivrabilité** : l'expéditeur (`MAIL_FROM`) doit correspondre à la boîte authentifiée
+(`SMTP_USER`). Vérifier chez l'hébergeur de messagerie que les enregistrements SPF et DKIM du
+domaine `thelabyrinth.africa` sont en place, faute de quoi les messages risquent de finir en
+courrier indésirable.
+
+**En cas d'échec d'envoi** (SMTP absent, mal configuré ou en panne) :
+
+- création d'un compte : le compte est créé quand même ; la réponse contient
+  `invitation: "not_sent"` et le mot de passe temporaire, affiché une seule fois à
+  l'administrateur pour qu'il le transmette (repli) ;
+- action « Envoyer un lien de réinitialisation » : réponse 502, rien n'est envoyé ;
+- « Mot de passe oublié » : la réponse générique est inchangée (aucune information sur le
+  compte) et aucun e-mail ne part ; l'utilisateur doit s'adresser à un administrateur ;
+- les journaux ne contiennent ni corps, ni lien, ni jeton, ni mot de passe, ni adresse
+  e-mail : seuls l'objet du message et le nom de l'erreur sont tracés.
+
+**Purge et durée de vie des jetons** : les documents de la collection `passwordresettokens`
+sont supprimés automatiquement 24 h après leur expiration (index TTL sur `expiresAt`). Changer
+cette durée impose de supprimer d'abord l'index TTL existant dans MongoDB (par exemple
+`db.passwordresettokens.dropIndex("expiresAt_1")`) : sinon Mongoose refuse, à l'initialisation,
+de créer l'index modifié car il entre en conflit avec l'existant. (La durée de validité des
+liens elle-même, 30 min / 72 h, est vérifiée dans le code, pas par cet index.)
 
 ### Actualisation du jeton de session
 
@@ -122,6 +221,8 @@ comptes.
    | `MONGODB_URI` | URI de connexion MongoDB Atlas |
    | `NEXTAUTH_SECRET` | secret généré via `openssl rand -base64 32` (différent du secret de dev) |
    | `NEXTAUTH_URL` | URL publique du déploiement, ex. `https://<projet>.vercel.app` (ne pas laisser `http://localhost:3000`) |
+   | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `MAIL_FROM` | configuration SMTP (voir « E-mail (SMTP) ») |
+   | `SMTP_PASSWORD` | mot de passe de la boîte SMTP, en mode **Sensitive** |
 
 3. Dans MongoDB Atlas → **Network Access**, autoriser `0.0.0.0/0` (Vercel n'a pas d'IP sortante fixe sur le plan standard), ou utiliser une IP fixe via [Vercel Secure Compute](https://vercel.com/docs/secure-compute) si nécessaire.
 4. Déployer. Le build Vercel n'alimente plus la base par défaut : le seed au build n'a lieu que si `SEED_ON_BUILD=true` (à définir temporairement pour le premier déploiement SRH, puis à retirer). `npm run seed` lancé à la main seed toujours ; il ignore l'étape si les deux comptes de base existent déjà.
@@ -174,11 +275,6 @@ Défauts identifiés et non encore corrigés :
   un stockage objet reste à mettre en place.
 - **Rapport** : l'envoi du rapport d'intervention par e-mail au client n'existe pas
   encore ; le PDF est régénéré à la demande et n'est plus stocké dans l'opération.
-- **Mot de passe oublié** : la réinitialisation en libre-service est désactivée
-  (503) en attendant un vrai flux à jeton. Contactez un administrateur SRH : il peut
-  régénérer votre mot de passe depuis « Utilisateurs & Rôles » (bouton « Régénérer
-  le mot de passe »), et le nouveau mot de passe temporaire lui est affiché une seule
-  fois pour vous le communiquer.
 
 La PWA reste désactivée pour les utilisateurs terrain tant que ces points ne sont
 pas traités (Lot « Phase 2 — finition » du plan d'alignement).
