@@ -125,7 +125,7 @@ leur empreinte SHA-256 est stockée (collection `passwordresettokens`), jamais l
   l'impossibilité de demander un lien ; un administrateur peut alors lui envoyer un lien
   lui-même. La consommation d'un lien (`POST /api/auth/reset-password`) est limitée à 20
   tentatives par heure et par IP.
-- **Un seul lien actif par compte** : émettre un nouveau lien invalide le précédent non utilisé.
+- **Un seul lien actif par compte et par finalité** : émettre un nouveau lien de réinitialisation invalide le précédent lien de réinitialisation non utilisé, et une nouvelle invitation la précédente invitation ; une demande publique de réinitialisation ne détruit donc pas une invitation encore en attente.
 - **Action administrateur « Envoyer un lien de réinitialisation »** (« Utilisateurs & Rôles »,
   `POST /api/users/[id]/send-reset-link`) : envoie à l'utilisateur un lien de réinitialisation
   (30 minutes) sans toucher à son mot de passe actuel ; limitée à 5 liens par heure et par
@@ -134,6 +134,7 @@ leur empreinte SHA-256 est stockée (collection `passwordresettokens`), jamais l
 - **Révocation** : régénérer le mot de passe d'un utilisateur ou modifier son adresse e-mail
   invalide tous ses liens en attente (invitation ou réinitialisation) ; l'administrateur peut
   ensuite envoyer un nouveau lien.
+- **Échec d'infrastructure** : si la base ou le limiteur est indisponible, `POST /api/auth/reset-password` répond 503 (« Service momentanément indisponible. Réessayez plus tard ou demandez un nouveau lien. ») (l'utilisateur peut redemander un lien) ; un lien refusé répond 400 avec le code stable `INVALID_LINK`.
 - **Sessions ouvertes** : une réinitialisation par lien (comme une régénération) renseigne
   `passwordChangedAt` ; les sessions déjà ouvertes du compte sont invalidées au plus 5 minutes
   plus tard (voir ci-dessous). Un e-mail de confirmation « mot de passe modifié » est envoyé
@@ -145,6 +146,8 @@ L'envoi passe par SMTP (`nodemailer`). Sans `SMTP_HOST`, aucun transport n'est c
 les e-mails ne partent pas (un avertissement sans contenu est journalisé). Si `SMTP_HOST` est
 renseigné mais que `SMTP_USER` ou `SMTP_PASSWORD` manque, ou que `SMTP_PORT` est invalide,
 l'envoi échoue avec une erreur de configuration qui ne nomme que les variables concernées.
+`SMTP_PORT` doit être un entier décimal entre 1 et 65535, et un `SMTP_PASSWORD` uniquement composé
+d'espaces compte comme absent. `MAIL_TRANSPORT=memory` est réservé aux tests et refusé en production.
 
 | Variable | Rôle | Valeur pour SRH |
 |---|---|---|
