@@ -1,5 +1,5 @@
 import { STATUS_CONFIG } from "@/lib/status-styles";
-import { cn } from "@/lib/utils";
+import { cn } from "@/frontend/design-system/utils";
 import type { OperationStatus } from "@/shared/operations/statuts";
 
 export function StatusBadge({

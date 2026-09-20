@@ -1,10 +1,10 @@
-import { ReferentialPage } from "@/components/referentials/ReferentialPage";
+import { PageReferentiel } from "@/frontend/design-system/PageReferentiel";
 import { requirePageAccess } from "@/lib/page-auth";
 
 export default async function VehiculesPage() {
   await requirePageAccess("/vehicules");
   return (
-    <ReferentialPage
+    <PageReferentiel
       title="Flotte de véhicules"
       subtitle="Suivi de la flotte et disponibilité des véhicules."
       icon="directions_car"

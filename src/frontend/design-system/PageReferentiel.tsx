@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
-import { EntityModal } from "@/components/forms/EntityModal";
+import { EntityModal } from "@/frontend/design-system/EntityModal";
 import { canWrite } from "@/shared/acces/permissions";
 
 interface Field {
@@ -13,7 +13,7 @@ interface Field {
   table?: boolean;
 }
 
-interface ReferentialPageProps {
+interface PageReferentielProps {
   title: string;
   subtitle: string;
   icon: string;
@@ -22,14 +22,14 @@ interface ReferentialPageProps {
   emptyForm: Record<string, string | boolean>;
 }
 
-export function ReferentialPage({
+export function PageReferentiel({
   title,
   subtitle,
   icon,
   apiPath,
   fields,
   emptyForm,
-}: ReferentialPageProps) {
+}: PageReferentielProps) {
   const { data: session } = useSession();
   const canEdit = canWrite(session?.user?.role);
   const [items, setItems] = useState<Record<string, unknown>[]>([]);

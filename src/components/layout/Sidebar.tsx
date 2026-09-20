@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { cn } from "@/frontend/design-system/utils";
 import { roleLabel } from "@/shared/acces/permissions";
 import { navForRole, type NavItem } from "@/lib/nav";
 

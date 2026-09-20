@@ -1,10 +1,10 @@
-import { ReferentialPage } from "@/components/referentials/ReferentialPage";
+import { PageReferentiel } from "@/frontend/design-system/PageReferentiel";
 import { requirePageAccess } from "@/lib/page-auth";
 
 export default async function EquipementsPage() {
   await requirePageAccess("/equipements");
   return (
-    <ReferentialPage
+    <PageReferentiel
       title="Équipements & Cuves"
       subtitle="Inventaire des équipements de collecte et cuves."
       icon="oil_barrel"
