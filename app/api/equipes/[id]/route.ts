@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { requireInternalAuth } from "@/lib/api-auth";
 import { Equipe } from "@/models/Equipe";
+import { User } from "@/models/User";
 import { equipeSchema } from "@/lib/validators/equipe";
 import { guardObjectId } from "@/lib/mongo-id";
 
@@ -43,6 +44,12 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   const guard = guardObjectId(id);
   if (!guard.valid) return guard.error;
   await connectDB();
+  if (await User.exists({ equipeId: id })) {
+    return NextResponse.json(
+      { error: "Cette équipe est rattachée à des comptes utilisateurs" },
+      { status: 409 }
+    );
+  }
   const equipe = await Equipe.findByIdAndDelete(id);
   if (!equipe) return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
   return NextResponse.json({ success: true });

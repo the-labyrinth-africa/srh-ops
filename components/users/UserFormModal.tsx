@@ -66,12 +66,12 @@ export function UserFormModal({
   useEffect(() => {
     if (initialData) {
       const clientId =
-        typeof initialData.clientId === "object"
+        initialData.clientId && typeof initialData.clientId === "object"
           ? (initialData.clientId as { _id: string })._id
           : initialData.clientId || "";
 
       const equipeId =
-        typeof initialData.equipeId === "object"
+        initialData.equipeId && typeof initialData.equipeId === "object"
           ? (initialData.equipeId as { _id: string })._id
           : initialData.equipeId || "";
 

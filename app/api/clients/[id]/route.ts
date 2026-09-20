@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { requireAuth, requireReferentialRead, isWithinClientScope } from "@/lib/api-auth";
 import { Client } from "@/models/Client";
+import { User } from "@/models/User";
 import { clientSchema } from "@/lib/validators/client";
 import { guardObjectId } from "@/lib/mongo-id";
 
@@ -50,6 +51,12 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   const guard = guardObjectId(id);
   if (!guard.valid) return guard.error;
   await connectDB();
+  if (await User.exists({ clientId: id })) {
+    return NextResponse.json(
+      { error: "Ce client est rattaché à des comptes utilisateurs" },
+      { status: 409 }
+    );
+  }
   const client = await Client.findByIdAndDelete(id);
   if (!client) return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
   return NextResponse.json({ success: true });
