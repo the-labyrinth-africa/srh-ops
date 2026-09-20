@@ -63,6 +63,11 @@ export async function consumeRateLimit(
 }
 
 /**
+ * ATTENTION : le limiteur par IP repose sur l'en-tête posé par la plateforme
+ * (`x-vercel-forwarded-for`, ou `x-real-ip`). Derrière un autre proxy, il faut le configurer pour
+ * qu'il transmette l'adresse du client ; sinon tous les clients tombent dans le même seau
+ * "unknown" et partagent la même limite (verrouillage global).
+ *
  * Adresse du client, par ordre de priorité : `x-vercel-forwarded-for`, `x-real-ip`,
  * premier saut de `x-forwarded-for` (en-têtes posés par la plateforme), sinon "unknown".
  */

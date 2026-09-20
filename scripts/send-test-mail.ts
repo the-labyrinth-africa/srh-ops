@@ -13,6 +13,11 @@ async function main() {
     console.error("Usage : npx tsx scripts/send-test-mail.ts adresse@exemple.com");
     process.exit(2);
   }
+  // Le transport mémoire n'envoie rien : ne jamais annoncer un envoi qui n'a pas eu lieu.
+  if (process.env.MAIL_TRANSPORT === "memory" || process.env.NODE_ENV === "test") {
+    console.error("Transport mémoire actif : aucun e-mail n'est réellement envoyé.");
+    process.exit(1);
+  }
   const result = await sendMail({
     to,
     subject: "SRH Ops — e-mail de test",

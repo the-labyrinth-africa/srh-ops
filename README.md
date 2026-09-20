@@ -125,7 +125,7 @@ leur empreinte SHA-256 est stockée (collection `passwordresettokens`), jamais l
   l'impossibilité de demander un lien ; un administrateur peut alors lui envoyer un lien
   lui-même. La consommation d'un lien (`POST /api/auth/reset-password`) est limitée à 20
   tentatives par heure et par IP.
-- **Un seul lien actif par compte et par finalité** : émettre un nouveau lien de réinitialisation invalide le précédent lien de réinitialisation non utilisé, et une nouvelle invitation la précédente invitation ; une demande publique de réinitialisation ne détruit donc pas une invitation encore en attente.
+- **Un seul lien actif par compte et par finalité** : émettre un nouveau lien de réinitialisation invalide le précédent lien de réinitialisation non utilisé, et une nouvelle invitation la précédente invitation ; une demande publique de réinitialisation ne détruit donc pas une invitation encore en attente. Choisir un mot de passe (par lien ou depuis « Mon Compte ») révoque tous les liens encore en attente, quelle que soit leur finalité.
 - **Action administrateur « Envoyer un lien de réinitialisation »** (« Utilisateurs & Rôles »,
   `POST /api/users/[id]/send-reset-link`) : envoie à l'utilisateur un lien de réinitialisation
   (30 minutes) sans toucher à son mot de passe actuel ; limitée à 5 liens par heure et par
@@ -138,7 +138,8 @@ leur empreinte SHA-256 est stockée (collection `passwordresettokens`), jamais l
 - **Sessions ouvertes** : une réinitialisation par lien (comme une régénération) renseigne
   `passwordChangedAt` ; les sessions déjà ouvertes du compte sont invalidées au plus 5 minutes
   plus tard (voir ci-dessous). Un e-mail de confirmation « mot de passe modifié » est envoyé
-  après une réinitialisation par lien.
+  après une réinitialisation par lien (pas après l'activation d'une invitation, où le titulaire
+  choisit son tout premier mot de passe).
 
 ### E-mail (SMTP)
 
@@ -167,7 +168,7 @@ dans un ticket ou une conversation.
 **`NEXTAUTH_URL`** : les liens d'invitation et de réinitialisation sont construits à partir de
 cette variable. En production, elle doit être l'URL publique en `https://` (par exemple
 `https://<projet>.vercel.app` ou le domaine SRH) ; hors `https://`, aucun lien n'est émis en
-production (l'envoi est alors traité comme un échec). En local, `http://localhost:3000` convient.
+production (l'envoi est alors traité comme un échec). L'URL est vérifiée avant l'émission du jeton : si elle est invalide, aucun jeton n'est créé (les liens déjà en attente restent intacts) et la réponse de « Mot de passe oublié » reste générique. En local, `http://localhost:3000` convient.
 
 **Tester l'envoi** :
 
@@ -175,6 +176,8 @@ production (l'envoi est alors traité comme un échec). En local, `http://localh
   `npx tsx scripts/send-test-mail.ts adresse@exemple.com` ;
 - depuis l'application, en tant qu'administrateur : page « Mon Compte & Sécurité » (`/profil`),
   bouton « Envoyer un e-mail de test à mon adresse » (limité à 5 par heure).
+
+Le script refuse de s'exécuter avec le transport mémoire (`MAIL_TRANSPORT=memory` ou `NODE_ENV=test`) : il affiche « Transport mémoire actif : aucun e-mail n'est réellement envoyé. » et se termine avec le code 1, au lieu d'annoncer un envoi qui n'a pas eu lieu.
 
 **Délivrabilité** : l'expéditeur (`MAIL_FROM`) doit correspondre à la boîte authentifiée
 (`SMTP_USER`). Vérifier chez l'hébergeur de messagerie que les enregistrements SPF et DKIM du
@@ -226,6 +229,8 @@ comptes.
    | `NEXTAUTH_URL` | URL publique du déploiement, ex. `https://<projet>.vercel.app` (ne pas laisser `http://localhost:3000`) |
    | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `MAIL_FROM` | configuration SMTP (voir « E-mail (SMTP) ») |
    | `SMTP_PASSWORD` | mot de passe de la boîte SMTP, en mode **Sensitive** |
+
+   **Limiteur par IP** : les limites de débit par adresse IP (mot de passe oublié, réinitialisation) s'appuient sur l'en-tête posé par la plateforme (`x-vercel-forwarded-for`, ou `x-real-ip`). Sur Vercel il est présent ; derrière un autre proxy, le configurer pour qu'il transmette l'adresse du client, faute de quoi tous les clients partagent un seul seau (« unknown ») et la limite devient globale.
 
 3. Dans MongoDB Atlas → **Network Access**, autoriser `0.0.0.0/0` (Vercel n'a pas d'IP sortante fixe sur le plan standard), ou utiliser une IP fixe via [Vercel Secure Compute](https://vercel.com/docs/secure-compute) si nécessaire.
 4. Déployer. Le build Vercel n'alimente plus la base par défaut : le seed au build n'a lieu que si `SEED_ON_BUILD=true` (à définir temporairement pour le premier déploiement SRH, puis à retirer). `npm run seed` lancé à la main seed toujours ; il ignore l'étape si les deux comptes de base existent déjà.

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useSession } from "next-auth/react";
 import { UserFormModal } from "./UserFormModal";
 import { TemporaryPasswordPanel } from "./TemporaryPasswordPanel";
 import { roleLabel } from "@/lib/permissions";
@@ -19,6 +20,8 @@ interface UserItem {
 }
 
 export function UsersListClient() {
+  const { data: session } = useSession();
+  const currentUserId = session?.user?.id;
   const [users, setUsers] = useState<UserItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [roleFilter, setRoleFilter] = useState("");
@@ -93,7 +96,10 @@ export function UsersListClient() {
     if (busyRef.current !== null) return;
     if (
       !confirm(
-        `Régénérer le mot de passe de ${user.nom} ? L'ancien mot de passe ne fonctionnera plus et l'utilisateur devra en choisir un nouveau à sa prochaine connexion. Les liens d'invitation ou de réinitialisation en attente seront invalidés.`
+        `Régénérer le mot de passe de ${user.nom} ? L'ancien mot de passe ne fonctionnera plus et l'utilisateur devra en choisir un nouveau à sa prochaine connexion. Les liens d'invitation ou de réinitialisation en attente seront invalidés.` +
+          (currentUserId && user._id === currentUserId
+            ? " Votre propre session sera fermée dans les 5 minutes."
+            : "")
       )
     ) {
       return;
