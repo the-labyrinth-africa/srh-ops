@@ -66,14 +66,14 @@ export async function requireAuth(requireWrite = false): Promise<AuthResult> {
 }
 
 /**
- * Routes internes (référentiels, récurrences, tableau de bord…) : le rôle `client`
- * n'y a aucun accès, même en lecture.
+ * Routes internes (référentiels, récurrences, tableau de bord…) : les rôles
+ * `client` et `chauffeur` n'y ont aucun accès, même en lecture.
  */
 export async function requireInternalAuth(requireWrite = false): Promise<AuthResult> {
   const auth = await requireAuth(requireWrite);
   if (auth.error) return auth;
 
-  if (isClientUser(auth.role)) {
+  if (isClientUser(auth.role) || isChauffeur(auth.role)) {
     return fail("Accès refusé", 403);
   }
 
@@ -114,13 +114,28 @@ export function isWithinClientScope(auth: AuthSuccess, documentClientId: unknown
   return extractId(documentClientId) === String(auth.clientId ?? "");
 }
 
+/** Message unique quand une opération n'appartient pas à l'équipe du chauffeur. */
+export const TEAM_SCOPE_ERROR = "Opération non affectée à votre équipe";
+
 /**
- * Vrai si le chauffeur connecté peut agir sur l'opération. Un chauffeur rattaché
- * à une équipe n'agit que sur les opérations de son équipe ; un chauffeur sans
- * équipe en session n'est pas restreint (aucun rattachement exploitable).
+ * Réponse 403 quand un compte chauffeur n'a aucune équipe en session (à appeler
+ * par les routes qui lisent des opérations), sinon `null`.
+ */
+export function chauffeurWithoutTeamError(auth: AuthSuccess): NextResponse | null {
+  if (isChauffeur(auth.role) && !auth.equipeId) {
+    return NextResponse.json({ error: "Compte chauffeur sans équipe attribuée" }, { status: 403 });
+  }
+  return null;
+}
+
+/**
+ * Vrai si le chauffeur connecté peut agir sur l'opération. Refus par défaut :
+ * un chauffeur sans équipe en session n'agit sur rien, et une opération non
+ * affectée n'est pas visible d'un chauffeur.
  */
 export function isWithinTeamScope(auth: AuthSuccess, operationEquipeId: unknown): boolean {
   if (!isChauffeur(auth.role)) return true;
-  if (!auth.equipeId) return true;
-  return extractId(operationEquipeId) === String(auth.equipeId);
+  if (!auth.equipeId) return false;
+  const opTeam = extractId(operationEquipeId);
+  return opTeam !== "" && opTeam === String(auth.equipeId);
 }

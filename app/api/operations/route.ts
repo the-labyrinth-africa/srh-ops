@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
-import { requireAuth } from "@/lib/api-auth";
+import { requireAuth, chauffeurWithoutTeamError } from "@/lib/api-auth";
 import { isChauffeur, isClientUser } from "@/lib/permissions";
 import { checkAssignmentConflicts } from "@/lib/conflicts";
 import { Operation } from "@/models/Operation";
@@ -11,6 +11,9 @@ import type { OperationStatus } from "@/types";
 export async function GET(req: NextRequest) {
   const auth = await requireAuth();
   if (auth.error) return auth.error;
+
+  const noTeam = chauffeurWithoutTeamError(auth);
+  if (noTeam) return noTeam;
 
   const sp = req.nextUrl.searchParams;
   const filter: Record<string, unknown> = {};
@@ -22,12 +25,12 @@ export async function GET(req: NextRequest) {
   if (sp.get("statut")) filter.statut = sp.get("statut");
 
   // Cloisonnement serveur : un compte client ne voit que son périmètre et un
-  // chauffeur rattaché à une équipe ne voit que les missions de son équipe,
+  // chauffeur (rattaché à une équipe, sinon refusé) ne voit que les missions de son équipe,
   // quelles que soient les valeurs envoyées en query.
   if (isClientUser(auth.role)) {
     filter.clientId = auth.clientId;
   }
-  if (isChauffeur(auth.role) && auth.equipeId) {
+  if (isChauffeur(auth.role)) {
     filter.equipeId = auth.equipeId;
   }
 

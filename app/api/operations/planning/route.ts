@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import { requireAuth } from "@/lib/api-auth";
+import { requireAuth, chauffeurWithoutTeamError } from "@/lib/api-auth";
 import { isChauffeur, isClientUser } from "@/lib/permissions";
 import { computeEffectiveStatus } from "@/lib/status-transitions";
 import { STATUS_CONFIG } from "@/lib/status-styles";
@@ -11,6 +11,9 @@ export async function GET(req: NextRequest) {
   const auth = await requireAuth();
   if (auth.error) return auth.error;
 
+  const noTeam = chauffeurWithoutTeamError(auth);
+  if (noTeam) return noTeam;
+
   const sp = req.nextUrl.searchParams;
   const dateDebut = sp.get("dateDebut");
   const dateFin = sp.get("dateFin");
@@ -18,7 +21,7 @@ export async function GET(req: NextRequest) {
   const filter: Record<string, unknown> = {};
   // Même cloisonnement que /api/operations.
   if (isClientUser(auth.role)) filter.clientId = auth.clientId;
-  if (isChauffeur(auth.role) && auth.equipeId) filter.equipeId = auth.equipeId;
+  if (isChauffeur(auth.role)) filter.equipeId = auth.equipeId;
   if (dateDebut || dateFin) {
     filter.dateHeurePrevue = {};
     if (dateDebut) (filter.dateHeurePrevue as Record<string, Date>).$gte = new Date(dateDebut);

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
-import { requireTerrainWrite, isWithinTeamScope } from "@/lib/api-auth";
+import { requireTerrainWrite, isWithinTeamScope, TEAM_SCOPE_ERROR } from "@/lib/api-auth";
 import { canTransition } from "@/lib/status-transitions";
 import { Operation } from "@/models/Operation";
 import { statusUpdateSchema } from "@/lib/validators/operation";
@@ -30,10 +30,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   if (!operation) return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
 
   if (!isWithinTeamScope(auth, operation.equipeId)) {
-    return NextResponse.json(
-      { error: "Opération affectée à une autre équipe" },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: TEAM_SCOPE_ERROR }, { status: 403 });
   }
 
   const currentStatus = operation.statut as OperationStatus;

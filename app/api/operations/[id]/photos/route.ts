@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import { requireTerrainWrite, isWithinTeamScope } from "@/lib/api-auth";
+import { requireTerrainWrite, isWithinTeamScope, TEAM_SCOPE_ERROR } from "@/lib/api-auth";
 import { Operation } from "@/models/Operation";
 import { guardObjectId } from "@/lib/mongo-id";
 
@@ -48,10 +48,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   if (!operation) return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
 
   if (!isWithinTeamScope(auth, operation.equipeId)) {
-    return NextResponse.json(
-      { error: "Opération affectée à une autre équipe" },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: TEAM_SCOPE_ERROR }, { status: 403 });
   }
 
   if ((operation.photos?.length ?? 0) >= 10) {
@@ -99,10 +96,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
   if (!operation) return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
 
   if (!isWithinTeamScope(auth, operation.equipeId)) {
-    return NextResponse.json(
-      { error: "Opération affectée à une autre équipe" },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: TEAM_SCOPE_ERROR }, { status: 403 });
   }
 
   // La suppression ne porte que sur une photo rattachée à cette opération.

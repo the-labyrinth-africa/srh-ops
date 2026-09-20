@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import { requireAuth, isWithinClientScope } from "@/lib/api-auth";
+import { requireAuth, isWithinClientScope, isWithinTeamScope, chauffeurWithoutTeamError } from "@/lib/api-auth";
 import { checkAssignmentConflicts } from "@/lib/conflicts";
 import { Operation } from "@/models/Operation";
 import { Client } from "@/models/Client";
@@ -17,6 +17,8 @@ type Params = { params: Promise<{ id: string }> };
 export async function GET(_req: NextRequest, { params }: Params) {
   const auth = await requireAuth();
   if (auth.error) return auth.error;
+  const noTeam = chauffeurWithoutTeamError(auth);
+  if (noTeam) return noTeam;
 
   const { id } = await params;
   const guard = guardObjectId(id);
@@ -36,6 +38,9 @@ export async function GET(_req: NextRequest, { params }: Params) {
 
   if (!operation) return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
   if (!isWithinClientScope(auth, (operation as { clientId?: unknown }).clientId)) {
+    return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
+  }
+  if (!isWithinTeamScope(auth, (operation as { equipeId?: unknown }).equipeId)) {
     return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
   }
   return NextResponse.json(operation);
