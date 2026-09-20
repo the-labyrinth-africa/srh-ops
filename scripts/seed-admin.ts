@@ -1,13 +1,13 @@
 import bcrypt from "bcryptjs";
 import { loadEnvConfig } from "@next/env";
-import { connectDB } from "../lib/db";
-import { User } from "../models/User";
-import { Client } from "../models/Client";
-import { Site } from "../models/Site";
-import { Equipe } from "../models/Equipe";
-import { Vehicule } from "../models/Vehicule";
-import { Equipement } from "../models/Equipement";
-import { Operation } from "../models/Operation";
+import { connectDB } from "../src/lib/db";
+import { User } from "../src/models/User";
+import { Client } from "../src/models/Client";
+import { Site } from "../src/models/Site";
+import { Equipe } from "../src/models/Equipe";
+import { Vehicule } from "../src/models/Vehicule";
+import { Equipement } from "../src/models/Equipement";
+import { Operation } from "../src/models/Operation";
 
 export function shouldSeed(
   env: Record<string, string | undefined>,

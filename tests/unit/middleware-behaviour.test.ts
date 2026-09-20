@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { NextRequest } from "next/server";
 import type { NextFetchEvent } from "next/server";
 import { encode } from "next-auth/jwt";
-import middleware from "../../middleware";
+import middleware from "../../src/middleware";
 
 // Parité de comportement : le middleware d'authentification doit rediriger les visiteurs sans
 // session vers la page de connexion NextAuth, et laisser passer ceux qui ont un jeton valide.

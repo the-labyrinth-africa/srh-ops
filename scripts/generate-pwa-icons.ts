@@ -4,7 +4,7 @@
  *
  * Approche : SVG source (géométrie pure, sans texte -> pas de dépendance
  * aux polices systèmes) → rastérisé en PNG via `sharp`. Aucun encodeur PNG
- * artisanal. Le SVG sert aussi de source pour app/icon.svg.
+ * artisanal. Le SVG sert aussi de source pour src/app/icon.svg.
  *
  * Usage : npx tsx scripts/generate-pwa-icons.ts
  */
@@ -56,8 +56,8 @@ async function main() {
     console.log(`  ${spec.name} (${spec.size}x${spec.size}, ${png.length} o)`);
   }
 
-  writeFileSync(join(process.cwd(), "app", "icon.svg"), iconSvg(false));
-  console.log("Icônes PWA + app/icon.svg générées.");
+  writeFileSync(join(process.cwd(), "src", "app", "icon.svg"), iconSvg(false));
+  console.log("Icônes PWA + src/app/icon.svg générées.");
 }
 
 main().catch((e) => {

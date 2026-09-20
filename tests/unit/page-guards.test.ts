@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
-const ROOT = path.join(process.cwd(), "app", "(dashboard)");
+const ROOT = path.join(process.cwd(), "src", "app", "(dashboard)");
 
 // Aucune page n'est exemptée : /profil est aussi une page serveur gardée (ouverte à tous les rôles).
 const EXEMPT = new Set<string>();

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { config } from "../../middleware";
+import { config } from "../../src/middleware";
 
 // Sémantique du matcher Next : le motif est ancré sur le chemin entier.
 const re = new RegExp(`^${config.matcher[0]}$`);
