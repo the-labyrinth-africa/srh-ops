@@ -129,37 +129,8 @@ describe("Users, Authentication Roles & Operations Quantities Tests", () => {
     });
   });
 
-  describe("Forgot Password Flow (désactivé — C4)", () => {
-    it("should refuse the self-service reset without touching the password hash", async () => {
-      // 1. Create a target user
-      const reqCreate = new NextRequest("http://localhost:3000/api/users", {
-        method: "POST",
-        body: JSON.stringify({
-          username: "target_user",
-          nom: "Target Test",
-          email: "target@srh.ci",
-          role: "dispatcher",
-        }),
-      });
-      await createUser(reqCreate);
-
-      await connectDB();
-      const before = (await User.findOne({ username: "target_user" }))!;
-
-      // 2. La route refuse toute demande, quel que soit l'identifiant visé
-      const resForgot = await forgotPassword();
-      expect(resForgot.status).toBe(503);
-      const data = await resForgot.json();
-      expect(data.error).toBe(
-        "Réinitialisation en libre-service indisponible. Contactez un administrateur SRH."
-      );
-
-      // 3. Le hash du mot de passe est inchangé : personne ne peut bloquer un compte
-      const after = (await User.findOne({ username: "target_user" }))!;
-      expect(after.motDePasseHash).toBe(before.motDePasseHash);
-    });
-
-    it("should not reset legacy users without a username field either (non-régression)", async () => {
+  describe("Forgot Password Flow (jeton par e-mail)", () => {
+    it("should not touch the password hash of a legacy user without a username field (non-régression)", async () => {
       await connectDB();
       // Reproduit le cas des comptes semés avant l'introduction du champ username
       // (insertion directe pour contourner la validation Mongoose du champ required)
@@ -173,9 +144,16 @@ describe("Users, Authentication Roles & Operations Quantities Tests", () => {
         updatedAt: new Date(),
       });
 
-      const res = await forgotPassword();
-      expect(res.status).toBe(503);
+      const res = await forgotPassword(
+        new NextRequest("http://localhost:3000/api/auth/forgot-password", {
+          method: "POST",
+          headers: { "x-forwarded-for": "198.51.100.200" },
+          body: JSON.stringify({ identifier: "legacy@srh.ci" }),
+        })
+      );
+      expect(res.status).toBe(200);
 
+      // La demande n'écrit jamais le mot de passe : seul un jeton à usage unique est émis.
       const after = (await User.collection.findOne({ _id: inserted.insertedId }))!;
       expect(after.motDePasseHash).toBe(hash);
 
