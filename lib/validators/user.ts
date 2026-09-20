@@ -57,5 +57,8 @@ export const changePasswordSchema = z.object({
 });
 
 export const forgotPasswordSchema = z.object({
-  identifier: z.string().min(1, "Identifiant (username ou e-mail) requis"),
+  identifier: z
+    .string()
+    .min(1, "Identifiant (username ou e-mail) requis")
+    .max(254, "Identifiant trop long"),
 });

@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { POST as forgot } from "@/app/api/auth/forgot-password/route";
 import { POST as reset } from "@/app/api/auth/reset-password/route";
 import * as rateLimit from "@/lib/rate-limit";
+import * as resetToken from "@/lib/auth/reset-token";
 import { getMemoryTransport } from "@/lib/mail";
 import { User } from "@/models/User";
 import { PasswordResetToken } from "@/models/PasswordResetToken";
@@ -237,5 +238,132 @@ describe("POST /api/auth/reset-password", () => {
     vi.restoreAllMocks();
     const retry = await reset(post("/api/auth/reset-password", { token, newPassword: NEW }));
     expect(retry.status).toBe(200);
+  });
+});
+
+const INVALID_LINK = "Lien invalide ou expiré. Demandez un nouveau lien.";
+
+function allConsoleOutput(spies: { mock: { calls: unknown[][] } }[]): string {
+  return spies
+    .flatMap((spy) => spy.mock.calls)
+    .flat()
+    .map((arg) => (typeof arg === "string" ? arg : JSON.stringify(arg)))
+    .join("\n");
+}
+
+describe("bornes de saisie et refus génériques", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    getMemoryTransport().reset();
+    process.env.NEXTAUTH_URL = "https://ops.srh.ci";
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  async function requestToken() {
+    const user = await seedUser({ mustChangePassword: true });
+    await forgot(post("/api/auth/forgot-password", { identifier: "awa@srh.ci" }));
+    return { user, token: tokenFromMail() };
+  }
+
+  it("forgot-password : un identifiant de 300 caractères est refusé (400)", async () => {
+    const res = await forgot(post("/api/auth/forgot-password", { identifier: "a".repeat(300) }));
+    expect(res.status).toBe(400);
+    expect(getMemoryTransport().sent).toHaveLength(0);
+  });
+
+  it("forgot-password : un identifiant de 254 caractères reste accepté", async () => {
+    const res = await forgot(post("/api/auth/forgot-password", { identifier: "a".repeat(254) }));
+    expect(res.status).toBe(200);
+  });
+
+  it("reset-password : newPassword absent ou de mauvais type => message français, jeton non consommé", async () => {
+    const { token } = await requestToken();
+    for (const body of [{ token }, { token, newPassword: 123456 }, { token, newPassword: null }]) {
+      const res = await reset(post("/api/auth/reset-password", body));
+      expect(res.status).toBe(400);
+      expect((await res.json()).error).toBe("Le nouveau mot de passe est requis");
+    }
+    expect((await reset(post("/api/auth/reset-password", { token, newPassword: NEW }))).status).toBe(200);
+  });
+
+  it("reset-password : jeton absent, non textuel ou trop long (> 512) => 400 générique", async () => {
+    for (const body of [{ newPassword: NEW }, { token: 42, newPassword: NEW }, { token: "x".repeat(600), newPassword: NEW }]) {
+      const res = await reset(post("/api/auth/reset-password", body));
+      expect(res.status).toBe(400);
+      expect((await res.json()).error).toBe(INVALID_LINK);
+    }
+  });
+
+  it("reset-password : mot de passe de plus de 128 caractères => 400, jeton non consommé", async () => {
+    const { token } = await requestToken();
+    const res = await reset(post("/api/auth/reset-password", { token, newPassword: "a".repeat(129) }));
+    expect(res.status).toBe(400);
+    expect((await res.json()).error).toContain("128");
+    expect((await reset(post("/api/auth/reset-password", { token, newPassword: "a".repeat(128) }))).status).toBe(200);
+  });
+
+  it("reset-password : consumeResetToken en échec => 503 générique, rien dans les journaux que le nom d'erreur", async () => {
+    const { user, token } = await requestToken();
+    const spies = (["log", "info", "warn", "error", "debug"] as const).map((level) =>
+      vi.spyOn(console, level).mockImplementation(() => {})
+    );
+    vi.spyOn(resetToken, "consumeResetToken").mockRejectedValueOnce(
+      new Error(`mongodb://secret@hote ${token} ${NEW}`)
+    );
+
+    const res = await reset(post("/api/auth/reset-password", { token, newPassword: NEW }));
+    expect(res.status).toBe(503);
+    expect(await res.json()).toEqual({ error: "Service momentanément indisponible. Réessayez plus tard." });
+    expect((await User.findById(user._id))?.motDePasseHash).toBe(user.motDePasseHash);
+
+    const output = allConsoleOutput(spies);
+    expect(output).toContain("[reset-password] indisponible");
+    for (const secret of [token, NEW, "mongodb://", "awa@srh.ci"]) expect(output).not.toContain(secret);
+
+    // Le jeton n'a pas été consommé : un nouvel essai aboutit.
+    expect((await reset(post("/api/auth/reset-password", { token, newPassword: NEW }))).status).toBe(200);
+  });
+
+  it("reset-password : une base qui échoue après la consommation du jeton => 503 générique (jamais de 500)", async () => {
+    const { token } = await requestToken();
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(User, "findByIdAndUpdate").mockImplementationOnce((() => {
+      throw new Error("mongodb://secret@hote");
+    }) as never);
+
+    const res = await reset(post("/api/auth/reset-password", { token, newPassword: NEW }));
+    expect(res.status).toBe(503);
+    expect((await res.json()).error).not.toContain("mongodb://");
+  });
+
+  it("journaux : échec différé et échec d'envoi journalisent, sans jeton, adresse ni mot de passe", async () => {
+    const spies = (["log", "info", "warn", "error", "debug"] as const).map((level) =>
+      vi.spyOn(console, level).mockImplementation(() => {})
+    );
+    await seedUser();
+
+    // 1. échec d'envoi (journalisé par sendMail)
+    getMemoryTransport().failNext();
+    await forgot(post("/api/auth/forgot-password", { identifier: "awa@srh.ci" }));
+
+    // 2. échec de la tâche différée (journalisé par runAfterResponse), message d'erreur chargé de secrets
+    vi.spyOn(resetToken, "issueResetToken").mockRejectedValueOnce(
+      new Error(`mongodb://secret@hote awa@srh.ci ${NEW}`)
+    );
+    await forgot(post("/api/auth/forgot-password", { identifier: "awa@srh.ci" }));
+
+    // 3. parcours réussi : un jeton réel circule
+    await forgot(post("/api/auth/forgot-password", { identifier: "awa@srh.ci" }));
+    const token = tokenFromMail();
+    expect((await reset(post("/api/auth/reset-password", { token, newPassword: NEW }))).status).toBe(200);
+
+    const output = allConsoleOutput(spies);
+    expect(output).toContain("[mail] échec d'envoi");
+    expect(output).toContain("[after] tâche différée en échec");
+    for (const secret of [token, NEW, "awa@srh.ci", "mongodb://", "reset-password?token"]) {
+      expect(output).not.toContain(secret);
+    }
   });
 });
