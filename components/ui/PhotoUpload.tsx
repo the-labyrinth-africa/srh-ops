@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useCallback } from "react";
+import { compressImageFile } from "@/lib/image-compress";
 
 interface Photo {
   url: string;
@@ -47,17 +48,12 @@ export function PhotoUpload({
         const uploaded: Photo[] = [];
 
         for (const file of filesToUpload) {
-          if (file.size > 10 * 1024 * 1024) {
-            setError(`Le fichier "${file.name}" dépasse 10 Mo.`);
+          // Redimensionnement local : l'API plafonne à 2 Mo par photo.
+          const dataUrl = await compressImageFile(file);
+          if (!dataUrl) {
+            setError(`Le fichier "${file.name}" reste trop lourd même après compression.`);
             continue;
           }
-
-          const reader = new FileReader();
-          const dataUrl = await new Promise<string>((resolve, reject) => {
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-          });
 
           const res = await fetch(`/api/operations/${operationId}/photos`, {
             method: "POST",
@@ -194,7 +190,8 @@ export function PhotoUpload({
       )}
 
       <p className="font-label-sm text-label-sm text-outline">
-        {photos.length}/{maxPhotos} photos • Formats: JPG, PNG • Max 10 Mo par photo
+        {photos.length}/{maxPhotos} photos • Formats: JPG, PNG • Réduites automatiquement
+        (max 2 Mo par photo, 8 Mo par opération)
       </p>
     </div>
   );

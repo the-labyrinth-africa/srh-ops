@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { SignaturePad } from "@/components/ui/SignaturePad";
 import { getNextStatuses } from "@/lib/status-transitions";
+import { compressImageFile } from "@/lib/image-compress";
 import type { OperationStatus, QuantiteUnite } from "@/types";
 
 interface OperationTerrain {
@@ -157,24 +158,15 @@ export function TerrainViewClient() {
   async function handlePhotoSelect(files: FileList | null) {
     if (!files || files.length === 0) return;
     setPhotoUploading(true);
-    const readerPromises: Promise<string>[] = [];
 
-    Array.from(files).forEach((file) => {
-      if (file.size > 10 * 1024 * 1024) return;
-      const reader = new FileReader();
-      readerPromises.push(
-        new Promise((resolve) => {
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = () => resolve("");
-          reader.readAsDataURL(file);
-        })
-      );
-    });
+    // Redimensionnement local : l'API plafonne chaque photo à 2 Mo.
+    const dataUrls = await Promise.all(
+      Array.from(files).map((file) => compressImageFile(file).catch(() => null))
+    );
 
-    const dataUrls = await Promise.all(readerPromises);
     pendingPhotosRef.current = [
       ...pendingPhotosRef.current,
-      ...dataUrls.filter(Boolean),
+      ...dataUrls.filter((url): url is string => Boolean(url)),
     ];
     setPendingPhotoCount(pendingPhotosRef.current.length);
     if (photoInputRef.current) photoInputRef.current.value = "";

@@ -242,8 +242,74 @@ describe("Phase 2 — Import, Photos, Signature & Rapport", () => {
     // Signature PDF %PDF-
     expect(bytes.subarray(0, 4).toString()).toBe("%PDF");
 
-    // rapportPdf saved on the operation
+    // C6 : le PDF n'est plus réécrit dans le document Operation (limite BSON 16 Mo).
+    // Il est régénéré à la demande à chaque appel.
     const updated = await Operation.findById(op._id);
-    expect(updated!.rapportPdf).toContain("data:application/pdf");
+    expect(updated!.rapportPdf ?? "").toBe("");
+  });
+
+  describe("Plafonds de taille des photos (I12)", () => {
+    async function createOperationForPhotos(nom: string) {
+      const client = await Client.create({ nom: `Client ${nom}` });
+      const site = await Site.create({ clientId: client._id, nom: `Site ${nom}` });
+      return Operation.create({
+        clientId: client._id,
+        siteId: site._id,
+        natureIntervention: `Collecte ${nom}`,
+        dateHeurePrevue: new Date(),
+      });
+    }
+
+    function dataUrlOfBytes(bytes: number) {
+      const prefix = "data:image/jpeg;base64,";
+      return prefix + "A".repeat(Math.max(0, bytes - prefix.length));
+    }
+
+    it("refuse une photo dont la charge utile dépasse 2 Mo", async () => {
+      const op = await createOperationForPhotos("Photo Trop Grosse");
+      const tooBig = dataUrlOfBytes(2 * 1024 * 1024 + 10);
+
+      const res = await uploadPhoto(
+        new NextRequest(`http://localhost:3000/api/operations/${op._id}/photos`, {
+          method: "POST",
+          body: JSON.stringify({ photo: tooBig, nom: "grosse.jpg" }),
+        }),
+        { params: Promise.resolve({ id: op._id.toString() }) }
+      );
+
+      expect(res.status).toBe(413);
+      const body = await res.json();
+      expect(body.error).toContain("2 Mo");
+      expect((await Operation.findById(op._id))!.photos.length).toBe(0);
+    });
+
+    it("refuse une photo qui ferait dépasser 8 Mo cumulés sur l'opération", async () => {
+      const op = await createOperationForPhotos("Photos Cumulees");
+      const photo = dataUrlOfBytes(1_900_000);
+
+      for (let i = 0; i < 4; i++) {
+        const res = await uploadPhoto(
+          new NextRequest(`http://localhost:3000/api/operations/${op._id}/photos`, {
+            method: "POST",
+            body: JSON.stringify({ photo: photo + String(i), nom: `p${i}.jpg` }),
+          }),
+          { params: Promise.resolve({ id: op._id.toString() }) }
+        );
+        expect(res.status).toBe(201);
+      }
+
+      const res = await uploadPhoto(
+        new NextRequest(`http://localhost:3000/api/operations/${op._id}/photos`, {
+          method: "POST",
+          body: JSON.stringify({ photo: photo + "last", nom: "p4.jpg" }),
+        }),
+        { params: Promise.resolve({ id: op._id.toString() }) }
+      );
+
+      expect(res.status).toBe(413);
+      const body = await res.json();
+      expect(body.error).toContain("8 Mo");
+      expect((await Operation.findById(op._id))!.photos.length).toBe(4);
+    });
   });
 });

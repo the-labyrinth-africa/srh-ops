@@ -261,8 +261,9 @@ export async function GET(_req: NextRequest, { params }: Params) {
 
   const pdfBase64 = doc.output("datauristring");
 
-  // Save rapport reference on the operation
-  await Operation.findByIdAndUpdate(id, { rapportPdf: pdfBase64 });
+  // C6 : le PDF n'est PAS réécrit dans le document Operation. Un rapport de
+  // plusieurs Mo en base64 poussait le document vers la limite BSON de 16 Mo,
+  // sur une simple requête GET. Le rapport est regénéré à la demande.
 
   return new NextResponse(
     Buffer.from(pdfBase64.split(",")[1], "base64"),

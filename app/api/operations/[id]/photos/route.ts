@@ -6,6 +6,18 @@ import { guardObjectId } from "@/lib/mongo-id";
 
 type Params = { params: Promise<{ id: string }> };
 
+/**
+ * Les photos sont stockées en base64 dans le document Operation (limite BSON de
+ * 16 Mo). Plafonds volontairement bas pour garder de la marge : 2 Mo par photo
+ * et 8 Mo cumulés par opération, mesurés sur la charge utile réellement stockée.
+ */
+const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
+const MAX_PHOTOS_TOTAL_BYTES = 8 * 1024 * 1024;
+
+function storedBytes(dataUrl: string): number {
+  return Buffer.byteLength(dataUrl, "utf8");
+}
+
 export async function POST(req: NextRequest, { params }: Params) {
   const auth = await requireTerrainWrite();
   if (auth.error) return auth.error;
@@ -23,9 +35,12 @@ export async function POST(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Format de photo invalide" }, { status: 400 });
   }
 
-  const sizeInBytes = Math.ceil((body.photo.length * 3) / 4);
-  if (sizeInBytes > 10 * 1024 * 1024) {
-    return NextResponse.json({ error: "La photo dépasse 10 Mo" }, { status: 400 });
+  const photoBytes = storedBytes(body.photo);
+  if (photoBytes > MAX_PHOTO_BYTES) {
+    return NextResponse.json(
+      { error: "La photo dépasse 2 Mo. Réduisez sa taille avant l'envoi." },
+      { status: 413 }
+    );
   }
 
   await connectDB();
@@ -41,6 +56,17 @@ export async function POST(req: NextRequest, { params }: Params) {
 
   if ((operation.photos?.length ?? 0) >= 10) {
     return NextResponse.json({ error: "Maximum de 10 photos atteint" }, { status: 400 });
+  }
+
+  const existingBytes = (operation.photos ?? []).reduce(
+    (sum: number, p: { url?: string }) => sum + storedBytes(p.url ?? ""),
+    0
+  );
+  if (existingBytes + photoBytes > MAX_PHOTOS_TOTAL_BYTES) {
+    return NextResponse.json(
+      { error: "Les photos de cette opération dépassent 8 Mo au total." },
+      { status: 413 }
+    );
   }
 
   const photo = {
