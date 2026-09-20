@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { UserFormModal } from "./UserFormModal";
 import { TemporaryPasswordPanel } from "./TemporaryPasswordPanel";
 import { roleLabel } from "@/lib/permissions";
+import { formatApiError } from "@/lib/api-error";
 
 interface UserItem {
   _id: string;
@@ -60,7 +61,7 @@ export function UsersListClient() {
         fetchUsers();
       } else {
         const data = await res.json();
-        alert(data.error || "Erreur lors de la suppression");
+        alert(formatApiError(data.error, "Erreur lors de la suppression"));
       }
     } catch (err) {
       console.error(err);
@@ -86,7 +87,7 @@ export function UsersListClient() {
       if (res.ok && typeof data.generatedPassword === "string") {
         setResetResult({ nom: user.nom, password: data.generatedPassword });
       } else {
-        alert(data.error || "Erreur lors de la régénération du mot de passe");
+        alert(formatApiError(data.error, "Erreur lors de la régénération du mot de passe"));
       }
     } catch {
       alert("Erreur lors de la régénération du mot de passe");

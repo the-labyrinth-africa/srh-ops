@@ -81,4 +81,64 @@ describe("rattachement des comptes", () => {
     expect(after?.role).toBe("dispatcher");
     expect(after?.clientId).toBeUndefined();
   });
+
+  const put = (id: unknown, body: Record<string, unknown>) =>
+    updateUser(
+      new NextRequest(`http://localhost:3000/api/users/${id}`, { method: "PUT", body: JSON.stringify(body) }),
+      { params: Promise.resolve({ id: String(id) }) }
+    );
+
+  it("à la mise à jour, un client passe à un autre client existant et la base suit", async () => {
+    const a = await Client.create({ nom: "Client C" });
+    const b = await Client.create({ nom: "Client D" });
+    const user = await User.create({
+      username: "cli5", nom: "Cli 5", email: "cli5@srh.ci", motDePasseHash: "x",
+      role: "client", clientId: a._id,
+    });
+
+    const res = await put(user._id, {
+      nom: "Cli 5", email: "cli5@srh.ci", role: "client", telephone: "", clientId: String(b._id),
+    });
+
+    expect(res.status).toBe(200);
+    const after = await User.findById(user._id).lean<{ role?: string; clientId?: unknown }>();
+    expect(after?.role).toBe("client");
+    expect(String(after?.clientId)).toBe(String(b._id));
+  });
+
+  it("à la mise à jour, un clientId inconnu est refusé (400) et la base est inchangée", async () => {
+    const a = await Client.create({ nom: "Client E" });
+    const user = await User.create({
+      username: "cli6", nom: "Cli 6", email: "cli6@srh.ci", motDePasseHash: "x",
+      role: "client", clientId: a._id,
+    });
+
+    const res = await put(user._id, {
+      nom: "Autre nom", email: "cli6@srh.ci", role: "client", telephone: "",
+      clientId: "507f1f77bcf86cd799439099",
+    });
+
+    expect(res.status).toBe(400);
+    const after = await User.findById(user._id).lean<{ nom?: string; clientId?: unknown }>();
+    expect(after?.nom).toBe("Cli 6");
+    expect(String(after?.clientId)).toBe(String(a._id));
+  });
+
+  it("à la mise à jour, une équipe inconnue pour un chauffeur est refusée (400) et la base est inchangée", async () => {
+    const equipe = await Equipe.create({ nom: "Équipe 2" });
+    const user = await User.create({
+      username: "ch4", nom: "Ch 4", email: "ch4@srh.ci", motDePasseHash: "x",
+      role: "chauffeur", equipeId: equipe._id,
+    });
+
+    const res = await put(user._id, {
+      nom: "Autre nom", email: "ch4@srh.ci", role: "chauffeur", telephone: "",
+      equipeId: "507f1f77bcf86cd799439099",
+    });
+
+    expect(res.status).toBe(400);
+    const after = await User.findById(user._id).lean<{ nom?: string; equipeId?: unknown }>();
+    expect(after?.nom).toBe("Ch 4");
+    expect(String(after?.equipeId)).toBe(String(equipe._id));
+  });
 });

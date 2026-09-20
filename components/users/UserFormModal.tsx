@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { USER_ROLES } from "@/types";
 import { roleLabel } from "@/lib/permissions";
+import { formatApiError } from "@/lib/api-error";
 import { TemporaryPasswordPanel } from "./TemporaryPasswordPanel";
 
 interface Option {
@@ -122,7 +123,7 @@ export function UserFormModal({
     setLoading(false);
 
     if (!res.ok) {
-      setError(data.error?.message ?? data.error ?? "Erreur de traitement");
+      setError(formatApiError(data.error));
       return;
     }
 
@@ -242,8 +243,9 @@ export function UserFormModal({
 
             {form.role === "client" && (
               <div>
-                <label className="mb-1 block font-label-md text-label-md text-on-surface-variant">Client rattaché</label>
+                <label className="mb-1 block font-label-md text-label-md text-on-surface-variant">Client rattaché *</label>
                 <select
+                  required
                   value={form.clientId}
                   onChange={(e) => setForm({ ...form, clientId: e.target.value })}
                   className="h-11 w-full rounded-xl bg-surface-container-low px-3 font-body-md text-body-md outline-none focus:ring-2 focus:ring-primary"
@@ -258,8 +260,9 @@ export function UserFormModal({
 
             {form.role === "chauffeur" && (
               <div>
-                <label className="mb-1 block font-label-md text-label-md text-on-surface-variant">Équipe rattachée</label>
+                <label className="mb-1 block font-label-md text-label-md text-on-surface-variant">Équipe rattachée *</label>
                 <select
+                  required
                   value={form.equipeId}
                   onChange={(e) => setForm({ ...form, equipeId: e.target.value })}
                   className="h-11 w-full rounded-xl bg-surface-container-low px-3 font-body-md text-body-md outline-none focus:ring-2 focus:ring-primary"
