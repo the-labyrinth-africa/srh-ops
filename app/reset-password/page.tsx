@@ -1,15 +1,16 @@
+import { Suspense } from "react";
 import Image from "next/image";
-import ForgotPasswordClient from "@/components/auth/ForgotPasswordClient";
+import ResetPasswordClient from "@/components/auth/ResetPasswordClient";
 
 const LOGO_URL =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuB1xOxGNUjWSBV2jk4DZt3xE-9Srw8jX7XbK5hgKOxsQTlamjCfm-2mAMvEtEnC-KLykmgDkBxuDs8c7o1SPBRM2AduE-2njQSsETOV73grhkotl4Uzs6tfUUzxjUgt8_U9tzeerdggWxLZKX5c8HM6tCM7yzpImj69LA89rUBoFAIQZ5M8I-MpD3rs0APTX2Rlew8DF4TksbmckxhcMoYgXyNxllMLBFolhd-Ki1ZlHvKfJu0rD7qu4qNJPBu79T5QHg";
 
 /**
- * Page publique de demande de réinitialisation du mot de passe : le formulaire
- * appelle POST /api/auth/forgot-password, dont la réponse est identique que le
- * compte existe ou non. Aucune garde de session (middleware.ts l'exclut).
+ * Page publique de choix d'un nouveau mot de passe (lien reçu par e-mail).
+ * Pas de requirePageAccess : le jeton du lien fait office d'autorisation.
+ * Suspense requis par useSearchParams dans le composant client.
  */
-export default function ForgotPasswordPage() {
+export default function ResetPasswordPage() {
   return (
     <main className="relative flex min-h-screen w-full flex-col items-center justify-center p-margin-mobile lg:p-margin-desktop">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -26,11 +27,13 @@ export default function ForgotPasswordPage() {
             className="mb-6 h-12 w-auto object-contain"
           />
           <h1 className="text-center font-headline-md text-headline-md tracking-tight text-on-surface">
-            Mot de passe oublié
+            Nouveau mot de passe
           </h1>
         </div>
 
-        <ForgotPasswordClient />
+        <Suspense fallback={null}>
+          <ResetPasswordClient />
+        </Suspense>
       </div>
     </main>
   );

@@ -10,6 +10,16 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async headers() {
+    const noLeak = [
+      { key: "Referrer-Policy", value: "no-referrer" },
+      { key: "Cache-Control", value: "no-store" },
+    ];
+    return [
+      { source: "/reset-password", headers: noLeak },
+      { source: "/forgot-password", headers: noLeak },
+    ];
+  },
 };
 
 export default nextConfig;
