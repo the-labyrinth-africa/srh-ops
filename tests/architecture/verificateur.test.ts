@@ -290,3 +290,25 @@ describe("héritage toléré seulement dans http, infrastructure, composition", 
     expect(DOSSIERS_HERITES).toContain("src/lib/");
   });
 });
+
+describe("R1 — durcissements", () => {
+  const domaine = "src/backend/equipes/domain/equipe.ts";
+  const application = "src/backend/equipes/application/cas-d-usage.ts";
+  it.each(["mongodb", "mongodb/lib/x", "bson"])("interdit %s dans domain et application", (paquet) => {
+    expect(v(domaine, [paquet]).length).toBe(1);
+    expect(v(application, [paquet]).length).toBe(1);
+  });
+  it("interdit au frontend d'importer src/app", () => {
+    expect(v("src/frontend/equipes/pages/PageEquipes.tsx", ["@/app/api/equipes/route"]).length).toBe(1);
+    expect(v("src/frontend/design-system/x.tsx", ["@/app/layout"]).length).toBe(1);
+  });
+  it("interdit src/app aussi en chemin relatif et dans une fonctionnalité non migrée", () => {
+    const r = v("src/frontend/equipes/pages/PageEquipes.tsx", ["../../../app/layout"]);
+    expect(r.length).toBe(1);
+    expect(r[0]).toContain("R4");
+    expect(v("src/frontend/vehicules/x.tsx", ["@/app/layout"]).length).toBe(1);
+  });
+  it("n'interdit plus src/types comme dossier hérité (il n'existe plus)", () => {
+    expect(DOSSIERS_HERITES).not.toContain("src/types/");
+  });
+});

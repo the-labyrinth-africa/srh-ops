@@ -28,6 +28,7 @@ const eslintConfig = defineConfig([
         {
           patterns: [
             { group: ["@/backend/*", "@/backend/**"], message: "Le frontend n'importe jamais le backend (R4) : passer par src/shared." },
+            { group: ["@/app/*", "@/app/**"], message: "Le frontend n'importe jamais src/app." },
           ],
         },
       ],
@@ -41,12 +42,12 @@ const eslintConfig = defineConfig([
       "no-restricted-imports": [
         "error",
         {
-          paths: ["mongoose", "next", "next-auth", "nodemailer", "bcryptjs", "jspdf", "exceljs"].map((name) => ({
+          paths: ["mongoose", "mongodb", "bson", "next", "next-auth", "nodemailer", "bcryptjs", "jspdf", "exceljs"].map((name) => ({
             name,
             message: "Le domaine et les cas d'usage ne dépendent d'aucune technologie : passer par un port.",
           })),
           patterns: [
-            { group: ["next/*", "next-auth/*", "jspdf/*", "jspdf-*", "mongoose/*", "nodemailer/*", "bcryptjs/*", "exceljs/*"], message: "Idem : passer par un port." },
+            { group: ["next/*", "next-auth/*", "jspdf/*", "jspdf-*", "mongoose/*", "mongodb/*", "bson/*", "nodemailer/*", "bcryptjs/*", "exceljs/*"], message: "Idem : passer par un port." },
           ],
         },
       ],
