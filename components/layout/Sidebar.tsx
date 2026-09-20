@@ -5,103 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { roleLabel } from "@/lib/permissions";
+import { navForRole, type NavItem } from "@/lib/nav";
 
 const LOGO_URL =
   "https://lh3.googleusercontent.com/aida/AEtjO1UIOMOlwpX4WXcEJVQ2Ohnr_h8CJr8ezeAviwWd6bfftDfVYPIHz7hMK1R8At9R37SRIjsDzZHGgXwp7eYlpJZJj8cOIqbXk-0m3ywbzjSN4ZgLm4M1ssU9PKwfychAFZEOmhDJJGzY8OVK5QwCYl8QQT2Om6hjZLJSR5FnZqNP_hasv6LbUU1UBo9xK-OyywfTZmk6No7iNtUiNgFcRwQetY0ebRGhHR2YO9vWUV0tbrQcl_EYwfTc5xxs_vA8BAjmFAKzspyUYQ";
-
-interface NavItem {
-  href: string;
-  label: string;
-  icon: string;
-  roles?: string[];
-  match?: (path: string) => boolean;
-}
-
-interface NavSection {
-  title?: string;
-  items: NavItem[];
-}
-
-const NAV_SECTIONS: NavSection[] = [
-  {
-    items: [
-      { href: "/", label: "Tableau de bord", icon: "dashboard", match: (p) => p === "/" },
-      {
-        href: "/terrain",
-        label: "Console Web Terrain",
-        icon: "touch_app",
-        match: (p) => p.startsWith("/terrain"),
-      },
-    ],
-  },
-  {
-    title: "Opérations",
-    items: [
-      {
-        href: "/operations/planning",
-        label: "Planning",
-        icon: "calendar_month",
-        match: (p) => p.startsWith("/operations/planning"),
-      },
-      {
-        href: "/operations",
-        label: "Interventions",
-        icon: "local_shipping",
-        match: (p) =>
-          p.startsWith("/operations") && !p.startsWith("/operations/planning"),
-      },
-      {
-        href: "/recurrences",
-        label: "Collectes Récurrentes",
-        icon: "update",
-        match: (p) => p.startsWith("/recurrences"),
-      },
-      {
-        href: "/import",
-        label: "Import Excel",
-        icon: "upload_file",
-        roles: ["admin", "dispatcher"],
-        match: (p) => p.startsWith("/import"),
-      },
-    ],
-  },
-  {
-    title: "Référentiels & Administration",
-    items: [
-      {
-        href: "/clients",
-        label: "Clients & Sites",
-        icon: "store",
-        match: (p) => p.startsWith("/clients"),
-      },
-      {
-        href: "/equipes",
-        label: "Équipes & Chauffeurs",
-        icon: "groups",
-        match: (p) => p.startsWith("/equipes"),
-      },
-      {
-        href: "/vehicules",
-        label: "Flotte de véhicules",
-        icon: "directions_car",
-        match: (p) => p.startsWith("/vehicules"),
-      },
-      {
-        href: "/equipements",
-        label: "Équipements & Cuves",
-        icon: "oil_barrel",
-        match: (p) => p.startsWith("/equipements"),
-      },
-      {
-        href: "/utilisateurs",
-        label: "Utilisateurs & Rôles",
-        icon: "manage_accounts",
-        roles: ["admin"],
-        match: (p) => p.startsWith("/utilisateurs"),
-      },
-    ],
-  },
-];
 
 function isActive(pathname: string, item: NavItem) {
   return item.match ? item.match(pathname) : pathname === item.href;
@@ -158,13 +65,7 @@ export function Sidebar({
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-gutter-sm py-unit">
-          {NAV_SECTIONS.map((section, si) => {
-            const visibleItems = section.items.filter(
-              (item) => !item.roles || (userRole && item.roles.includes(userRole))
-            );
-
-            if (visibleItems.length === 0) return null;
-
+          {navForRole(userRole).map((section, si) => {
             return (
               <div key={si}>
                 {section.title && (
@@ -174,7 +75,7 @@ export function Sidebar({
                     </span>
                   </div>
                 )}
-                {visibleItems.map((item) => {
+                {section.items.map((item) => {
                   const active = isActive(pathname, item);
                   return (
                     <Link
