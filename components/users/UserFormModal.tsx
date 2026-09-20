@@ -211,7 +211,15 @@ export function UserFormModal({
               <label className="mb-1 block font-label-md text-label-md text-on-surface-variant">Rôle attribué *</label>
               <select
                 value={form.role}
-                onChange={(e) => setForm({ ...form, role: e.target.value })}
+                onChange={(e) => {
+                  const role = e.target.value;
+                  setForm({
+                    ...form,
+                    role,
+                    clientId: role === "client" ? form.clientId : "",
+                    equipeId: role === "chauffeur" ? form.equipeId : "",
+                  });
+                }}
                 className="h-11 w-full rounded-xl bg-surface-container-low px-3 font-body-md text-body-md outline-none focus:ring-2 focus:ring-primary"
               >
                 {USER_ROLES.map((r) => (

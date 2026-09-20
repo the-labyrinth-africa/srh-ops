@@ -10,6 +10,7 @@ vi.mock("next-auth", () => ({
 import { connectDB } from "@/lib/db";
 import mongoose from "mongoose";
 import { User } from "@/models/User";
+import { Equipe } from "@/models/Equipe";
 import { GET as getUsers, POST as createUser } from "@/app/api/users/route";
 import { POST as changePassword } from "@/app/api/auth/change-password/route";
 import { POST as forgotPassword } from "@/app/api/auth/forgot-password/route";
@@ -34,6 +35,8 @@ describe("Users, Authentication Roles & Operations Quantities Tests", () => {
 
   describe("User Management API", () => {
     it("should allow admin to create user with auto generated password", async () => {
+      // Un chauffeur doit désormais être rattaché à une équipe existante.
+      const equipe = await Equipe.create({ nom: "Équipe test création" });
       const req = new NextRequest("http://localhost:3000/api/users", {
         method: "POST",
         body: JSON.stringify({
@@ -42,6 +45,7 @@ describe("Users, Authentication Roles & Operations Quantities Tests", () => {
           email: "jean.marc@srh.ci",
           role: "chauffeur",
           telephone: "+22501020304",
+          equipeId: String(equipe._id),
         }),
       });
 

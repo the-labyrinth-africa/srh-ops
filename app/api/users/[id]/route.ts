@@ -4,6 +4,7 @@ import { requireAuth } from "@/lib/api-auth";
 import { User } from "@/models/User";
 import { userUpdateSchema } from "@/lib/validators/user";
 import { guardObjectId } from "@/lib/mongo-id";
+import { findScopeError } from "@/lib/users/scope";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -55,16 +56,19 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
   const { nom, email, role, telephone, clientId, equipeId } = parsed.data;
 
   await connectDB();
+
+  const scopeError = await findScopeError({ clientId, equipeId });
+  if (scopeError) return NextResponse.json({ error: scopeError }, { status: 400 });
+
+  // Mongoose ignore les clés `undefined` : sans `$unset`, l'ancien rattachement resterait en base.
+  const set: Record<string, unknown> = { nom, email: email.toLowerCase(), role, telephone };
+  const unset: Record<string, 1> = {};
+  if (clientId) set.clientId = clientId; else unset.clientId = 1;
+  if (equipeId) set.equipeId = equipeId; else unset.equipeId = 1;
+
   const updated = await User.findByIdAndUpdate(
     id,
-    {
-      nom,
-      email: email.toLowerCase(),
-      role,
-      telephone,
-      clientId: clientId || undefined,
-      equipeId: equipeId || undefined,
-    },
+    Object.keys(unset).length ? { $set: set, $unset: unset } : { $set: set },
     { new: true }
   )
     .select("-motDePasseHash")

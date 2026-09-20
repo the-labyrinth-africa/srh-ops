@@ -5,6 +5,7 @@ import { requireAuth } from "@/lib/api-auth";
 import { User } from "@/models/User";
 import { userCreateSchema } from "@/lib/validators/user";
 import { generateRandomPassword } from "@/lib/email";
+import { findScopeError } from "@/lib/users/scope";
 
 export async function GET(req: NextRequest) {
   const auth = await requireAuth();
@@ -46,6 +47,9 @@ export async function POST(req: NextRequest) {
   const { username, nom, email, role, telephone, clientId, equipeId } = parsed.data;
 
   await connectDB();
+
+  const scopeError = await findScopeError({ clientId, equipeId });
+  if (scopeError) return NextResponse.json({ error: scopeError }, { status: 400 });
 
   // Vérification doublon email / username
   const existing = await User.findOne({
