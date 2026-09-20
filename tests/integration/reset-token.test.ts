@@ -51,6 +51,52 @@ describe("issueResetToken", () => {
   });
 });
 
+describe("issueResetToken : finalités et entrée", () => {
+  it("émettre un jeton de réinitialisation laisse une invitation en attente utilisable", async () => {
+    const userId = uid();
+    const invitation = await issueResetToken(userId, "invitation", T0);
+    const reset = await issueResetToken(userId, "reset", T0);
+
+    expect(await PasswordResetToken.countDocuments({ userId, usedAt: null })).toBe(2);
+    expect(await consumeResetToken(invitation.token, T0)).toEqual({ userId, purpose: "invitation" });
+    expect(await consumeResetToken(reset.token, T0)).toEqual({ userId, purpose: "reset" });
+  });
+
+  it("émettre une invitation laisse un jeton de réinitialisation en attente utilisable", async () => {
+    const userId = uid();
+    const reset = await issueResetToken(userId, "reset", T0);
+    const invitation = await issueResetToken(userId, "invitation", T0);
+
+    expect(await consumeResetToken(reset.token, T0)).toEqual({ userId, purpose: "reset" });
+    expect(await consumeResetToken(invitation.token, T0)).toEqual({ userId, purpose: "invitation" });
+  });
+
+  it("émettre deux fois la même finalité invalide le premier jeton, pour reset comme pour invitation", async () => {
+    for (const purpose of ["reset", "invitation"] as const) {
+      const userId = uid();
+      const first = await issueResetToken(userId, purpose, T0);
+      const second = await issueResetToken(userId, purpose, T0);
+
+      expect(await PasswordResetToken.countDocuments({ userId, purpose })).toBe(1);
+      expect(await consumeResetToken(first.token, T0)).toBeNull();
+      expect(await consumeResetToken(second.token, T0)).toEqual({ userId, purpose });
+    }
+  });
+
+  it("refuse un userId qui n'est pas un ObjectId valide, sans rien supprimer", async () => {
+    const victim = uid();
+    const kept = await issueResetToken(victim, "reset", T0);
+
+    const invalid: unknown[] = [{ $ne: null }, "pas-un-objectid", "", null, undefined, 42, [victim]];
+    for (const value of invalid) {
+      await expect(issueResetToken(value as string, "reset", T0)).rejects.toThrow("userId invalide");
+    }
+
+    expect(await PasswordResetToken.countDocuments()).toBe(1);
+    expect(await consumeResetToken(kept.token, T0)).toEqual({ userId: victim, purpose: "reset" });
+  });
+});
+
 describe("consumeResetToken", () => {
   it("ne sert qu'une seule fois", async () => {
     const userId = uid();
@@ -77,10 +123,23 @@ describe("consumeResetToken", () => {
     expect(await consumeResetToken("{$ne:null}".padEnd(43, "x"), T0)).toBeNull();
   });
 
-  it("est atomique : deux consommations concurrentes, une seule réussit", async () => {
+  it("refuse tout jeton qui n'est pas une chaîne (objet d'opérateur, tableau, null) sans rien consommer", async () => {
     const { token } = await issueResetToken(uid(), "reset", T0);
+    const invalid: unknown[] = [{ $ne: null }, ["a".repeat(43)], [token], null, undefined, 42];
+    for (const value of invalid) {
+      expect(await consumeResetToken(value as string, T0)).toBeNull();
+    }
+    expect(await PasswordResetToken.countDocuments({ usedAt: null })).toBe(1);
+  });
+
+  it("est atomique : deux consommations concurrentes, une seule réussit", async () => {
+    const userId = uid();
+    const { token } = await issueResetToken(userId, "reset", T0);
     const results = await Promise.all([consumeResetToken(token, T0), consumeResetToken(token, T0)]);
-    expect(results.filter(Boolean)).toHaveLength(1);
+    const winners = results.filter(Boolean);
+    expect(winners).toHaveLength(1);
+    expect(winners[0]).toEqual({ userId, purpose: "reset" });
+    expect(await PasswordResetToken.countDocuments({ usedAt: { $ne: null } })).toBe(1);
   });
 
   it("le jeton utilisé reste en base (traçabilité) avec usedAt renseigné", async () => {

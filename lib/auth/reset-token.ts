@@ -1,4 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
+import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
 import { PasswordResetToken } from "@/models/PasswordResetToken";
 
@@ -22,12 +23,18 @@ export async function issueResetToken(
   purpose: TokenPurpose,
   now: Date = new Date()
 ): Promise<{ token: string; expiresAt: Date }> {
+  // Garde de type : un objet (ex. { $ne: null }) ne doit jamais atteindre le filtre deleteMany.
+  if (typeof userId !== "string" || !mongoose.isValidObjectId(userId)) {
+    throw new Error("userId invalide");
+  }
+
   await connectDB();
   // Garantit que l'index unique sur `tokenHash` existe avant toute écriture (mémoïsé par Mongoose).
   await PasswordResetToken.init();
 
-  // Un seul jeton actif par utilisateur : le précédent (non utilisé) est invalidé.
-  await PasswordResetToken.deleteMany({ userId, usedAt: null });
+  // Un seul jeton actif par utilisateur ET par finalité : une demande publique de réinitialisation
+  // ne doit pas détruire une invitation (72 h) encore en attente, et inversement.
+  await PasswordResetToken.deleteMany({ userId, purpose, usedAt: null });
 
   const token = randomBytes(32).toString("base64url");
   const expiresAt = new Date(now.getTime() + TTL_MS[purpose]);
