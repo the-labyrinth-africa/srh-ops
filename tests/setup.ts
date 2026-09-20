@@ -10,8 +10,33 @@ beforeEach(async () => {
 });
 let mongoServer: MongoMemoryServer;
 
+/**
+ * Les workers Vitest démarrent en parallèle et se disputent parfois le même port (« Port already
+ * in use ») ou démarrent trop lentement : on réessaie avec un court délai aléatoire.
+ */
+async function createMongoServer(maxAttempts = 5): Promise<MongoMemoryServer> {
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    // Équivalent de MongoMemoryServer.create(), mais l'instance reste accessible si start() échoue.
+    const candidate = new MongoMemoryServer();
+    try {
+      await candidate.start();
+      return candidate;
+    } catch (error) {
+      lastError = error;
+      // Une instance à moitié démarrée ne doit pas rester en vie.
+      await candidate.stop().catch(() => {});
+      if (attempt < maxAttempts) {
+        await new Promise((resolve) => setTimeout(resolve, 100 + Math.random() * 400));
+      }
+    }
+  }
+  const reason = lastError instanceof Error ? lastError.message : String(lastError);
+  throw new Error(`MongoMemoryServer : démarrage impossible après ${maxAttempts} tentatives (${reason})`);
+}
+
 beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
+  mongoServer = await createMongoServer();
   const uri = mongoServer.getUri();
   process.env.MONGODB_URI = uri;
   process.env.NEXTAUTH_SECRET = "test-secret-key-1234567890-super-secret";
