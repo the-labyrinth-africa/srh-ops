@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import { requireAuth } from "@/lib/api-auth";
+import { requireAuth, isWithinClientScope } from "@/lib/api-auth";
 import { Client } from "@/models/Client";
 import { clientSchema } from "@/lib/validators/client";
 import { guardObjectId } from "@/lib/mongo-id";
@@ -17,6 +17,9 @@ export async function GET(_req: NextRequest, { params }: Params) {
   await connectDB();
   const client = await Client.findById(id).lean();
   if (!client) return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
+  if (!isWithinClientScope(auth, (client as { _id?: unknown })._id)) {
+    return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
+  }
   return NextResponse.json(client);
 }
 

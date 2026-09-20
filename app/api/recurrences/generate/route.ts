@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
-import { requireAuth } from "@/lib/api-auth";
+import { requireInternalAuth } from "@/lib/api-auth";
 import { Recurrence, IRecurrence } from "@/models/Recurrence";
 import { Operation } from "@/models/Operation";
 import type { OperationStatus } from "@/types";
 
 export async function POST(req: NextRequest) {
-  const auth = await requireAuth(true);
+  const auth = await requireInternalAuth(true);
   if (auth.error) return auth.error;
 
   const body = await req.json().catch(() => ({}));

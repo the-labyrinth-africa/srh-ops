@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import { requireAuth } from "@/lib/api-auth";
+import { requireInternalAuth } from "@/lib/api-auth";
 import { parseExcelFile } from "@/lib/excel-import";
 import { Client } from "@/models/Client";
 import { Site } from "@/models/Site";
@@ -39,7 +39,7 @@ function validateImportBody(body: unknown) {
 }
 
 export async function POST(req: NextRequest) {
-  const auth = await requireAuth(true);
+  const auth = await requireInternalAuth(true);
   if (auth.error) return auth.error;
 
   let fileName: string;

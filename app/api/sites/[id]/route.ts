@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import { requireAuth } from "@/lib/api-auth";
+import { requireAuth, isWithinClientScope } from "@/lib/api-auth";
 import { Site } from "@/models/Site";
 import { siteSchema } from "@/lib/validators/site";
 import { guardObjectId } from "@/lib/mongo-id";
@@ -17,6 +17,9 @@ export async function GET(_req: NextRequest, { params }: Params) {
   await connectDB();
   const site = await Site.findById(id).populate("clientId", "nom").lean();
   if (!site) return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
+  if (!isWithinClientScope(auth, (site as { clientId?: unknown }).clientId)) {
+    return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
+  }
   return NextResponse.json(site);
 }
 

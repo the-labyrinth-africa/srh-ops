@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import { requireAuth } from "@/lib/api-auth";
+import { requireAuth, isWithinClientScope } from "@/lib/api-auth";
 import { checkAssignmentConflicts } from "@/lib/conflicts";
 import { Operation } from "@/models/Operation";
 import { Client } from "@/models/Client";
@@ -35,6 +35,9 @@ export async function GET(_req: NextRequest, { params }: Params) {
     .lean();
 
   if (!operation) return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
+  if (!isWithinClientScope(auth, (operation as { clientId?: unknown }).clientId)) {
+    return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
+  }
   return NextResponse.json(operation);
 }
 

@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import { requireAuth } from "@/lib/api-auth";
+import { requireTerrainWrite, isWithinTeamScope } from "@/lib/api-auth";
 import { Operation } from "@/models/Operation";
 import { guardObjectId } from "@/lib/mongo-id";
 
 type Params = { params: Promise<{ id: string }> };
 
 export async function POST(req: NextRequest, { params }: Params) {
-  const auth = await requireAuth();
+  const auth = await requireTerrainWrite();
   if (auth.error) return auth.error;
 
   const { id } = await params;
@@ -32,6 +32,13 @@ export async function POST(req: NextRequest, { params }: Params) {
   const operation = await Operation.findById(id);
   if (!operation) return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
 
+  if (!isWithinTeamScope(auth, operation.equipeId)) {
+    return NextResponse.json(
+      { error: "Opération affectée à une autre équipe" },
+      { status: 403 }
+    );
+  }
+
   if ((operation.photos?.length ?? 0) >= 10) {
     return NextResponse.json({ error: "Maximum de 10 photos atteint" }, { status: 400 });
   }
@@ -49,7 +56,7 @@ export async function POST(req: NextRequest, { params }: Params) {
 }
 
 export async function DELETE(req: NextRequest, { params }: Params) {
-  const auth = await requireAuth();
+  const auth = await requireTerrainWrite();
   if (auth.error) return auth.error;
 
   const { id } = await params;
@@ -65,6 +72,14 @@ export async function DELETE(req: NextRequest, { params }: Params) {
   const operation = await Operation.findById(id);
   if (!operation) return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
 
+  if (!isWithinTeamScope(auth, operation.equipeId)) {
+    return NextResponse.json(
+      { error: "Opération affectée à une autre équipe" },
+      { status: 403 }
+    );
+  }
+
+  // La suppression ne porte que sur une photo rattachée à cette opération.
   operation.photos = operation.photos.filter((p: { url: string }) => p.url !== body.url);
   await operation.save();
 

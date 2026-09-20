@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { requireAuth } from "@/lib/api-auth";
+import { isChauffeur, isClientUser } from "@/lib/permissions";
 import { computeEffectiveStatus } from "@/lib/status-transitions";
 import { STATUS_CONFIG } from "@/lib/status-styles";
 import { Operation } from "@/models/Operation";
@@ -15,6 +16,9 @@ export async function GET(req: NextRequest) {
   const dateFin = sp.get("dateFin");
 
   const filter: Record<string, unknown> = {};
+  // Même cloisonnement que /api/operations.
+  if (isClientUser(auth.role)) filter.clientId = auth.clientId;
+  if (isChauffeur(auth.role) && auth.equipeId) filter.equipeId = auth.equipeId;
   if (dateDebut || dateFin) {
     filter.dateHeurePrevue = {};
     if (dateDebut) (filter.dateHeurePrevue as Record<string, Date>).$gte = new Date(dateDebut);

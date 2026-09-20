@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import { requireAuth } from "@/lib/api-auth";
+import { requireInternalAuth } from "@/lib/api-auth";
 import { computeEffectiveStatus } from "@/lib/status-transitions";
 import { Client } from "@/models/Client";
 import { Site } from "@/models/Site";
@@ -8,7 +8,7 @@ import { Operation } from "@/models/Operation";
 import type { OperationStatus } from "@/types";
 
 export async function GET() {
-  const auth = await requireAuth();
+  const auth = await requireInternalAuth();
   if (auth.error) return auth.error;
 
   await connectDB();

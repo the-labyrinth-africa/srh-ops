@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import { requireAuth } from "@/lib/api-auth";
+import { requireInternalAuth } from "@/lib/api-auth";
 import { Recurrence } from "@/models/Recurrence";
 import { recurrenceSchema } from "@/lib/validators/recurrence";
 
 export async function GET(req: NextRequest) {
-  const auth = await requireAuth();
+  const auth = await requireInternalAuth();
   if (auth.error) return auth.error;
 
   const sp = req.nextUrl.searchParams;
@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const auth = await requireAuth(true);
+  const auth = await requireInternalAuth(true);
   if (auth.error) return auth.error;
 
   const body = await req.json();

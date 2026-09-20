@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { requireAuth } from "@/lib/api-auth";
+import { isClientUser } from "@/lib/permissions";
 import { Site } from "@/models/Site";
 import { siteSchema } from "@/lib/validators/site";
 
@@ -8,7 +9,10 @@ export async function GET(req: NextRequest) {
   const auth = await requireAuth();
   if (auth.error) return auth.error;
 
-  const clientId = req.nextUrl.searchParams.get("clientId");
+  // Un compte client ne voit que les sites de son propre client.
+  const clientId = isClientUser(auth.role)
+    ? auth.clientId
+    : req.nextUrl.searchParams.get("clientId");
   await connectDB();
   const filter = clientId ? { clientId } : {};
   const sites = await Site.find(filter).populate("clientId", "nom").sort({ nom: 1 }).lean();

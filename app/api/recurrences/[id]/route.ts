@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import { requireAuth } from "@/lib/api-auth";
+import { requireInternalAuth } from "@/lib/api-auth";
 import { Recurrence } from "@/models/Recurrence";
 import { recurrenceSchema } from "@/lib/validators/recurrence";
 import { guardObjectId } from "@/lib/mongo-id";
@@ -10,7 +10,7 @@ interface RouteParams {
 }
 
 export async function GET(_req: NextRequest, { params }: RouteParams) {
-  const auth = await requireAuth();
+  const auth = await requireInternalAuth();
   if (auth.error) return auth.error;
 
   const { id } = await params;
@@ -34,7 +34,7 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
 }
 
 export async function PUT(req: NextRequest, { params }: RouteParams) {
-  const auth = await requireAuth(true);
+  const auth = await requireInternalAuth(true);
   if (auth.error) return auth.error;
 
   const { id } = await params;
@@ -66,7 +66,7 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
 }
 
 export async function DELETE(_req: NextRequest, { params }: RouteParams) {
-  const auth = await requireAuth(true);
+  const auth = await requireInternalAuth(true);
   if (auth.error) return auth.error;
 
   const { id } = await params;

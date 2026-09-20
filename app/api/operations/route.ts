@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
 import { requireAuth } from "@/lib/api-auth";
+import { isChauffeur, isClientUser } from "@/lib/permissions";
 import { checkAssignmentConflicts } from "@/lib/conflicts";
 import { Operation } from "@/models/Operation";
 import { operationSchema } from "@/lib/validators/operation";
@@ -19,6 +20,16 @@ export async function GET(req: NextRequest) {
   if (sp.get("equipeId")) filter.equipeId = sp.get("equipeId");
   if (sp.get("vehiculeId")) filter.vehiculeId = sp.get("vehiculeId");
   if (sp.get("statut")) filter.statut = sp.get("statut");
+
+  // Cloisonnement serveur : un compte client ne voit que son périmètre et un
+  // chauffeur rattaché à une équipe ne voit que les missions de son équipe,
+  // quelles que soient les valeurs envoyées en query.
+  if (isClientUser(auth.role)) {
+    filter.clientId = auth.clientId;
+  }
+  if (isChauffeur(auth.role) && auth.equipeId) {
+    filter.equipeId = auth.equipeId;
+  }
 
   const dateDebut = sp.get("dateDebut");
   const dateFin = sp.get("dateFin");

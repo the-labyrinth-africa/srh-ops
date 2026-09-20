@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
-import { requireAuth } from "@/lib/api-auth";
+import { requireTerrainWrite, isWithinTeamScope } from "@/lib/api-auth";
 import { canTransition } from "@/lib/status-transitions";
 import { Operation } from "@/models/Operation";
 import { statusUpdateSchema } from "@/lib/validators/operation";
@@ -11,7 +11,7 @@ import type { OperationStatus } from "@/types";
 type Params = { params: Promise<{ id: string }> };
 
 export async function PATCH(req: NextRequest, { params }: Params) {
-  const auth = await requireAuth();
+  const auth = await requireTerrainWrite();
   if (auth.error) return auth.error;
 
   const { id } = await params;
@@ -28,6 +28,13 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   await connectDB();
   const operation = await Operation.findById(id);
   if (!operation) return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
+
+  if (!isWithinTeamScope(auth, operation.equipeId)) {
+    return NextResponse.json(
+      { error: "Opération affectée à une autre équipe" },
+      { status: 403 }
+    );
+  }
 
   const currentStatus = operation.statut as OperationStatus;
 

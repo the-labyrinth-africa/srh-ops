@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import { requireAuth } from "@/lib/api-auth";
+import { requireAuth, isWithinClientScope } from "@/lib/api-auth";
 import { Operation } from "@/models/Operation";
 import { Client } from "@/models/Client";
 import { Site } from "@/models/Site";
@@ -18,7 +18,7 @@ interface PopulatedOperation {
   dateHeurePrevue: Date;
   dureeEstimeeMinutes: number;
   statut: OperationStatus;
-  clientId?: { nom?: string } | null;
+  clientId?: { _id?: unknown; nom?: string } | null;
   siteId?: { nom?: string; adresse?: string } | null;
   equipeId?: { nom?: string } | null;
   vehiculeId?: { identification?: string } | null;
@@ -56,6 +56,10 @@ export async function GET(_req: NextRequest, { params }: Params) {
     .lean()) as unknown as PopulatedOperation | null;
 
   if (!operation) {
+    return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
+  }
+
+  if (!isWithinClientScope(auth, operation.clientId)) {
     return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
   }
 

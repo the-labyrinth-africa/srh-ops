@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import { requireAuth } from "@/lib/api-auth";
+import { requireInternalAuth } from "@/lib/api-auth";
 import { Equipement } from "@/models/Equipement";
 import { equipementSchema } from "@/lib/validators/equipement";
 import { guardObjectId } from "@/lib/mongo-id";
@@ -8,7 +8,7 @@ import { guardObjectId } from "@/lib/mongo-id";
 type Params = { params: Promise<{ id: string }> };
 
 export async function GET(_req: NextRequest, { params }: Params) {
-  const auth = await requireAuth();
+  const auth = await requireInternalAuth();
   if (auth.error) return auth.error;
   const { id } = await params;
   const guard = guardObjectId(id);
@@ -20,7 +20,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
 }
 
 export async function PUT(req: NextRequest, { params }: Params) {
-  const auth = await requireAuth(true);
+  const auth = await requireInternalAuth(true);
   if (auth.error) return auth.error;
   const { id } = await params;
   const guard = guardObjectId(id);
@@ -37,7 +37,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
 }
 
 export async function DELETE(_req: NextRequest, { params }: Params) {
-  const auth = await requireAuth(true);
+  const auth = await requireInternalAuth(true);
   if (auth.error) return auth.error;
   const { id } = await params;
   const guard = guardObjectId(id);
