@@ -1,0 +1,20 @@
+import { getServerSession } from "next-auth";
+import type { Session } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth";
+import { canAccessPath, homePathFor } from "@/lib/page-access";
+
+/**
+ * À appeler en tête de chaque page serveur du tableau de bord, avant toute
+ * lecture de données. `redirect` interrompt le rendu : le code qui suit ne
+ * s'exécute jamais pour un rôle refusé.
+ */
+export async function requirePageAccess(pathname: string): Promise<Session> {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) redirect("/login");
+
+  const role = session.user.role;
+  if (!canAccessPath(role, pathname)) redirect(homePathFor(role));
+
+  return session;
+}

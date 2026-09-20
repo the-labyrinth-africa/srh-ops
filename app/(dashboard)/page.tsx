@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { connectDB } from "@/lib/db";
+import { requirePageAccess } from "@/lib/page-auth";
 import { computeEffectiveStatus } from "@/lib/status-transitions";
 import { Client } from "@/models/Client";
 import { Site } from "@/models/Site";
@@ -49,6 +50,7 @@ const KPI_CARDS = [
 ];
 
 export default async function DashboardPage() {
+  await requirePageAccess("/");
   const { stats, todayOps, totalClients, totalSites } = await getDashboardData();
 
   return (

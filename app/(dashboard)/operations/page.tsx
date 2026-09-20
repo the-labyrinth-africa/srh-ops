@@ -1,5 +1,7 @@
 import { OperationsListClient } from "@/components/operations/OperationsListClient";
+import { requirePageAccess } from "@/lib/page-auth";
 
-export default function OperationsPage() {
+export default async function OperationsPage() {
+  await requirePageAccess("/operations");
   return <OperationsListClient />;
 }

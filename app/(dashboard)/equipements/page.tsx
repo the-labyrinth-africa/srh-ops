@@ -1,6 +1,8 @@
 import { ReferentialPage } from "@/components/referentials/ReferentialPage";
+import { requirePageAccess } from "@/lib/page-auth";
 
-export default function EquipementsPage() {
+export default async function EquipementsPage() {
+  await requirePageAccess("/equipements");
   return (
     <ReferentialPage
       title="Équipements & Cuves"
