@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { USER_ROLES } from "@/types";
 import { roleLabel } from "@/lib/permissions";
+import { TemporaryPasswordPanel } from "./TemporaryPasswordPanel";
 
 interface Option {
   _id: string;
@@ -36,6 +37,8 @@ export function UserFormModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [generatedPasswordMessage, setGeneratedPasswordMessage] = useState("");
+  // Mot de passe temporaire : uniquement en mémoire (état React), jamais persisté.
+  const [generatedPassword, setGeneratedPassword] = useState("");
 
   const [form, setForm] = useState({
     username: "",
@@ -93,6 +96,7 @@ export function UserFormModal({
     }
     setError("");
     setGeneratedPasswordMessage("");
+    setGeneratedPassword("");
   }, [initialData, isOpen]);
 
   if (!isOpen) return null;
@@ -102,6 +106,7 @@ export function UserFormModal({
     setLoading(true);
     setError("");
     setGeneratedPasswordMessage("");
+    setGeneratedPassword("");
 
     const isEdit = Boolean(initialData?._id);
     const url = isEdit ? `/api/users/${initialData!._id}` : "/api/users";
@@ -123,6 +128,7 @@ export function UserFormModal({
 
     if (!isEdit && data.message) {
       setGeneratedPasswordMessage(data.message);
+      setGeneratedPassword(typeof data.generatedPassword === "string" ? data.generatedPassword : "");
       onSuccess();
     } else {
       onSuccess();
@@ -153,6 +159,7 @@ export function UserFormModal({
             <div className="rounded-xl bg-status-completed/10 p-4 font-body-md text-body-md text-status-completed">
               {generatedPasswordMessage}
             </div>
+            {generatedPassword && <TemporaryPasswordPanel password={generatedPassword} />}
             <button
               onClick={onClose}
               className="w-full h-11 rounded-xl bg-primary font-label-md text-label-md text-on-primary"
