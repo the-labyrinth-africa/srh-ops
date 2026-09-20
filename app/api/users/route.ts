@@ -4,7 +4,7 @@ import { connectDB } from "@/lib/db";
 import { requireAuth } from "@/lib/api-auth";
 import { User } from "@/models/User";
 import { userCreateSchema } from "@/lib/validators/user";
-import { generateRandomPassword, sendEmail } from "@/lib/email";
+import { generateRandomPassword } from "@/lib/email";
 
 export async function GET(req: NextRequest) {
   const auth = await requireAuth();
@@ -76,15 +76,8 @@ export async function POST(req: NextRequest) {
     mustChangePassword: true,
   });
 
-  // Aucun transport e-mail n'est configuré (sendEmail ne fait que journaliser destinataire et objet) :
-  // le mot de passe temporaire est communiqué par l'administrateur via `generatedPassword`.
-  const emailBody = `Bonjour ${nom},\n\nVotre compte sur la plateforme SRH Ops a été créé.\n\nIdentifiants de connexion:\n- Username: ${username}\n- Email: ${email}\n- Mot de passe temporaire: ${generatedPassword}\n- Rôle attribué: ${role}\n\nVeuillez vous connecter et modifier votre mot de passe dès votre première session.\n\nCordialement,\nL'équipe SRH Ops`;
-
-  await sendEmail({
-    to: email,
-    subject: "Bienvenue sur SRH Ops — Vos identifiants de connexion",
-    body: emailBody,
-  });
+  // Aucun envoi d'e-mail : le mot de passe temporaire est communiqué par l'administrateur
+  // via `generatedPassword` dans la réponse.
 
   const createdUser = await User.findById(user._id)
     .select("-motDePasseHash")
