@@ -7,6 +7,7 @@ import { runAfterResponse } from "@/lib/run-after";
 import { consumeResetToken } from "@/lib/auth/reset-token";
 import { sendPasswordChangedMail } from "@/lib/auth/account-mail";
 import { User } from "@/models/User";
+import { PasswordResetToken } from "@/models/PasswordResetToken";
 
 const NO_STORE = { "Cache-Control": "no-store" };
 const INVALID_LINK = "Lien invalide ou expiré. Demandez un nouveau lien.";
@@ -56,6 +57,7 @@ export async function POST(req: NextRequest) {
   }
 
   let user: { nom: string; email: string } | null = null;
+  let purpose: string | null = null;
   try {
     const consumed = await consumeResetToken(parsed.data.token);
     if (!consumed || !REDEEMABLE_PURPOSES.has(consumed.purpose)) {
@@ -69,7 +71,14 @@ export async function POST(req: NextRequest) {
       { $set: { motDePasseHash: hash, mustChangePassword: false, passwordChangedAt: new Date() } },
       { new: true }
     ).select("nom email");
-    if (updated) user = { nom: updated.nom, email: updated.email };
+    if (updated) {
+      user = { nom: updated.nom, email: updated.email };
+      purpose = consumed.purpose;
+      // Choisir un mot de passe révoque tous les autres liens en attente (un compte peut avoir à la
+      // fois une invitation et une réinitialisation) : une invitation mal acheminée ne doit pas
+      // rester utilisable ensuite. Le jeton consommé reste en base, avec usedAt renseigné.
+      await PasswordResetToken.deleteMany({ userId: consumed.userId, usedAt: null });
+    }
   } catch (error) {
     // Jamais de 500 par défaut : Next journaliserait l'erreur complète (URI Mongo possible).
     console.error("[reset-password] indisponible :", error instanceof Error ? error.name : "erreur");
@@ -80,10 +89,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: INVALID_LINK, code: INVALID_LINK_CODE }, { status: 400, headers: NO_STORE });
   }
 
-  const recipient = { nom: user.nom, email: user.email };
-  await runAfterResponse(async () => {
-    await sendPasswordChangedMail(recipient);
-  });
+  // L'e-mail « mot de passe modifié » n'a de sens que pour un compte existant : pas après l'activation
+  // d'une invitation, où le titulaire choisit son tout premier mot de passe.
+  if (purpose === "reset") {
+    const recipient = { nom: user.nom, email: user.email };
+    await runAfterResponse(async () => {
+      await sendPasswordChangedMail(recipient);
+    });
+  }
 
   return NextResponse.json({ message: "Mot de passe modifié. Vous pouvez vous connecter." }, { headers: NO_STORE });
 }

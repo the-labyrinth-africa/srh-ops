@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { connectDB } from "@/lib/db";
 import { requireAuth } from "@/lib/api-auth";
 import { User } from "@/models/User";
+import { PasswordResetToken } from "@/models/PasswordResetToken";
 import { changePasswordSchema } from "@/lib/validators/user";
 
 export async function POST(req: NextRequest) {
@@ -43,6 +44,10 @@ export async function POST(req: NextRequest) {
     { _id: user._id },
     { $set: { motDePasseHash: newHash, mustChangePassword: false } }
   );
+
+  // Un mot de passe choisi révoque les liens en attente (invitation de repli comprise) : un jeton
+  // de 72 h orphelin ne doit pas survivre au changement fait par l'utilisateur lui-même.
+  await PasswordResetToken.deleteMany({ userId: user._id, usedAt: null });
 
   return NextResponse.json({ message: "Mot de passe modifié avec succès" });
 }

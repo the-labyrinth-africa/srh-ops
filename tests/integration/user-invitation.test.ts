@@ -90,6 +90,8 @@ describe("POST /api/users : invitation par e-mail", () => {
     const user = await User.findOne({ email: "awa@srh.ci" });
     expect(await bcrypt.compare("MonMdp123", user!.motDePasseHash)).toBe(true);
     expect(user?.mustChangePassword).toBe(false);
+    // Pas d'e-mail « mot de passe modifié » pour un tout premier mot de passe : seule l'invitation est partie.
+    expect(getMemoryTransport().sent).toHaveLength(1);
   });
 
   it("échec d'envoi : repli sur le mot de passe temporaire affiché à l'administrateur", async () => {

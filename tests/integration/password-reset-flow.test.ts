@@ -60,6 +60,21 @@ describe("POST /api/auth/forgot-password", () => {
     expect(await PasswordResetToken.countDocuments({ userId: user._id })).toBe(1);
   });
 
+  it("NEXTAUTH_URL absent : le jeton précédent reste utilisable, rien n'est envoyé, réponse toujours générique", async () => {
+    const user = await seedUser();
+    const previous = await resetToken.issueResetToken(String(user._id), "reset");
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    delete process.env.NEXTAUTH_URL;
+
+    const res = await forgot(post("/api/auth/forgot-password", { identifier: "awa@srh.ci" }));
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ message: GENERIC_MESSAGE });
+    expect(getMemoryTransport().sent).toHaveLength(0);
+    expect(await PasswordResetToken.countDocuments({ userId: user._id, usedAt: null })).toBe(1);
+    expect(await resetToken.consumeResetToken(previous.token)).toEqual({ userId: String(user._id), purpose: "reset" });
+  });
+
   it("l'identifiant peut être le nom d'utilisateur", async () => {
     await seedUser();
     await forgot(post("/api/auth/forgot-password", { identifier: "AWA" }));
@@ -184,6 +199,46 @@ describe("POST /api/auth/reset-password", () => {
     expect(notice).toHaveLength(1);
     expect(notice[0].subject).toContain("modifié");
     expect(notice[0].text).not.toContain(NEW);
+  });
+
+  it("choisir un mot de passe révoque les autres liens en attente (invitation comprise), le jeton consommé reste tracé", async () => {
+    const user = await seedUser({ mustChangePassword: true });
+    const userId = String(user._id);
+    const invitation = await resetToken.issueResetToken(userId, "invitation");
+    const resetLink = await resetToken.issueResetToken(userId, "reset");
+    expect(await PasswordResetToken.countDocuments({ userId, usedAt: null })).toBe(2);
+
+    const res = await reset(post("/api/auth/reset-password", { token: resetLink.token, newPassword: NEW }));
+    expect(res.status).toBe(200);
+
+    expect(await PasswordResetToken.countDocuments({ userId, usedAt: null })).toBe(0);
+    expect(await resetToken.consumeResetToken(invitation.token)).toBeNull();
+    // Le jeton utilisé reste en base avec usedAt renseigné (traçabilité).
+    const used = await PasswordResetToken.find({ userId }).lean<{ tokenHash: string; usedAt: Date | null }[]>();
+    expect(used).toHaveLength(1);
+    expect(used[0].tokenHash).toBe(resetToken.hashToken(resetLink.token));
+    expect(used[0].usedAt).toBeInstanceOf(Date);
+    // Le mot de passe choisi par lien ne peut plus être écrasé par l'invitation.
+    const retry = await reset(post("/api/auth/reset-password", { token: invitation.token, newPassword: "Pirate3Mdp" }));
+    expect(retry.status).toBe(400);
+    expect(await bcrypt.compare(NEW, (await User.findById(user._id))!.motDePasseHash)).toBe(true);
+  });
+
+  it("l'activation d'une invitation n'envoie pas d'e-mail « mot de passe modifié » ; la réinitialisation, si", async () => {
+    const user = await seedUser({ mustChangePassword: true });
+    const invitation = await resetToken.issueResetToken(String(user._id), "invitation");
+    getMemoryTransport().reset();
+
+    const activation = await reset(post("/api/auth/reset-password", { token: invitation.token, newPassword: NEW }));
+    expect(activation.status).toBe(200);
+    expect(getMemoryTransport().sent).toHaveLength(0);
+    expect(await bcrypt.compare(NEW, (await User.findById(user._id))!.motDePasseHash)).toBe(true);
+
+    const resetLink = await resetToken.issueResetToken(String(user._id), "reset");
+    const changed = await reset(post("/api/auth/reset-password", { token: resetLink.token, newPassword: "Autre3Mdp" }));
+    expect(changed.status).toBe(200);
+    expect(getMemoryTransport().sent).toHaveLength(1);
+    expect(getMemoryTransport().sent[0].subject).toContain("modifié");
   });
 
   it("le jeton ne sert qu'une fois : le second essai est refusé et le mot de passe reste celui du premier", async () => {
