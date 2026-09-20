@@ -99,8 +99,10 @@ Défauts identifiés et non encore corrigés :
 - **Rapport** : l'envoi du rapport d'intervention par e-mail au client n'existe pas
   encore ; le PDF est régénéré à la demande et n'est plus stocké dans l'opération.
 - **Mot de passe oublié** : la réinitialisation en libre-service est désactivée
-  (503) en attendant un vrai flux à jeton ; un administrateur régénère le mot de
-  passe depuis « Utilisateurs & Rôles ».
+  (503) en attendant un vrai flux à jeton. Contactez un administrateur SRH : il peut
+  régénérer votre mot de passe depuis « Utilisateurs & Rôles » (bouton « Régénérer
+  le mot de passe »), et le nouveau mot de passe temporaire lui est affiché une seule
+  fois pour vous le communiquer.
 
 La PWA reste désactivée pour les utilisateurs terrain tant que ces points ne sont
 pas traités (Lot « Phase 2 — finition » du plan d'alignement).

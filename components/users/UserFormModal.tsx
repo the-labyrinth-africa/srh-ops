@@ -266,7 +266,7 @@ export function UserFormModal({
 
             {!initialData?._id && (
               <p className="text-xs text-on-surface-variant italic">
-                ℹ️ Un mot de passe temporaire sera généré automatiquement et envoyé par e-mail à l&apos;utilisateur.
+                ℹ️ Un mot de passe temporaire sera généré automatiquement et affiché une seule fois après l&apos;enregistrement : vous devrez le communiquer à l&apos;utilisateur.
               </p>
             )}
 

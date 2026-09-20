@@ -94,14 +94,14 @@ const phases: Phase[] = [
     statut: "Socle en place",
     pct: 10,
     livree: [
-      "Service d'e-mail (lib/email) branché sur invitations et réinitialisation de mot de passe",
-      "Mot de passe oublié / changement de mot de passe opérationnels",
+      "Service d'e-mail (lib/email) : journalisation seule, aucun transport configuré",
+      "Changement de mot de passe opérationnel ; régénération par un administrateur depuis « Utilisateurs & Rôles » (réinitialisation en libre-service désactivée)",
     ],
     restante: [
       "Alertes automatiques (retards, conflits, opérations du jour)",
       "Graphiques et exports du tableau de bord",
     ],
-    note: "Le canal e-mail existe déjà ; les notifications métier restent à bâtir.",
+    note: "Aucun transport e-mail n'est encore configuré ; les notifications métier restent à bâtir.",
   },
   {
     num: 6,

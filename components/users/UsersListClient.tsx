@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { UserFormModal } from "./UserFormModal";
+import { TemporaryPasswordPanel } from "./TemporaryPasswordPanel";
 import { roleLabel } from "@/lib/permissions";
 
 interface UserItem {
@@ -24,6 +25,9 @@ export function UsersListClient() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserItem | null>(null);
+
+  // Mot de passe régénéré : uniquement en mémoire (état React), jamais persisté.
+  const [resetResult, setResetResult] = useState<{ nom: string; password: string } | null>(null);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -55,6 +59,27 @@ export function UsersListClient() {
       }
     } catch (err) {
       console.error(err);
+    }
+  }
+
+  async function handleResetPassword(user: UserItem) {
+    if (
+      !confirm(
+        `Régénérer le mot de passe de ${user.nom} ? L'ancien mot de passe ne fonctionnera plus et l'utilisateur devra en choisir un nouveau à sa prochaine connexion.`
+      )
+    ) {
+      return;
+    }
+    try {
+      const res = await fetch(`/api/users/${user._id}/reset-password`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok && typeof data.generatedPassword === "string") {
+        setResetResult({ nom: user.nom, password: data.generatedPassword });
+      } else {
+        alert(data.error || "Erreur lors de la régénération du mot de passe");
+      }
+    } catch {
+      alert("Erreur lors de la régénération du mot de passe");
     }
   }
 
@@ -179,6 +204,14 @@ export function UsersListClient() {
                           <span className="material-symbols-outlined text-[18px]">edit</span>
                         </button>
                         <button
+                          onClick={() => handleResetPassword(u)}
+                          className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container-high hover:text-primary"
+                          title="Régénérer le mot de passe"
+                          aria-label="Régénérer le mot de passe"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">key</span>
+                        </button>
+                        <button
                           onClick={() => handleDelete(u._id)}
                           className="rounded-lg p-1.5 text-error hover:bg-error-container/20"
                           title="Supprimer"
@@ -201,6 +234,33 @@ export function UsersListClient() {
         onSuccess={fetchUsers}
         initialData={editingUser}
       />
+
+      {resetResult && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-inverse-surface/40 backdrop-blur-sm p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reset-password-title"
+            className="w-full max-w-lg rounded-2xl bg-surface-container-lowest p-6 shadow-xl"
+          >
+            <h2
+              id="reset-password-title"
+              className="mb-4 border-b pb-4 font-headline-sm text-headline-sm text-on-surface"
+            >
+              Nouveau mot de passe de {resetResult.nom}
+            </h2>
+            <div className="space-y-4">
+              <TemporaryPasswordPanel password={resetResult.password} />
+              <button
+                onClick={() => setResetResult(null)}
+                className="w-full h-11 rounded-xl bg-primary font-label-md text-label-md text-on-primary"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

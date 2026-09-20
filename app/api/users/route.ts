@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
     {
       user: createdUser,
       generatedPassword,
-      message: `Utilisateur créé. Un mot de passe temporaire a été généré et envoyé à ${email}.`,
+      message: "Utilisateur créé. Un mot de passe temporaire a été généré.",
     },
     { status: 201 }
   );

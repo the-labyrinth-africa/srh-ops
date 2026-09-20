@@ -36,9 +36,9 @@ export default function ForgotPasswordPage() {
           </div>
 
           <p className="text-center font-body-md text-body-md text-on-surface-variant">
-            Un administrateur peut régénérer votre mot de passe temporaire depuis
-            l&apos;écran « Utilisateurs &amp; Rôles ». Vous serez invité à le changer à
-            votre prochaine connexion.
+            Contactez un administrateur SRH : il peut régénérer votre mot de passe depuis
+            « Utilisateurs &amp; Rôles » (bouton « Régénérer le mot de passe »). Vous
+            serez invité à le changer à votre prochaine connexion.
           </p>
 
           <Link
