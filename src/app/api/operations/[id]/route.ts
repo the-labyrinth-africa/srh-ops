@@ -6,7 +6,7 @@ import { Operation } from "@/models/Operation";
 import { Client } from "@/models/Client";
 import { Site } from "@/models/Site";
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
-import { Vehicule } from "@/models/Vehicule";
+import { Vehicule } from "@/backend/vehicules/infrastructure/mongoose/vehicule.model";
 import { Equipement } from "@/models/Equipement";
 import { User } from "@/models/User";
 import { operationSchema } from "@/lib/validators/operation";

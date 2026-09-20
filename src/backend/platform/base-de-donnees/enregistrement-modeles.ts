@@ -5,7 +5,7 @@
 import "@/models/Client";
 import "@/models/Site";
 import "@/backend/equipes/infrastructure/mongoose/equipe.model";
-import "@/models/Vehicule";
+import "@/backend/vehicules/infrastructure/mongoose/vehicule.model";
 import "@/models/Equipement";
 import "@/models/User";
 import "@/models/Operation";

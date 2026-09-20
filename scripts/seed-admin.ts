@@ -5,7 +5,7 @@ import { User } from "../src/models/User";
 import { Client } from "../src/models/Client";
 import { Site } from "../src/models/Site";
 import { Equipe } from "../src/backend/equipes/infrastructure/mongoose/equipe.model";
-import { Vehicule } from "../src/models/Vehicule";
+import { Vehicule } from "../src/backend/vehicules/infrastructure/mongoose/vehicule.model";
 import { Equipement } from "../src/models/Equipement";
 import { Operation } from "../src/models/Operation";
 

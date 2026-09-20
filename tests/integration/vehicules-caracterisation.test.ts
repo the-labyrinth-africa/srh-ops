@@ -7,7 +7,7 @@ vi.mock("next-auth", () => ({ getServerSession: vi.fn() }));
 
 import { GET as listerVehicules, POST as creerVehicule } from "@/app/api/vehicules/route";
 import { GET as lireVehicule, PUT as modifierVehicule, DELETE as supprimerVehicule } from "@/app/api/vehicules/[id]/route";
-import { Vehicule } from "@/models/Vehicule";
+import { Vehicule } from "@/backend/vehicules/infrastructure/mongoose/vehicule.model";
 import { Client } from "@/models/Client";
 import { Site } from "@/models/Site";
 import { Operation } from "@/models/Operation";
@@ -386,7 +386,7 @@ describe("vehicules — caractérisation de l'API", () => {
       expect(res.status).toBe(200);
       expect(await res.json()).toEqual({ success: true });
       expect((await lireVehicule(vide("GET", cree._id), ctx(cree._id))).status).toBe(404);
-      const relue = await Operation.findById(operation._id).lean();
+      const relue = (await Operation.findById(operation._id).lean()) as { vehiculeId?: unknown } | null;
       expect(String(relue?.vehiculeId)).toBe(cree._id);
     });
 

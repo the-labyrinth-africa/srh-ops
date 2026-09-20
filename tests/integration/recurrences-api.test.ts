@@ -15,7 +15,7 @@ import { GET as getOperations } from "@/app/api/operations/route";
 import { Client } from "@/models/Client";
 import { Site } from "@/models/Site";
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
-import { Vehicule } from "@/models/Vehicule";
+import { Vehicule } from "@/backend/vehicules/infrastructure/mongoose/vehicule.model";
 import { Operation } from "@/models/Operation";
 import { Recurrence } from "@/models/Recurrence";
 

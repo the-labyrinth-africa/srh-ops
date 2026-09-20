@@ -11,7 +11,7 @@ import { GET as getOperationById, PUT as updateOperation, DELETE as deleteOperat
 import { Client } from "@/models/Client";
 import { Site } from "@/models/Site";
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
-import { Vehicule } from "@/models/Vehicule";
+import { Vehicule } from "@/backend/vehicules/infrastructure/mongoose/vehicule.model";
 
 describe("Operations API Integration Tests", () => {
   let clientId: string;
