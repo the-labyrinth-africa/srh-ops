@@ -21,7 +21,7 @@ import { GET as getEquipements } from "@/app/api/equipements/route";
 import { GET as getStats } from "@/app/api/dashboard/stats/route";
 import { Client } from "@/models/Client";
 import { Site } from "@/models/Site";
-import { Equipe } from "@/models/Equipe";
+import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { Operation } from "@/models/Operation";
 
 function mockSession(user: Record<string, unknown>) {

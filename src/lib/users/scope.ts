@@ -1,5 +1,5 @@
 import { Client } from "@/models/Client";
-import { Equipe } from "@/models/Equipe";
+import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 
 /** Retourne un message d'erreur si le client ou l'équipe référencés n'existent pas. */
 export async function findScopeError(input: {

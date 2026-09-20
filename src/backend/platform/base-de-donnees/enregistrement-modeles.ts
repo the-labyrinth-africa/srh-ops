@@ -4,7 +4,7 @@
 // ici son ancienne ligne par l'import de son propre `infrastructure/mongoose/*.model`.
 import "@/models/Client";
 import "@/models/Site";
-import "@/models/Equipe";
+import "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import "@/models/Vehicule";
 import "@/models/Equipement";
 import "@/models/User";

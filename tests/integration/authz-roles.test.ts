@@ -24,7 +24,7 @@ import { GET as getStats } from "@/app/api/dashboard/stats/route";
 import { POST as importExcel } from "@/app/api/import/route";
 import { Client } from "@/models/Client";
 import { Site } from "@/models/Site";
-import { Equipe } from "@/models/Equipe";
+import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { Operation } from "@/models/Operation";
 
 const PNG =

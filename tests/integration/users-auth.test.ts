@@ -11,7 +11,7 @@ import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { getMemoryTransport } from "@/lib/mail";
 import mongoose from "mongoose";
 import { User } from "@/models/User";
-import { Equipe } from "@/models/Equipe";
+import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { GET as getUsers, POST as createUser } from "@/app/api/users/route";
 import { POST as changePassword } from "@/app/api/auth/change-password/route";
 import { POST as forgotPassword } from "@/app/api/auth/forgot-password/route";

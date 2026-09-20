@@ -5,7 +5,7 @@ import { checkAssignmentConflicts } from "@/lib/conflicts";
 import { Operation } from "@/models/Operation";
 import { Client } from "@/models/Client";
 import { Site } from "@/models/Site";
-import { Equipe } from "@/models/Equipe";
+import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { Vehicule } from "@/models/Vehicule";
 import { Equipement } from "@/models/Equipement";
 import { User } from "@/models/User";

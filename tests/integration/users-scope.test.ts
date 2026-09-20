@@ -7,7 +7,7 @@ vi.mock("next-auth", () => ({ getServerSession: vi.fn() }));
 import { POST as createUser } from "@/app/api/users/route";
 import { PUT as updateUser } from "@/app/api/users/[id]/route";
 import { Client } from "@/models/Client";
-import { Equipe } from "@/models/Equipe";
+import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { User } from "@/models/User";
 
 function asAdmin() {

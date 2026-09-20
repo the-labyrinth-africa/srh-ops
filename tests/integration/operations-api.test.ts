@@ -10,7 +10,7 @@ import { GET as getOperations, POST as createOperation } from "@/app/api/operati
 import { GET as getOperationById, PUT as updateOperation, DELETE as deleteOperation } from "@/app/api/operations/[id]/route";
 import { Client } from "@/models/Client";
 import { Site } from "@/models/Site";
-import { Equipe } from "@/models/Equipe";
+import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { Vehicule } from "@/models/Vehicule";
 
 describe("Operations API Integration Tests", () => {

@@ -14,7 +14,7 @@ import { POST as createSite } from "@/app/api/sites/route";
 import { GET as getOperations } from "@/app/api/operations/route";
 import { Client } from "@/models/Client";
 import { Site } from "@/models/Site";
-import { Equipe } from "@/models/Equipe";
+import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { Vehicule } from "@/models/Vehicule";
 import { Operation } from "@/models/Operation";
 import { Recurrence } from "@/models/Recurrence";

@@ -7,7 +7,7 @@ vi.mock("next-auth", () => ({ getServerSession: vi.fn() }));
 import { DELETE as deleteClient } from "@/app/api/clients/[id]/route";
 import { DELETE as deleteEquipe } from "@/app/api/equipes/[id]/route";
 import { Client } from "@/models/Client";
-import { Equipe } from "@/models/Equipe";
+import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { User } from "@/models/User";
 
 function asAdmin() {
