@@ -6,7 +6,7 @@ import { parseExcelFile } from "@/lib/excel-import";
 import { Client } from "@/models/Client";
 import { Site } from "@/models/Site";
 import { Operation } from "@/models/Operation";
-import type { OperationStatus } from "@/types";
+import type { OperationStatus } from "@/shared/operations/statuts";
 
 const DEFAULT_NATURE = "Collecte d'huiles usagées";
 

@@ -1,5 +1,5 @@
-import type { UserRole } from "@/types";
-import { USER_ROLES } from "@/types";
+import type { UserRole } from "@/shared/acces/roles";
+import { USER_ROLES } from "@/shared/acces/roles";
 
 export function canWrite(role?: UserRole | string | null): boolean {
   return role === "admin" || role === "dispatcher";

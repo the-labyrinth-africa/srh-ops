@@ -1,4 +1,4 @@
-import type { OperationStatus } from "@/types";
+import type { OperationStatus } from "@/shared/operations/statuts";
 
 export const STATUS_CONFIG: Record<
   OperationStatus,

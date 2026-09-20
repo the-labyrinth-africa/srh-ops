@@ -8,7 +8,8 @@ import { SignaturePad } from "@/components/ui/SignaturePad";
 import { getNextStatuses } from "@/lib/status-transitions";
 import { compressImageFile } from "@/lib/image-compress";
 import { formatApiError } from "@/lib/api-error";
-import type { OperationStatus, QuantiteUnite } from "@/types";
+import type { OperationStatus } from "@/shared/operations/statuts";
+import type { QuantiteUnite } from "@/shared/operations/quantites";
 
 interface OperationTerrain {
   _id: string;

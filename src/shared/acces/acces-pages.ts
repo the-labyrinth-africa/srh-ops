@@ -1,4 +1,4 @@
-import type { UserRole } from "@/types";
+import type { UserRole } from "@/shared/acces/roles";
 
 /**
  * Matrice d'accès aux pages du tableau de bord : source unique pour la

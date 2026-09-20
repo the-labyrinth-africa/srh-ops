@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { roleLabel } from "@/lib/permissions";
+import { roleLabel } from "@/shared/acces/permissions";
 import { navForRole, type NavItem } from "@/lib/nav";
 
 const LOGO_URL =

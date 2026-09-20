@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { canWrite } from "@/lib/permissions";
-import type { OperationStatus } from "@/types";
+import { canWrite } from "@/shared/acces/permissions";
+import type { OperationStatus } from "@/shared/operations/statuts";
 
 interface OperationItem {
   _id: string;

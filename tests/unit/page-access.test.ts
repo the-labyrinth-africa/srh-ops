@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { canAccessPath, homePathFor } from "@/lib/page-access";
-import { USER_ROLES } from "@/types";
+import { canAccessPath, homePathFor } from "@/shared/acces/acces-pages";
+import { USER_ROLES } from "@/shared/acces/roles";
 
 const ID = "507f1f77bcf86cd799439011";
 const STAFF = ["admin", "dispatcher", "lecture"];

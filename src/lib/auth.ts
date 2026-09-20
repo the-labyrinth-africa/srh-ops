@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { needsRefresh, refreshTokenFromDb } from "@/lib/auth-refresh";
-import type { UserRole } from "@/types";
+import type { UserRole } from "@/shared/acces/roles";
 
 declare module "next-auth" {
   interface Session {

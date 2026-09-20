@@ -7,7 +7,8 @@ import { Site } from "@/models/Site";
 import { Equipe } from "@/models/Equipe";
 import { Vehicule } from "@/models/Vehicule";
 import { Equipement } from "@/models/Equipement";
-import type { OperationStatus, QuantiteUnite } from "@/types";
+import type { OperationStatus } from "@/shared/operations/statuts";
+import type { QuantiteUnite } from "@/shared/operations/quantites";
 import { guardObjectId } from "@/lib/mongo-id";
 
 type Params = { params: Promise<{ id: string }> };

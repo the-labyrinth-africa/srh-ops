@@ -1,4 +1,4 @@
-import { canAccessPath } from "@/lib/page-access";
+import { canAccessPath } from "@/shared/acces/acces-pages";
 
 export interface NavItem {
   href: string;

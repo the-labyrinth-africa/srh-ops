@@ -8,7 +8,7 @@ import { Client } from "@/models/Client";
 import { Site } from "@/models/Site";
 import { Operation } from "@/models/Operation";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import type { OperationStatus } from "@/types";
+import type { OperationStatus } from "@/shared/operations/statuts";
 
 async function getDashboardData() {
   await connectDB();

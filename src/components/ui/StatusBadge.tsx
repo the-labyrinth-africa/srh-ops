@@ -1,6 +1,6 @@
 import { STATUS_CONFIG } from "@/lib/status-styles";
 import { cn } from "@/lib/utils";
-import type { OperationStatus } from "@/types";
+import type { OperationStatus } from "@/shared/operations/statuts";
 
 export function StatusBadge({
   status,

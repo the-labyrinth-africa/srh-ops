@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
-import { canWrite } from "@/lib/permissions";
+import { canWrite } from "@/shared/acces/permissions";
 
 interface ApercuRow {
   site: string;

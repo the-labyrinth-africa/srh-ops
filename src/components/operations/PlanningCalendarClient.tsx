@@ -8,7 +8,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import frLocale from "@fullcalendar/core/locales/fr";
 import { useCallback, useEffect, useState } from "react";
-import type { OperationStatus } from "@/types";
+import type { OperationStatus } from "@/shared/operations/statuts";
 
 interface CalendarEvent {
   id: string;

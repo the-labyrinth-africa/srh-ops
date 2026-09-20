@@ -4,8 +4,8 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { formatApiError } from "@/lib/api-error";
-import { homePathFor } from "@/lib/page-access";
-import { roleLabel } from "@/lib/permissions";
+import { homePathFor } from "@/shared/acces/acces-pages";
+import { roleLabel } from "@/shared/acces/permissions";
 
 export function ProfilPageClient() {
   // useSearchParams impose une frontière Suspense pour le rendu statique.

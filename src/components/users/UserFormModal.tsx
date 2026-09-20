@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { USER_ROLES } from "@/types";
-import { roleLabel } from "@/lib/permissions";
+import { USER_ROLES } from "@/shared/acces/roles";
+import { roleLabel } from "@/shared/acces/permissions";
 import { formatApiError } from "@/lib/api-error";
 import { TemporaryPasswordPanel } from "./TemporaryPasswordPanel";
 

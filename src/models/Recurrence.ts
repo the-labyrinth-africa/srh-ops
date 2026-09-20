@@ -1,5 +1,5 @@
 import mongoose, { Schema, models, model } from "mongoose";
-import type { RecurrenceFrequency } from "@/types";
+import type { RecurrenceFrequency } from "@/shared/recurrences/frequence";
 
 export interface IRecurrence {
   _id: mongoose.Types.ObjectId;

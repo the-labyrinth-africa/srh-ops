@@ -8,10 +8,11 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { SignaturePad } from "@/components/ui/SignaturePad";
 import { PhotoUpload } from "@/components/ui/PhotoUpload";
 import { getNextStatuses } from "@/lib/status-transitions";
-import { canWrite } from "@/lib/permissions";
-import { homePathFor } from "@/lib/page-access";
+import { canWrite } from "@/shared/acces/permissions";
+import { homePathFor } from "@/shared/acces/acces-pages";
 import { formatApiError } from "@/lib/api-error";
-import type { OperationStatus, QuantiteUnite } from "@/types";
+import type { OperationStatus } from "@/shared/operations/statuts";
+import type { QuantiteUnite } from "@/shared/operations/quantites";
 
 interface OperationPhoto {
   url: string;

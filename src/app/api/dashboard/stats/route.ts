@@ -5,7 +5,7 @@ import { computeEffectiveStatus } from "@/lib/status-transitions";
 import { Client } from "@/models/Client";
 import { Site } from "@/models/Site";
 import { Operation } from "@/models/Operation";
-import type { OperationStatus } from "@/types";
+import type { OperationStatus } from "@/shared/operations/statuts";
 
 export async function GET() {
   const auth = await requireInternalAuth();

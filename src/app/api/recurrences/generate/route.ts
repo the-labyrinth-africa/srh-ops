@@ -5,7 +5,7 @@ import { requireInternalAuth } from "@/lib/api-auth";
 import { checkAssignmentConflicts } from "@/lib/conflicts";
 import { Recurrence, IRecurrence } from "@/models/Recurrence";
 import { Operation } from "@/models/Operation";
-import type { OperationStatus } from "@/types";
+import type { OperationStatus } from "@/shared/operations/statuts";
 
 /** Borne de sécurité sur le parcours des occurrences d'une récurrence. */
 const MAX_OCCURRENCES_SCAN = 1000;

@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { UserFormModal } from "./UserFormModal";
 import { TemporaryPasswordPanel } from "./TemporaryPasswordPanel";
-import { roleLabel } from "@/lib/permissions";
+import { roleLabel } from "@/shared/acces/permissions";
 import { formatApiError } from "@/lib/api-error";
 
 interface UserItem {

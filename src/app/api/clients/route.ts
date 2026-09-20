@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { requireAuth, requireReferentialRead } from "@/lib/api-auth";
-import { isClientUser } from "@/lib/permissions";
+import { isClientUser } from "@/shared/acces/permissions";
 import { Client } from "@/models/Client";
 import { clientSchema } from "@/lib/validators/client";
 

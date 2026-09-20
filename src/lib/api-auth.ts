@@ -2,8 +2,8 @@ import { getServerSession } from "next-auth";
 import type { Session } from "next-auth";
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
-import { canRead, canWrite, isChauffeur, isClientUser } from "@/lib/permissions";
-import type { UserRole } from "@/types";
+import { canRead, canWrite, isChauffeur, isClientUser } from "@/shared/acces/permissions";
+import type { UserRole } from "@/shared/acces/roles";
 
 export interface AuthFailure {
   error: NextResponse;

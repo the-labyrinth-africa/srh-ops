@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { canWrite, canRead, isAdmin, roleLabel } from "@/lib/permissions";
+import { canWrite, canRead, isAdmin, roleLabel } from "@/shared/acces/permissions";
 
 describe("Permissions Logic (lib/permissions.ts)", () => {
   describe("canWrite", () => {

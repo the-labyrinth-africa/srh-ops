@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 import { EntityModal } from "@/components/forms/EntityModal";
-import { canWrite } from "@/lib/permissions";
+import { canWrite } from "@/shared/acces/permissions";
 
 interface Client {
   _id: string;

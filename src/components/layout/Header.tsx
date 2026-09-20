@@ -1,7 +1,7 @@
 "use client";
 
 import { signOut } from "next-auth/react";
-import { roleLabel } from "@/lib/permissions";
+import { roleLabel } from "@/shared/acces/permissions";
 
 export function Header({
   onMenuClick,

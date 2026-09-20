@@ -6,7 +6,7 @@ import { canTransition } from "@/lib/status-transitions";
 import { Operation } from "@/models/Operation";
 import { statusUpdateSchema } from "@/lib/validators/operation";
 import { guardObjectId } from "@/lib/mongo-id";
-import type { OperationStatus } from "@/types";
+import type { OperationStatus } from "@/shared/operations/statuts";
 
 type Params = { params: Promise<{ id: string }> };
 

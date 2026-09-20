@@ -1,7 +1,7 @@
 import type { JWT } from "next-auth/jwt";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
-import type { UserRole } from "@/types";
+import type { UserRole } from "@/shared/acces/roles";
 
 interface RefreshedUser {
   role: UserRole;

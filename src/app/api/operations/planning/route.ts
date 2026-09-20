@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { requireAuth, chauffeurWithoutTeamError } from "@/lib/api-auth";
-import { isChauffeur, isClientUser } from "@/lib/permissions";
+import { isChauffeur, isClientUser } from "@/shared/acces/permissions";
 import { computeEffectiveStatus } from "@/lib/status-transitions";
 import { STATUS_CONFIG } from "@/lib/status-styles";
 import { Operation } from "@/models/Operation";
-import type { OperationStatus } from "@/types";
+import type { OperationStatus } from "@/shared/operations/statuts";
 
 export async function GET(req: NextRequest) {
   const auth = await requireAuth();

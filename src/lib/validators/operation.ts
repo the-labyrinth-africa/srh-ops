@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { OPERATION_STATUSES, QUANTITE_UNITES } from "@/types";
+import { OPERATION_STATUSES } from "@/shared/operations/statuts";
+import { QUANTITE_UNITES } from "@/shared/operations/quantites";
 import { objectIdSchema, optionalObjectIdSchema } from "@/lib/validators/object-id";
 
 export const operationSchema = z.object({

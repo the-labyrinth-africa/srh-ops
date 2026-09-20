@@ -1,4 +1,4 @@
-import type { OperationStatus } from "@/types";
+import type { OperationStatus } from "@/shared/operations/statuts";
 
 const ALLOWED_TRANSITIONS: Record<OperationStatus, OperationStatus[]> = {
   Planifiée: ["Affectée", "Annulée", "Retardée"],

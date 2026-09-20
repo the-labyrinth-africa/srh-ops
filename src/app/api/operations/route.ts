@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
 import { requireAuth, chauffeurWithoutTeamError } from "@/lib/api-auth";
-import { isChauffeur, isClientUser } from "@/lib/permissions";
+import { isChauffeur, isClientUser } from "@/shared/acces/permissions";
 import { checkAssignmentConflicts } from "@/lib/conflicts";
 import { Operation } from "@/models/Operation";
 import { operationSchema } from "@/lib/validators/operation";
-import type { OperationStatus } from "@/types";
+import type { OperationStatus } from "@/shared/operations/statuts";
 
 export async function GET(req: NextRequest) {
   const auth = await requireAuth();

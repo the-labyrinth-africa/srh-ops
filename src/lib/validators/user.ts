@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { USER_ROLES } from "@/types";
+import { USER_ROLES } from "@/shared/acces/roles";
 import { optionalObjectIdSchema } from "@/lib/validators/object-id";
 
 const emptyToUndefined = (v: string | undefined) => (v ? v : undefined);
