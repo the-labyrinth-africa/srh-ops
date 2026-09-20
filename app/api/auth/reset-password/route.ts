@@ -10,7 +10,8 @@ import { User } from "@/models/User";
 
 const NO_STORE = { "Cache-Control": "no-store" };
 const INVALID_LINK = "Lien invalide ou expiré. Demandez un nouveau lien.";
-const UNAVAILABLE = "Service momentanément indisponible. Réessayez plus tard.";
+const INVALID_LINK_CODE = "INVALID_LINK";
+const UNAVAILABLE = "Service momentanément indisponible. Réessayez plus tard ou demandez un nouveau lien.";
 
 const REDEEMABLE_PURPOSES = new Set(["reset", "invitation"]);
 
@@ -47,7 +48,9 @@ export async function POST(req: NextRequest) {
     // Format invalide (mot de passe trop court…) : le jeton n'est pas consommé.
     const passwordIssue = parsed.error.issues.find((i) => i.path[0] === "newPassword");
     return NextResponse.json(
-      { error: passwordIssue?.message ?? INVALID_LINK },
+      passwordIssue
+        ? { error: passwordIssue.message }
+        : { error: INVALID_LINK, code: INVALID_LINK_CODE },
       { status: 400, headers: NO_STORE }
     );
   }
@@ -56,7 +59,7 @@ export async function POST(req: NextRequest) {
   try {
     const consumed = await consumeResetToken(parsed.data.token);
     if (!consumed || !REDEEMABLE_PURPOSES.has(consumed.purpose)) {
-      return NextResponse.json({ error: INVALID_LINK }, { status: 400, headers: NO_STORE });
+      return NextResponse.json({ error: INVALID_LINK, code: INVALID_LINK_CODE }, { status: 400, headers: NO_STORE });
     }
 
     await connectDB();
@@ -74,7 +77,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (!user) {
-    return NextResponse.json({ error: INVALID_LINK }, { status: 400, headers: NO_STORE });
+    return NextResponse.json({ error: INVALID_LINK, code: INVALID_LINK_CODE }, { status: 400, headers: NO_STORE });
   }
 
   const recipient = { nom: user.nom, email: user.email };

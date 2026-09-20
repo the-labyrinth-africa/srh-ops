@@ -192,7 +192,9 @@ describe("POST /api/auth/reset-password", () => {
 
     const second = await reset(post("/api/auth/reset-password", { token, newPassword: "Autre3Mdp" }));
     expect(second.status).toBe(400);
-    expect((await second.json()).error).toBe("Lien invalide ou expiré. Demandez un nouveau lien.");
+    const secondBody = await second.json();
+    expect(secondBody.error).toBe("Lien invalide ou expiré. Demandez un nouveau lien.");
+    expect(secondBody.code).toBe("INVALID_LINK");
     const after = await User.findById(user._id);
     expect(await bcrypt.compare(NEW, after!.motDePasseHash)).toBe(true);
   });
@@ -204,7 +206,9 @@ describe("POST /api/auth/reset-password", () => {
     for (const bad of [token, "x".repeat(43), "court", ""]) {
       const res = await reset(post("/api/auth/reset-password", { token: bad, newPassword: NEW }));
       expect(res.status).toBe(400);
-      expect((await res.json()).error).toBe("Lien invalide ou expiré. Demandez un nouveau lien.");
+      const body = await res.json();
+      expect(body.error).toBe("Lien invalide ou expiré. Demandez un nouveau lien.");
+      expect(body.code).toBe("INVALID_LINK");
     }
     expect((await User.findById(user._id))?.motDePasseHash).toBe(user.motDePasseHash);
   });
@@ -213,6 +217,7 @@ describe("POST /api/auth/reset-password", () => {
     const { token } = await requestToken();
     const short = await reset(post("/api/auth/reset-password", { token, newPassword: "abc" }));
     expect(short.status).toBe(400);
+    expect((await short.json()).code).toBeUndefined();
     const ok = await reset(post("/api/auth/reset-password", { token, newPassword: NEW }));
     expect(ok.status).toBe(200);
   });
@@ -232,7 +237,7 @@ describe("POST /api/auth/reset-password", () => {
 
     const res = await reset(post("/api/auth/reset-password", { token, newPassword: NEW }));
     expect(res.status).toBe(503);
-    expect(await res.json()).toEqual({ error: "Service momentanément indisponible. Réessayez plus tard." });
+    expect(await res.json()).toEqual({ error: "Service momentanément indisponible. Réessayez plus tard ou demandez un nouveau lien." });
     expect((await User.findById(user._id))?.motDePasseHash).toBe(user.motDePasseHash);
 
     vi.restoreAllMocks();
@@ -292,7 +297,9 @@ describe("bornes de saisie et refus génériques", () => {
     for (const body of [{ newPassword: NEW }, { token: 42, newPassword: NEW }, { token: "x".repeat(600), newPassword: NEW }]) {
       const res = await reset(post("/api/auth/reset-password", body));
       expect(res.status).toBe(400);
-      expect((await res.json()).error).toBe(INVALID_LINK);
+      const payload = await res.json();
+      expect(payload.error).toBe(INVALID_LINK);
+      expect(payload.code).toBe("INVALID_LINK");
     }
   });
 
@@ -315,7 +322,7 @@ describe("bornes de saisie et refus génériques", () => {
 
     const res = await reset(post("/api/auth/reset-password", { token, newPassword: NEW }));
     expect(res.status).toBe(503);
-    expect(await res.json()).toEqual({ error: "Service momentanément indisponible. Réessayez plus tard." });
+    expect(await res.json()).toEqual({ error: "Service momentanément indisponible. Réessayez plus tard ou demandez un nouveau lien." });
     expect((await User.findById(user._id))?.motDePasseHash).toBe(user.motDePasseHash);
 
     const output = allConsoleOutput(spies);

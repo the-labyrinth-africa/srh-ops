@@ -13,10 +13,13 @@ interface RouteParams {
 
 /**
  * Régénère le mot de passe temporaire d'un utilisateur (administrateur uniquement).
- * Le mot de passe n'est renvoyé qu'une fois, dans `generatedPassword` ; il n'est
- * ni journalisé, ni envoyé par e-mail (aucun transport n'est configuré).
+ * Le mot de passe n'est renvoyé qu'une fois, dans `generatedPassword` : il est affiché à
+ * l'administrateur pour transmission de vive voix, jamais journalisé ni envoyé par e-mail
+ * (l'envoi d'un lien passe par la route send-reset-link).
  * `passwordChangedAt` invalide les sessions déjà ouvertes de l'utilisateur ciblé
- * (au plus 5 minutes plus tard, cf. REFRESH_INTERVAL_MS).
+ * (au plus 5 minutes plus tard, cf. REFRESH_INTERVAL_MS). Cela vaut aussi lorsqu'un administrateur
+ * régénère son PROPRE mot de passe : sa session prend fin dans les 5 minutes et il doit se reconnecter.
+ * Les liens d'invitation ou de réinitialisation en attente sont révoqués.
  */
 export async function POST(_req: NextRequest, { params }: RouteParams) {
   const auth = await requireAuth(true);

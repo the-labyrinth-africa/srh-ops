@@ -98,9 +98,11 @@ export const authOptions: NextAuthOptions = {
         token.clientId = user.clientId;
         token.equipeId = user.equipeId;
         token.mustChangePassword = user.mustChangePassword;
-        token.refreshedAt = Date.now();
+        // Un seul instant : `issuedAt` et `refreshedAt` doivent coïncider à la connexion.
+        const now = Date.now();
+        token.refreshedAt = now;
         // Uniquement ici (connexion) : ne jamais le réécrire dans refreshTokenFromDb.
-        token.issuedAt = Date.now();
+        token.issuedAt = now;
         return token;
       }
       // Tant que le jeton porte le drapeau « mot de passe temporaire », on relit la base à chaque

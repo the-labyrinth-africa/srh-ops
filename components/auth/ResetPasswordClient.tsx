@@ -8,8 +8,8 @@ import { validateNewPassword } from "@/lib/validators/password-form";
 
 const GENERIC_ERROR = "Le service est momentanément indisponible. Réessayez dans quelques instants.";
 const INVALID_LINK_MESSAGE = "Lien invalide ou expiré. Demandez un nouveau lien.";
-// Début du message constant renvoyé par l'API pour un jeton refusé.
-const INVALID_LINK_PREFIX = "Lien invalide";
+// Code machine stable renvoyé par l'API pour un lien refusé (le message, lui, peut évoluer).
+const INVALID_LINK_CODE = "INVALID_LINK";
 
 const INPUT_CLASS =
   "h-12 w-full rounded-DEFAULT border-none bg-surface-container-low pl-10 pr-4 font-body-md text-body-md text-on-surface outline-none transition-all placeholder:text-on-surface-variant/40 focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary";
@@ -72,7 +72,7 @@ export default function ResetPasswordClient() {
       }
 
       const message = formatApiError(data?.error, GENERIC_ERROR);
-      if (res.status === 400 && message.startsWith(INVALID_LINK_PREFIX)) {
+      if (res.status === 400 && data?.code === INVALID_LINK_CODE) {
         setLinkRejected(true);
       }
       setError(message);
@@ -137,6 +137,7 @@ export default function ResetPasswordClient() {
             type="password"
             required
             minLength={6}
+            maxLength={128}
             autoComplete="new-password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
@@ -159,6 +160,7 @@ export default function ResetPasswordClient() {
             type="password"
             required
             minLength={6}
+            maxLength={128}
             autoComplete="new-password"
             value={confirmation}
             onChange={(e) => setConfirmation(e.target.value)}
