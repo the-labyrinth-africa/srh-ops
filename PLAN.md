@@ -611,7 +611,8 @@ Avant et pendant le développement, SRH doit fournir :
 | 2026-09-19 | Lot 0 | Garde du seed : le build n'alimente la base que si `SEED_ON_BUILD=true` | Fait |
 | 2026-09-19 | Lot 0 | Correctif de la détection de conflits pour les opérations longues (> 2 h) | Fait |
 | 2026-09-19 | Lot 0 | Alignement README / PLAN / rapport d'avancement sur le code réel ; plan d'alignement avec la proposition | Fait |
+| 2026-09-20 | Lot 1A | Lot 1A — fuites d'accès fermées : matrice d'accès unique des pages par rôle (tableau de bord, menu, `/acces-limite`), rattachement client/équipe imposé aux comptes, chauffeur limité à son équipe et fermé aux référentiels dans l'API, changement forcé du mot de passe temporaire, JWT relu en base toutes les 5 minutes | Fait |
 
 ---
 
-*Dernière mise à jour : 19 septembre 2026*
+*Dernière mise à jour : 20 septembre 2026*

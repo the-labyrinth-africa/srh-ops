@@ -36,6 +36,73 @@ NEXTAUTH_URL=http://localhost:3000
 | admin@srh.com | admin123 | admin |
 | dispatcher@srh.com | dispatch123 | dispatcher |
 
+## Rôles et accès
+
+Cinq rôles existent : `admin`, `dispatcher`, `lecture`, `chauffeur`, `client`. L'accès aux
+pages est décrit par une matrice unique, `lib/page-access.ts`, qui alimente la protection
+des pages serveur (`lib/page-auth.ts`), le menu (`lib/nav.ts`) et les tests. Un chemin absent
+de la matrice est refusé à tous (refus par défaut) ; un accès refusé redirige vers la page
+d'accueil du rôle (`/terrain` pour un chauffeur, `/acces-limite` pour un client, `/` sinon).
+
+| Chemin | admin | dispatcher | lecture | chauffeur | client |
+|---|:-:|:-:|:-:|:-:|:-:|
+| `/` (tableau de bord) | ✓ | ✓ | ✓ | → `/terrain` | → `/acces-limite` |
+| `/operations`, `/operations/planning` | ✓ | ✓ | ✓ | ✗ | ✗ |
+| `/operations/nouveau` | ✓ | ✓ | ✗ | ✗ | ✗ |
+| `/operations/<id>` | ✓ | ✓ | ✓ | ✓ | ✗ |
+| `/recurrences`, `/clients`, `/equipes`, `/vehicules`, `/equipements` | ✓ | ✓ | ✓ | ✗ | ✗ |
+| `/import` | ✓ | ✓ | ✗ | ✗ | ✗ |
+| `/utilisateurs` | ✓ | ✗ | ✗ | ✗ | ✗ |
+| `/terrain` | ✓ | ✓ | ✗ | ✓ | ✗ |
+| `/profil` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `/acces-limite` | ✗ | ✗ | ✗ | ✗ | ✓ |
+
+`/profil` est ouvert à tous les rôles authentifiés : c'est aussi la seule page accessible
+à un compte dont le mot de passe temporaire n'a pas encore été changé.
+
+### Rattachement des comptes
+
+- Un compte `client` doit être rattaché à un client (`clientId`) ; un compte `chauffeur`
+  doit être rattaché à une équipe (`equipeId`). Les autres rôles ne portent aucun
+  rattachement. Ces règles sont vérifiées à la création et à la modification d'un
+  utilisateur (validation des identifiants Mongo, refus des combinaisons incohérentes).
+- Un compte `client` sans `clientId` en session est refusé partout par l'API (403).
+- Un compte `chauffeur` sans `equipeId` en session n'agit sur aucune opération (403,
+  « Compte chauffeur sans équipe attribuée »).
+
+### API : ce qui a changé pour les chauffeurs
+
+Côté API, un chauffeur est limité aux opérations de son équipe :
+
+- Listes (`/api/operations`, `/api/operations/planning`) : filtrées par son équipe côté
+  serveur, quels que soient les paramètres de requête envoyés.
+- Lecture par identifiant, rapport PDF, changement de statut et photos : refusés (403,
+  « Opération non affectée à votre équipe ») hors de son équipe. Une opération sans équipe
+  n'est pas visible d'un chauffeur.
+- Il n'a aucun accès aux clients, sites, équipes, véhicules, équipements, récurrences,
+  import ni statistiques du tableau de bord (403), même en lecture. Les clients et sites
+  restent lisibles par le personnel et, dans son périmètre, par un compte `client`.
+- Il peut écrire côté terrain (statut, données de collecte, photos) mais ne peut ni créer
+  ni modifier une opération.
+
+### Mot de passe temporaire
+
+Un mot de passe créé ou régénéré par un administrateur est temporaire (`mustChangePassword`).
+Tant qu'il n'est pas changé :
+
+- toute page du tableau de bord redirige vers `/profil?forcer=1` ;
+- toute route API répond 403 avec le code `MUST_CHANGE_PASSWORD`, sauf le changement de mot
+  de passe lui-même (`POST /api/auth/change-password`) ;
+- le drapeau est relu en base à chaque requête tant qu'il est actif, et retombe dès que le
+  mot de passe est changé.
+
+### Actualisation du jeton de session
+
+Le jeton de session (JWT) est relu en base au plus toutes les 5 minutes
+(`REFRESH_INTERVAL_MS` dans `lib/auth-refresh.ts`) : un changement de rôle ou de
+rattachement s'applique donc en moins de 5 minutes sans nouvelle connexion, et un compte
+supprimé perd son accès (session refusée) à la relecture suivante.
+
 ## Déploiement sur Vercel
 
 1. Pousser le repo sur GitHub, puis importer le projet dans [Vercel](https://vercel.com/new) (framework détecté automatiquement : Next.js).

@@ -30,7 +30,7 @@ const phases: Phase[] = [
       "Workflow de 8 statuts avec historique des transitions",
       "Vue calendrier (FullCalendar) en jour / semaine / mois",
       "Tableau de bord KPI (prévues, en cours, terminées, retardées, annulées)",
-      "Authentification multi-rôles et permissions",
+      "Authentification multi-rôles et permissions : matrice d'accès unique par rôle appliquée aux pages et à l'API, rattachement client/équipe des comptes, chauffeur limité à son équipe",
       "Collectes récurrentes : modèle, moteur de génération sans doublon, interface",
       "Rapport d'intervention PDF, signature et photos (préparation Phase 2)",
     ],
@@ -95,7 +95,7 @@ const phases: Phase[] = [
     pct: 10,
     livree: [
       "Service d'e-mail (lib/email) : journalisation seule, aucun transport configuré",
-      "Changement de mot de passe opérationnel ; régénération par un administrateur depuis « Utilisateurs & Rôles » (réinitialisation en libre-service désactivée)",
+      "Changement de mot de passe opérationnel et imposé à la première connexion (mot de passe temporaire) ; régénération par un administrateur depuis « Utilisateurs & Rôles » (réinitialisation en libre-service désactivée)",
     ],
     restante: [
       "Alertes automatiques (retards, conflits, opérations du jour)",
