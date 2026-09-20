@@ -62,6 +62,43 @@ describe("Users, Authentication Roles & Operations Quantities Tests", () => {
       expect(users.some((u: any) => u.username === "chauffeur_jean")).toBe(true);
     });
 
+    it("should never log or duplicate the generated password (C5)", async () => {
+      const spies = (["log", "info", "warn", "error", "debug"] as const).map((level) =>
+        vi.spyOn(console, level).mockImplementation(() => {})
+      );
+
+      try {
+        const res = await createUser(
+          new NextRequest("http://localhost:3000/api/users", {
+            method: "POST",
+            body: JSON.stringify({
+              username: "secret_user",
+              nom: "Secret User",
+              email: "secret@srh.ci",
+              role: "lecture",
+            }),
+          })
+        );
+        expect(res.status).toBe(201);
+        const data = await res.json();
+
+        const password: string = data.generatedPassword;
+        expect(password).toBeDefined();
+
+        // Le mot de passe n'apparaît qu'une seule fois, dans son champ dédié
+        expect(data.message).not.toContain(password);
+
+        const consoleOutput = spies
+          .flatMap((spy) => spy.mock.calls)
+          .flat()
+          .map((arg) => (typeof arg === "string" ? arg : JSON.stringify(arg)))
+          .join("\n");
+        expect(consoleOutput).not.toContain(password);
+      } finally {
+        spies.forEach((spy) => spy.mockRestore());
+      }
+    });
+
     it("should prevent non-admin from creating users", async () => {
       vi.mocked(nextAuth.getServerSession).mockResolvedValue({
         user: {
@@ -87,8 +124,8 @@ describe("Users, Authentication Roles & Operations Quantities Tests", () => {
     });
   });
 
-  describe("Forgot Password Flow", () => {
-    it("should generate a new temporary password for valid username or email", async () => {
+  describe("Forgot Password Flow (désactivé — C4)", () => {
+    it("should refuse the self-service reset without touching the password hash", async () => {
       // 1. Create a target user
       const reqCreate = new NextRequest("http://localhost:3000/api/users", {
         method: "POST",
@@ -101,44 +138,41 @@ describe("Users, Authentication Roles & Operations Quantities Tests", () => {
       });
       await createUser(reqCreate);
 
-      // 2. Request forgot password with username
-      const reqForgotUsername = new NextRequest("http://localhost:3000/api/auth/forgot-password", {
-        method: "POST",
-        body: JSON.stringify({ identifier: "target_user" }),
-      });
-      const resForgot1 = await forgotPassword(reqForgotUsername);
-      expect(resForgot1.status).toBe(200);
-      const data1 = await resForgot1.json();
-      expect(data1.message).toBeDefined();
+      await connectDB();
+      const before = (await User.findOne({ username: "target_user" }))!;
 
-      // 3. Request forgot password with email
-      const reqForgotEmail = new NextRequest("http://localhost:3000/api/auth/forgot-password", {
-        method: "POST",
-        body: JSON.stringify({ identifier: "target@srh.ci" }),
-      });
-      const resForgot2 = await forgotPassword(reqForgotEmail);
-      expect(resForgot2.status).toBe(200);
+      // 2. La route refuse toute demande, quel que soit l'identifiant visé
+      const resForgot = await forgotPassword();
+      expect(resForgot.status).toBe(503);
+      const data = await resForgot.json();
+      expect(data.error).toBe(
+        "Réinitialisation en libre-service indisponible. Contactez un administrateur SRH."
+      );
+
+      // 3. Le hash du mot de passe est inchangé : personne ne peut bloquer un compte
+      const after = (await User.findOne({ username: "target_user" }))!;
+      expect(after.motDePasseHash).toBe(before.motDePasseHash);
     });
 
-    it("should still work for legacy users without a username field (non-régression)", async () => {
+    it("should not reset legacy users without a username field either (non-régression)", async () => {
       await connectDB();
       // Reproduit le cas des comptes semés avant l'introduction du champ username
       // (insertion directe pour contourner la validation Mongoose du champ required)
+      const hash = await bcrypt.hash("legacy123", 10);
       const inserted = await User.collection.insertOne({
         email: "legacy@srh.ci",
         nom: "Legacy User",
-        motDePasseHash: await bcrypt.hash("legacy123", 10),
+        motDePasseHash: hash,
         role: "dispatcher",
         createdAt: new Date(),
         updatedAt: new Date(),
       });
 
-      const reqForgot = new NextRequest("http://localhost:3000/api/auth/forgot-password", {
-        method: "POST",
-        body: JSON.stringify({ identifier: "legacy@srh.ci" }),
-      });
-      const res = await forgotPassword(reqForgot);
-      expect(res.status).toBe(200);
+      const res = await forgotPassword();
+      expect(res.status).toBe(503);
+
+      const after = (await User.collection.findOne({ _id: inserted.insertedId }))!;
+      expect(after.motDePasseHash).toBe(hash);
 
       await User.collection.deleteOne({ _id: inserted.insertedId });
     });

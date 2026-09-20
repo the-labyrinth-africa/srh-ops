@@ -15,13 +15,10 @@ export interface SendEmailOptions {
   body: string;
 }
 
-export async function sendEmail({ to, subject, body }: SendEmailOptions): Promise<boolean> {
-  // En mode production, un transporteur SMTP (Nodemailer, SendGrid, Resend, etc.) sera configuré.
-  // En développement / simulation, le mot de passe et l'email sont journalisés dans la console serveur.
-  console.log("==========================================");
-  console.log(`[EMAIL SERVICE] To: ${to}`);
-  console.log(`[EMAIL SERVICE] Subject: ${subject}`);
-  console.log(`[EMAIL SERVICE] Body:\n${body}`);
-  console.log("==========================================");
+export async function sendEmail({ to, subject }: SendEmailOptions): Promise<boolean> {
+  // En production, un transporteur SMTP (Nodemailer, SendGrid, Resend, etc.) sera configuré.
+  // Le corps du message n'est jamais journalisé : il contient des secrets
+  // (mots de passe temporaires). Seuls le destinataire et l'objet le sont.
+  console.log(`[EMAIL SERVICE] To: ${to} — Subject: ${subject}`);
   return true;
 }

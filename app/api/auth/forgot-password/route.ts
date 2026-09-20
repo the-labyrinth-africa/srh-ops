@@ -1,54 +1,18 @@
-import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
-import { connectDB } from "@/lib/db";
-import { User } from "@/models/User";
-import { forgotPasswordSchema } from "@/lib/validators/user";
-import { generateRandomPassword, sendEmail } from "@/lib/email";
+import { NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const parsed = forgotPasswordSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
-  }
+export const UNAVAILABLE_MESSAGE =
+  "Réinitialisation en libre-service indisponible. Contactez un administrateur SRH.";
 
-  const identifier = parsed.data.identifier.trim().toLowerCase();
-
-  await connectDB();
-  const query = identifier.includes("@")
-    ? { email: identifier }
-    : { username: identifier };
-
-  const user = await User.findOne(query);
-
-  // Pour des raisons de sécurité, répondre positivement même si l'utilisateur n'existe pas
-  if (!user) {
-    return NextResponse.json({
-      message: "Si un compte correspond à cet identifiant, un nouveau mot de passe a été envoyé par e-mail.",
-    });
-  }
-
-  // Générer un nouveau mot de passe temporaire
-  const newPassword = generateRandomPassword(10);
-  const hash = await bcrypt.hash(newPassword, 10);
-
-  await User.updateOne(
-    { _id: user._id },
-    { $set: { motDePasseHash: hash, mustChangePassword: true } }
-  );
-
-  // Envoi de l'e-mail
-  const username = user.username || user.email.split("@")[0];
-  const emailBody = `Bonjour ${user.nom},\n\nVous avez demandé la réinitialisation de votre mot de passe pour votre compte SRH Ops.\n\nVotre nouveau mot de passe temporaire est: ${newPassword}\n\nVeuillez vous connecter avec cet identifiant (${username}) et modifier votre mot de passe.\n\nCordialement,\nL'équipe SRH Ops`;
-
-  await sendEmail({
-    to: user.email,
-    subject: "SRH Ops — Réinitialisation de votre mot de passe",
-    body: emailBody,
-  });
-
-  return NextResponse.json({
-    message: "Si un compte correspond à cet identifiant, un nouveau mot de passe a été envoyé par e-mail.",
-    debugPassword: process.env.NODE_ENV === "development" ? newPassword : undefined,
-  });
+/**
+ * Réinitialisation en libre-service désactivée (C4).
+ *
+ * L'implémentation précédente réécrivait le hash du mot de passe de n'importe
+ * quel compte nommé dans le corps de la requête, sans jeton de vérification ni
+ * limitation de débit : n'importe qui pouvait bloquer le compte administrateur.
+ * En attendant un vrai flux de réinitialisation (jeton à usage unique, envoi
+ * e-mail réel, limitation de débit), la route répond 503 sans jamais toucher à
+ * la base. La réinitialisation passe par un administrateur (/utilisateurs).
+ */
+export async function POST() {
+  return NextResponse.json({ error: UNAVAILABLE_MESSAGE }, { status: 503 });
 }
