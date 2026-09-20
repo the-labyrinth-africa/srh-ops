@@ -27,6 +27,34 @@ function ProfilContent() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [testLoading, setTestLoading] = useState(false);
+  const [testMessage, setTestMessage] = useState("");
+  const [testError, setTestError] = useState("");
+
+  async function handleTestMail() {
+    setTestLoading(true);
+    setTestMessage("");
+    setTestError("");
+
+    try {
+      const res = await fetch("/api/mail/test", { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok) {
+        setTestMessage("E-mail de test envoyé à votre adresse.");
+      } else if (data?.reason === "not_configured") {
+        setTestError("Le service d'e-mail n'est pas configuré (variables SMTP).");
+      } else if (data?.reason === "send_failed") {
+        setTestError("L'envoi a échoué : vérifiez les paramètres SMTP.");
+      } else {
+        setTestError(formatApiError(data?.error, "Erreur lors de l'envoi de l'e-mail de test"));
+      }
+    } catch {
+      setTestError("Erreur de connexion au serveur");
+    } finally {
+      setTestLoading(false);
+    }
+  }
 
   async function handlePasswordChange(e: React.FormEvent) {
     e.preventDefault();
@@ -196,6 +224,43 @@ function ProfilContent() {
           </form>
         </div>
       </div>
+
+      {session?.user?.role === "admin" && (
+        <div className="rounded-2xl bg-surface-container-lowest p-6 shadow-sm border space-y-4">
+          <h2 className="font-headline-sm text-headline-sm text-on-surface flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary">mail</span>
+            E-mail
+          </h2>
+          <p className="font-body-md text-body-md text-on-surface-variant">
+            Vérifiez que l&apos;envoi de messages fonctionne en recevant un e-mail de test sur l&apos;adresse de votre compte.
+          </p>
+
+          {testMessage && (
+            <div
+              role="status"
+              className="rounded-xl bg-status-completed/10 p-3 font-body-md text-body-md text-status-completed font-medium"
+            >
+              {testMessage}
+            </div>
+          )}
+
+          {testError && (
+            <div role="alert" className="rounded-xl bg-error-container p-3 font-body-md text-body-md text-on-error-container">
+              {testError}
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={handleTestMail}
+            disabled={testLoading}
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary font-label-md text-label-md text-on-primary hover:bg-primary-container disabled:opacity-50 sm:w-auto sm:px-6"
+          >
+            <span className="material-symbols-outlined text-[18px]">send</span>
+            {testLoading ? "Envoi..." : "Envoyer un e-mail de test à mon adresse"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
