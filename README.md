@@ -76,9 +76,10 @@ Côté API, un chauffeur est limité aux opérations de son équipe :
 
 - Listes (`/api/operations`, `/api/operations/planning`) : filtrées par son équipe côté
   serveur, quels que soient les paramètres de requête envoyés.
-- Lecture par identifiant, rapport PDF, changement de statut et photos : refusés (403,
-  « Opération non affectée à votre équipe ») hors de son équipe. Une opération sans équipe
-  n'est pas visible d'un chauffeur.
+- Lecture par identifiant et rapport PDF : 404 « Non trouvé » hors de son équipe (l'existence
+  de l'opération n'est pas révélée). Changement de statut et photos : 403
+  « Opération non affectée à votre équipe ». Une opération sans équipe est invisible pour un
+  chauffeur.
 - Il n'a aucun accès aux clients, sites, équipes, véhicules, équipements, récurrences,
   import ni statistiques du tableau de bord (403), même en lecture. Les clients et sites
   restent lisibles par le personnel et, dans son périmètre, par un compte `client`.
@@ -100,8 +101,16 @@ Tant qu'il n'est pas changé :
 
 Le jeton de session (JWT) est relu en base au plus toutes les 5 minutes
 (`REFRESH_INTERVAL_MS` dans `lib/auth-refresh.ts`) : un changement de rôle ou de
-rattachement s'applique donc en moins de 5 minutes sans nouvelle connexion, et un compte
-supprimé perd son accès (session refusée) à la relecture suivante.
+rattachement s'applique donc au plus 5 minutes après la dernière relecture, dès la requête
+suivante, sans nouvelle connexion, et un compte supprimé perd son accès (session refusée) à
+la relecture suivante.
+
+### Suppression d'un client ou d'une équipe
+
+`DELETE /api/clients/[id]` et `DELETE /api/equipes/[id]` répondent 409 (« Ce client est
+rattaché à des comptes utilisateurs » / « Cette équipe est rattachée à des comptes
+utilisateurs ») tant qu'un compte y est rattaché : il faut d'abord modifier ou supprimer ces
+comptes.
 
 ## Déploiement sur Vercel
 
