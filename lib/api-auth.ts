@@ -27,15 +27,19 @@ export interface AuthSuccess {
 
 export type AuthResult = AuthFailure | AuthSuccess;
 
-function fail(message: string, status: number): AuthFailure {
-  return { error: NextResponse.json({ error: message }, { status }) };
+function fail(message: string, status: number, code?: string): AuthFailure {
+  return { error: NextResponse.json(code ? { error: message, code } : { error: message }, { status }) };
 }
 
 /**
  * Authentifie l'appelant et expose son rôle, son périmètre client et son équipe.
- * Un compte `client` sans `clientId` en session est refusé partout (403).
+ * Un compte `client` sans `clientId` en session est refusé partout (403), de même
+ * qu'un compte au mot de passe temporaire (403 `MUST_CHANGE_PASSWORD`) sauf option contraire.
  */
-export async function requireAuth(requireWrite = false): Promise<AuthResult> {
+export async function requireAuth(
+  requireWrite = false,
+  opts: { allowMustChangePassword?: boolean } = {}
+): Promise<AuthResult> {
   const session = await getServerSession(authOptions);
 
   if (!session?.user) {
@@ -50,6 +54,10 @@ export async function requireAuth(requireWrite = false): Promise<AuthResult> {
 
   if (isClientUser(role) && !session.user.clientId) {
     return fail("Compte client sans périmètre attribué", 403);
+  }
+
+  if (session.user.mustChangePassword && !opts.allowMustChangePassword) {
+    return fail("Changement de mot de passe requis", 403, "MUST_CHANGE_PASSWORD");
   }
 
   if (requireWrite && !canWrite(role)) {

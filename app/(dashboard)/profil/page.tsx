@@ -1,11 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { formatApiError } from "@/lib/api-error";
+import { homePathFor } from "@/lib/page-access";
 import { roleLabel } from "@/lib/permissions";
 
 export default function ProfilPage() {
-  const { data: session } = useSession();
+  // useSearchParams impose une frontière Suspense pour le rendu statique.
+  return (
+    <Suspense fallback={null}>
+      <ProfilContent />
+    </Suspense>
+  );
+}
+
+function ProfilContent() {
+  const { data: session, update } = useSession();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const forced = searchParams.get("forcer") === "1" || Boolean(session?.user?.mustChangePassword);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -31,11 +46,11 @@ export default function ProfilPage() {
         body: JSON.stringify({ currentPassword, newPassword }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       setLoading(false);
 
       if (!res.ok) {
-        setError(data.error?.message ?? data.error ?? "Erreur lors de la modification");
+        setError(formatApiError(data.error, "Erreur lors de la modification"));
         return;
       }
 
@@ -43,6 +58,10 @@ export default function ProfilPage() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
+
+      // Le jeton relit la base : le drapeau « mot de passe temporaire » tombe.
+      await update();
+      if (forced) router.replace(homePathFor(session?.user?.role));
     } catch (err) {
       setLoading(false);
       setError("Erreur de connexion au serveur");
@@ -60,6 +79,15 @@ export default function ProfilPage() {
           Informations personnelles et modification de votre mot de passe d&apos;accès.
         </p>
       </div>
+
+      {forced && (
+        <div
+          role="alert"
+          className="rounded-xl bg-error-container p-4 font-body-md text-body-md font-medium text-on-error-container"
+        >
+          Vous utilisez un mot de passe temporaire : choisissez un nouveau mot de passe pour continuer.
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-gutter-md md:grid-cols-2">
         <div className="rounded-2xl bg-surface-container-lowest p-6 shadow-sm border space-y-4">

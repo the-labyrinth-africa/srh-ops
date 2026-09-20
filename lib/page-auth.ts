@@ -13,6 +13,10 @@ export async function requirePageAccess(pathname: string): Promise<Session> {
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect("/login");
 
+  if (session.user.mustChangePassword && pathname !== "/profil") {
+    redirect("/profil?forcer=1");
+  }
+
   const role = session.user.role;
   if (!canAccessPath(role, pathname)) redirect(homePathFor(role));
 

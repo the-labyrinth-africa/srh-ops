@@ -6,7 +6,7 @@ import { User } from "@/models/User";
 import { changePasswordSchema } from "@/lib/validators/user";
 
 export async function POST(req: NextRequest) {
-  const auth = await requireAuth();
+  const auth = await requireAuth(false, { allowMustChangePassword: true });
   if (auth.error) return auth.error;
 
   const body = await req.json();

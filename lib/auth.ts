@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
+import { needsRefresh, refreshTokenFromDb } from "@/lib/auth-refresh";
 import type { UserRole } from "@/types";
 
 declare module "next-auth" {
@@ -36,6 +37,10 @@ declare module "next-auth/jwt" {
     clientId?: string;
     equipeId?: string;
     mustChangePassword?: boolean;
+    /** Vrai quand le compte n'existe plus : la session est alors refusée partout. */
+    invalid?: boolean;
+    /** Horodatage (ms) de la dernière relecture du compte en base. */
+    refreshedAt?: number;
   }
 }
 
@@ -80,7 +85,7 @@ export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
         token.username = user.username;
@@ -88,10 +93,17 @@ export const authOptions: NextAuthOptions = {
         token.clientId = user.clientId;
         token.equipeId = user.equipeId;
         token.mustChangePassword = user.mustChangePassword;
+        token.refreshedAt = Date.now();
+        return token;
+      }
+      if (trigger === "update" || needsRefresh(token)) {
+        return refreshTokenFromDb(token);
       }
       return token;
     },
     async session({ session, token }) {
+      // Compte supprimé : session sans utilisateur, donc refusée partout (401 / redirection /login).
+      if (token.invalid) return { ...session, user: undefined } as never;
       if (session.user) {
         session.user.id = token.id;
         session.user.username = token.username;
