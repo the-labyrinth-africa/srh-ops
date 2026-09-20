@@ -132,6 +132,35 @@ describe("Autorisations par rôle (écriture terrain)", () => {
     expect((await Operation.findById(opA._id))!.photos.length).toBe(0);
   });
 
+  it("laisse le rôle lecture consulter opérations et rapport", async () => {
+    const { opA } = await seedTwoClients();
+    mockSession({ role: "lecture" });
+
+    const resOp = await getOperationById(
+      new NextRequest(`http://localhost:3000/api/operations/${opA._id}`),
+      { params: Promise.resolve({ id: opA._id.toString() }) }
+    );
+    expect(resOp.status).toBe(200);
+
+    const resRapport = await getRapport(
+      new NextRequest(`http://localhost:3000/api/operations/${opA._id}/rapport`),
+      { params: Promise.resolve({ id: opA._id.toString() }) }
+    );
+    expect(resRapport.status).toBe(200);
+    expect(resRapport.headers.get("Content-Type")).toBe("application/pdf");
+  });
+
+  it("laisse un client lire le rapport de sa propre opération", async () => {
+    const { clientA, opA } = await seedTwoClients();
+    mockSession({ role: "client", clientId: clientA._id.toString() });
+
+    const res = await getRapport(
+      new NextRequest(`http://localhost:3000/api/operations/${opA._id}/rapport`),
+      { params: Promise.resolve({ id: opA._id.toString() }) }
+    );
+    expect(res.status).toBe(200);
+  });
+
   it("autorise un chauffeur sur les opérations de son équipe et refuse celles des autres", async () => {
     const client = await Client.create({ nom: "Client Chauffeur" });
     const site = await Site.create({ clientId: client._id, nom: "Site Chauffeur" });
