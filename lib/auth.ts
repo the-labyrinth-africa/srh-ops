@@ -41,6 +41,11 @@ declare module "next-auth/jwt" {
     invalid?: boolean;
     /** Horodatage (ms) de la dernière relecture du compte en base. */
     refreshedAt?: number;
+    /**
+     * Horodatage (ms) de la connexion. Posé une seule fois, jamais réécrit par les relectures :
+     * une réinitialisation du mot de passe postérieure (`passwordChangedAt`) invalide ce jeton.
+     */
+    issuedAt?: number;
   }
 }
 
@@ -94,6 +99,8 @@ export const authOptions: NextAuthOptions = {
         token.equipeId = user.equipeId;
         token.mustChangePassword = user.mustChangePassword;
         token.refreshedAt = Date.now();
+        // Uniquement ici (connexion) : ne jamais le réécrire dans refreshTokenFromDb.
+        token.issuedAt = Date.now();
         return token;
       }
       // Tant que le jeton porte le drapeau « mot de passe temporaire », on relit la base à chaque

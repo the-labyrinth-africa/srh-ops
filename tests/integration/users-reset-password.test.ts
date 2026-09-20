@@ -72,6 +72,20 @@ describe("POST /api/users/[id]/reset-password (régénération par un administra
     expect(after.mustChangePassword).toBe(true);
   });
 
+  it("admin : renseigne passwordChangedAt (les sessions ouvertes seront invalidées)", async () => {
+    const target = await seedTarget("changedat");
+    expect(target.passwordChangedAt).toBeUndefined();
+
+    const startedAt = Date.now();
+    const res = await callReset(String(target._id));
+    expect(res.status).toBe(200);
+
+    const after = (await User.findById(target._id))!;
+    expect(after.passwordChangedAt).toBeInstanceOf(Date);
+    expect(after.passwordChangedAt!.getTime()).toBeGreaterThanOrEqual(startedAt);
+    expect(after.passwordChangedAt!.getTime()).toBeLessThanOrEqual(Date.now());
+  });
+
   it("admin : peut régénérer le mot de passe d'un autre administrateur et le sien", async () => {
     await connectDB();
     const otherAdmin = await User.create({

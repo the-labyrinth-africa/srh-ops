@@ -12,6 +12,8 @@ export interface IUserModel {
   equipeId?: mongoose.Types.ObjectId;
   telephone?: string;
   mustChangePassword?: boolean;
+  /** Date de la dernière réinitialisation (lien ou administrateur) ; jamais posée par un changement volontaire. */
+  passwordChangedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -37,6 +39,7 @@ const UserSchema = new Schema<IUserModel>(
     equipeId: { type: Schema.Types.ObjectId, ref: "Equipe" },
     telephone: { type: String, default: "" },
     mustChangePassword: { type: Boolean, default: false },
+    passwordChangedAt: { type: Date },
   },
   { timestamps: true }
 );

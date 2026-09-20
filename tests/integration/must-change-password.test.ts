@@ -56,6 +56,9 @@ describe("changement de mot de passe obligatoire", () => {
     const after = await User.findById(user._id);
     expect(after?.mustChangePassword).toBe(false);
     expect(await bcrypt.compare("NouveauMdp1", after!.motDePasseHash)).toBe(true);
+    // Changement volontaire : passwordChangedAt reste non défini, sinon l'utilisateur
+    // perdrait sa propre session (invalidation réservée aux réinitialisations).
+    expect(after?.passwordChangedAt).toBeUndefined();
   });
 
   it("refuse un nouveau mot de passe identique à l'actuel", async () => {

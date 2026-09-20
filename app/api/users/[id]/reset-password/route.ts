@@ -14,6 +14,8 @@ interface RouteParams {
  * Régénère le mot de passe temporaire d'un utilisateur (administrateur uniquement).
  * Le mot de passe n'est renvoyé qu'une fois, dans `generatedPassword` ; il n'est
  * ni journalisé, ni envoyé par e-mail (aucun transport n'est configuré).
+ * `passwordChangedAt` invalide les sessions déjà ouvertes de l'utilisateur ciblé
+ * (au plus 5 minutes plus tard, cf. REFRESH_INTERVAL_MS).
  */
 export async function POST(_req: NextRequest, { params }: RouteParams) {
   const auth = await requireAuth(true);
@@ -34,7 +36,7 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
 
   const updated = await User.findByIdAndUpdate(
     id,
-    { motDePasseHash: hash, mustChangePassword: true },
+    { motDePasseHash: hash, mustChangePassword: true, passwordChangedAt: new Date() },
     { new: true }
   ).select("_id");
 

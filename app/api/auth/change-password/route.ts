@@ -35,6 +35,9 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Changement volontaire : on ne pose volontairement PAS `passwordChangedAt`. Cette date
+  // invalide les sessions ouvertes ; l'utilisateur doit conserver la sienne (il vient de
+  // s'authentifier avec son mot de passe actuel). Seules les réinitialisations l'utilisent.
   const newHash = await bcrypt.hash(newPassword, 10);
   await User.updateOne(
     { _id: user._id },

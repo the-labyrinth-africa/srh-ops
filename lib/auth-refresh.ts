@@ -8,6 +8,7 @@ interface RefreshedUser {
   clientId?: unknown;
   equipeId?: unknown;
   mustChangePassword?: boolean;
+  passwordChangedAt?: Date;
 }
 
 /**
@@ -28,15 +29,23 @@ export function needsRefresh(token: JWT, now = Date.now()): boolean {
  * Recharge depuis la base les attributs qui commandent les droits : un
  * changement de rôle, de rattachement ou de mot de passe temporaire est pris
  * en compte sans attendre une nouvelle connexion, et un compte supprimé rend
- * le jeton invalide.
+ * le jeton invalide. Une réinitialisation du mot de passe (`passwordChangedAt`)
+ * postérieure à la connexion (`issuedAt`) invalide aussi le jeton ; un jeton sans
+ * `issuedAt` est considéré comme antérieur. Comme la relecture n'a lieu qu'au plus
+ * toutes les `REFRESH_INTERVAL_MS` (5 minutes), l'invalidation prend effet au plus
+ * 5 minutes après la réinitialisation.
  */
 export async function refreshTokenFromDb(token: JWT): Promise<JWT> {
   await connectDB();
   const user = await User.findById(token.id)
-    .select("role clientId equipeId mustChangePassword")
+    .select("role clientId equipeId mustChangePassword passwordChangedAt")
     .lean<RefreshedUser | null>();
 
   if (!user) {
+    return { ...token, invalid: true, refreshedAt: Date.now() };
+  }
+
+  if (user.passwordChangedAt && (token.issuedAt ?? 0) < user.passwordChangedAt.getTime()) {
     return { ...token, invalid: true, refreshedAt: Date.now() };
   }
 
