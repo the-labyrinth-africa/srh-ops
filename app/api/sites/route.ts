@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import { requireAuth } from "@/lib/api-auth";
+import { requireAuth, requireReferentialRead } from "@/lib/api-auth";
 import { isClientUser } from "@/lib/permissions";
 import { Site } from "@/models/Site";
 import { siteSchema } from "@/lib/validators/site";
 
 export async function GET(req: NextRequest) {
-  const auth = await requireAuth();
+  const auth = await requireReferentialRead();
   if (auth.error) return auth.error;
 
   // Un compte client ne voit que les sites de son propre client.

@@ -9,6 +9,7 @@ import { SignaturePad } from "@/components/ui/SignaturePad";
 import { PhotoUpload } from "@/components/ui/PhotoUpload";
 import { getNextStatuses } from "@/lib/status-transitions";
 import { canWrite } from "@/lib/permissions";
+import { homePathFor } from "@/lib/page-access";
 import type { OperationStatus, QuantiteUnite } from "@/types";
 
 interface OperationPhoto {
@@ -47,7 +48,8 @@ interface OperationDetail {
 export function OperationDetailClient({ id }: { id: string }) {
   const router = useRouter();
   const { data: session } = useSession();
-  const canEdit = canWrite(session?.user?.role) || session?.user?.role === "chauffeur";
+  const role = session?.user?.role;
+  const canEdit = canWrite(role) || role === "chauffeur";
 
   const [op, setOp] = useState<OperationDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -71,7 +73,7 @@ export function OperationDetailClient({ id }: { id: string }) {
   const load = useCallback(async () => {
     const res = await fetch(`/api/operations/${id}`);
     if (!res.ok) {
-      router.push("/operations");
+      router.push(homePathFor(role));
       return;
     }
     const data: OperationDetail = await res.json();
@@ -82,7 +84,7 @@ export function OperationDetailClient({ id }: { id: string }) {
     setNomSignataire(data.nomSignataireClient || "");
     setSignatureData(data.signatureClient || "");
     setLoading(false);
-  }, [id, router]);
+  }, [id, router, role]);
 
   useEffect(() => {
     load();

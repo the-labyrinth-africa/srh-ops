@@ -31,6 +31,7 @@ export function TerrainViewClient() {
   const { data: session } = useSession();
   const [operations, setOperations] = useState<OperationTerrain[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [selectedOp, setSelectedOp] = useState<OperationTerrain | null>(null);
 
   // Status action form
@@ -53,13 +54,25 @@ export function TerrainViewClient() {
 
   const fetchMissions = useCallback(async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const equipeParam = equipeId ? `&equipeId=${equipeId}` : "";
       const res = await fetch(`/api/operations?limit=50${equipeParam}`);
+      if (!res.ok) {
+        setOperations([]);
+        setLoadError(
+          res.status === 403
+            ? "Aucune équipe ne vous est attribuée. Contactez un dispatcher."
+            : "Impossible de charger vos missions."
+        );
+        return;
+      }
       const data = await res.json();
       setOperations(data.items || []);
     } catch (err) {
       console.error(err);
+      setOperations([]);
+      setLoadError("Impossible de charger vos missions.");
     } finally {
       setLoading(false);
     }
@@ -198,6 +211,10 @@ export function TerrainViewClient() {
 
       {loading ? (
         <div className="p-8 text-center font-body-md text-on-surface-variant">Chargement de vos missions...</div>
+      ) : loadError ? (
+        <div role="alert" className="p-8 text-center font-body-md text-error rounded-2xl bg-surface-container-lowest border">
+          {loadError}
+        </div>
       ) : operations.length === 0 ? (
         <div className="p-8 text-center font-body-md text-on-surface-variant rounded-2xl bg-surface-container-lowest border">
           Aucune mission affectée pour le moment.

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
-import { requireTerrainWrite, isWithinTeamScope, TEAM_SCOPE_ERROR } from "@/lib/api-auth";
+import { requireTerrainWrite, isWithinTeamScope, chauffeurWithoutTeamError, TEAM_SCOPE_ERROR } from "@/lib/api-auth";
 import { canTransition } from "@/lib/status-transitions";
 import { Operation } from "@/models/Operation";
 import { statusUpdateSchema } from "@/lib/validators/operation";
@@ -13,6 +13,8 @@ type Params = { params: Promise<{ id: string }> };
 export async function PATCH(req: NextRequest, { params }: Params) {
   const auth = await requireTerrainWrite();
   if (auth.error) return auth.error;
+  const noTeam = chauffeurWithoutTeamError(auth);
+  if (noTeam) return noTeam;
 
   const { id } = await params;
   const guard = guardObjectId(id);

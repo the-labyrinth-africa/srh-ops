@@ -81,6 +81,21 @@ export async function requireInternalAuth(requireWrite = false): Promise<AuthRes
 }
 
 /**
+ * Référentiels clients/sites : lisibles par le personnel et, dans son périmètre,
+ * par un compte `client` ; jamais par un chauffeur.
+ */
+export async function requireReferentialRead(): Promise<AuthResult> {
+  const auth = await requireAuth();
+  if (auth.error) return auth;
+
+  if (isChauffeur(auth.role)) {
+    return fail("Accès refusé", 403);
+  }
+
+  return auth;
+}
+
+/**
  * Écriture « terrain » (statut, données de collecte, photos) : admin, dispatcher
  * ou chauffeur. Les rôles `lecture` et `client` sont refusés.
  */

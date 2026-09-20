@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import { requireTerrainWrite, isWithinTeamScope, TEAM_SCOPE_ERROR } from "@/lib/api-auth";
+import { requireTerrainWrite, isWithinTeamScope, chauffeurWithoutTeamError, TEAM_SCOPE_ERROR } from "@/lib/api-auth";
 import { Operation } from "@/models/Operation";
 import { guardObjectId } from "@/lib/mongo-id";
 
@@ -21,6 +21,8 @@ function storedBytes(dataUrl: string): number {
 export async function POST(req: NextRequest, { params }: Params) {
   const auth = await requireTerrainWrite();
   if (auth.error) return auth.error;
+  const noTeam = chauffeurWithoutTeamError(auth);
+  if (noTeam) return noTeam;
 
   const { id } = await params;
   const guard = guardObjectId(id);
@@ -81,6 +83,8 @@ export async function POST(req: NextRequest, { params }: Params) {
 export async function DELETE(req: NextRequest, { params }: Params) {
   const auth = await requireTerrainWrite();
   if (auth.error) return auth.error;
+  const noTeam = chauffeurWithoutTeamError(auth);
+  if (noTeam) return noTeam;
 
   const { id } = await params;
   const guard = guardObjectId(id);
