@@ -76,7 +76,8 @@ export async function POST(req: NextRequest) {
     mustChangePassword: true,
   });
 
-  // Envoi de l'e-mail avec les identifiants
+  // Aucun transport e-mail n'est configuré (sendEmail ne fait que journaliser destinataire et objet) :
+  // le mot de passe temporaire est communiqué par l'administrateur via `generatedPassword`.
   const emailBody = `Bonjour ${nom},\n\nVotre compte sur la plateforme SRH Ops a été créé.\n\nIdentifiants de connexion:\n- Username: ${username}\n- Email: ${email}\n- Mot de passe temporaire: ${generatedPassword}\n- Rôle attribué: ${role}\n\nVeuillez vous connecter et modifier votre mot de passe dès votre première session.\n\nCordialement,\nL'équipe SRH Ops`;
 
   await sendEmail({
@@ -97,6 +98,7 @@ export async function POST(req: NextRequest) {
       generatedPassword,
       message: "Utilisateur créé. Un mot de passe temporaire a été généré.",
     },
-    { status: 201 }
+    // Réponse contenant un secret : ne jamais la mettre en cache.
+    { status: 201, headers: { "Cache-Control": "no-store" } }
   );
 }

@@ -42,5 +42,6 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: "Utilisateur non trouvé" }, { status: 404 });
   }
 
-  return NextResponse.json({ generatedPassword });
+  // Réponse contenant un secret : ne jamais la mettre en cache.
+  return NextResponse.json({ generatedPassword }, { headers: { "Cache-Control": "no-store" } });
 }

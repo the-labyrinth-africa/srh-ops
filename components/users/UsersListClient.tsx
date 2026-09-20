@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { UserFormModal } from "./UserFormModal";
 import { TemporaryPasswordPanel } from "./TemporaryPasswordPanel";
 import { roleLabel } from "@/lib/permissions";
@@ -28,6 +28,11 @@ export function UsersListClient() {
 
   // Mot de passe régénéré : uniquement en mémoire (état React), jamais persisté.
   const [resetResult, setResetResult] = useState<{ nom: string; password: string } | null>(null);
+  // Identifiant de l'utilisateur dont la régénération est en cours (garde anti-double-clic).
+  const [resettingId, setResettingId] = useState<string | null>(null);
+  // Miroir synchrone de resettingId : le state ne se met à jour qu'au rendu suivant,
+  // ce qui laisserait passer deux appels dans le même tick.
+  const resettingRef = useRef<string | null>(null);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -63,6 +68,7 @@ export function UsersListClient() {
   }
 
   async function handleResetPassword(user: UserItem) {
+    if (resettingRef.current !== null) return;
     if (
       !confirm(
         `Régénérer le mot de passe de ${user.nom} ? L'ancien mot de passe ne fonctionnera plus et l'utilisateur devra en choisir un nouveau à sa prochaine connexion.`
@@ -70,9 +76,13 @@ export function UsersListClient() {
     ) {
       return;
     }
+    resettingRef.current = user._id;
+    setResettingId(user._id);
     try {
       const res = await fetch(`/api/users/${user._id}/reset-password`, { method: "POST" });
       const data = await res.json();
+      // Ne publier le résultat que si cette requête est toujours la requête courante.
+      if (resettingRef.current !== user._id) return;
       if (res.ok && typeof data.generatedPassword === "string") {
         setResetResult({ nom: user.nom, password: data.generatedPassword });
       } else {
@@ -80,6 +90,9 @@ export function UsersListClient() {
       }
     } catch {
       alert("Erreur lors de la régénération du mot de passe");
+    } finally {
+      resettingRef.current = null;
+      setResettingId(null);
     }
   }
 
@@ -100,7 +113,7 @@ export function UsersListClient() {
             Gestion des Utilisateurs & Accès
           </h1>
           <p className="mt-1 font-body-md text-body-md text-on-surface-variant">
-            Gestion des comptes, attribution des 5 rôles métier et envoi automatique des accès par email.
+            Gestion des comptes, attribution des 5 rôles métier et communication des accès par un administrateur (mot de passe temporaire affiché à la création ou à la régénération).
           </p>
         </div>
         <div>
@@ -205,11 +218,13 @@ export function UsersListClient() {
                         </button>
                         <button
                           onClick={() => handleResetPassword(u)}
-                          className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container-high hover:text-primary"
+                          disabled={resettingId !== null}
+                          className="flex items-center gap-1 rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container-high hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
                           title="Régénérer le mot de passe"
                           aria-label="Régénérer le mot de passe"
                         >
                           <span className="material-symbols-outlined text-[18px]">key</span>
+                          {resettingId === u._id && <span className="text-xs">Régénération…</span>}
                         </button>
                         <button
                           onClick={() => handleDelete(u._id)}

@@ -58,6 +58,7 @@ describe("POST /api/users/[id]/reset-password (régénération par un administra
 
     const res = await callReset(String(target._id));
     expect(res.status).toBe(200);
+    expect(res.headers.get("Cache-Control")).toBe("no-store");
     const data = await res.json();
     expect(typeof data.generatedPassword).toBe("string");
     expect(data.generatedPassword.length).toBeGreaterThanOrEqual(8);

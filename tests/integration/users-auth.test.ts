@@ -47,6 +47,7 @@ describe("Users, Authentication Roles & Operations Quantities Tests", () => {
 
       const res = await createUser(req);
       expect(res.status).toBe(201);
+      expect(res.headers.get("Cache-Control")).toBe("no-store");
       const data = await res.json();
       expect(data.user._id).toBeDefined();
       expect(data.user.username).toBe("chauffeur_jean");
