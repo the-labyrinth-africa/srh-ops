@@ -46,6 +46,16 @@ describe("requirePageAccess", () => {
   });
 });
 
+describe("requirePageAccess : rôle hors énumération", () => {
+  beforeEach(() => vi.resetAllMocks());
+
+  it.each([undefined, "root"])("rôle %s : redirigé vers /login sans boucle", async (role) => {
+    session(role as never);
+    await expect(requirePageAccess("/")).rejects.toThrow("REDIRECT:/login");
+    await expect(requirePageAccess("/clients")).rejects.toThrow("REDIRECT:/login");
+  });
+});
+
 describe("requirePageAccess : mot de passe temporaire et session invalidée", () => {
   beforeEach(() => vi.resetAllMocks());
 

@@ -18,7 +18,12 @@ export async function requirePageAccess(pathname: string): Promise<Session> {
   }
 
   const role = session.user.role;
-  if (!canAccessPath(role, pathname)) redirect(homePathFor(role));
+  if (!canAccessPath(role, pathname)) {
+    // Un rôle hors énumération (ou absent) n'a pas de page d'accueil valide :
+    // renvoyer vers "/" bouclerait indéfiniment, on le renvoie se reconnecter.
+    const home = homePathFor(role);
+    redirect(canAccessPath(role, home) ? home : "/login");
+  }
 
   return session;
 }
