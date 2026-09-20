@@ -68,7 +68,7 @@ Client (navigateur)
 Next.js App Router
    ├── Pages (Server Components) → rendu des vues
    ├── API Routes (Route Handlers) → logique métier / accès DB
-   └── Middlewares → authentification, rôles
+   └── Middleware (`src/middleware.ts`) → authentification, rôles
    ↓
 Mongoose (ODM)
    ↓
@@ -76,6 +76,8 @@ MongoDB (Atlas)
 ```
 
 ### 3.3 Structure du projet
+
+> **Structure actuelle.** Le code applicatif vit sous `src/` : `src/app` (pages et routes), `src/backend/<domaine>` (architecture hexagonale, `platform` pour les briques techniques), `src/frontend/<fonctionnalité>` (avec `design-system`), `src/shared`, et les dossiers hérités `src/lib`, `src/models`, `src/components`, `src/hooks` en cours de migration ; `src/middleware.ts` est le middleware. Voir la section « Architecture » du [README](./README.md). L'arbre ci-dessous est l'arborescence d'origine du plan (sans le préfixe `src/`), conservée à titre historique.
 
 ```
 srh-planification/

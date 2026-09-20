@@ -6,6 +6,8 @@
 **Durée estimée :** 7 à 9 semaines  
 **Spec de référence :** [AGENTS.md](./AGENTS.md)
 
+> Note : l'arborescence du code a changé (tout sous `src/`, backend par domaine, frontend par fonctionnalité) ; voir la section « Architecture » du [README](./README.md). Les chemins cités plus bas décrivent l'organisation d'origine.
+
 ---
 
 ## Suivi des sprints

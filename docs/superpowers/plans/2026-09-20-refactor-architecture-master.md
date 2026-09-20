@@ -30,7 +30,7 @@ NEXTAUTH_URL="http://localhost:3000" NEXT_TELEMETRY_DISABLED=1 npx next build
 
 | Jalon | Contenu | Dépend de | Statut du plan |
 |---|---|---|---|
-| **R0** | Fondations (`src/`, `shared/`, `platform/` base + identifiants, test d'architecture, ESLint) + **pilote `equipes`** (backend et frontend) | — | **Détaillé** |
+| **R0** | Fondations (`src/`, `shared/`, `platform/` base + identifiants, test d'architecture, ESLint) + **pilote `equipes`** (backend et frontend) | — | **Réalisé** |
 | R1 | `vehicules`, `equipements` (répétition du modèle, ≈ 1 jour chacun) | R0 | À détailler après R0 |
 | R2 | `clients-sites` (règle de périmètre du compte client, garde de suppression) | R0 | À détailler après R0 |
 | R3 | `comptes` (utilisateurs, authentification, invitation, réinitialisation, jetons, limiteur, e-mail) — **sensible**, en 3 sous-plans : 3a `platform` (e-mail, limiteur, exécution différée, horloge, URL) ; 3b cas d'usage et adaptateurs ; 3c NextAuth, `Acteur`, gardes de pages et de routes | R1, R2 | À détailler |
@@ -62,6 +62,14 @@ Ordre recommandé : R0 → R1 → R2 → R3 → R4 → (R5, R6, R7) → R8 → R
 - Cas d'usage : une fabrique `creerCasDUsage<Domaine>(dependances)` renvoie un objet de fonctions asynchrones ; assemblage dans `composition.ts`.
 - Tests neufs : **collés au code** (`*.test.ts` à côté du fichier testé) ; les tests d'intégration existants restent dans `tests/integration` jusqu'à la clôture (R9).
 - Messages de commit : `refactor(<domaine>): …`, jamais de changement de comportement dans un commit `refactor`.
+
+## Enseignements de R0
+
+- `next build` était **déjà cassé sur `main`** avant le refactoring (export du middleware non reconnu par Next 16) ; corrigé dans son propre commit (`fix(middleware): export par défaut explicite pour Next 16`), avant tout déplacement de fichier.
+- Les règles du vérificateur d'architecture ont été durcies en cours de jalon (imports de dossier, `shared` isolé, `platform` sans domaines, `index.ts` restreint, structure inconnue signalée, héritage toléré uniquement dans `http/`, `infrastructure/` et `composition.ts`, tolérance retirée à R9).
+- Codemod : après un passage de `remplacer-imports.mjs`, relire le diff et **annuler les modifications collatérales** (fixtures de test, commentaires et chaînes qui contenaient un ancien chemin).
+- `git add` avec des pathspecs d'exclusion pour des dossiers ignorés par Git (`.agents/`, `.claude/`, `rapports/`…) retourne un code non nul mais **indexe correctement** les autres fichiers : vérifier avec `git status` plutôt que se fier au code de retour.
+- `MongoMemoryServer` démarre **une fois par fichier de test** (y compris les tests collés au code, comme `equipe.repository.mongoose.test.ts`) ; un échec intermittent de démarrage se règle par une relance.
 
 ## Critères de sortie du chantier
 

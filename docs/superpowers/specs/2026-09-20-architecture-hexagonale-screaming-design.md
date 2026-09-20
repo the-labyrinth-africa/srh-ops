@@ -1,7 +1,7 @@
 # Refactoring d'architecture : backend hexagonal, frontend « screaming » — Spécification de conception
 
 **Date :** 20 septembre 2026
-**Statut :** conception validée section par section avec le client ; en attente de relecture de ce document avant rédaction du plan d'implémentation.
+**Statut :** R0 (fondations + pilote equipes) réalisé ; jalons R1 à R9 à venir
 **Portée :** application SRH Ops entière (≈ 11 000 lignes applicatives, ≈ 5 700 lignes de tests, 30 routes d'API, 16 pages).
 
 ## 1. Objectif

@@ -10,6 +10,42 @@ Plateforme back-office de planification et suivi des opérations de collecte SRH
 - Tailwind CSS v4 (design system Industrial Integrity)
 - FullCalendar (planning)
 
+## Architecture
+
+Tout le code applicatif vit sous `src/` (les dossiers `scripts/`, `public/`, `tests/` et `docs/` restent à la racine, ainsi que `next.config.ts`). Le middleware d'authentification est `src/middleware.ts` (export par défaut explicite, exigé par Next 16).
+
+- `src/backend/<domaine>/` : un domaine métier par dossier, en architecture hexagonale. `src/backend/platform/` regroupe les briques techniques partagées (connexion MongoDB, identifiants Mongo).
+- `src/frontend/<fonctionnalité>/` : une fonctionnalité métier par dossier (« screaming »), plus `src/frontend/design-system/` (composants génériques).
+- `src/shared/` : types, rôles, permissions et règles pures utilisables des deux côtés (aucune dépendance technique).
+- `src/app/` : couche de composition Next (pages et routes). Les `route.ts` ne font que ré-exporter les contrôleurs du domaine.
+
+Un domaine backend contient `domain/` (entités, erreurs métier, ports), `application/` (cas d'usage), `infrastructure/` (adaptateurs Mongoose et faux en mémoire), `http/` (contrôleurs, schémas Zod, présentation JSON), `composition.ts` (assemblage) et `index.ts` (seule API visible des autres domaines).
+
+Règles de dépendance (vérifiées par `tests/architecture/regles-de-dependance.test.ts` et par ESLint) :
+
+- **R1** : `domain/` n'importe que `shared/` et lui-même.
+- **R2** : `application/` n'importe que `domain/`, `shared/` et des ports ; jamais mongoose, next, next-auth, nodemailer, bcryptjs, jspdf ni exceljs.
+- **R3** : `infrastructure/` et `http/` importent `application/`, `domain/`, `shared/`, `platform/` ; `http/` n'atteint `infrastructure/` que via `composition.ts`.
+- **R4** : `src/frontend/**` n'importe rien de `src/backend/**` (ni mongoose, ni les modèles) ; seulement `shared/` et le `design-system`.
+- **R5** : un domaine n'en importe un autre que par son `index.ts`.
+- **R6** : `src/app/**` compose : elle peut importer `frontend/*` et les contrôleurs ou `index.ts` des domaines.
+
+Ajouter un cas d'usage : déclarer le port dans `domain/ports.ts` ; écrire le cas d'usage dans `application/` avec son test sur le faux en mémoire (`infrastructure/en-memoire/`) ; implémenter l'adaptateur Mongoose (`infrastructure/mongoose/`) ; brancher le tout dans `composition.ts` ; écrire le contrôleur dans `http/` ; enfin ré-exporter le gestionnaire depuis le `route.ts` concerné (exemple : `src/app/api/equipes/route.ts`).
+
+État de la migration : le domaine `equipes` (backend `src/backend/equipes`, frontend `src/frontend/equipes`) est migré et sert de modèle. Les autres domaines restent dans les dossiers hérités `src/lib`, `src/models`, `src/components` et `src/hooks` pendant la transition (jalons R1 à R9 de `docs/superpowers/plans/2026-09-20-refactor-architecture-master.md`) ; le test d'architecture ne s'applique aux règles fines qu'aux domaines déjà migrés.
+
+Vérifier la compilation Next sans toucher à la vraie base (variables factices, jamais l'URI réelle) :
+
+```bash
+MONGODB_URI="mongodb://127.0.0.1:9/inexistant" NEXTAUTH_SECRET="verification-build" \
+NEXTAUTH_URL="http://localhost:3000" NEXT_TELEMETRY_DISABLED=1 npx next build
+```
+
+### Notes de migration (écarts connus et voulus du pilote `equipes`)
+
+- La réponse JSON du `POST /api/equipes` (201) liste `_id` en premier ; les clés et les valeurs sont celles d'avant.
+- Les lectures « lean » passent par l'entité : un champ absent du schéma (écrit hors Mongoose) n'est plus renvoyé.
+
 ## Démarrage
 
 ```bash
@@ -46,8 +82,8 @@ MAIL_FROM=
 ## Rôles et accès
 
 Cinq rôles existent : `admin`, `dispatcher`, `lecture`, `chauffeur`, `client`. L'accès aux
-pages est décrit par une matrice unique, `lib/page-access.ts`, qui alimente la protection
-des pages serveur (`lib/page-auth.ts`), le menu (`lib/nav.ts`) et les tests. Un chemin absent
+pages est décrit par une matrice unique, `src/shared/acces/acces-pages.ts`, qui alimente la protection
+des pages serveur (`src/lib/page-auth.ts`), le menu (`src/lib/nav.ts`) et les tests. Un chemin absent
 de la matrice est refusé à tous (refus par défaut) ; un accès refusé redirige vers la page
 d'accueil du rôle (`/terrain` pour un chauffeur, `/acces-limite` pour un client, `/` sinon).
 
@@ -205,7 +241,7 @@ liens elle-même, 30 min / 72 h, est vérifiée dans le code, pas par cet index.
 ### Actualisation du jeton de session
 
 Le jeton de session (JWT) est relu en base au plus toutes les 5 minutes
-(`REFRESH_INTERVAL_MS` dans `lib/auth-refresh.ts`) : un changement de rôle ou de
+(`REFRESH_INTERVAL_MS` dans `src/lib/auth-refresh.ts`) : un changement de rôle ou de
 rattachement s'applique donc au plus 5 minutes après la dernière relecture, dès la requête
 suivante, sans nouvelle connexion, et un compte supprimé perd son accès (session refusée) à
 la relecture suivante.
@@ -256,13 +292,13 @@ désinstalle alors tout service worker déjà enregistré et vide les caches
 1. Ouvrir l'application en HTTPS (déploiement Vercel) dans Chrome/Edge (Android ou desktop).
 2. Android : menu ⋮ → « Ajouter à l'écran d'accueil » ; desktop : icône d'installation
    dans la barre d'adresse. L'app se lance alors en plein écran (`display: standalone`).
-3. Le manifest est servi par `app/manifest.ts`, le service worker par `public/sw.js`.
+3. Le manifest est servi par `src/app/manifest.ts`, le service worker par `public/sw.js`.
 
 ### Comportement hors-ligne (outbox)
 
 Les actions saisies sur `/terrain` (changement de statut, photos) sont mises en file dans
-IndexedDB (`lib/offline/outbox.ts`) puis rejouées dans l'ordre (FIFO) au retour du réseau
-(`hooks/useOfflineSync.ts`). Une action qui échoue reste en file et est retentée au
+IndexedDB (`src/lib/offline/outbox.ts`) puis rejouées dans l'ordre (FIFO) au retour du réseau
+(`src/hooks/useOfflineSync.ts`). Une action qui échoue reste en file et est retentée au
 passage suivant.
 
 ### Limites connues (la PWA reste désactivée tant qu'elles ne sont pas traitées)
@@ -292,4 +328,5 @@ pas traités (Lot « Phase 2 — finition » du plan d'alignement).
 - [PLAN.md](./PLAN.md) — plan d'exécution
 - [docs/superpowers/plans/2026-09-19-alignement-proposition-digitalisation.md](./docs/superpowers/plans/2026-09-19-alignement-proposition-digitalisation.md) — alignement avec la proposition (docs/proposition-digitalisation.pdf)
 - [AGENTS.md](./AGENTS.md) — spec technique
+- [docs/superpowers/specs/2026-09-20-architecture-hexagonale-screaming-design.md](./docs/superpowers/specs/2026-09-20-architecture-hexagonale-screaming-design.md) — conception de l'architecture hexagonale / « screaming » (voir « Architecture »)
 - [DESIGN.md](./DESIGN.md) — design system
