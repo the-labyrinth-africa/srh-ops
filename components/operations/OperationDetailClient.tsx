@@ -10,6 +10,7 @@ import { PhotoUpload } from "@/components/ui/PhotoUpload";
 import { getNextStatuses } from "@/lib/status-transitions";
 import { canWrite } from "@/lib/permissions";
 import { homePathFor } from "@/lib/page-access";
+import { formatApiError } from "@/lib/api-error";
 import type { OperationStatus, QuantiteUnite } from "@/types";
 
 interface OperationPhoto {
@@ -90,18 +91,29 @@ export function OperationDetailClient({ id }: { id: string }) {
     load();
   }, [load]);
 
+  /** Quantité à envoyer : uniquement un nombre strictement positif, sinon rien. */
+  function quantiteToSend(): number | undefined {
+    const value = parseFloat(quantite);
+    return Number.isFinite(value) && value > 0 ? value : undefined;
+  }
+
   async function changeStatus(statut: OperationStatus) {
     const res = await fetch(`/api/operations/${id}/statut`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         statut,
-        quantiteCollectee: quantite ? parseFloat(quantite) : undefined,
+        quantiteCollectee: quantiteToSend(),
         uniteQuantite: unite,
         remarquesTerrain: remarques,
       }),
     });
-    if (res.ok) load();
+    if (res.ok) {
+      load();
+      return;
+    }
+    const data = await res.json().catch(() => ({}));
+    alert(formatApiError(data.error, "Impossible de changer le statut."));
   }
 
   async function handleSaveQuantity(e: React.FormEvent) {
@@ -114,7 +126,7 @@ export function OperationDetailClient({ id }: { id: string }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         statut: op?.statut,
-        quantiteCollectee: quantite ? parseFloat(quantite) : 0,
+        quantiteCollectee: quantiteToSend(),
         uniteQuantite: unite,
         remarquesTerrain: remarques,
       }),
@@ -125,7 +137,10 @@ export function OperationDetailClient({ id }: { id: string }) {
       setQuantitySuccess(true);
       load();
       setTimeout(() => setQuantitySuccess(false), 3000);
+      return;
     }
+    const data = await res.json().catch(() => ({}));
+    alert(formatApiError(data.error, "Impossible d'enregistrer la quantité."));
   }
 
   async function handleSaveSignature() {

@@ -262,6 +262,28 @@ describe("Collectes Récurrentes API Integration Tests", () => {
       );
     });
 
+    it("reprend une récurrence dormante depuis plus de 1000 intervalles", async () => {
+      // 07:00 : après l'ancre (06:00) mais avant l'heure prévue (08:00) du jour
+      vi.setSystemTime(new Date(2026, 8, 1, 7, 0, 0));
+      const anchor = new Date(2026, 8, 1, 6, 0, 0);
+      anchor.setDate(anchor.getDate() - 1500);
+      const { site } = await seedRecurrence({
+        frequence: "personnalisee",
+        intervalleJours: 1,
+        derniereGeneration: anchor,
+      });
+
+      const data = await (await generate(3)).json();
+      expect(data.generatedCount).toBe(3);
+
+      const ops = await Operation.find({ siteId: site._id }).sort({ dateHeurePrevue: 1 });
+      expect(ops.map((o) => o.dateHeurePrevue.getTime())).toEqual([
+        new Date(2026, 8, 1, 8, 0, 0).getTime(),
+        new Date(2026, 8, 2, 8, 0, 0).getTime(),
+        new Date(2026, 8, 3, 8, 0, 0).getTime(),
+      ]);
+    });
+
     it("crée l'occurrence en Planifiée sans ressource et signale le conflit (I7)", async () => {
       const equipe = await Equipe.create({ nom: "Équipe Conflit" });
       const vehicule = await Vehicule.create({ identification: "V-CONFLIT" });

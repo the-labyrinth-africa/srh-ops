@@ -39,7 +39,8 @@ export function dataUrlBytes(dataUrl: string): number {
 
 /**
  * Renvoie une data URL JPEG redimensionnée sous le plafond, ou `null` si la
- * photo reste trop lourde même après compression.
+ * photo reste trop lourde même après compression. Rejette (Error au message
+ * affichable) quand le navigateur ne sait pas décoder l'image.
  */
 export async function compressImageFile(file: File): Promise<string | null> {
   const original = await readAsDataUrl(file);
@@ -52,7 +53,9 @@ export async function compressImageFile(file: File): Promise<string | null> {
   try {
     img = await loadImage(original);
   } catch {
-    return dataUrlBytes(original) <= MAX_PHOTO_BYTES ? original : null;
+    // Décodage impossible (HEIC sur un navigateur qui ne le lit pas, fichier
+    // corrompu…) : envoyer les octets bruts produirait une photo inutilisable.
+    throw new Error("Format d'image non pris en charge (HEIC ?). Prenez la photo en JPEG.");
   }
 
   const scale = Math.min(1, MAX_DIMENSION / Math.max(img.width, img.height) || 1);
@@ -64,6 +67,9 @@ export async function compressImageFile(file: File): Promise<string | null> {
   if (!ctx) {
     return dataUrlBytes(original) <= MAX_PHOTO_BYTES ? original : null;
   }
+  // Fond blanc : sans lui, la transparence d'un PNG devient noire en JPEG.
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
   for (const quality of QUALITY_STEPS) {

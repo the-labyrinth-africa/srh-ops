@@ -36,7 +36,16 @@ function customOccurrences(
   const anchor = new Date(rec.derniereGeneration || rec.createdAt);
   const occurrences: Date[] = [];
 
-  for (let k = 1; k <= MAX_OCCURRENCES_SCAN; k++) {
+  // Une récurrence dormante (ancre très ancienne) ne doit pas épuiser la borne
+  // de sécurité dans le passé : on démarre au dernier rang possiblement encore
+  // dû. Le `- 1` couvre l'heure prévue postérieure à l'heure de l'ancre (une
+  // occurrence du rang `ceil - 1` peut encore être à venir le jour même).
+  const firstK = Math.max(
+    1,
+    Math.ceil((now.getTime() - anchor.getTime()) / (interval * 86_400_000)) - 1
+  );
+
+  for (let k = firstK; k < firstK + MAX_OCCURRENCES_SCAN; k++) {
     const scheduled = new Date(anchor);
     scheduled.setDate(scheduled.getDate() + interval * k);
     scheduled.setHours(hours, minutes, 0, 0);

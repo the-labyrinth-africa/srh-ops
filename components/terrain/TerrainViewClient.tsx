@@ -173,8 +173,18 @@ export function TerrainViewClient() {
     setPhotoUploading(true);
 
     // Redimensionnement local : l'API plafonne chaque photo à 2 Mo.
+    const refused: string[] = [];
     const dataUrls = await Promise.all(
-      Array.from(files).map((file) => compressImageFile(file).catch(() => null))
+      Array.from(files).map(async (file) => {
+        try {
+          const url = await compressImageFile(file);
+          if (!url) refused.push(`${file.name} : photo trop volumineuse, même après compression`);
+          return url;
+        } catch (err) {
+          refused.push(`${file.name} : ${err instanceof Error ? err.message : "photo illisible"}`);
+          return null;
+        }
+      })
     );
 
     pendingPhotosRef.current = [
@@ -185,6 +195,10 @@ export function TerrainViewClient() {
     if (photoInputRef.current) photoInputRef.current.value = "";
     if (cameraInputRef.current) cameraInputRef.current.value = "";
     setPhotoUploading(false);
+
+    if (refused.length > 0) {
+      alert(`${refused.length} photo(s) refusée(s) :\n${refused.join("\n")}`);
+    }
   }
 
   return (

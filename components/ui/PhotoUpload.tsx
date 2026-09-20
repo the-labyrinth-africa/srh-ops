@@ -49,7 +49,13 @@ export function PhotoUpload({
 
         for (const file of filesToUpload) {
           // Redimensionnement local : l'API plafonne à 2 Mo par photo.
-          const dataUrl = await compressImageFile(file);
+          let dataUrl: string | null;
+          try {
+            dataUrl = await compressImageFile(file);
+          } catch (err) {
+            setError(err instanceof Error ? err.message : `Le fichier "${file.name}" est illisible.`);
+            continue;
+          }
           if (!dataUrl) {
             setError(`Le fichier "${file.name}" reste trop lourd même après compression.`);
             continue;

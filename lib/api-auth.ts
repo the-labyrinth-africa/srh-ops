@@ -134,7 +134,8 @@ export function extractId(value: unknown): string {
  */
 export function isWithinClientScope(auth: AuthSuccess, documentClientId: unknown): boolean {
   if (!isClientUser(auth.role)) return true;
-  return extractId(documentClientId) === String(auth.clientId ?? "");
+  if (!auth.clientId) return false;
+  return extractId(documentClientId) === String(auth.clientId);
 }
 
 /** Message unique quand une opération n'appartient pas à l'équipe du chauffeur. */
