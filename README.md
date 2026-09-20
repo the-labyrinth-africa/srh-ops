@@ -12,7 +12,7 @@ Plateforme back-office de planification et suivi des opérations de collecte SRH
 
 ## Architecture
 
-Tout le code applicatif vit sous `src/` (les dossiers `scripts/`, `public/`, `tests/` et `docs/` restent à la racine, ainsi que `next.config.ts`). Le middleware d'authentification est `src/middleware.ts` (export par défaut explicite, exigé par Next 16).
+Tout le code applicatif vit sous `src/` (les dossiers `scripts/`, `public/`, `tests/`, `docs/` et `sketch/` restent à la racine, ainsi que `next.config.ts`). Le middleware d'authentification est `src/middleware.ts` (export par défaut explicite, exigé par Next 16).
 
 - `src/backend/<domaine>/` : un domaine métier par dossier, en architecture hexagonale. `src/backend/platform/` regroupe les briques techniques partagées (connexion MongoDB, identifiants Mongo).
 - `src/frontend/<fonctionnalité>/` : une fonctionnalité métier par dossier (« screaming »), plus `src/frontend/design-system/` (composants génériques).
@@ -21,12 +21,12 @@ Tout le code applicatif vit sous `src/` (les dossiers `scripts/`, `public/`, `te
 
 Un domaine backend contient `domain/` (entités, erreurs métier, ports), `application/` (cas d'usage), `infrastructure/` (adaptateurs Mongoose et faux en mémoire), `http/` (contrôleurs, schémas Zod, présentation JSON), `composition.ts` (assemblage) et `index.ts` (seule API visible des autres domaines).
 
-Règles de dépendance (vérifiées par `tests/architecture/regles-de-dependance.test.ts` et par ESLint) :
+Règles de dépendance R1 à R5, vérifiées par `tests/architecture/regles-de-dependance.test.ts` (et, pour les plus courantes, par ESLint) ; R6 décrit la couche de composition `src/app/**`, qui n'est pas encore couverte par le vérificateur.
 
 - **R1** : `domain/` n'importe que `shared/` et lui-même.
 - **R2** : `application/` n'importe que `domain/`, `shared/` et des ports ; jamais mongoose, next, next-auth, nodemailer, bcryptjs, jspdf ni exceljs.
 - **R3** : `infrastructure/` et `http/` importent `application/`, `domain/`, `shared/`, `platform/` ; `http/` n'atteint `infrastructure/` que via `composition.ts`.
-- **R4** : `src/frontend/**` n'importe rien de `src/backend/**` (ni mongoose, ni les modèles) ; seulement `shared/` et le `design-system`.
+- **R4** : `src/frontend/**` n'importe rien de `src/backend/**` (ni mongoose, ni les modèles) ; seulement `shared/` et le `design-system` ; les imports vers les dossiers hérités y restent tolérés jusqu'à R9.
 - **R5** : un domaine n'en importe un autre que par son `index.ts`.
 - **R6** : `src/app/**` compose : elle peut importer `frontend/*` et les contrôleurs ou `index.ts` des domaines.
 
