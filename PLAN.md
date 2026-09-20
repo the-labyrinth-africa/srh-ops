@@ -2,7 +2,7 @@
 
 **Projet :** SRH — Digitalisation des Opérations  
 **Stack :** Next.js 16 / TypeScript / MongoDB / NextAuth  
-**État actuel :** Phase 1 (Sprints 0–5 + S1.5) terminée (100 %) ; Phase 2 (PWA terrain) livrée partiellement (≈ 70 %), non ouverte aux utilisateurs terrain  
+**État actuel :** Phase 1 (Sprints 0–5 + S1.5) terminée (100 %) ; Phase 2 (PWA terrain) livrée partiellement (≈ 70 %), PWA désactivée par défaut (`NEXT_PUBLIC_ENABLE_PWA`) et non ouverte aux utilisateurs terrain  
 **Durée estimée :** 7 à 9 semaines  
 **Spec de référence :** [AGENTS.md](./AGENTS.md)
 
@@ -19,14 +19,14 @@
 | S4 | Dashboard & Finitions | 1 sem. | Terminé | KPI, permissions, responsive mobile |
 | S5 | Recette & Déploiement | 1 sem. | Terminé | Tests unitaires & E2E (100%), build prod, docs, validation |
 | S1.5 | Collectes Récurrentes | 1 sem. | Terminé | Modèle Recurrence, Moteur de génération auto sans doublon, UI /recurrences, tests dédiés (suite complète : 74/74 au 19/09/2026) |
-| P2 | PWA terrain & rapport digital | — | Partiel (≈ 70 %) | Console `/terrain`, rôle chauffeur, photos, signature, quantités, rapport PDF, manifest, service worker, outbox hors-ligne. Reste : correctifs outbox/SW, stockage des photos hors du document, envoi du rapport par e-mail, validation de l'installabilité |
+| P2 | PWA terrain & rapport digital | — | Partiel (≈ 70 %) | Console `/terrain`, rôle chauffeur, photos, signature, quantités, rapport PDF, manifest, service worker, outbox hors-ligne. Service worker désactivé par défaut (`NEXT_PUBLIC_ENABLE_PWA`). Reste : correctifs outbox/SW, stockage des photos hors du document, envoi du rapport par e-mail, validation de l'installabilité |
 
 ### Avancement par phase (mesuré sur le code au 19 septembre 2026)
 
 | Phase | Module | Avancement |
 |-------|--------|-----------|
 | 1 | Planification des collectes | 100 % |
-| 2 | PWA terrain & rapport digital | 70 % (partiellement livrée, défauts connus, voir README) |
+| 2 | PWA terrain & rapport digital | 70 % (partiellement livrée, PWA désactivée par défaut, défauts connus, voir README) |
 | 3 | Traçabilité des déchets | 0 % |
 | 4 | Espace client & demandes en ligne | 5 % |
 | 5 | Notifications & dashboard avancé | 10 % |
@@ -588,7 +588,7 @@ Avant et pendant le développement, SRH doit fournir :
 
 | Phase | Module | Évolutions prévues |
 |-------|--------|-------------------|
-| 2 | PWA terrain & rapport digital | **Partiellement livrée (≈ 70 %)** : `photos`, `signatureClient`, quantités, rapport PDF, `/terrain`, manifest, service worker et outbox présents ; correctifs restants (outbox, SW, stockage des photos, e-mail du rapport) |
+| 2 | PWA terrain & rapport digital | **Partiellement livrée (≈ 70 %)** : `photos`, `signatureClient`, quantités, rapport PDF, `/terrain`, manifest, service worker et outbox présents mais PWA désactivée par défaut ; correctifs restants (outbox, SW, stockage des photos, e-mail du rapport) |
 | 3 | Traçabilité | Collection `tracabilite` liée à Operation (identifiant suivi, volumes, traitement) |
 | 4 | Espace client | Lecture seule sur Operation filtrée par `clientId` + formulaire demande en ligne |
 | 5 | Notifications | Enrichissement dashboard (graphiques, exports), alertes automatisées |
