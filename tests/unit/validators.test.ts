@@ -5,6 +5,7 @@ import { equipeSchema } from "@/lib/validators/equipe";
 import { vehiculeSchema } from "@/lib/validators/vehicule";
 import { equipementSchema } from "@/lib/validators/equipement";
 import { operationSchema, statusUpdateSchema } from "@/lib/validators/operation";
+import { recurrenceSchema } from "@/lib/validators/recurrence";
 
 describe("Zod Validators (lib/validators/*)", () => {
   describe("clientSchema", () => {
@@ -95,6 +96,47 @@ describe("Zod Validators (lib/validators/*)", () => {
       expect(result.success).toBe(true);
     });
 
+    it("should reject malformed ObjectId strings (I11)", () => {
+      const base = {
+        clientId: "507f1f77bcf86cd799439011",
+        siteId: "507f1f77bcf86cd799439012",
+        natureIntervention: "Collecte",
+        dateHeurePrevue: "2026-09-10T10:00:00Z",
+      };
+
+      expect(operationSchema.safeParse({ ...base, clientId: "not-an-id" }).success).toBe(false);
+      expect(operationSchema.safeParse({ ...base, siteId: "123" }).success).toBe(false);
+      expect(operationSchema.safeParse({ ...base, equipeId: "oops" }).success).toBe(false);
+      expect(operationSchema.safeParse({ ...base, vehiculeId: "oops" }).success).toBe(false);
+      expect(operationSchema.safeParse({ ...base, equipementIds: ["oops"] }).success).toBe(false);
+    });
+
+    it("should still treat an empty optional id as « non renseigné » (I11)", () => {
+      const result = operationSchema.safeParse({
+        clientId: "507f1f77bcf86cd799439011",
+        siteId: "507f1f77bcf86cd799439012",
+        natureIntervention: "Collecte",
+        dateHeurePrevue: "2026-09-10T10:00:00Z",
+        equipeId: "",
+        vehiculeId: "",
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it("should reject a zero or negative collected quantity (I5)", () => {
+      const base = {
+        clientId: "507f1f77bcf86cd799439011",
+        siteId: "507f1f77bcf86cd799439012",
+        natureIntervention: "Collecte",
+        dateHeurePrevue: "2026-09-10T10:00:00Z",
+      };
+
+      expect(operationSchema.safeParse({ ...base, quantiteCollectee: 0 }).success).toBe(false);
+      expect(operationSchema.safeParse({ ...base, quantiteCollectee: -5 }).success).toBe(false);
+      expect(operationSchema.safeParse({ ...base, quantiteCollectee: 1 }).success).toBe(true);
+      expect(operationSchema.safeParse(base).success).toBe(true);
+    });
+
     it("should reject operation without clientId or siteId or natureIntervention", () => {
       const result = operationSchema.safeParse({
         clientId: "",
@@ -115,6 +157,41 @@ describe("Zod Validators (lib/validators/*)", () => {
 
     it("should reject invalid status value", () => {
       expect(statusUpdateSchema.safeParse({ statut: "InvalidStatus" }).success).toBe(false);
+    });
+
+    it("should reject a zero or negative collected quantity (I5)", () => {
+      expect(statusUpdateSchema.safeParse({ statut: "Terminée", quantiteCollectee: 0 }).success).toBe(false);
+      expect(statusUpdateSchema.safeParse({ statut: "Terminée", quantiteCollectee: -1 }).success).toBe(false);
+      expect(statusUpdateSchema.safeParse({ statut: "Terminée", quantiteCollectee: 850 }).success).toBe(true);
+      expect(statusUpdateSchema.safeParse({ statut: "Terminée" }).success).toBe(true);
+    });
+  });
+
+  describe("recurrenceSchema", () => {
+    const base = {
+      clientId: "507f1f77bcf86cd799439011",
+      siteId: "507f1f77bcf86cd799439012",
+      natureIntervention: "Collecte hebdomadaire",
+      frequence: "hebdomadaire" as const,
+      jourSemaine: 1,
+    };
+
+    it("should validate a valid recurrence", () => {
+      expect(recurrenceSchema.safeParse(base).success).toBe(true);
+    });
+
+    it("should reject malformed ObjectId strings (I11)", () => {
+      expect(recurrenceSchema.safeParse({ ...base, clientId: "nope" }).success).toBe(false);
+      expect(recurrenceSchema.safeParse({ ...base, siteId: "507f1f77" }).success).toBe(false);
+      expect(recurrenceSchema.safeParse({ ...base, equipeId: "nope" }).success).toBe(false);
+      expect(recurrenceSchema.safeParse({ ...base, vehiculeId: "nope" }).success).toBe(false);
+      expect(recurrenceSchema.safeParse({ ...base, equipementIds: ["nope"] }).success).toBe(false);
+    });
+
+    it("should still treat an empty optional id as « non renseigné » (I11)", () => {
+      expect(
+        recurrenceSchema.safeParse({ ...base, equipeId: "", vehiculeId: "" }).success
+      ).toBe(true);
     });
   });
 });

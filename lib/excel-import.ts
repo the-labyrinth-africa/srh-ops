@@ -41,28 +41,50 @@ function parseDate(value: ExcelJS.CellValue, rowNumber: number): { date?: Date; 
     return { date };
   }
   if (typeof value === "string") {
-    const date = new Date(value);
-    if (!isNaN(date.getTime())) return { date };
-    // Try dd/mm/yyyy or dd-mm-yyyy
-    const match = value.match(/^(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{2,4})$/);
-    if (match) {
-      const [, d, m, y] = match;
-      const year = y.length === 2 ? `20${y}` : y;
-      const parsed = new Date(`${year}-${m}-${d}`);
+    const trimmed = value.trim();
+
+    // Format français d'abord : "05/06/2026" est le 5 juin, pas le 6 mai.
+    // `new Date(string)` interprète jj/mm/aaaa comme mm/jj/aaaa et doit donc
+    // être essayé en dernier seulement.
+    const fr = trimmed.match(/^(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{2,4})$/);
+    if (fr) {
+      const day = Number(fr[1]);
+      const month = Number(fr[2]);
+      const year = fr[3].length === 2 ? 2000 + Number(fr[3]) : Number(fr[3]);
+      if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+        const parsed = new Date(year, month - 1, day);
+        if (!isNaN(parsed.getTime())) return { date: parsed };
+      }
+      return { error: `Date invalide à la ligne ${rowNumber}: "${value}"` };
+    }
+
+    // Format ISO aaaa-mm-jj : construit en heure locale pour éviter le décalage
+    // d'un jour introduit par l'interprétation UTC de `new Date`.
+    const iso = trimmed.match(/^(\d{4})[/\-.](\d{1,2})[/\-.](\d{1,2})$/);
+    if (iso) {
+      const parsed = new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
       if (!isNaN(parsed.getTime())) return { date: parsed };
     }
+
+    const date = new Date(trimmed);
+    if (!isNaN(date.getTime())) return { date };
+
     return { error: `Date invalide à la ligne ${rowNumber}: "${value}"` };
   }
   return { error: `Date non reconnue à la ligne ${rowNumber}` };
 }
 
+/**
+ * Renvoie `quantite: undefined` quand la cellule est vide. Le client SRH n'a pas
+ * de collecte à quantité nulle : une absence de quantité n'est pas un zéro.
+ */
 function parseQuantite(value: ExcelJS.CellValue, rowNumber: number): { quantite?: number; error?: string } {
+  if (value === undefined || value === null || value === "") return {};
   if (typeof value === "number") return { quantite: value };
   if (typeof value === "string") {
     const num = parseFloat(value.replace(",", ".").replace(/[^0-9.\-]/g, ""));
     if (!isNaN(num)) return { quantite: num };
   }
-  if (value === undefined || value === null || value === "") return { quantite: 0 };
   return { error: `Quantité invalide à la ligne ${rowNumber}: "${String(value)}"` };
 }
 
@@ -196,10 +218,21 @@ export async function parseExcelFile(buffer: Buffer, fileName: string): Promise<
       continue;
     }
 
+    // Une quantité nulle ou absente n'est pas une collecte : la ligne est
+    // ignorée et signalée dans le compte rendu.
+    if (quantite === undefined || quantite <= 0) {
+      result.errors.push({
+        row: r,
+        message: `Ligne ${r} ignorée : quantité nulle ou absente`,
+      });
+      result.skippedRows++;
+      continue;
+    }
+
     result.rows.push({
       site: siteStr,
       date,
-      quantite: quantite ?? 0,
+      quantite,
       rowNumber: r,
     });
   }

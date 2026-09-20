@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { requireInternalAuth } from "@/lib/api-auth";
+import { guardObjectId } from "@/lib/mongo-id";
 import { parseExcelFile } from "@/lib/excel-import";
 import { Client } from "@/models/Client";
 import { Site } from "@/models/Site";
@@ -8,6 +9,15 @@ import { Operation } from "@/models/Operation";
 import type { OperationStatus } from "@/types";
 
 const DEFAULT_NATURE = "Collecte d'huiles usagées";
+
+/** Le parseur charge tout le classeur en mémoire : on borne l'entrée. */
+const MAX_FILE_BYTES = 5 * 1024 * 1024;
+const XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+const NEUTRAL_MIMES = ["", "application/octet-stream", "application/x-zip-compressed", "application/zip"];
+
+function hasXlsxExtension(name: string): boolean {
+  return /\.xlsx$/i.test(name.trim());
+}
 
 function validateImportBody(body: unknown) {
   if (!body || typeof body !== "object") {
@@ -63,9 +73,24 @@ export async function POST(req: NextRequest) {
     }
 
     const fileBlob = file as unknown as Blob;
+    fileName = (file as unknown as File).name || "interventions.xlsx";
+
+    const mimeType = (fileBlob.type || "").toLowerCase();
+    if (mimeType !== XLSX_MIME && !NEUTRAL_MIMES.includes(mimeType)) {
+      return NextResponse.json(
+        { error: "Format de fichier non supporté : seuls les fichiers .xlsx sont acceptés." },
+        { status: 400 }
+      );
+    }
+    if (fileBlob.size > MAX_FILE_BYTES) {
+      return NextResponse.json(
+        { error: "Le fichier dépasse 5 Mo. Découpez le classeur avant de l'importer." },
+        { status: 413 }
+      );
+    }
+
     const arrayBuffer = await fileBlob.arrayBuffer();
     buffer = Buffer.from(arrayBuffer);
-    fileName = (file as unknown as File).name || "interventions.xlsx";
   } else {
     const body = await req.json();
     const parsed = validateImportBody(body);
@@ -78,6 +103,20 @@ export async function POST(req: NextRequest) {
 
   if (!buffer || buffer.length === 0) {
     return NextResponse.json({ error: "Fichier requis (multipart ou fileBase64)" }, { status: 400 });
+  }
+
+  if (!hasXlsxExtension(fileName)) {
+    return NextResponse.json(
+      { error: "Format de fichier non supporté : seuls les fichiers .xlsx sont acceptés." },
+      { status: 400 }
+    );
+  }
+
+  if (buffer.length > MAX_FILE_BYTES) {
+    return NextResponse.json(
+      { error: "Le fichier dépasse 5 Mo. Découpez le classeur avant de l'importer." },
+      { status: 413 }
+    );
   }
 
   const parseResult = await parseExcelFile(buffer, fileName);
@@ -120,20 +159,20 @@ export async function POST(req: NextRequest) {
   // ---- Import mode ----
   await connectDB();
 
-  // Resolve default client
-  let client;
-  if (clientId) {
-    client = await Client.findById(clientId);
+  // I2 : le client cible est explicite, vérifié, et jamais créé à la volée.
+  if (!clientId) {
+    return NextResponse.json(
+      { error: "Client requis : sélectionnez le client destinataire de l'import." },
+      { status: 400 }
+    );
   }
+
+  const clientGuard = guardObjectId(clientId);
+  if (!clientGuard.valid) return clientGuard.error;
+
+  const client = await Client.findById(clientId);
   if (!client) {
-    client = await Client.findOne({ nom: "SRH" });
-  }
-  if (!client) {
-    const newClient = new Client({
-      nom: "SRH",
-      contact: { telephone: "", email: "" },
-    });
-    client = await newClient.save();
+    return NextResponse.json({ error: "Client introuvable." }, { status: 404 });
   }
 
   const clientObjId = client._id;
@@ -142,7 +181,12 @@ export async function POST(req: NextRequest) {
   const siteCache = new Map<string, string>();
   for (const siteName of uniqueSites) {
     const normalized = siteName.trim().toLowerCase();
-    const existing = await Site.findOne({ nom: { $regex: new RegExp(`^${escapeRegex(normalized)}$`, "i") } });
+    // I1 : la recherche est bornée au client cible, sinon un site homonyme d'un
+    // autre client se retrouve rattaché aux opérations importées.
+    const existing = await Site.findOne({
+      clientId: clientObjId,
+      nom: { $regex: new RegExp(`^${escapeRegex(siteName.trim())}$`, "i") },
+    });
     if (existing) {
       siteCache.set(normalized, String(existing._id));
       continue;

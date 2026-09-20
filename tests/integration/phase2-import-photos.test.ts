@@ -15,6 +15,8 @@ import { Client } from "@/models/Client";
 import { Site } from "@/models/Site";
 import { Operation } from "@/models/Operation";
 
+const XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
 async function buildXlsxBuffer() {
   const wb = new ExcelJS.Workbook();
   const ws = wb.addWorksheet("Feuil1");
@@ -67,6 +69,9 @@ describe("Phase 2 — Import, Photos, Signature & Rapport", () => {
   });
 
   it("should import an Excel file and create sites + operations", async () => {
+    // I2 : le client cible est désormais obligatoire et jamais créé à la volée.
+    const targetClient = await Client.create({ nom: "Client Import" });
+
     const buffer = await buildXlsxBuffer();
     const formData = new FormData();
     formData.append(
@@ -74,6 +79,7 @@ describe("Phase 2 — Import, Photos, Signature & Rapport", () => {
       new File([buffer as unknown as BlobPart], "recap.xlsx", { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })
     );
     formData.append("mode", "import");
+    formData.append("clientId", targetClient._id.toString());
 
     const req = new NextRequest("http://localhost:3000/api/import", {
       method: "POST",
@@ -86,9 +92,9 @@ describe("Phase 2 — Import, Photos, Signature & Rapport", () => {
     expect(data.import).toBe(true);
     expect(data.created).toBe(5);
 
-    // Client par défaut SRH créé
-    const client = await Client.findOne({ nom: "SRH" });
-    expect(client).not.toBeNull();
+    // Aucun client "SRH" fabriqué automatiquement
+    expect(await Client.findOne({ nom: "SRH" })).toBeNull();
+    expect(await Client.countDocuments()).toBe(1);
 
     // Sites créés
     const sites = await Site.find({});
@@ -111,10 +117,119 @@ describe("Phase 2 — Import, Photos, Signature & Rapport", () => {
       new File([buffer as unknown as BlobPart], "recap.xlsx", { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })
     );
     formData2.append("mode", "import");
+    formData2.append("clientId", targetClient._id.toString());
     const res2 = await importExcel(new NextRequest("http://localhost:3000/api/import", { method: "POST", body: formData2 }));
     const data2 = await res2.json();
     expect(data2.created).toBe(0);
     expect(data2.duplicates).toBe(5);
+  });
+
+  describe("Garde-fous de l'import (I1, I2, I3, I5)", () => {
+    async function importForm(fields: Record<string, string>, file?: File) {
+      const formData = new FormData();
+      if (file) formData.append("file", file);
+      Object.entries(fields).forEach(([k, v]) => formData.append(k, v));
+      return importExcel(
+        new NextRequest("http://localhost:3000/api/import", { method: "POST", body: formData })
+      );
+    }
+
+    async function xlsxFile(name = "recap.xlsx") {
+      const buffer = await buildXlsxBuffer();
+      return new File([buffer as unknown as BlobPart], name, { type: XLSX_MIME });
+    }
+
+    it("refuse un import sans clientId (I2)", async () => {
+      const res = await importForm({ mode: "import" }, await xlsxFile());
+      expect(res.status).toBe(400);
+      expect(await Client.countDocuments()).toBe(0);
+    });
+
+    it("refuse un clientId malformé sans planter en 500 (I2)", async () => {
+      const res = await importForm(
+        { mode: "import", clientId: "pas-un-id" },
+        await xlsxFile()
+      );
+      expect(res.status).toBe(400);
+      expect(await Client.countDocuments()).toBe(0);
+    });
+
+    it("refuse un clientId inconnu et ne crée aucun client (I2)", async () => {
+      const res = await importForm(
+        { mode: "import", clientId: "507f1f77bcf86cd799439099" },
+        await xlsxFile()
+      );
+      expect(res.status).toBe(404);
+      expect(await Client.countDocuments()).toBe(0);
+    });
+
+    it("refuse un fichier de plus de 5 Mo (I3)", async () => {
+      const big = new File(
+        [new Uint8Array(5 * 1024 * 1024 + 1024)],
+        "gros.xlsx",
+        { type: XLSX_MIME }
+      );
+      const client = await Client.create({ nom: "Client Gros Fichier" });
+      const res = await importForm({ mode: "preview", clientId: client._id.toString() }, big);
+      expect(res.status).toBe(413);
+    });
+
+    it("refuse un fichier qui n'est pas un .xlsx (I3)", async () => {
+      const client = await Client.create({ nom: "Client Mauvais Format" });
+      const res = await importForm(
+        { mode: "preview", clientId: client._id.toString() },
+        await xlsxFile("recap.csv")
+      );
+      expect(res.status).toBe(400);
+    });
+
+    it("ne réutilise pas le site d'un autre client (I1)", async () => {
+      const clientA = await Client.create({ nom: "Client A Import" });
+      const clientB = await Client.create({ nom: "Client B Import" });
+      await Site.create({ clientId: clientA._id, nom: "PO Anoumabo" });
+
+      const res = await importForm(
+        { mode: "import", clientId: clientB._id.toString() },
+        await xlsxFile()
+      );
+      expect(res.status).toBe(200);
+
+      const sites = await Site.find({ nom: { $regex: /^po anoumabo$/i } });
+      expect(sites).toHaveLength(2);
+      expect(sites.filter((s) => String(s.clientId) === String(clientB._id))).toHaveLength(1);
+
+      const operations = await Operation.find({});
+      for (const op of operations) {
+        expect(String(op.clientId)).toBe(String(clientB._id));
+      }
+    });
+
+    it("ignore les lignes à quantité nulle et les signale (I5)", async () => {
+      const client = await Client.create({ nom: "Client Quantite Nulle" });
+
+      const wb = new ExcelJS.Workbook();
+      const ws = wb.addWorksheet("Feuil1");
+      ws.addRow(["SITES", "DATES", "QTES"]);
+      ws.addRow(["site plein", new Date(2026, 5, 11), 200]);
+      ws.addRow(["site zero", new Date(2026, 5, 12), 0]);
+      const buffer = Buffer.from((await wb.xlsx.writeBuffer()) as ArrayBuffer);
+
+      const res = await importForm(
+        { mode: "import", clientId: client._id.toString() },
+        new File([buffer as unknown as BlobPart], "quantites.xlsx", { type: XLSX_MIME })
+      );
+      expect(res.status).toBe(200);
+
+      const data = await res.json();
+      expect(data.created).toBe(1);
+      expect(data.summary.skippedRows).toBe(1);
+      const reported = data.summary.errors.find((e: { row: number }) => e.row === 3);
+      expect(reported.message).toContain("quantité nulle ou absente");
+
+      const ops = await Operation.find({});
+      expect(ops).toHaveLength(1);
+      expect(ops[0].quantiteCollectee).toBe(200);
+    });
   });
 
   it("should store client signature via status update", async () => {

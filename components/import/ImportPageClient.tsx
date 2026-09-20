@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { canWrite } from "@/lib/permissions";
 
@@ -45,6 +45,22 @@ export function ImportPageClient() {
   const [natureIntervention, setNatureIntervention] = useState(
     "Collecte d'huiles usagées"
   );
+  const [clients, setClients] = useState<{ _id: string; nom: string }[]>([]);
+  const [clientId, setClientId] = useState("");
+
+  // Le client destinataire est obligatoire : l'import ne fabrique plus de client.
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/clients")
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        if (!cancelled && Array.isArray(data)) setClients(data);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function runPreview(f: File) {
     setLoading(true);
@@ -79,8 +95,12 @@ export function ImportPageClient() {
     (f: File | null | undefined) => {
       if (!f) return;
       const ext = f.name.split(".").pop()?.toLowerCase();
-      if (ext !== "xlsx" && ext !== "xls") {
-        setError("Seuls les fichiers Excel (.xlsx, .xls) sont acceptés.");
+      if (ext !== "xlsx") {
+        setError("Seuls les fichiers Excel .xlsx sont acceptés.");
+        return;
+      }
+      if (f.size > 5 * 1024 * 1024) {
+        setError("Le fichier dépasse 5 Mo. Découpez le classeur avant de l'importer.");
         return;
       }
       setFile(f);
@@ -92,6 +112,10 @@ export function ImportPageClient() {
 
   async function runImport() {
     if (!file) return;
+    if (!clientId) {
+      setError("Sélectionnez le client destinataire avant de lancer l'import.");
+      return;
+    }
     setImporting(true);
     setError(null);
 
@@ -99,6 +123,7 @@ export function ImportPageClient() {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("mode", "import");
+      formData.append("clientId", clientId);
       formData.append("natureIntervention", natureIntervention);
 
       const res = await fetch("/api/import", {
@@ -182,7 +207,7 @@ export function ImportPageClient() {
           <input
             ref={fileInputRef}
             type="file"
-            accept=".xlsx,.xls"
+            accept=".xlsx"
             className="hidden"
             onChange={(e) => handleFile(e.target.files?.[0])}
           />
@@ -193,7 +218,7 @@ export function ImportPageClient() {
             Glissez votre fichier Excel ici
           </h2>
           <p className="mt-1 font-body-md text-body-md text-on-surface-variant">
-            ou cliquez pour sélectionner un fichier .xlsx / .xls
+            ou cliquez pour sélectionner un fichier .xlsx (5 Mo maximum)
           </p>
           <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-surface-container-low px-4 py-2 font-label-sm text-label-sm text-on-surface-variant">
             <span className="material-symbols-outlined text-[16px]">table_chart</span>
@@ -226,6 +251,31 @@ export function ImportPageClient() {
             >
               <span className="material-symbols-outlined">close</span>
             </button>
+          </div>
+
+          <div className="flex flex-col gap-2 rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-4">
+            <label
+              htmlFor="import-client"
+              className="font-label-md text-label-md text-on-surface-variant"
+            >
+              Client destinataire (obligatoire)
+            </label>
+            <select
+              id="import-client"
+              value={clientId}
+              onChange={(e) => setClientId(e.target.value)}
+              className="h-11 w-full rounded-xl bg-surface-container-low px-3.5 font-body-md text-body-md outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="">— Sélectionner un client —</option>
+              {clients.map((c) => (
+                <option key={c._id} value={c._id}>
+                  {c.nom}
+                </option>
+              ))}
+            </select>
+            <p className="font-label-sm text-label-sm text-outline">
+              Les sites et opérations importés sont rattachés à ce client.
+            </p>
           </div>
 
           <div className="flex flex-col gap-2 rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-4">
@@ -337,7 +387,7 @@ export function ImportPageClient() {
             <button
               type="button"
               onClick={runImport}
-              disabled={importing}
+              disabled={importing || !clientId}
               className="flex items-center gap-2 justify-center rounded-xl bg-primary px-5 py-2.5 font-label-md text-label-md text-on-primary hover:bg-primary-container disabled:opacity-50"
             >
               <span className="material-symbols-outlined text-[18px]">database_download</span>
