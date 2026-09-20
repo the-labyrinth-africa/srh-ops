@@ -98,6 +98,9 @@ export const authOptions: NextAuthOptions = {
       }
       // Tant que le jeton porte le drapeau « mot de passe temporaire », on relit la base à chaque
       // appel : il tombe dès le changement effectué, même si update() côté client n'a pas abouti.
+      // NB : côté serveur, `getServerSession` ne peut pas persister le cookie rafraîchi ;
+      // `refreshedAt` n'est écrit que par le fetch /api/auth/session du client. Un trafic
+      // serveur seul au-delà de 5 minutes fait donc un `User.findById` indexé par appel.
       if (trigger === "update" || token.mustChangePassword || needsRefresh(token)) {
         return refreshTokenFromDb(token);
       }

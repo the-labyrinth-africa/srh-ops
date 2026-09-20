@@ -10,7 +10,14 @@ interface RefreshedUser {
   mustChangePassword?: boolean;
 }
 
-/** Intervalle maximal entre deux relectures du compte dans la base. */
+/**
+ * Intervalle maximal entre deux relectures du compte dans la base.
+ *
+ * Attention : `getServerSession` côté serveur ne peut pas réécrire le cookie de
+ * session, donc le `refreshedAt` rafraîchi n'est persisté que par le fetch
+ * `/api/auth/session` du client. Un trafic uniquement serveur au-delà de cet
+ * intervalle relit donc le compte (un `User.findById` indexé) à chaque appel.
+ */
 export const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 
 export function needsRefresh(token: JWT, now = Date.now()): boolean {
