@@ -97,7 +97,25 @@ export function OperationDetailClient({ id }: { id: string }) {
     return Number.isFinite(value) && value > 0 ? value : undefined;
   }
 
+  /**
+   * Message d'erreur quand l'utilisateur a saisi quelque chose que
+   * `quantiteToSend()` écarte (0, négatif, non numérique). Un champ vide n'est
+   * pas une erreur : le changement de statut se fait alors sans quantité.
+   */
+  function quantiteError(): string | null {
+    if (quantite.trim() === "" || quantiteToSend() !== undefined) return null;
+    const value = parseFloat(quantite);
+    if (!Number.isFinite(value)) return "La quantité saisie n'est pas un nombre valide.";
+    if (value === 0) return "Une quantité de 0 n'est pas une collecte valide.";
+    return "La quantité ne peut pas être négative.";
+  }
+
   async function changeStatus(statut: OperationStatus) {
+    const invalid = quantiteError();
+    if (invalid) {
+      alert(invalid);
+      return;
+    }
     const res = await fetch(`/api/operations/${id}/statut`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -118,6 +136,11 @@ export function OperationDetailClient({ id }: { id: string }) {
 
   async function handleSaveQuantity(e: React.FormEvent) {
     e.preventDefault();
+    const invalid = quantiteError();
+    if (invalid) {
+      alert(invalid);
+      return;
+    }
     setSavingQuantity(true);
     setQuantitySuccess(false);
 
@@ -299,7 +322,7 @@ export function OperationDetailClient({ id }: { id: string }) {
             <input
               type="number"
               step="0.01"
-              min="0"
+              min="0.01"
               required
               value={quantite}
               onChange={(e) => setQuantite(e.target.value)}
