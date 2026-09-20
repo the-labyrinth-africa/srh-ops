@@ -35,8 +35,8 @@ const eslintConfig = defineConfig([
   },
   {
     // Architecture : domain et application n'importent aucune technologie (règles R1/R2).
-    files: ["src/backend/*/domain/**/*.ts", "src/backend/*/application/**/*.ts"],
-    ignores: ["**/*.test.ts"],
+    files: ["src/backend/*/{domain,application}/**/*.{ts,tsx}"],
+    ignores: ["**/*.test.{ts,tsx}"],
     rules: {
       "no-restricted-imports": [
         "error",
@@ -46,7 +46,7 @@ const eslintConfig = defineConfig([
             message: "Le domaine et les cas d'usage ne dépendent d'aucune technologie : passer par un port.",
           })),
           patterns: [
-            { group: ["next/*", "next-auth/*", "jspdf-*"], message: "Idem : passer par un port." },
+            { group: ["next/*", "next-auth/*", "jspdf/*", "jspdf-*", "mongoose/*", "nodemailer/*", "bcryptjs/*", "exceljs/*"], message: "Idem : passer par un port." },
           ],
         },
       ],

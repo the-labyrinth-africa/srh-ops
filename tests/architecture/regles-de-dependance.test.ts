@@ -32,7 +32,7 @@ function importsDe(source: string): string[] {
 }
 
 describe("règles de dépendance de l'architecture", () => {
-  const racine = process.cwd();
+  const racine = path.resolve(__dirname, "../..");
   const sources = ["backend", "frontend", "shared"]
     .map((d) => path.join(racine, "src", d))
     .filter((d) => {
@@ -43,6 +43,10 @@ describe("règles de dépendance de l'architecture", () => {
       }
     })
     .flatMap(fichiers);
+
+  it("trouve des sources à vérifier", () => {
+    expect(sources.length).toBeGreaterThan(0);
+  });
 
   it("n'a aucune violation", () => {
     const violations = sources.flatMap((absolu) => {
