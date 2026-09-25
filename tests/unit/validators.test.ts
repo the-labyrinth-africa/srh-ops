@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { clientSchema } from "@/lib/validators/client";
-import { siteSchema } from "@/lib/validators/site";
+import { clientSchema } from "@/backend/clients-sites/http/client.schema";
+import { siteSchema } from "@/backend/clients-sites/http/site.schema";
 import { equipeSchema } from "@/backend/equipes/http/equipe.schema";
 import { vehiculeSchema } from "@/backend/vehicules/http/vehicule.schema";
 import { equipementSchema } from "@/backend/equipements/http/equipement.schema";
