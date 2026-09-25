@@ -8,7 +8,7 @@
 
 ## Global Constraints
 
-- **Aucun changement de comportement** : ni code HTTP, ni forme de réponse JSON (y compris `_id`, `createdAt`, `updatedAt`, `__v` des documents Mongoose), ni message d'erreur, ni règle métier, ni libellé d'interface.
+- **Aucun changement de comportement** : ni code HTTP, ni forme de réponse JSON (y compris `_id`, `createdAt`, `updatedAt`, `__v` des documents Mongoose), ni message d'erreur, ni règle métier, ni libellé d'interface — à l'exception documentée et acceptée depuis R0 : un champ du schéma absent du document sous-jacent en lecture, **quelle qu'en soit la cause** (document écrit hors Mongoose, sous-clé disparue lors d'une mise à jour Mongoose partielle sur un objet imbriqué, etc.), est présenté par l'entité avec sa valeur par défaut plutôt qu'omis (détails par jalon dans « Enseignements » et dans le README, section « Notes de migration »).
 - Les tests existants ne changent que par leurs **chemins d'import** (et les chemins de fichiers lus par quelques tests). Aucune assertion n'est supprimée, affaiblie ou transformée en `skip`.
 - Toute suite verte à chaque commit : `npx tsc --noEmit`, `npm run lint` (0 erreur), `npx vitest run` (456 tests au départ, plus les nouveaux).
 - Règles de dépendance R1 à R6 de la spec, vérifiées par `tests/architecture/regles-de-dependance.test.ts` (progressives : appliquées aux modules déjà migrés ; voir R0 tâche 3).
@@ -32,7 +32,7 @@ NEXTAUTH_URL="http://localhost:3000" NEXT_TELEMETRY_DISABLED=1 npx next build
 |---|---|---|---|
 | **R0** | Fondations (`src/`, `shared/`, `platform/` base + identifiants, test d'architecture, ESLint) + **pilote `equipes`** (backend et frontend) | — | **Réalisé** |
 | **R1** | `vehicules`, `equipements` (répétition du modèle, ≈ 1 jour chacun) | R0 | **Réalisé** |
-| R2 | `clients-sites` (règle de périmètre du compte client, garde de suppression) | R0 | À détailler après R0 |
+| **R2** | `clients-sites` (règle de périmètre du compte client, garde de suppression) | R0 | **Réalisé** |
 | R3 | `comptes` (utilisateurs, authentification, invitation, réinitialisation, jetons, limiteur, e-mail) — **sensible**, en 3 sous-plans : 3a `platform` (e-mail, limiteur, exécution différée, horloge, URL) ; 3b cas d'usage et adaptateurs ; 3c NextAuth, `Acteur`, gardes de pages et de routes | R1, R2 | À détailler |
 | R4 | `operations` (le plus gros), en sous-plans : 4a domaine (statuts, conflits, visibilité) ; 4b cas d'usage CRUD + planning ; 4c statut/terrain/photos ; 4d rapport PDF | R3 | À détailler |
 | R5 | `recurrences` | R4 | À détailler |
@@ -76,6 +76,13 @@ Ordre recommandé : R0 → R1 → R2 → R3 → R4 → (R5, R6, R7) → R8 → R
 - Le modèle du pilote se reproduit sans écart (deux domaines migrés en un jalon) ; le vérificateur interdit désormais `mongodb`/`bson` dans le métier et le frontend n'importe plus `src/app`.
 - La sonde de parité (anciennes et nouvelles routes comparées sur corps bruts, via `git archive`), rejouée par le relecteur de chaque tâche, n'a trouvé que les deux écarts acceptés : le corps du `POST` 201 liste `_id` en premier (mêmes clés et valeurs) ; les documents écrits hors Mongoose sont présentés à travers l'entité (champs inconnus retirés, `type` absent → `""`, `capacite` absent → `0`, `membres` par défaut pour les équipes).
 - Un commit de tests de caractérisation doit passer `tsc` **seul** : celui de `vehicules` ne le faisait pas (typage d'une union issue de `.lean()`), corrigé dans le commit de migration.
+
+## Enseignements de R2
+
+- R2 : premier domaine à deux entités liées (`Client`, `Site`) — un seul dossier de domaine, deux fabriques de cas d'usage (`creerCasDUsageClients`, `creerCasDUsageSites`) et un seul `composition.ts` ; le `.populate()` Mongoose se reproduit dans l'adaptateur sans dépendance d'import entre les deux modèles (résolution par nom de modèle enregistré) ; le filtrage par périmètre d'un compte `client` reste entièrement dans les contrôleurs (le domaine ignore les rôles).
+- Un type de saisie (« saisie ») doit reprendre l'optionalité **réelle** de la sortie du schéma Zod, pas celle supposée du champ métier : `Client.contact.email` n'a pas de `.default("")` (contrairement à `contact.telephone`, qui en a un), donc `clientSchema.parse(...).contact.email` est `string | undefined`. Un premier brouillon de `ClientSaisie.contact.email` en `string` (requis) ne passait pas `tsc` sans une coercition qui aurait changé le comportement d'écriture ; corrigé en `email?: string`, transmis tel quel. À vérifier champ par champ (présence effective de `.default(...)` dans le schéma) pour tout futur domaine, jamais en présumant depuis le sens métier du champ.
+- L'écart de projection en lecture (voir Global Constraints) a un second déclencheur, découvert sur `Client` : une mise à jour Mongoose partielle sur un objet imbriqué hors schéma peut faire disparaître une sous-clé du document stocké quand la valeur d'entrée correspondante est `undefined` (`PUT /api/clients/[id]` avec un `contact` vide fait disparaître `contact.email` en base ; la lecture migrée le représente quand même `""` via l'entité). Même catégorie d'écart que les documents écrits hors Mongoose (R0/R1) — pas la peine de la rouvrir à R3+, la formulation générale est dans Global Constraints.
+- Une relation peuplée en lecture (`Site.clientId` via `.populate()`) demande une branche explicite à **trois** issues (peuplé / valeur brute / `null`), pas deux. Quand le client référencé n'existe plus — atteignable ici car la suppression d'un `Client` n'a **pas** de garde de rattachement aux sites, seulement une garde côté comptes utilisateurs — `.populate()` résout la référence à `null`. Un premier brouillon de l'adaptateur (`estPeuple(x) ? {...} : String(x)`, à deux branches) mappait ce cas à la **chaîne** `"null"` au lieu du `null` JSON réel. Pour tout futur domaine avec relation peuplée : prévoir un test qui supprime réellement le document référencé et relit à travers la relation — un test sur « l'identifiant référencé n'a jamais existé » ne suffit pas, c'est un autre chemin de code (`estPeuple` est faux dans les deux cas, mais la valeur brute stockée est un ObjectId non nul dans ce second cas, jamais `null`).
 
 ## Critères de sortie du chantier
 

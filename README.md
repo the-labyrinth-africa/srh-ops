@@ -32,7 +32,7 @@ Règles de dépendance R1 à R5, vérifiées par `tests/architecture/regles-de-d
 
 Ajouter un cas d'usage : déclarer le port dans `domain/ports.ts` ; écrire le cas d'usage dans `application/` avec son test sur le faux en mémoire (`infrastructure/en-memoire/`) ; implémenter l'adaptateur Mongoose (`infrastructure/mongoose/`) ; brancher le tout dans `composition.ts` ; écrire le contrôleur dans `http/` ; enfin ré-exporter le gestionnaire depuis le `route.ts` concerné (exemple : `src/app/api/equipes/route.ts`).
 
-État de la migration : les domaines `equipes`, `vehicules` et `equipements` (backend `src/backend/<domaine>`, frontend `src/frontend/<domaine>`) sont migrés ; `equipes` sert de modèle. Les autres domaines (clients et sites, comptes, opérations, récurrences, import de données, pilotage) restent dans les dossiers hérités `src/lib`, `src/models`, `src/components` et `src/hooks` pendant la transition (jalons R2 à R9 de `docs/superpowers/plans/2026-09-20-refactor-architecture-master.md`) ; le test d'architecture ne s'applique aux règles fines qu'aux domaines déjà migrés.
+État de la migration : les domaines `equipes`, `vehicules`, `equipements` et `clients-sites` (backend `src/backend/<domaine>`, frontend `src/frontend/<domaine>`) sont migrés ; `equipes` sert de modèle. `clients-sites` regroupe deux entités liées (`Client`, `Site`) dans un seul dossier de domaine. Les autres domaines (comptes, opérations, récurrences, import de données, pilotage) restent dans les dossiers hérités `src/lib`, `src/models`, `src/components` et `src/hooks` pendant la transition (jalons R3 à R9 de `docs/superpowers/plans/2026-09-20-refactor-architecture-master.md`) ; le test d'architecture ne s'applique aux règles fines qu'aux domaines déjà migrés.
 
 Vérifier la compilation Next sans toucher à la vraie base (variables factices, jamais l'URI réelle) :
 
@@ -43,8 +43,9 @@ NEXTAUTH_URL="http://localhost:3000" NEXT_TELEMETRY_DISABLED=1 npx next build
 
 ### Notes de migration (écarts connus et voulus des domaines migrés)
 
-- La réponse JSON du `POST /api/equipes`, `/api/vehicules` et `/api/equipements` (201) liste `_id` en premier ; les clés et les valeurs sont celles d'avant.
-- Les lectures « lean » passent par l'entité : un champ absent du schéma (écrit hors Mongoose) n'est plus renvoyé ; un document écrit hors Mongoose est présenté avec les valeurs par défaut (`type` → chaîne vide, `capacite` → 0, `membres` → liste vide pour les équipes).
+- La réponse JSON du `POST /api/equipes`, `/api/vehicules`, `/api/equipements`, `/api/clients` et `/api/sites` (201) liste `_id` en premier ; les clés et les valeurs sont celles d'avant.
+- Les lectures « lean » passent par l'entité : un champ inconnu du schéma (document écrit hors Mongoose) n'est plus renvoyé ; un champ du schéma absent du document — quelle qu'en soit la cause (document écrit hors Mongoose, ou sous-clé disparue lors d'une mise à jour Mongoose partielle sur un objet imbriqué : par exemple `PUT /api/clients/[id]` avec un `contact` vide fait disparaître `contact.email` du document stocké) — est présenté avec sa valeur par défaut plutôt qu'omis (`type` → chaîne vide, `capacite` → 0, `membres` → liste vide pour les équipes ; `contact.telephone`/`contact.email` → chaîne vide pour un client).
+- `GET /api/sites` et `GET /api/sites/[id]` peuplent `clientId` (`{_id, nom}` du client, ou `null` si le client référencé a été supprimé — aucune garde de rattachement ne l'empêche) ; `POST`/`PUT /api/sites` renvoient `clientId` non peuplé (l'identifiant brut). Comportement identique à avant migration.
 
 ## Démarrage
 
