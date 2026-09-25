@@ -14,7 +14,9 @@ export function versReponseClient(client: Client) {
 }
 
 function versClientJson(clientId: SiteAvecClientPeuple["clientId"]) {
-  return typeof clientId === "string" ? clientId : { _id: clientId.id, nom: clientId.nom };
+  if (typeof clientId === "string") return clientId;
+  if (clientId === null) return null;
+  return { _id: clientId.id, nom: clientId.nom };
 }
 
 /** Forme JSON historique de l'API pour une lecture (liste/détail), `clientId` peuplé. */

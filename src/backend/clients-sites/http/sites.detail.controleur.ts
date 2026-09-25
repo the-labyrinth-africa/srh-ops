@@ -22,7 +22,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
     if (error instanceof SiteIntrouvable) return NextResponse.json({ error: error.message }, { status: 404 });
     throw error;
   }
-  const clientIdBrut = typeof site.clientId === "string" ? site.clientId : site.clientId.id;
+  const clientIdBrut = typeof site.clientId === "string" ? site.clientId : site.clientId?.id;
   if (!isWithinClientScope(auth, clientIdBrut)) {
     return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
   }

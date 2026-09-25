@@ -9,6 +9,7 @@ import { GET as lireClient, PUT as modifierClient, DELETE as supprimerClient } f
 import { GET as listerSites, POST as creerSiteRoute } from "@/app/api/sites/route";
 import { GET as lireSite, PUT as modifierSite, DELETE as supprimerSite } from "@/app/api/sites/[id]/route";
 import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
+import { Client as ClientModel } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { User } from "@/models/User";
 
 /**
@@ -602,6 +603,28 @@ describe("clients-sites — caractérisation de l'API sites", () => {
       const res = await lireSite(videSite("GET", "pas-un-id"), ctx("pas-un-id"));
       expect(res.status).toBe(400);
       expect(await res.json()).toEqual({ error: "Identifiant invalide" });
+    });
+
+    it("clientId: null (JSON, pas la chaîne \"null\") en détail et en liste quand le client référencé a été supprimé (référence pendante, aucune garde de rattachement sur Client) ; toujours 404 pour un compte client hors périmètre", async () => {
+      const client = await creerUnClient("Client Supprime");
+      const cree = await creerUnSite(client._id, { nom: "Site orphelin" });
+      await ClientModel.findByIdAndDelete(client._id);
+
+      const resDetail = await lireSite(videSite("GET", cree._id), ctx(cree._id));
+      expect(resDetail.status).toBe(200);
+      const corpsDetail = await resDetail.json();
+      expect(corpsDetail.clientId).toBeNull();
+
+      const resListe = await listeSites();
+      expect(resListe.status).toBe(200);
+      const liste = await resListe.json();
+      const siteEnListe = liste.find((s: { _id: string }) => s._id === cree._id);
+      expect(siteEnListe.clientId).toBeNull();
+
+      session({ role: "client", clientId: ID_INCONNU });
+      const resClient = await lireSite(videSite("GET", cree._id), ctx(cree._id));
+      expect(resClient.status).toBe(404);
+      expect(await resClient.json()).toEqual({ error: "Non trouvé" });
     });
 
     it("401 sans session, 403 chauffeur", async () => {

@@ -73,4 +73,16 @@ describe("SiteRepositoryMongoose (contrat)", () => {
     const cree = await depot.creer(saisie("507f1f77bcf86cd799439099", "Orphelin"));
     expect(cree.clientId).toBe("507f1f77bcf86cd799439099");
   });
+
+  it("trouverParId et lister renvoient clientId: null quand le client référencé a été supprimé (référence pendante)", async () => {
+    const clientId = await creerUnClient("Client à supprimer");
+    const cree = await depot.creer(saisie(clientId, "Alpha"));
+    await ClientModel.findByIdAndDelete(clientId);
+
+    const relu = await depot.trouverParId(cree.id);
+    expect(relu?.clientId).toBeNull();
+
+    const liste = await depot.lister();
+    expect(liste[0].clientId).toBeNull();
+  });
 });

@@ -23,7 +23,14 @@ function estPeuple(clientId: unknown): clientId is { _id: unknown; nom: string }
 function versEntitePeuplee(doc: DocumentSite): SiteAvecClientPeuple {
   return {
     id: String(doc._id),
-    clientId: estPeuple(doc.clientId) ? { id: String(doc.clientId._id), nom: doc.clientId.nom } : String(doc.clientId),
+    // `doc.clientId` est `null` quand `.populate()` ne peut pas résoudre la référence (client
+    // supprimé, aucune garde de rattachement côté `Client`) : reproduit tel quel (JSON `null`),
+    // pas la chaîne "null".
+    clientId: estPeuple(doc.clientId)
+      ? { id: String(doc.clientId._id), nom: doc.clientId.nom }
+      : doc.clientId == null
+        ? null
+        : String(doc.clientId),
     nom: doc.nom,
     adresse: doc.adresse ?? "",
     localisation: doc.localisation,
