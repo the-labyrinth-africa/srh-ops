@@ -10,5 +10,5 @@ export interface Client {
 
 export interface ClientSaisie {
   nom: string;
-  contact: { telephone: string; email: string };
+  contact: { telephone: string; email?: string };
 }

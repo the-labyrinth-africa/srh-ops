@@ -20,7 +20,16 @@ export class ClientRepositoryEnMemoire implements ClientRepository {
   async creer(saisie: ClientSaisie): Promise<Client> {
     this.compteur += 1;
     const maintenant = new Date();
-    const client: Client = { id: `client-${this.compteur}`, ...saisie, createdAt: maintenant, updatedAt: maintenant, revision: 0 };
+    const client: Client = {
+      id: `client-${this.compteur}`,
+      nom: saisie.nom,
+      // Le dépôt Mongoose applique le défaut du schéma ("") à la création ; on reproduit ce
+      // comportement ici pour que l'entité `Client` (lecture) respecte son invariant `email: string`.
+      contact: { telephone: saisie.contact.telephone, email: saisie.contact.email ?? "" },
+      createdAt: maintenant,
+      updatedAt: maintenant,
+      revision: 0,
+    };
     this.donnees.set(client.id, client);
     return client;
   }
@@ -28,7 +37,12 @@ export class ClientRepositoryEnMemoire implements ClientRepository {
   async modifier(id: string, saisie: ClientSaisie): Promise<Client | null> {
     const existant = this.donnees.get(id);
     if (!existant) return null;
-    const modifie: Client = { ...existant, ...saisie, updatedAt: new Date() };
+    const modifie: Client = {
+      ...existant,
+      nom: saisie.nom,
+      contact: { telephone: saisie.contact.telephone, email: saisie.contact.email ?? "" },
+      updatedAt: new Date(),
+    };
     this.donnees.set(id, modifie);
     return modifie;
   }

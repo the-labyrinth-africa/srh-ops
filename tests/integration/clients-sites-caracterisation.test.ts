@@ -270,13 +270,13 @@ describe("clients-sites — caractérisation de l'API clients", () => {
       expect(relu).toEqual(corps);
     });
 
-    it("applique le défaut Zod de contact.telephone (\"\") quand seul ce sous-champ est omis", async () => {
+    it("un `contact` vide remplace entièrement l'ancien : telephone prend le défaut Zod \"\" ; en base l'email disparaît (non réappliqué par Mongoose sur update), mais la réponse HTTP migrée le renvoie quand même \"\" via la normalisation de lecture du dépôt Mongoose (`versEntite`, écart connu vs. avant migration — voir rapport)", async () => {
       const cree = await creer({ nom: "A", contact: { telephone: "1", email: "a@srh.ci" } });
       const res = await modifierClient(put(cree._id, { nom: "B", contact: {} }), ctx(cree._id));
       expect(res.status).toBe(200);
       const corps = await res.json();
       expect(corps.nom).toBe("B");
-      expect(corps.contact.telephone).toBe("");
+      expect(corps.contact).toEqual({ telephone: "", email: "" });
     });
 
     it("400 quand `contact` est omis (requis par le schéma, sans valeur par défaut au niveau racine)", async () => {
