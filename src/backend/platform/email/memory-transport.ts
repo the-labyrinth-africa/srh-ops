@@ -1,4 +1,4 @@
-import type { MailMessage, MailTransport } from "@/lib/mail/types";
+import type { MailMessage, MailTransport } from "@/backend/platform/email/types";
 
 /** Transport des tests : conserve les messages en mémoire, n'envoie rien. */
 export class MemoryTransport implements MailTransport {

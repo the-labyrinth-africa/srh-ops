@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { appBaseUrl, AppUrlError } from "@/lib/app-url";
+import { appBaseUrl, AppUrlError } from "@/backend/platform/http/url-applicative";
 
 describe("appBaseUrl", () => {
   it("retire le slash final", () => {

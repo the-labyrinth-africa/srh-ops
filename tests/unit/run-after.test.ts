@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 vi.mock("next/server", () => ({ after: vi.fn() }));
 
 import { after } from "next/server";
-import { runAfterResponse } from "@/lib/run-after";
+import { runAfterResponse } from "@/backend/platform/execution-differee/execution-differee";
 
 const afterMock = vi.mocked(after);
 

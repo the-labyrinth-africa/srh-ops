@@ -1,5 +1,5 @@
 import { loadEnvConfig } from "@next/env";
-import { sendMail } from "../src/lib/mail";
+import { sendMail } from "../src/backend/platform/email";
 
 /**
  * Envoie un e-mail de test avec la configuration SMTP de `.env.local`

@@ -6,7 +6,7 @@ import { User } from "@/models/User";
 import { userCreateSchema } from "@/lib/validators/user";
 import { generateRandomPassword } from "@/lib/email";
 import { findScopeError } from "@/lib/users/scope";
-import { appBaseUrl } from "@/lib/app-url";
+import { appBaseUrl } from "@/backend/platform/http/url-applicative";
 import { issueResetToken } from "@/lib/auth/reset-token";
 import { sendInvitationMail } from "@/lib/auth/account-mail";
 

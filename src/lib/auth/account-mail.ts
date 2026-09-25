@@ -1,5 +1,5 @@
-import { sendMail } from "@/lib/mail";
-import type { MailMessage, MailResult } from "@/lib/mail/types";
+import { sendMail } from "@/backend/platform/email";
+import type { MailMessage, MailResult } from "@/backend/platform/email/types";
 
 interface Recipient {
   nom: string;

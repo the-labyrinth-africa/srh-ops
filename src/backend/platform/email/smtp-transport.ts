@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import type { Transporter } from "nodemailer";
-import type { SmtpConfig } from "@/lib/mail/config";
-import type { MailMessage, MailTransport } from "@/lib/mail/types";
+import type { SmtpConfig } from "@/backend/platform/email/config";
+import type { MailMessage, MailTransport } from "@/backend/platform/email/types";
 
 export class SmtpTransport implements MailTransport {
   constructor(
