@@ -14,7 +14,7 @@ Plateforme back-office de planification et suivi des opérations de collecte SRH
 
 Tout le code applicatif vit sous `src/` (les dossiers `scripts/`, `public/`, `tests/`, `docs/` et `sketch/` restent à la racine, ainsi que `next.config.ts`). Le middleware d'authentification est `src/middleware.ts` (export par défaut explicite, exigé par Next 16).
 
-- `src/backend/<domaine>/` : un domaine métier par dossier, en architecture hexagonale. `src/backend/platform/` regroupe les briques techniques partagées (connexion MongoDB, identifiants Mongo).
+- `src/backend/<domaine>/` : un domaine métier par dossier, en architecture hexagonale. `src/backend/platform/` regroupe les briques techniques transverses (pas un domaine métier, pas de séparation `domain/`/`application/`) : `base-de-donnees/` (connexion Mongoose) et `http/identifiants.ts` (identifiants Mongo) depuis R0 ; `email/` (envoi SMTP/mémoire), `limiteur-debit/`, `execution-differee/`, `horloge/` (introduite par anticipation de 3b/R4, sans appelant pour l'instant) et l'ajout à `http/` de l'adresse client et de l'URL applicative, depuis R3a.
 - `src/frontend/<fonctionnalité>/` : une fonctionnalité métier par dossier (« screaming »), plus `src/frontend/design-system/` (composants génériques).
 - `src/shared/` : types, rôles, permissions et règles pures utilisables des deux côtés (aucune dépendance technique).
 - `src/app/` : couche de composition Next (pages et routes). Les `route.ts` ne font que ré-exporter les contrôleurs du domaine.
