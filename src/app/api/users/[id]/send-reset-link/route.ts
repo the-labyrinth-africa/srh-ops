@@ -6,7 +6,7 @@ import { appBaseUrl } from "@/backend/platform/http/url-applicative";
 import { consumeRateLimit, type RateLimitResult } from "@/backend/platform/limiteur-debit/rate-limit";
 import { issueResetToken } from "@/lib/auth/reset-token";
 import { sendResetLinkMail } from "@/lib/auth/account-mail";
-import { User } from "@/models/User";
+import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
 
 interface RouteParams {
   params: Promise<{ id: string }>;

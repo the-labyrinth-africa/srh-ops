@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import mongoose from "mongoose";
 import { issueResetToken, consumeResetToken, hashToken } from "@/lib/auth/reset-token";
-import { PasswordResetToken } from "@/models/PasswordResetToken";
+import { PasswordResetToken } from "@/backend/comptes/infrastructure/mongoose/jeton.model";
 
 const uid = () => String(new mongoose.Types.ObjectId());
 const T0 = new Date(Date.UTC(2026, 8, 20, 10, 0, 0));

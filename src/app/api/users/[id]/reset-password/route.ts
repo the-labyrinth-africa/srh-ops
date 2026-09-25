@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireAuth } from "@/lib/api-auth";
-import { User } from "@/models/User";
+import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
 import { guardObjectId } from "@/backend/platform/http/identifiants";
 import { generateRandomPassword } from "@/lib/email";
-import { PasswordResetToken } from "@/models/PasswordResetToken";
+import { PasswordResetToken } from "@/backend/comptes/infrastructure/mongoose/jeton.model";
 
 interface RouteParams {
   params: Promise<{ id: string }>;

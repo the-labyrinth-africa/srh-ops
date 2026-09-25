@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import bcrypt from "bcryptjs";
 import { authOptions } from "@/lib/auth";
 import { refreshTokenFromDb } from "@/lib/auth-refresh";
-import { User } from "@/models/User";
+import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
 
 async function seed(passwordChangedAt?: Date) {
   return User.create({

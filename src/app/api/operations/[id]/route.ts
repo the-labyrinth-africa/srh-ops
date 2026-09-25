@@ -8,7 +8,7 @@ import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { Vehicule } from "@/backend/vehicules/infrastructure/mongoose/vehicule.model";
 import { Equipement } from "@/backend/equipements/infrastructure/mongoose/equipement.model";
-import { User } from "@/models/User";
+import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
 import { operationSchema } from "@/lib/validators/operation";
 import { guardObjectId } from "@/backend/platform/http/identifiants";
 

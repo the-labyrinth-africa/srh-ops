@@ -10,7 +10,7 @@ import { GET as listerSites, POST as creerSiteRoute } from "@/app/api/sites/rout
 import { GET as lireSite, PUT as modifierSite, DELETE as supprimerSite } from "@/app/api/sites/[id]/route";
 import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
 import { Client as ClientModel } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
-import { User } from "@/models/User";
+import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
 
 /**
  * Caractérisation des routes `/api/clients` (entité `Client` du domaine `clients-sites`) :

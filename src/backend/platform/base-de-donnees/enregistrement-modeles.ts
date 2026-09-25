@@ -7,6 +7,6 @@ import "@/backend/clients-sites/infrastructure/mongoose/site.model";
 import "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import "@/backend/vehicules/infrastructure/mongoose/vehicule.model";
 import "@/backend/equipements/infrastructure/mongoose/equipement.model";
-import "@/models/User";
+import "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
 import "@/models/Operation";
 import "@/models/Recurrence";

@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireAuth } from "@/lib/api-auth";
-import { User } from "@/models/User";
-import { PasswordResetToken } from "@/models/PasswordResetToken";
+import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
+import { PasswordResetToken } from "@/backend/comptes/infrastructure/mongoose/jeton.model";
 import { changePasswordSchema } from "@/lib/validators/user";
 
 export async function POST(req: NextRequest) {

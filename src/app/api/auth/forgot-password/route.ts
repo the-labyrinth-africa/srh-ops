@@ -7,7 +7,7 @@ import { runAfterResponse } from "@/backend/platform/execution-differee/executio
 import { issueResetToken } from "@/lib/auth/reset-token";
 import { sendResetLinkMail } from "@/lib/auth/account-mail";
 import { forgotPasswordSchema } from "@/lib/validators/user";
-import { User } from "@/models/User";
+import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
 
 const HOUR = 3_600_000;
 const NO_STORE = { "Cache-Control": "no-store" };

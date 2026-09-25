@@ -8,8 +8,8 @@ vi.mock("next-auth", () => ({ getServerSession: vi.fn() }));
 import { POST as createUser } from "@/app/api/users/route";
 import { POST as reset } from "@/app/api/auth/reset-password/route";
 import { getMemoryTransport } from "@/backend/platform/email";
-import { User } from "@/models/User";
-import { PasswordResetToken } from "@/models/PasswordResetToken";
+import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
+import { PasswordResetToken } from "@/backend/comptes/infrastructure/mongoose/jeton.model";
 
 function asAdmin() {
   vi.mocked(nextAuth.getServerSession).mockResolvedValue({

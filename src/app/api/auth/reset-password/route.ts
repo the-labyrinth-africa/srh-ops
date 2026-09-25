@@ -7,8 +7,8 @@ import { clientIp } from "@/backend/platform/http/adresse-client";
 import { runAfterResponse } from "@/backend/platform/execution-differee/execution-differee";
 import { consumeResetToken } from "@/lib/auth/reset-token";
 import { sendPasswordChangedMail } from "@/lib/auth/account-mail";
-import { User } from "@/models/User";
-import { PasswordResetToken } from "@/models/PasswordResetToken";
+import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
+import { PasswordResetToken } from "@/backend/comptes/infrastructure/mongoose/jeton.model";
 
 const NO_STORE = { "Cache-Control": "no-store" };
 const INVALID_LINK = "Lien invalide ou expiré. Demandez un nouveau lien.";

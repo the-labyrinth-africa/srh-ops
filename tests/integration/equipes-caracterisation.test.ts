@@ -6,7 +6,7 @@ vi.mock("next-auth", () => ({ getServerSession: vi.fn() }));
 
 import { GET as listerEquipes, POST as creerEquipe } from "@/app/api/equipes/route";
 import { GET as lireEquipe, PUT as modifierEquipe, DELETE as supprimerEquipe } from "@/app/api/equipes/[id]/route";
-import { User } from "@/models/User";
+import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
 
 /**
  * Caractérisation des 5 routes `/api/equipes` : ces tests figent le comportement HTTP

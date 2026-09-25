@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { authOptions } from "@/lib/auth";
 import { needsRefresh, refreshTokenFromDb, REFRESH_INTERVAL_MS } from "@/lib/auth-refresh";
-import { User } from "@/models/User";
+import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 
 const baseToken = (id: string) =>

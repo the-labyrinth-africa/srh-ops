@@ -6,7 +6,7 @@ vi.mock("next-auth", () => ({ getServerSession: vi.fn() }));
 import { POST as sendTest } from "@/app/api/mail/test/route";
 import { getMemoryTransport } from "@/backend/platform/email";
 import * as rateLimit from "@/backend/platform/limiteur-debit/rate-limit";
-import { User } from "@/models/User";
+import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
 
 function session(role: string, id: string) {
   vi.mocked(nextAuth.getServerSession).mockResolvedValue({

@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { loadEnvConfig } from "@next/env";
 import { connectDB } from "../src/backend/platform/base-de-donnees/connexion";
-import { User } from "../src/models/User";
+import { User } from "../src/backend/comptes/infrastructure/mongoose/utilisateur.model";
 import { Client } from "../src/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "../src/backend/clients-sites/infrastructure/mongoose/site.model";
 import { Equipe } from "../src/backend/equipes/infrastructure/mongoose/equipe.model";

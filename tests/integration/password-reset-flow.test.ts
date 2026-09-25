@@ -7,8 +7,8 @@ import { POST as reset } from "@/app/api/auth/reset-password/route";
 import * as rateLimit from "@/backend/platform/limiteur-debit/rate-limit";
 import * as resetToken from "@/lib/auth/reset-token";
 import { getMemoryTransport } from "@/backend/platform/email";
-import { User } from "@/models/User";
-import { PasswordResetToken } from "@/models/PasswordResetToken";
+import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
+import { PasswordResetToken } from "@/backend/comptes/infrastructure/mongoose/jeton.model";
 
 const OLD = "AncienMdp1";
 const NEW = "NouveauMdp2";
