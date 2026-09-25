@@ -12,7 +12,7 @@ import { POST as uploadPhoto, DELETE as deletePhoto } from "@/app/api/operations
 import { GET as generateRapport } from "@/app/api/operations/[id]/rapport/route";
 import { PATCH as updateStatus } from "@/app/api/operations/[id]/statut/route";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
-import { Site } from "@/models/Site";
+import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
 import { Operation } from "@/models/Operation";
 
 const XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";

@@ -3,7 +3,7 @@ import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireAuth, isWithinClientScope, isWithinTeamScope, chauffeurWithoutTeamError } from "@/lib/api-auth";
 import { Operation } from "@/models/Operation";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
-import { Site } from "@/models/Site";
+import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { Vehicule } from "@/backend/vehicules/infrastructure/mongoose/vehicule.model";
 import { Equipement } from "@/backend/equipements/infrastructure/mongoose/equipement.model";

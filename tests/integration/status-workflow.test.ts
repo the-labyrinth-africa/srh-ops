@@ -9,7 +9,7 @@ vi.mock("next-auth", () => ({
 import { POST as createOperation } from "@/app/api/operations/route";
 import { PATCH as updateStatus } from "@/app/api/operations/[id]/statut/route";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
-import { Site } from "@/models/Site";
+import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
 
 describe("Status Transition Workflow Integration Tests", () => {
   let clientId: string;

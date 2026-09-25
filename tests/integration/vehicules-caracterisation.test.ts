@@ -9,7 +9,7 @@ import { GET as listerVehicules, POST as creerVehicule } from "@/app/api/vehicul
 import { GET as lireVehicule, PUT as modifierVehicule, DELETE as supprimerVehicule } from "@/app/api/vehicules/[id]/route";
 import { Vehicule } from "@/backend/vehicules/infrastructure/mongoose/vehicule.model";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
-import { Site } from "@/models/Site";
+import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
 import { Operation } from "@/models/Operation";
 
 /**

@@ -8,7 +8,7 @@ import { GET as listerClients, POST as creerClient } from "@/app/api/clients/rou
 import { GET as lireClient, PUT as modifierClient, DELETE as supprimerClient } from "@/app/api/clients/[id]/route";
 import { GET as listerSites, POST as creerSiteRoute } from "@/app/api/sites/route";
 import { GET as lireSite, PUT as modifierSite, DELETE as supprimerSite } from "@/app/api/sites/[id]/route";
-import { Site } from "@/models/Site";
+import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
 import { User } from "@/models/User";
 
 /**

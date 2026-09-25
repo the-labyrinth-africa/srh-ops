@@ -3,7 +3,7 @@
 // des domaines (voir la décision n°3 du plan R0). Chaque domaine migré remplace
 // ici son ancienne ligne par l'import de son propre `infrastructure/mongoose/*.model`.
 import "@/backend/clients-sites/infrastructure/mongoose/client.model";
-import "@/models/Site";
+import "@/backend/clients-sites/infrastructure/mongoose/site.model";
 import "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import "@/backend/vehicules/infrastructure/mongoose/vehicule.model";
 import "@/backend/equipements/infrastructure/mongoose/equipement.model";

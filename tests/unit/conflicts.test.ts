@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { checkAssignmentConflicts } from "@/lib/conflicts";
 import { Operation } from "@/models/Operation";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
-import { Site } from "@/models/Site";
+import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
 
 describe("Assignment Conflicts Checking (lib/conflicts.ts)", () => {
   it("should return no conflicts when no operations exist", async () => {

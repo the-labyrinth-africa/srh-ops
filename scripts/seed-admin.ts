@@ -3,7 +3,7 @@ import { loadEnvConfig } from "@next/env";
 import { connectDB } from "../src/backend/platform/base-de-donnees/connexion";
 import { User } from "../src/models/User";
 import { Client } from "../src/backend/clients-sites/infrastructure/mongoose/client.model";
-import { Site } from "../src/models/Site";
+import { Site } from "../src/backend/clients-sites/infrastructure/mongoose/site.model";
 import { Equipe } from "../src/backend/equipes/infrastructure/mongoose/equipe.model";
 import { Vehicule } from "../src/backend/vehicules/infrastructure/mongoose/vehicule.model";
 import { Equipement } from "../src/backend/equipements/infrastructure/mongoose/equipement.model";

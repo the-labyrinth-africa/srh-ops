@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { SiteSaisie } from "../domain/site";
 
 export const siteSchema = z.object({
   clientId: z.string().min(1, "Client requis"),
@@ -12,3 +13,14 @@ export const siteSchema = z.object({
 });
 
 export type SiteInput = z.infer<typeof siteSchema>;
+
+export function versSaisieSite(entree: SiteInput): SiteSaisie {
+  return {
+    clientId: entree.clientId,
+    nom: entree.nom,
+    adresse: entree.adresse,
+    localisation: entree.localisation,
+    typeDechets: entree.typeDechets,
+    observations: entree.observations,
+  };
+}

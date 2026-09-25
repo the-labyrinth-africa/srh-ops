@@ -11,3 +11,10 @@ export class ClientRattache extends Error {
     this.name = "ClientRattache";
   }
 }
+
+export class SiteIntrouvable extends Error {
+  constructor() {
+    super("Non trouvé");
+    this.name = "SiteIntrouvable";
+  }
+}

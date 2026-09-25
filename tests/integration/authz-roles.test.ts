@@ -23,7 +23,7 @@ import { GET as getUsers } from "@/app/api/users/route";
 import { GET as getStats } from "@/app/api/dashboard/stats/route";
 import { POST as importExcel } from "@/app/api/import/route";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
-import { Site } from "@/models/Site";
+import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { Operation } from "@/models/Operation";
 
