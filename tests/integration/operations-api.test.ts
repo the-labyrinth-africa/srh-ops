@@ -8,7 +8,7 @@ vi.mock("next-auth", () => ({
 
 import { GET as getOperations, POST as createOperation } from "@/app/api/operations/route";
 import { GET as getOperationById, PUT as updateOperation, DELETE as deleteOperation } from "@/app/api/operations/[id]/route";
-import { Client } from "@/models/Client";
+import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "@/models/Site";
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { Vehicule } from "@/backend/vehicules/infrastructure/mongoose/vehicule.model";

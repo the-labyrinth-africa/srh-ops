@@ -1,4 +1,4 @@
-import { Client } from "@/models/Client";
+import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 
 /** Retourne un message d'erreur si le client ou l'équipe référencés n'existent pas. */

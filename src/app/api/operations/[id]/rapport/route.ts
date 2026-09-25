@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireAuth, isWithinClientScope, isWithinTeamScope, chauffeurWithoutTeamError } from "@/lib/api-auth";
 import { Operation } from "@/models/Operation";
-import { Client } from "@/models/Client";
+import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "@/models/Site";
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { Vehicule } from "@/backend/vehicules/infrastructure/mongoose/vehicule.model";

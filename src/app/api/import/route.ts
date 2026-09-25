@@ -3,7 +3,7 @@ import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireInternalAuth } from "@/lib/api-auth";
 import { guardObjectId } from "@/backend/platform/http/identifiants";
 import { parseExcelFile } from "@/lib/excel-import";
-import { Client } from "@/models/Client";
+import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "@/models/Site";
 import { Operation } from "@/models/Operation";
 import type { OperationStatus } from "@/shared/operations/statuts";

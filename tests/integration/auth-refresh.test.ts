@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { authOptions } from "@/lib/auth";
 import { needsRefresh, refreshTokenFromDb, REFRESH_INTERVAL_MS } from "@/lib/auth-refresh";
 import { User } from "@/models/User";
-import { Client } from "@/models/Client";
+import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 
 const baseToken = (id: string) =>
   ({ id, username: "u", role: "dispatcher", mustChangePassword: true } as never);

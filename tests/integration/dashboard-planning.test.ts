@@ -8,7 +8,7 @@ vi.mock("next-auth", () => ({
 
 import { GET as getDashboardStats } from "@/app/api/dashboard/stats/route";
 import { GET as getPlanningEvents } from "@/app/api/operations/planning/route";
-import { Client } from "@/models/Client";
+import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "@/models/Site";
 import { Operation } from "@/models/Operation";
 

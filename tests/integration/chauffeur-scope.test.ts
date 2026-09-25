@@ -19,7 +19,7 @@ import { GET as getSites } from "@/app/api/sites/route";
 import { GET as getSite } from "@/app/api/sites/[id]/route";
 import { GET as getEquipements } from "@/app/api/equipements/route";
 import { GET as getStats } from "@/app/api/dashboard/stats/route";
-import { Client } from "@/models/Client";
+import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "@/models/Site";
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { Operation } from "@/models/Operation";

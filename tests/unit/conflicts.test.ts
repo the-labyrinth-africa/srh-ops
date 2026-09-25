@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import mongoose from "mongoose";
 import { checkAssignmentConflicts } from "@/lib/conflicts";
 import { Operation } from "@/models/Operation";
-import { Client } from "@/models/Client";
+import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "@/models/Site";
 
 describe("Assignment Conflicts Checking (lib/conflicts.ts)", () => {

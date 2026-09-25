@@ -259,7 +259,7 @@ describe("platform n'importe aucun domaine", () => {
   });
   it("exception documentée : enregistrement-modeles.ts", () => {
     const f = "src/backend/platform/base-de-donnees/enregistrement-modeles.ts";
-    expect(v(f, ["@/backend/equipes/infrastructure/mongoose/equipe.model", "@/models/Client"])).toEqual([]);
+    expect(v(f, ["@/backend/equipes/infrastructure/mongoose/equipe.model", "@/backend/clients-sites/infrastructure/mongoose/client.model"])).toEqual([]);
     expect(v("src/backend/platform/base-de-donnees/connexion.ts", ["@/backend/equipes/infrastructure/mongoose/equipe.model"]).length).toBe(1);
   });
 });

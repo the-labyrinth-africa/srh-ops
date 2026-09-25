@@ -4,7 +4,7 @@ import Link from "next/link";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requirePageAccess } from "@/lib/page-auth";
 import { computeEffectiveStatus } from "@/lib/status-transitions";
-import { Client } from "@/models/Client";
+import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "@/models/Site";
 import { Operation } from "@/models/Operation";
 import { StatusBadge } from "@/components/ui/StatusBadge";

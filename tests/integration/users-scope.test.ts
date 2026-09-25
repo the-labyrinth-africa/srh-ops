@@ -6,7 +6,7 @@ vi.mock("next-auth", () => ({ getServerSession: vi.fn() }));
 
 import { POST as createUser } from "@/app/api/users/route";
 import { PUT as updateUser } from "@/app/api/users/[id]/route";
-import { Client } from "@/models/Client";
+import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { User } from "@/models/User";
 
