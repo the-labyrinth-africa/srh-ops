@@ -3,7 +3,7 @@ import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireAuth } from "@/lib/api-auth";
 import { isValidObjectId } from "@/backend/platform/http/identifiants";
 import { appBaseUrl } from "@/lib/app-url";
-import { consumeRateLimit, type RateLimitResult } from "@/lib/rate-limit";
+import { consumeRateLimit, type RateLimitResult } from "@/backend/platform/limiteur-debit/rate-limit";
 import { issueResetToken } from "@/lib/auth/reset-token";
 import { sendResetLinkMail } from "@/lib/auth/account-mail";
 import { User } from "@/models/User";

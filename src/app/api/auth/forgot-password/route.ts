@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { appBaseUrl } from "@/lib/app-url";
-import { consumeRateLimit, clientIp, type RateLimitResult } from "@/lib/rate-limit";
+import { consumeRateLimit, type RateLimitResult } from "@/backend/platform/limiteur-debit/rate-limit";
+import { clientIp } from "@/lib/rate-limit";
 import { runAfterResponse } from "@/lib/run-after";
 import { issueResetToken } from "@/lib/auth/reset-token";
 import { sendResetLinkMail } from "@/lib/auth/account-mail";

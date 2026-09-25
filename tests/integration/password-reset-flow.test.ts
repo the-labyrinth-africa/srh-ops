@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 
 import { POST as forgot } from "@/app/api/auth/forgot-password/route";
 import { POST as reset } from "@/app/api/auth/reset-password/route";
-import * as rateLimit from "@/lib/rate-limit";
+import * as rateLimit from "@/backend/platform/limiteur-debit/rate-limit";
 import * as resetToken from "@/lib/auth/reset-token";
 import { getMemoryTransport } from "@/backend/platform/email";
 import { User } from "@/models/User";
