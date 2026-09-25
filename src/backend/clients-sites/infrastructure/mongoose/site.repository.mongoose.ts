@@ -45,6 +45,9 @@ function versEntitePeuplee(doc: DocumentSite): SiteAvecClientPeuple {
 function versEntite(doc: DocumentSite): Site {
   return {
     id: String(doc._id),
+    // Pas de garde `null` ici (contrairement à `versEntitePeuplee`) : `clientId` est `required: true`
+    // dans le schéma Mongoose et cette fonction n'est jamais utilisée sur un document peuplé
+    // (`.populate()`), donc `doc.clientId` est toujours un ObjectId/chaîne réel, jamais `null`.
     clientId: estPeuple(doc.clientId) ? String(doc.clientId._id) : String(doc.clientId),
     nom: doc.nom,
     adresse: doc.adresse ?? "",

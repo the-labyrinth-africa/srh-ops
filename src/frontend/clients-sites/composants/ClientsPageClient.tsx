@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 import { EntityModal } from "@/frontend/design-system/EntityModal";
 import { canWrite } from "@/shared/acces/permissions";
+import { CHEMIN_API_CLIENTS, CHEMIN_API_SITES } from "../api/chemins";
 
 interface Client {
   _id: string;
@@ -40,8 +41,8 @@ export function ClientsPageClient() {
 
   const load = useCallback(async () => {
     const [cRes, sRes] = await Promise.all([
-      fetch("/api/clients"),
-      fetch("/api/sites"),
+      fetch(CHEMIN_API_CLIENTS),
+      fetch(CHEMIN_API_SITES),
     ]);
     setClients(await cRes.json());
     setSites(await sRes.json());
@@ -61,7 +62,7 @@ export function ClientsPageClient() {
       nom: form.nom,
       contact: { telephone: form.telephone, email: form.email },
     };
-    const url = editingClient ? `/api/clients/${editingClient._id}` : "/api/clients";
+    const url = editingClient ? `${CHEMIN_API_CLIENTS}/${editingClient._id}` : CHEMIN_API_CLIENTS;
     const method = editingClient ? "PUT" : "POST";
     await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     setModal(null);
@@ -72,7 +73,7 @@ export function ClientsPageClient() {
 
   async function saveSite(e: React.FormEvent) {
     e.preventDefault();
-    await fetch("/api/sites", {
+    await fetch(CHEMIN_API_SITES, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -89,7 +90,7 @@ export function ClientsPageClient() {
 
   async function deleteClient(id: string) {
     if (!confirm("Supprimer ce client ?")) return;
-    await fetch(`/api/clients/${id}`, { method: "DELETE" });
+    await fetch(`${CHEMIN_API_CLIENTS}/${id}`, { method: "DELETE" });
     load();
   }
 

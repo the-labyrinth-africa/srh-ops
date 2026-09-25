@@ -350,6 +350,20 @@ describe("clients-sites — caractérisation de l'API clients", () => {
     // Le 409 « client rattaché à un compte utilisateur » est déjà couvert par
     // tests/integration/referentiels-delete-guard.test.ts : non dupliqué ici.
 
+    it("409 (pas 404) quand l'identifiant ne correspond à aucun client mais qu'un compte utilisateur le référence : le rattachement est vérifié avant l'existence du client", async () => {
+      await User.create({
+        username: "orphelin_guard",
+        nom: "Orphelin",
+        email: "orphelin_guard@srh.ci",
+        motDePasseHash: "x",
+        role: "client",
+        clientId: ID_INCONNU,
+      });
+      const res = await supprimerClient(vide("DELETE", ID_INCONNU), ctx(ID_INCONNU));
+      expect(res.status).toBe(409);
+      expect(await res.json()).toEqual({ error: "Ce client est rattaché à des comptes utilisateurs" });
+    });
+
     it("200 { success: true } d'un client libre, puis 404 à la relecture", async () => {
       const cree = await creer();
       const res = await supprimerClient(vide("DELETE", cree._id), ctx(cree._id));
