@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { consumeRateLimit } from "@/backend/platform/limiteur-debit/rate-limit";
 import { RateLimit } from "@/backend/platform/limiteur-debit/rate-limit.model";
-import { clientIp } from "@/lib/rate-limit";
+import { clientIp } from "@/backend/platform/http/adresse-client";
 
 const HOUR = 3_600_000;
 const opts = { limit: 3, windowMs: HOUR };

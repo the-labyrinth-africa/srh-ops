@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
-import { appBaseUrl } from "@/lib/app-url";
+import { appBaseUrl } from "@/backend/platform/http/url-applicative";
 import { consumeRateLimit, type RateLimitResult } from "@/backend/platform/limiteur-debit/rate-limit";
-import { clientIp } from "@/lib/rate-limit";
-import { runAfterResponse } from "@/lib/run-after";
+import { clientIp } from "@/backend/platform/http/adresse-client";
+import { runAfterResponse } from "@/backend/platform/execution-differee/execution-differee";
 import { issueResetToken } from "@/lib/auth/reset-token";
 import { sendResetLinkMail } from "@/lib/auth/account-mail";
 import { forgotPasswordSchema } from "@/lib/validators/user";
