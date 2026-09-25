@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { sendMail, resolveTransport, getMemoryTransport } from "@/lib/mail";
-import { MailConfigError } from "@/lib/mail/config";
-import { MemoryTransport } from "@/lib/mail/memory-transport";
-import { SmtpTransport } from "@/lib/mail/smtp-transport";
+import { sendMail, resolveTransport, getMemoryTransport } from "@/backend/platform/email";
+import { MailConfigError } from "@/backend/platform/email/config";
+import { MemoryTransport } from "@/backend/platform/email/memory-transport";
+import { SmtpTransport } from "@/backend/platform/email/smtp-transport";
 
 const message = { to: "a@b.org", subject: "Sujet secret-free", text: "CORPS-CONFIDENTIEL lien?token=ABC" };
 

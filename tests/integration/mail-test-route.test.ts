@@ -4,7 +4,7 @@ import * as nextAuth from "next-auth";
 vi.mock("next-auth", () => ({ getServerSession: vi.fn() }));
 
 import { POST as sendTest } from "@/app/api/mail/test/route";
-import { getMemoryTransport } from "@/lib/mail";
+import { getMemoryTransport } from "@/backend/platform/email";
 import * as rateLimit from "@/lib/rate-limit";
 import { User } from "@/models/User";
 

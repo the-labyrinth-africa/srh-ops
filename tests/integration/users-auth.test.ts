@@ -8,7 +8,7 @@ vi.mock("next-auth", () => ({
 }));
 
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
-import { getMemoryTransport } from "@/lib/mail";
+import { getMemoryTransport } from "@/backend/platform/email";
 import mongoose from "mongoose";
 import { User } from "@/models/User";
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";

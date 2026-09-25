@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { readSmtpConfig, MailConfigError } from "@/lib/mail/config";
+import { readSmtpConfig, MailConfigError } from "@/backend/platform/email/config";
 
 describe("readSmtpConfig", () => {
   it("renvoie null quand SMTP_HOST est absent ou vide", () => {

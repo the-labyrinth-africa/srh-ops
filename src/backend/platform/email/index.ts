@@ -1,7 +1,7 @@
-import { MailConfigError, readSmtpConfig } from "@/lib/mail/config";
-import { MemoryTransport } from "@/lib/mail/memory-transport";
-import { SmtpTransport } from "@/lib/mail/smtp-transport";
-import type { MailMessage, MailResult, MailTransport } from "@/lib/mail/types";
+import { MailConfigError, readSmtpConfig } from "@/backend/platform/email/config";
+import { MemoryTransport } from "@/backend/platform/email/memory-transport";
+import { SmtpTransport } from "@/backend/platform/email/smtp-transport";
+import type { MailMessage, MailResult, MailTransport } from "@/backend/platform/email/types";
 
 type Env = Record<string, string | undefined>;
 

@@ -7,7 +7,7 @@ vi.mock("next-auth", () => ({ getServerSession: vi.fn() }));
 
 import { POST as sendLink } from "@/app/api/users/[id]/send-reset-link/route";
 import { consumeResetToken, issueResetToken } from "@/lib/auth/reset-token";
-import { getMemoryTransport } from "@/lib/mail";
+import { getMemoryTransport } from "@/backend/platform/email";
 import * as rateLimit from "@/lib/rate-limit";
 import { User } from "@/models/User";
 import { PasswordResetToken } from "@/models/PasswordResetToken";

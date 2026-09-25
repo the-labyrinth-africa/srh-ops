@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import nodemailer from "nodemailer";
-import { SmtpTransport } from "@/lib/mail/smtp-transport";
-import { MemoryTransport } from "@/lib/mail/memory-transport";
+import { SmtpTransport } from "@/backend/platform/email/smtp-transport";
+import { MemoryTransport } from "@/backend/platform/email/memory-transport";
 
 describe("SmtpTransport.fromConfig", () => {
   it("borne la résolution DNS et les délais de connexion", () => {
