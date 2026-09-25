@@ -6,6 +6,8 @@ vi.mock("next-auth", () => ({ getServerSession: vi.fn() }));
 
 import { GET as listerClients, POST as creerClient } from "@/app/api/clients/route";
 import { GET as lireClient, PUT as modifierClient, DELETE as supprimerClient } from "@/app/api/clients/[id]/route";
+import { GET as listerSites, POST as creerSiteRoute } from "@/app/api/sites/route";
+import { GET as lireSite, PUT as modifierSite, DELETE as supprimerSite } from "@/app/api/sites/[id]/route";
 import { Site } from "@/models/Site";
 import { User } from "@/models/User";
 
@@ -21,7 +23,9 @@ import { User } from "@/models/User";
  *   client rattaché à un compte utilisateur ; seule sa persistance après migration est requise,
  *   pas sa duplication ici.
  *
- * Les routes `sites` sont ajoutées à la tâche 2 dans ce même fichier.
+ * Les routes `sites` (entité `Site` du même domaine) sont caractérisées dans la section
+ * dédiée plus bas (tâche 2). Même principe : filet avant migration, pas de duplication de
+ * la couverture d'autorisation déjà assurée ailleurs (`chauffeur-scope`, `authz-roles`).
  */
 
 const ID_INCONNU = "507f1f77bcf86cd799439099";
@@ -395,6 +399,343 @@ describe("clients-sites — caractérisation de l'API clients", () => {
     it("403 MUST_CHANGE_PASSWORD", async () => {
       session({ role: "admin", mustChangePassword: true });
       const res = await supprimerClient(vide("DELETE", ID_INCONNU), ctx(ID_INCONNU));
+      expect(res.status).toBe(403);
+      expect((await res.json()).code).toBe("MUST_CHANGE_PASSWORD");
+    });
+  });
+});
+
+const posteSite = (body: unknown) => json("POST", "/api/sites", body);
+const putSite = (id: string, body: unknown) => json("PUT", `/api/sites/${id}`, body);
+const videSite = (method: string, id: string) => new NextRequest(`http://localhost:3000/api/sites/${id}`, { method });
+const listeSites = () => listerSites(new NextRequest("http://localhost:3000/api/sites"));
+
+async function creerUnClient(nom = "Client Site") {
+  const res = await creerClient(
+    post({ nom, contact: { telephone: "0102030405", email: `${nom.toLowerCase().replace(/\s+/g, "")}@srh.ci` } })
+  );
+  expect(res.status).toBe(201);
+  return (await res.json()) as Record<string, unknown> & { _id: string };
+}
+
+async function creerUnSite(clientId: string, corps: Record<string, unknown> = {}) {
+  const res = await creerSiteRoute(posteSite({ clientId, nom: "Site A", ...corps }));
+  expect(res.status).toBe(201);
+  return (await res.json()) as Record<string, unknown> & { _id: string };
+}
+
+describe("clients-sites — caractérisation de l'API sites", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    asAdmin();
+  });
+
+  describe("GET /api/sites", () => {
+    it("liste vide -> 200 et tableau vide", async () => {
+      const res = await listeSites();
+      expect(res.status).toBe(200);
+      expect(await res.json()).toEqual([]);
+    });
+
+    it("renvoie les sites triés par nom croissant, avec les valeurs et clientId peuplé ({_id, nom})", async () => {
+      const client = await creerUnClient("Client Alpha");
+      await creerUnSite(client._id, { nom: "Beta", adresse: "1 rue A" });
+      await creerUnSite(client._id, { nom: "Alpha", adresse: "2 rue B" });
+      const res = await listeSites();
+      expect(res.status).toBe(200);
+      const liste = await res.json();
+      expect(liste.map((s: { nom: string }) => s.nom)).toEqual(["Alpha", "Beta"]);
+      expect(liste[0].clientId).toEqual({ _id: client._id, nom: "Client Alpha" });
+      expect(liste[0].adresse).toBe("2 rue B");
+      expect(liste[1].clientId).toEqual({ _id: client._id, nom: "Client Alpha" });
+    });
+
+    it("401 sans session", async () => {
+      session(null);
+      const res = await listeSites();
+      expect(res.status).toBe(401);
+      expect(await res.json()).toEqual({ error: "Non authentifié" });
+    });
+
+    it("403 pour un chauffeur", async () => {
+      session({ role: "chauffeur", equipeId: ID_INCONNU });
+      const res = await listeSites();
+      expect(res.status).toBe(403);
+      expect(await res.json()).toEqual({ error: "Accès refusé" });
+    });
+
+    it("403 MUST_CHANGE_PASSWORD", async () => {
+      session({ role: "admin", mustChangePassword: true });
+      const res = await listeSites();
+      expect(res.status).toBe(403);
+      expect(await res.json()).toEqual({
+        error: "Changement de mot de passe requis",
+        code: "MUST_CHANGE_PASSWORD",
+      });
+    });
+  });
+
+  describe("POST /api/sites", () => {
+    it("201 avec l'ensemble exact des clés, clientId NON peuplé (chaîne)", async () => {
+      const client = await creerUnClient();
+      const res = await creerSiteRoute(
+        posteSite({
+          clientId: client._id,
+          nom: "Site Test",
+          adresse: "1 rue du dépôt",
+          localisation: { lat: 5.34, lng: -4.02 },
+          typeDechets: ["DIB", "DEEE"],
+          observations: "obs",
+        })
+      );
+      expect(res.status).toBe(201);
+      const corps = await res.json();
+      expect(Object.keys(corps).sort()).toEqual(
+        ["_id", "clientId", "nom", "adresse", "localisation", "typeDechets", "observations", "createdAt", "updatedAt", "__v"].sort()
+      );
+      expect(corps.clientId).toBe(client._id);
+      expect(corps.nom).toBe("Site Test");
+      expect(corps.adresse).toBe("1 rue du dépôt");
+      expect(corps.typeDechets).toEqual(["DIB", "DEEE"]);
+      expect(corps.observations).toBe("obs");
+      expect(corps.__v).toBe(0);
+      expect(new Date(corps.createdAt).toISOString()).toBe(corps.createdAt);
+      expect(corps.updatedAt).toBe(corps.createdAt);
+    });
+
+    it("localisation absente du corps de la requête : n'apparaît pas dans la réponse (valeur observée, pas présumée)", async () => {
+      const client = await creerUnClient();
+      const corps = await creerUnSite(client._id, { nom: "Sans localisation" });
+      expect(corps).not.toHaveProperty("localisation");
+    });
+
+    it("localisation fournie est conservée telle quelle", async () => {
+      const client = await creerUnClient();
+      const corps = await creerUnSite(client._id, { nom: "Avec localisation", localisation: { lat: 5.34, lng: -4.02 } });
+      expect(corps.localisation).toEqual({ lat: 5.34, lng: -4.02 });
+    });
+
+    it("applique les valeurs par défaut (adresse, typeDechets, observations) quand omis", async () => {
+      const client = await creerUnClient();
+      const corps = await creerUnSite(client._id, { nom: "Minimal" });
+      expect(corps.adresse).toBe("");
+      expect(corps.typeDechets).toEqual([]);
+      expect(corps.observations).toBe("");
+    });
+
+    it("réussit (201) avec un clientId inexistant : aucune vérification d'existence à l'écriture", async () => {
+      const res = await creerSiteRoute(posteSite({ clientId: ID_INCONNU, nom: "Orphelin" }));
+      expect(res.status).toBe(201);
+      const corps = await res.json();
+      expect(corps.clientId).toBe(ID_INCONNU);
+    });
+
+    it("400 si clientId est vide", async () => {
+      const res = await creerSiteRoute(posteSite({ clientId: "", nom: "X" }));
+      expect(res.status).toBe(400);
+      expect((await res.json()).error.fieldErrors).toHaveProperty("clientId");
+    });
+
+    it("400 si nom est vide", async () => {
+      const client = await creerUnClient();
+      const res = await creerSiteRoute(posteSite({ clientId: client._id, nom: "" }));
+      expect(res.status).toBe(400);
+      expect(await res.json()).toEqual({
+        error: { formErrors: [], fieldErrors: { nom: ["Le nom est requis"] } },
+      });
+    });
+
+    it("400 si le corps a des types invalides", async () => {
+      const res = await creerSiteRoute(posteSite({ clientId: 42, nom: 42, typeDechets: "pas-un-tableau" }));
+      expect(res.status).toBe(400);
+      const corps = await res.json();
+      expect(corps.error.formErrors).toEqual([]);
+      expect(Object.keys(corps.error.fieldErrors).sort()).toEqual(["clientId", "nom", "typeDechets"]);
+    });
+
+    it("401 sans session", async () => {
+      session(null);
+      expect((await creerSiteRoute(posteSite({ clientId: "x", nom: "X" }))).status).toBe(401);
+    });
+
+    it("403 pour un chauffeur", async () => {
+      session({ role: "chauffeur", equipeId: ID_INCONNU });
+      expect((await creerSiteRoute(posteSite({ clientId: "x", nom: "X" }))).status).toBe(403);
+    });
+
+    it("403 MUST_CHANGE_PASSWORD", async () => {
+      session({ role: "admin", mustChangePassword: true });
+      const res = await creerSiteRoute(posteSite({ clientId: "x", nom: "X" }));
+      expect(res.status).toBe(403);
+      expect((await res.json()).code).toBe("MUST_CHANGE_PASSWORD");
+    });
+
+    it("corps JSON malformé : le gestionnaire rejette et rien n'est créé", async () => {
+      const malforme = new NextRequest("http://localhost:3000/api/sites", {
+        method: "POST",
+        body: "{ceci n'est pas du json",
+      });
+      await expect(creerSiteRoute(malforme)).rejects.toThrow();
+      expect(await (await listeSites()).json()).toEqual([]);
+    });
+  });
+
+  describe("GET /api/sites/[id]", () => {
+    it("200 avec clientId peuplé ({_id, nom}), le reste identique à la réponse d'écriture", async () => {
+      const client = await creerUnClient();
+      const cree = await creerUnSite(client._id, { nom: "Alpha" });
+      const res = await lireSite(videSite("GET", cree._id), ctx(cree._id));
+      expect(res.status).toBe(200);
+      const corps = await res.json();
+      expect(corps.clientId).toEqual({ _id: client._id, nom: "Client Site" });
+      expect(corps._id).toBe(cree._id);
+      expect(corps.nom).toBe("Alpha");
+    });
+
+    it("404 « Non trouvé » pour un identifiant valide inconnu", async () => {
+      const res = await lireSite(videSite("GET", ID_INCONNU), ctx(ID_INCONNU));
+      expect(res.status).toBe(404);
+      expect(await res.json()).toEqual({ error: "Non trouvé" });
+    });
+
+    it("400 « Identifiant invalide » pour un identifiant mal formé", async () => {
+      const res = await lireSite(videSite("GET", "pas-un-id"), ctx("pas-un-id"));
+      expect(res.status).toBe(400);
+      expect(await res.json()).toEqual({ error: "Identifiant invalide" });
+    });
+
+    it("401 sans session, 403 chauffeur", async () => {
+      const client = await creerUnClient();
+      const cree = await creerUnSite(client._id);
+      session(null);
+      expect((await lireSite(videSite("GET", cree._id), ctx(cree._id))).status).toBe(401);
+      session({ role: "chauffeur", equipeId: ID_INCONNU });
+      expect((await lireSite(videSite("GET", cree._id), ctx(cree._id))).status).toBe(403);
+    });
+
+    it("403 MUST_CHANGE_PASSWORD", async () => {
+      session({ role: "admin", mustChangePassword: true });
+      const res = await lireSite(videSite("GET", ID_INCONNU), ctx(ID_INCONNU));
+      expect(res.status).toBe(403);
+      expect((await res.json()).code).toBe("MUST_CHANGE_PASSWORD");
+    });
+  });
+
+  describe("PUT /api/sites/[id]", () => {
+    it("200 : remplace les champs, clientId NON peuplé (chaîne), conserve _id/createdAt, avance updatedAt", async () => {
+      const client = await creerUnClient();
+      const cree = await creerUnSite(client._id, { nom: "Alpha" });
+      await new Promise((r) => setTimeout(r, 5));
+      const res = await modifierSite(
+        putSite(cree._id, { clientId: client._id, nom: "Alpha modifié", adresse: "9 rue" }),
+        ctx(cree._id)
+      );
+      expect(res.status).toBe(200);
+      const corps = await res.json();
+      expect(corps.clientId).toBe(client._id);
+      expect(corps._id).toBe(cree._id);
+      expect(corps.nom).toBe("Alpha modifié");
+      expect(corps.adresse).toBe("9 rue");
+      expect(corps.createdAt).toBe(cree.createdAt);
+      expect(new Date(corps.updatedAt).getTime()).toBeGreaterThan(new Date(cree.updatedAt as string).getTime());
+    });
+
+    it("404 « Non trouvé » pour un identifiant inconnu", async () => {
+      const res = await modifierSite(putSite(ID_INCONNU, { clientId: ID_INCONNU, nom: "B" }), ctx(ID_INCONNU));
+      expect(res.status).toBe(404);
+      expect(await res.json()).toEqual({ error: "Non trouvé" });
+    });
+
+    it("400 « Identifiant invalide » avant la validation du corps", async () => {
+      const res = await modifierSite(putSite("pas-un-id", { clientId: "", nom: "" }), ctx("pas-un-id"));
+      expect(res.status).toBe(400);
+      expect(await res.json()).toEqual({ error: "Identifiant invalide" });
+    });
+
+    it("400 avec le détail Zod quand le corps est invalide, sans modifier le site", async () => {
+      const client = await creerUnClient();
+      const cree = await creerUnSite(client._id, { nom: "Alpha" });
+      const res = await modifierSite(putSite(cree._id, { clientId: client._id, nom: "" }), ctx(cree._id));
+      expect(res.status).toBe(400);
+      expect(await res.json()).toEqual({
+        error: { formErrors: [], fieldErrors: { nom: ["Le nom est requis"] } },
+      });
+      const relu = await (await lireSite(videSite("GET", cree._id), ctx(cree._id))).json();
+      expect(relu.nom).toBe("Alpha");
+    });
+
+    it("401 sans session, 403 chauffeur, 403 lecture", async () => {
+      const client = await creerUnClient();
+      const cree = await creerUnSite(client._id);
+      const corps = { clientId: client._id, nom: "B" };
+      session(null);
+      expect((await modifierSite(putSite(cree._id, corps), ctx(cree._id))).status).toBe(401);
+      session({ role: "chauffeur", equipeId: ID_INCONNU });
+      expect((await modifierSite(putSite(cree._id, corps), ctx(cree._id))).status).toBe(403);
+      session({ role: "lecture" });
+      const res = await modifierSite(putSite(cree._id, corps), ctx(cree._id));
+      expect(res.status).toBe(403);
+      expect(await res.json()).toEqual({ error: "Permission insuffisante" });
+    });
+
+    it("403 MUST_CHANGE_PASSWORD", async () => {
+      session({ role: "admin", mustChangePassword: true });
+      const res = await modifierSite(putSite(ID_INCONNU, { clientId: "x", nom: "B" }), ctx(ID_INCONNU));
+      expect(res.status).toBe(403);
+      expect((await res.json()).code).toBe("MUST_CHANGE_PASSWORD");
+    });
+
+    it("corps JSON malformé : le gestionnaire rejette et le site reste inchangé", async () => {
+      const client = await creerUnClient();
+      const cree = await creerUnSite(client._id, { nom: "Avant" });
+      const malforme = new NextRequest(`http://localhost:3000/api/sites/${cree._id}`, {
+        method: "PUT",
+        body: "{ceci n'est pas du json",
+      });
+      await expect(modifierSite(malforme, ctx(cree._id))).rejects.toThrow();
+      const res = await lireSite(videSite("GET", cree._id), ctx(cree._id));
+      expect((await res.json()).nom).toBe("Avant");
+    });
+  });
+
+  describe("DELETE /api/sites/[id]", () => {
+    it("200 { success: true } sans aucune garde de rattachement, puis 404 à la relecture", async () => {
+      const client = await creerUnClient();
+      const cree = await creerUnSite(client._id);
+      const res = await supprimerSite(videSite("DELETE", cree._id), ctx(cree._id));
+      expect(res.status).toBe(200);
+      expect(await res.json()).toEqual({ success: true });
+      expect((await lireSite(videSite("GET", cree._id), ctx(cree._id))).status).toBe(404);
+    });
+
+    it("404 « Non trouvé » pour un identifiant inconnu", async () => {
+      const res = await supprimerSite(videSite("DELETE", ID_INCONNU), ctx(ID_INCONNU));
+      expect(res.status).toBe(404);
+      expect(await res.json()).toEqual({ error: "Non trouvé" });
+    });
+
+    it("400 « Identifiant invalide » pour un identifiant mal formé", async () => {
+      const res = await supprimerSite(videSite("DELETE", "pas-un-id"), ctx("pas-un-id"));
+      expect(res.status).toBe(400);
+      expect(await res.json()).toEqual({ error: "Identifiant invalide" });
+    });
+
+    it("401 sans session, 403 chauffeur, 403 lecture ; le site reste présent", async () => {
+      const client = await creerUnClient();
+      const cree = await creerUnSite(client._id);
+      session(null);
+      expect((await supprimerSite(videSite("DELETE", cree._id), ctx(cree._id))).status).toBe(401);
+      session({ role: "chauffeur", equipeId: ID_INCONNU });
+      expect((await supprimerSite(videSite("DELETE", cree._id), ctx(cree._id))).status).toBe(403);
+      session({ role: "lecture" });
+      expect((await supprimerSite(videSite("DELETE", cree._id), ctx(cree._id))).status).toBe(403);
+      asAdmin();
+      expect((await lireSite(videSite("GET", cree._id), ctx(cree._id))).status).toBe(200);
+    });
+
+    it("403 MUST_CHANGE_PASSWORD", async () => {
+      session({ role: "admin", mustChangePassword: true });
+      const res = await supprimerSite(videSite("DELETE", ID_INCONNU), ctx(ID_INCONNU));
       expect(res.status).toBe(403);
       expect((await res.json()).code).toBe("MUST_CHANGE_PASSWORD");
     });
