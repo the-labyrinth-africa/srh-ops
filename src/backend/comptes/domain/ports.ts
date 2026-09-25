@@ -50,3 +50,20 @@ export type EnvoiEmail = typeof sendMail;
 export type LimiteurDebit = typeof consumeRateLimit;
 export type ExecutionDifferee = typeof runAfterResponse;
 export type { Horloge };
+
+/** Calcule l'URL de base de l'application ; lève si mal configurée. Port autour de `appBaseUrl`. */
+export type UrlApplicative = () => string;
+
+export interface MessageEmail {
+  to: string;
+  subject: string;
+  text: string;
+  html?: string;
+}
+
+/** Gabarits d'e-mails du domaine `comptes`, injectés pour ne jamais importer `infrastructure/` depuis `application/`. */
+export interface GabaritsEmail {
+  invitation(destinataire: { nom: string; email: string }, lien: string): MessageEmail;
+  reinitialisation(destinataire: { nom: string; email: string }, lien: string): MessageEmail;
+  motDePasseModifie(destinataire: { nom: string; email: string }): MessageEmail;
+}
