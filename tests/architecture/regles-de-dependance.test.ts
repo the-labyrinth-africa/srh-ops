@@ -6,8 +6,8 @@ import { verifierImports, type Contexte } from "./verificateur";
 
 // À compléter à chaque migration de domaine (recette, étape 8).
 const contexte: Contexte = {
-  domainesBackendMigres: ["equipes"],
-  fonctionnalitesFrontendMigrees: ["equipes"],
+  domainesBackendMigres: ["equipes", "vehicules", "equipements"],
+  fonctionnalitesFrontendMigrees: ["equipes", "vehicules", "equipements"],
 };
 
 function fichiers(dossier: string): string[] {

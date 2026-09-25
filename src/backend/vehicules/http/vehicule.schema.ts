@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { VehiculeSaisie } from "../domain/vehicule";
 
 export const vehiculeSchema = z.object({
   identification: z.string().min(1, "Immatriculation requise"),
@@ -8,3 +9,12 @@ export const vehiculeSchema = z.object({
 });
 
 export type VehiculeInput = z.infer<typeof vehiculeSchema>;
+
+export function versSaisie(entree: VehiculeInput): VehiculeSaisie {
+  return {
+    identification: entree.identification,
+    type: entree.type,
+    capacite: entree.capacite,
+    disponibilite: entree.disponibilite,
+  };
+}

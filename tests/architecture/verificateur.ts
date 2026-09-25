@@ -7,13 +7,13 @@ export interface Contexte {
 }
 
 const PAQUETS_INTERDITS_DOMAINE = [
-  /^(mongoose|nodemailer|bcryptjs|exceljs)(\/|$)/,
+  /^(mongoose|mongodb|bson|nodemailer|bcryptjs|exceljs)(\/|$)/,
   /^next(\/|$)/,
   /^next-auth(\/|$)/,
   /^jspdf(\/|-|$)/,
 ];
 
-export const DOSSIERS_HERITES = ["src/lib/", "src/models/", "src/components/", "src/hooks/", "src/types/"];
+export const DOSSIERS_HERITES = ["src/lib/", "src/models/", "src/components/", "src/hooks/"];
 
 /**
  * Tolérance transitoire : tant que l'ancien code existe, un domaine migré peut encore
@@ -113,8 +113,12 @@ export function verifierImports(fichier: string, imports: string[], contexte: Co
       }
     }
 
-    // R4 — le frontend n'importe jamais le backend ; ni mongoose, ni les modèles hérités.
+    // R4 — le frontend n'importe jamais le backend ni src/app ; ni mongoose, ni les modèles hérités.
     if (estFrontend) {
+      if (dans(cible, "src/app")) {
+        signaler("R4", spec);
+        continue;
+      }
       if (dans(cible, "src/backend") || cible === "mongoose" || /^mongoose\//.test(cible) || dans(cible, "src/models")) {
         signaler("R4", spec);
         continue;
