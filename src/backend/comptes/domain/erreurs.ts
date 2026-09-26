@@ -47,3 +47,15 @@ export class NouveauMotDePasseIdentique extends Error {
     this.name = "NouveauMotDePasseIdentique";
   }
 }
+
+/**
+ * Limite de débit atteinte (contrairement à un limiteur indisponible, qui n'est pas représenté
+ * par une erreur : `forgot-password` l'avale silencieusement, `reset-password` le laisse se
+ * propager tel quel jusqu'au contrôleur — cf. `domain/ports.ts`, `LimiteurDebit`).
+ */
+export class LimiteDeDebitAtteinte extends Error {
+  constructor(public readonly retryApresSecondes: number) {
+    super("Trop de tentatives. Réessayez plus tard.");
+    this.name = "LimiteDeDebitAtteinte";
+  }
+}

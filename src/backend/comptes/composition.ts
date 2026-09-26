@@ -8,9 +8,20 @@ import { consumeRateLimit } from "@/backend/platform/limiteur-debit/rate-limit";
 import { runAfterResponse } from "@/backend/platform/execution-differee/execution-differee";
 import { SystemClock } from "@/backend/platform/horloge/horloge";
 import { appBaseUrl } from "@/backend/platform/http/url-applicative";
+import { clientIp } from "@/backend/platform/http/adresse-client";
 import { buildInvitationMail, buildResetMail, buildPasswordChangedMail } from "./infrastructure/email/gabarits-email";
 import { creerCasDUsageUtilisateurs } from "./application/cas-d-usage-utilisateurs";
-import type { EnvoiEmail, LimiteurDebit, ExecutionDifferee, UrlApplicative, GabaritsEmail } from "./domain/ports";
+import { creerCasDUsageMotDePasseOublie } from "./application/cas-d-usage-mot-de-passe-oublie";
+import { creerCasDUsageReinitialisation } from "./application/cas-d-usage-reinitialisation";
+import { creerCasDUsageChangementMotDePasse } from "./application/cas-d-usage-changement-mot-de-passe";
+import type {
+  EnvoiEmail,
+  LimiteurDebit,
+  ExecutionDifferee,
+  UrlApplicative,
+  GabaritsEmail,
+  AdresseClient,
+} from "./domain/ports";
 
 export const utilisateurs = new UtilisateurRepositoryMongoose();
 export const jetons = new JetonRepositoryMongoose();
@@ -27,6 +38,10 @@ export const limiteurDebit: LimiteurDebit = (...args) => consumeRateLimit(...arg
 export const executionDifferee: ExecutionDifferee = (...args) => runAfterResponse(...args);
 export const horloge = new SystemClock();
 export const urlApplicative: UrlApplicative = appBaseUrl;
+// Alias direct (pas un wrapper) : rien n'espionne `clientIp` aujourd'hui, donc la classe de bug
+// documentée sur `envoiEmail`/`limiteurDebit`/`executionDifferee` ne s'applique pas ici (même
+// raisonnement que `urlApplicative`, confirmé indépendamment à la revue de la tâche 2).
+export const adresseClient: AdresseClient = clientIp;
 export const gabaritsEmail: GabaritsEmail = {
   invitation: buildInvitationMail,
   reinitialisation: buildResetMail,
@@ -43,4 +58,32 @@ export const casDUsageUtilisateurs = creerCasDUsageUtilisateurs({
   horloge,
   urlApplicative,
   gabarits: gabaritsEmail,
+});
+
+export const casDUsageMotDePasseOublie = creerCasDUsageMotDePasseOublie({
+  utilisateurs,
+  jetons,
+  envoiEmail,
+  limiteurDebit,
+  executionDifferee,
+  horloge,
+  urlApplicative,
+  gabarits: gabaritsEmail,
+});
+
+export const casDUsageReinitialisation = creerCasDUsageReinitialisation({
+  utilisateurs,
+  jetons,
+  hacheur,
+  envoiEmail,
+  executionDifferee,
+  limiteurDebit,
+  horloge,
+  gabarits: gabaritsEmail,
+});
+
+export const casDUsageChangementMotDePasse = creerCasDUsageChangementMotDePasse({
+  utilisateurs,
+  jetons,
+  hacheur,
 });

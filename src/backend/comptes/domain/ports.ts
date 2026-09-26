@@ -67,3 +67,6 @@ export interface GabaritsEmail {
   reinitialisation(destinataire: { nom: string; email: string }, lien: string): MessageEmail;
   motDePasseModifie(destinataire: { nom: string; email: string }): MessageEmail;
 }
+
+/** Adresse IP de l'appelant, pour le limiteur de débit. Port autour de `clientIp`. */
+export type AdresseClient = (req: Request) => string;
