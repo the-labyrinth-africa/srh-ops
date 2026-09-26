@@ -1,6 +1,6 @@
 // tests/architecture/verificateur.test.ts
 import { describe, it, expect } from "vitest";
-import { verifierImports, AJOUT_HERITAGE, DOSSIERS_HERITES } from "./verificateur";
+import { verifierImports, AJOUT_HERITAGE, DOSSIERS_HERITES, EXCEPTIONS_INDEX_HTTP } from "./verificateur";
 
 const contexte = {
   domainesBackendMigres: ["equipes"],
@@ -357,5 +357,20 @@ describe("exception documentée : comptes/index.ts re-exporte ./http/garde-pages
   });
   it("refusée : aucun autre domaine n'est exempté (même cible, index.ts d'un autre domaine)", () => {
     expect(vc("src/backend/equipes/index.ts", ["./http/garde-pages"]).length).toBe(1);
+  });
+});
+
+// Garde-fou : `EXCEPTIONS_INDEX_HTTP` n'a jamais contenu que ces deux paires exactes (`acteur`,
+// `garde-pages`), toutes deux vers `comptes/index.ts`. Si l'implémentation est un jour restructurée
+// en deux ensembles séparés (fichiers autorisés × cibles autorisées) plutôt qu'en paires exactes,
+// ce test échoue dès qu'une troisième entrée élargit silencieusement les deux ensembles — alors
+// qu'aucun des tests ci-dessus, qui n'ont jamais vu qu'un appariement 1:1 fichier↔cible, ne le
+// détecterait (les deux formes produisent aujourd'hui des résultats identiques).
+describe("allowlist EXCEPTIONS_INDEX_HTTP : taille épinglée", () => {
+  it("contient exactement les deux paires documentées, ni plus ni moins", () => {
+    expect(EXCEPTIONS_INDEX_HTTP).toEqual([
+      { fichier: "src/backend/comptes/index.ts", cible: "src/backend/comptes/http/acteur" },
+      { fichier: "src/backend/comptes/index.ts", cible: "src/backend/comptes/http/garde-pages" },
+    ]);
   });
 });

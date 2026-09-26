@@ -46,7 +46,7 @@ const EXCEPTION_PLATFORM = "src/backend/platform/base-de-donnees/enregistrement-
  * — chaque paire (fichier, cible) ci-dessous est exacte (aucun préfixe, aucune regex) et cette
  * liste ne s'étend à aucun autre domaine ni à aucune autre cible que celles énumérées.
  */
-const EXCEPTIONS_INDEX_HTTP: ReadonlyArray<{ readonly fichier: string; readonly cible: string }> = [
+export const EXCEPTIONS_INDEX_HTTP: ReadonlyArray<{ readonly fichier: string; readonly cible: string }> = [
   { fichier: "src/backend/comptes/index.ts", cible: "src/backend/comptes/http/acteur" },
   { fichier: "src/backend/comptes/index.ts", cible: "src/backend/comptes/http/garde-pages" },
 ];
