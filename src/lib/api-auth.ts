@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import type { Session } from "next-auth";
 import { NextResponse } from "next/server";
-import { authOptions } from "@/lib/auth";
+import { authOptions } from "@/backend/comptes/infrastructure/next-auth/options";
 import { canRead, canWrite, isChauffeur, isClientUser } from "@/shared/acces/permissions";
 import type { UserRole } from "@/shared/acces/roles";
 

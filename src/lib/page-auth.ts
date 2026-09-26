@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import type { Session } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/auth";
+import { authOptions } from "@/backend/comptes/infrastructure/next-auth/options";
 import { canAccessPath, homePathFor } from "@/shared/acces/acces-pages";
 
 /**
