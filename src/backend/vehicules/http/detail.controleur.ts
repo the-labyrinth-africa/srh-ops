@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireInternalAuth } from "@/lib/api-auth"; // transitoire : migre avec `comptes` (R3)
+import { requireInternalAuth } from "@/backend/comptes";
 import { guardObjectId } from "@/backend/platform/http/identifiants";
 import { VehiculeIntrouvable } from "../domain/erreurs";
 import { casDUsageVehicules } from "../composition";

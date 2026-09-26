@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireInternalAuth } from "@/lib/api-auth"; // transitoire : migre avec `comptes` (R3)
+import { requireInternalAuth } from "@/backend/comptes";
 import { casDUsageEquipes } from "../composition";
 import { equipeSchema, versSaisie } from "./equipe.schema";
 import { versReponse } from "./presentation";

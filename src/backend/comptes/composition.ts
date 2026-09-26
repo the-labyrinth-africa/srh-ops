@@ -5,6 +5,7 @@ import { UtilisateurRepositoryMongoose } from "./infrastructure/mongoose/utilisa
 import { JetonRepositoryMongoose } from "./infrastructure/mongoose/jeton.repository.mongoose";
 import { HacheurMotDePasseBcrypt } from "./infrastructure/mongoose/hacheur-mot-de-passe.bcrypt";
 import { GenerateurDeSecretsAleatoire } from "./infrastructure/generateur-de-secrets.aleatoire";
+import { authOptions } from "./infrastructure/next-auth/options";
 import { sendMail } from "@/backend/platform/email";
 import { consumeRateLimit } from "@/backend/platform/limiteur-debit/rate-limit";
 import { runAfterResponse } from "@/backend/platform/execution-differee/execution-differee";
@@ -110,6 +111,11 @@ export const casDUsageEmailDeTest = creerCasDUsageEmailDeTest({
 // `comptes`, ce que cette API publique doit précisément empêcher. Vit ici (et non dans `index.ts`)
 // parce que `composition.ts` est le seul point du domaine autorisé à importer l'infrastructure
 // (`connectDB`, le modèle Mongoose) — règle INDEX.
+
+// Ré-export de `authOptions` : `http/acteur.ts` (couche `http`) ne peut pas importer
+// `infrastructure/` directement (règle R3, « http n'importe pas infrastructure sauf composition.ts ») ;
+// il passe donc par ce point, comme tout autre accès de `http/` à l'infrastructure du domaine.
+export { authOptions };
 
 /** Vrai si au moins un compte utilisateur référence ce `clientId`. */
 export async function existeUtilisateurAvecClientId(clientId: string): Promise<boolean> {

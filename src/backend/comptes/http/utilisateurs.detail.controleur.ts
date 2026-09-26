@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/api-auth"; // transitoire : migre avec 3c
+import { requireAuth } from "./acteur";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { findScopeError } from "@/lib/users/scope"; // transitoire : hors périmètre de ce sous-plan
 import { guardObjectId } from "@/backend/platform/http/identifiants";

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth, requireReferentialRead, isWithinClientScope } from "@/lib/api-auth"; // transitoire : migre avec comptes (R3)
+import { requireAuth, requireReferentialRead, isWithinClientScope } from "@/backend/comptes";
 import { guardObjectId } from "@/backend/platform/http/identifiants";
 import { ClientIntrouvable, ClientRattache } from "../domain/erreurs";
 import { casDUsageClients } from "../composition";

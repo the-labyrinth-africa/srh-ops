@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth, requireReferentialRead } from "@/lib/api-auth"; // transitoire : migre avec comptes (R3)
+import { requireAuth, requireReferentialRead } from "@/backend/comptes";
 import { isClientUser } from "@/shared/acces/permissions";
 import { casDUsageSites } from "../composition";
 import { siteSchema, versSaisieSite } from "./site.schema";

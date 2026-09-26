@@ -312,3 +312,27 @@ describe("R1 — durcissements", () => {
     expect(DOSSIERS_HERITES).not.toContain("src/types/");
   });
 });
+
+// Contexte dédié : `comptes` doit être un domaine migré pour que la branche `domaineMigre && couche`
+// s'applique (sinon le bloc entier est court-circuité et le test passerait à vide, sans jamais
+// exercer l'exception — cf. revue de la tâche 2 du sous-plan R3c).
+describe("exception documentée : comptes/index.ts re-exporte ./http/acteur", () => {
+  const ctxComptes = { domainesBackendMigres: ["equipes", "comptes"], fonctionnalitesFrontendMigrees: [] };
+  const vc = (f: string, i: string[]) => verifierImports(f, i, ctxComptes);
+
+  it("autorisée : exactement comptes/index.ts vers exactement ./http/acteur", () => {
+    expect(vc("src/backend/comptes/index.ts", ["./http/acteur"])).toEqual([]);
+  });
+  it("refusée : un autre fichier de http/, même dans comptes", () => {
+    expect(vc("src/backend/comptes/index.ts", ["./http/utilisateurs.liste.controleur"]).length).toBe(1);
+  });
+  it("refusée : un import de dossier plutôt que du fichier exact", () => {
+    expect(vc("src/backend/comptes/index.ts", ["./http"]).length).toBe(1);
+  });
+  it("refusée : composition.ts reste symétriquement bloqué (l'exception ne vaut que pour index.ts)", () => {
+    expect(vc("src/backend/comptes/composition.ts", ["./http/acteur"]).length).toBe(1);
+  });
+  it("refusée : aucun autre domaine n'est exempté", () => {
+    expect(vc("src/backend/equipes/index.ts", ["./http/acteur"]).length).toBe(1);
+  });
+});

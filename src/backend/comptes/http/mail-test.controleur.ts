@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAuth } from "@/lib/api-auth"; // transitoire : migre avec 3c
+import { requireAuth } from "./acteur";
 import { UtilisateurIntrouvable, LimiteDeDebitAtteinte } from "../domain/erreurs";
 import { casDUsageEmailDeTest } from "../composition";
 
