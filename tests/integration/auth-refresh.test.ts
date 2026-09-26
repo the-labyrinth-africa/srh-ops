@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { authOptions } from "@/lib/auth";
-import { needsRefresh, refreshTokenFromDb, REFRESH_INTERVAL_MS } from "@/lib/auth-refresh";
+import { authOptions } from "@/backend/comptes/infrastructure/next-auth/options";
+import { needsRefresh, refreshTokenFromDb, REFRESH_INTERVAL_MS } from "@/backend/comptes/infrastructure/next-auth/rafraichissement";
 import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 

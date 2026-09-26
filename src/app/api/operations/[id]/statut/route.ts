@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
-import { requireTerrainWrite, isWithinTeamScope, chauffeurWithoutTeamError, TEAM_SCOPE_ERROR } from "@/lib/api-auth";
+import { requireTerrainWrite, isWithinTeamScope, chauffeurWithoutTeamError, TEAM_SCOPE_ERROR } from "@/backend/comptes";
 import { canTransition } from "@/lib/status-transitions";
 import { Operation } from "@/models/Operation";
 import { statusUpdateSchema } from "@/lib/validators/operation";

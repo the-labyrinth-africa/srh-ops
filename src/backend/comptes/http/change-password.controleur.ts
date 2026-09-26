@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/api-auth"; // transitoire : migre avec 3c
+import { requireAuth } from "./acteur";
 import { UtilisateurIntrouvable, MotDePasseActuelIncorrect, NouveauMotDePasseIdentique } from "../domain/erreurs";
 import { changePasswordSchema } from "./mot-de-passe.schema";
 import { casDUsageChangementMotDePasse } from "../composition";

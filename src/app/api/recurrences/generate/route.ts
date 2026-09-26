@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
-import { requireInternalAuth } from "@/lib/api-auth";
+import { requireInternalAuth } from "@/backend/comptes";
 import { checkAssignmentConflicts } from "@/lib/conflicts";
 import { Recurrence, IRecurrence } from "@/models/Recurrence";
 import { Operation } from "@/models/Operation";

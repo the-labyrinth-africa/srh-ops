@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isWithinClientScope } from "@/lib/api-auth";
+import { isWithinClientScope } from "@/backend/comptes";
 
 const auth = (role: string, clientId?: string) => ({ role, clientId } as never);
 

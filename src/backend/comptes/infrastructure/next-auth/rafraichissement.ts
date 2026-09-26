@@ -2,6 +2,7 @@ import type { JWT } from "next-auth/jwt";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
 import type { UserRole } from "@/shared/acces/roles";
+import { sessionEstValide } from "../../domain/session";
 
 interface RefreshedUser {
   role: UserRole;
@@ -45,7 +46,7 @@ export async function refreshTokenFromDb(token: JWT): Promise<JWT> {
     return { ...token, invalid: true, refreshedAt: Date.now() };
   }
 
-  if (user.passwordChangedAt && (token.issuedAt ?? 0) < user.passwordChangedAt.getTime()) {
+  if (!sessionEstValide({ issuedAtMs: token.issuedAt, passwordChangedAtMs: user.passwordChangedAt?.getTime() })) {
     return { ...token, invalid: true, refreshedAt: Date.now() };
   }
 

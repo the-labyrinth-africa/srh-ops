@@ -1,6 +1,6 @@
 // tests/architecture/verificateur.test.ts
 import { describe, it, expect } from "vitest";
-import { verifierImports, AJOUT_HERITAGE, DOSSIERS_HERITES } from "./verificateur";
+import { verifierImports, AJOUT_HERITAGE, DOSSIERS_HERITES, EXCEPTIONS_INDEX_HTTP } from "./verificateur";
 
 const contexte = {
   domainesBackendMigres: ["equipes"],
@@ -310,5 +310,67 @@ describe("R1 — durcissements", () => {
   });
   it("n'interdit plus src/types comme dossier hérité (il n'existe plus)", () => {
     expect(DOSSIERS_HERITES).not.toContain("src/types/");
+  });
+});
+
+// Contexte dédié : `comptes` doit être un domaine migré pour que la branche `domaineMigre && couche`
+// s'applique (sinon le bloc entier est court-circuité et le test passerait à vide, sans jamais
+// exercer l'exception — cf. revue de la tâche 2 du sous-plan R3c).
+describe("exception documentée : comptes/index.ts re-exporte ./http/acteur", () => {
+  const ctxComptes = { domainesBackendMigres: ["equipes", "comptes"], fonctionnalitesFrontendMigrees: [] };
+  const vc = (f: string, i: string[]) => verifierImports(f, i, ctxComptes);
+
+  it("autorisée : exactement comptes/index.ts vers exactement ./http/acteur", () => {
+    expect(vc("src/backend/comptes/index.ts", ["./http/acteur"])).toEqual([]);
+  });
+  it("refusée : un autre fichier de http/, même dans comptes", () => {
+    expect(vc("src/backend/comptes/index.ts", ["./http/utilisateurs.liste.controleur"]).length).toBe(1);
+  });
+  it("refusée : un import de dossier plutôt que du fichier exact", () => {
+    expect(vc("src/backend/comptes/index.ts", ["./http"]).length).toBe(1);
+  });
+  it("refusée : composition.ts reste symétriquement bloqué (l'exception ne vaut que pour index.ts)", () => {
+    expect(vc("src/backend/comptes/composition.ts", ["./http/acteur"]).length).toBe(1);
+  });
+  it("refusée : aucun autre domaine n'est exempté", () => {
+    expect(vc("src/backend/equipes/index.ts", ["./http/acteur"]).length).toBe(1);
+  });
+});
+
+// Tâche 3 (R3c) : deuxième paire de l'allowlist EXCEPTIONS_INDEX_HTTP, même rigueur que la paire
+// `acteur` ci-dessus — chaque cas positif est accompagné de son contre-cas négatif symétrique.
+describe("exception documentée : comptes/index.ts re-exporte ./http/garde-pages", () => {
+  const ctxComptes = { domainesBackendMigres: ["equipes", "comptes"], fonctionnalitesFrontendMigrees: [] };
+  const vc = (f: string, i: string[]) => verifierImports(f, i, ctxComptes);
+
+  it("autorisée : exactement comptes/index.ts vers exactement ./http/garde-pages", () => {
+    expect(vc("src/backend/comptes/index.ts", ["./http/garde-pages"])).toEqual([]);
+  });
+  it("refusée : une cible différente depuis le même fichier source (comptes/index.ts)", () => {
+    expect(vc("src/backend/comptes/index.ts", ["./http/utilisateurs.liste.controleur"]).length).toBe(1);
+  });
+  it("refusée : un import de dossier plutôt que du fichier exact", () => {
+    expect(vc("src/backend/comptes/index.ts", ["./http"]).length).toBe(1);
+  });
+  it("refusée : composition.ts reste symétriquement bloqué (l'exception ne vaut que pour index.ts)", () => {
+    expect(vc("src/backend/comptes/composition.ts", ["./http/garde-pages"]).length).toBe(1);
+  });
+  it("refusée : aucun autre domaine n'est exempté (même cible, index.ts d'un autre domaine)", () => {
+    expect(vc("src/backend/equipes/index.ts", ["./http/garde-pages"]).length).toBe(1);
+  });
+});
+
+// Garde-fou : `EXCEPTIONS_INDEX_HTTP` n'a jamais contenu que ces deux paires exactes (`acteur`,
+// `garde-pages`), toutes deux vers `comptes/index.ts`. Si l'implémentation est un jour restructurée
+// en deux ensembles séparés (fichiers autorisés × cibles autorisées) plutôt qu'en paires exactes,
+// ce test échoue dès qu'une troisième entrée élargit silencieusement les deux ensembles — alors
+// qu'aucun des tests ci-dessus, qui n'ont jamais vu qu'un appariement 1:1 fichier↔cible, ne le
+// détecterait (les deux formes produisent aujourd'hui des résultats identiques).
+describe("allowlist EXCEPTIONS_INDEX_HTTP : taille épinglée", () => {
+  it("contient exactement les deux paires documentées, ni plus ni moins", () => {
+    expect(EXCEPTIONS_INDEX_HTTP).toEqual([
+      { fichier: "src/backend/comptes/index.ts", cible: "src/backend/comptes/http/acteur" },
+      { fichier: "src/backend/comptes/index.ts", cible: "src/backend/comptes/http/garde-pages" },
+    ]);
   });
 });

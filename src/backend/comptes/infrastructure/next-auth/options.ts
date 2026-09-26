@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
-import { needsRefresh, refreshTokenFromDb } from "@/lib/auth-refresh";
+import { needsRefresh, refreshTokenFromDb } from "./rafraichissement";
 import type { UserRole } from "@/shared/acces/roles";
 
 declare module "next-auth" {

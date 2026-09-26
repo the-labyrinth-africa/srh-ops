@@ -32,7 +32,7 @@ Règles de dépendance R1 à R5, vérifiées par `tests/architecture/regles-de-d
 
 Ajouter un cas d'usage : déclarer le port dans `domain/ports.ts` ; écrire le cas d'usage dans `application/` avec son test sur le faux en mémoire (`infrastructure/en-memoire/`) ; implémenter l'adaptateur Mongoose (`infrastructure/mongoose/`) ; brancher le tout dans `composition.ts` ; écrire le contrôleur dans `http/` ; enfin ré-exporter le gestionnaire depuis le `route.ts` concerné (exemple : `src/app/api/equipes/route.ts`).
 
-État de la migration : les domaines `equipes`, `vehicules`, `equipements` et `clients-sites` (backend `src/backend/<domaine>`, frontend `src/frontend/<domaine>`) sont migrés ; `equipes` sert de modèle. `clients-sites` regroupe deux entités liées (`Client`, `Site`) dans un seul dossier de domaine. Le backend de `comptes` (`src/backend/comptes`) est également migré (R3a : socle `platform` ; R3b : domaine, ports, adaptateurs et cas d'usage — utilisateurs, mot de passe oublié/réinitialisation/changement, e-mail de test) ; NextAuth, l'entité `Acteur` et les gardes de pages/routes (R3c), ainsi que son frontend (R8), restent à traiter — en attendant, `comptes` reste aussi dans `src/lib`, `src/models` et `src/components` pour ces parties non migrées. Les autres domaines (opérations, récurrences, import de données, pilotage) restent entièrement dans les dossiers hérités `src/lib`, `src/models`, `src/components` et `src/hooks` pendant la transition (jalons R4 à R9 de `docs/superpowers/plans/2026-09-20-refactor-architecture-master.md`) ; le test d'architecture ne s'applique aux règles fines qu'aux domaines déjà migrés (backend seulement, pour `comptes`).
+État de la migration : les domaines `equipes`, `vehicules`, `equipements` et `clients-sites` (backend `src/backend/<domaine>`, frontend `src/frontend/<domaine>`) sont migrés ; `equipes` sert de modèle. `clients-sites` regroupe deux entités liées (`Client`, `Site`) dans un seul dossier de domaine. Le backend de `comptes` (`src/backend/comptes`) est migré (R3a : socle `platform` ; R3b : domaine, ports, adaptateurs et cas d'usage — utilisateurs, mot de passe oublié/réinitialisation/changement, e-mail de test ; R3c : identité NextAuth, entité `Acteur`, gardes de pages et de routes), à l'exception de `src/lib/users/scope.ts` (`findScopeError`, en attente d'un port vers `clients-sites`/`equipes` — voir le suivi tracé dans `docs/superpowers/plans/2026-09-20-refactor-architecture-master.md`) ; son frontend (`src/components/users`), lui, reste entièrement à traiter en R8. Les autres domaines (opérations, récurrences, import de données, pilotage) restent entièrement dans les dossiers hérités `src/lib`, `src/models`, `src/components` et `src/hooks` pendant la transition (jalons R4 à R9 de `docs/superpowers/plans/2026-09-20-refactor-architecture-master.md`) ; le test d'architecture ne s'applique aux règles fines qu'aux domaines déjà migrés (backend seulement, pour `comptes`).
 
 Vérifier la compilation Next sans toucher à la vraie base (variables factices, jamais l'URI réelle) :
 
@@ -85,7 +85,7 @@ MAIL_FROM=
 
 Cinq rôles existent : `admin`, `dispatcher`, `lecture`, `chauffeur`, `client`. L'accès aux
 pages est décrit par une matrice unique, `src/shared/acces/acces-pages.ts`, qui alimente la protection
-des pages serveur (`src/lib/page-auth.ts`), le menu (`src/lib/nav.ts`) et les tests. Un chemin absent
+des pages serveur (`src/backend/comptes/http/garde-pages.ts`), le menu (`src/lib/nav.ts`) et les tests. Un chemin absent
 de la matrice est refusé à tous (refus par défaut) ; un accès refusé redirige vers la page
 d'accueil du rôle (`/terrain` pour un chauffeur, `/acces-limite` pour un client, `/` sinon).
 
@@ -243,7 +243,7 @@ liens elle-même, 30 min / 72 h, est vérifiée dans le code, pas par cet index.
 ### Actualisation du jeton de session
 
 Le jeton de session (JWT) est relu en base au plus toutes les 5 minutes
-(`REFRESH_INTERVAL_MS` dans `src/lib/auth-refresh.ts`) : un changement de rôle ou de
+(`REFRESH_INTERVAL_MS` dans `src/backend/comptes/infrastructure/next-auth/rafraichissement.ts`) : un changement de rôle ou de
 rattachement s'applique donc au plus 5 minutes après la dernière relecture, dès la requête
 suivante, sans nouvelle connexion, et un compte supprimé perd son accès (session refusée) à
 la relecture suivante.

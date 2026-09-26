@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/api-auth"; // transitoire : migre avec 3c
+import { requireAuth } from "./acteur";
 import { isValidObjectId } from "@/backend/platform/http/identifiants";
 import { UtilisateurIntrouvable } from "../domain/erreurs";
 import { casDUsageUtilisateurs } from "../composition";
