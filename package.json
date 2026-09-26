@@ -6,7 +6,7 @@
     "node": ">=20.9.0"
   },
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --turbopack -p 3001",
     "build": "tsx scripts/seed-admin.ts --on-build && next build",
     "start": "next start",
     "lint": "eslint .",
