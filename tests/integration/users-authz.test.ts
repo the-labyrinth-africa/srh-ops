@@ -5,7 +5,7 @@ import * as nextAuth from "next-auth";
 vi.mock("next-auth", () => ({ getServerSession: vi.fn() }));
 
 import { PUT as updateUser, DELETE as deleteUser } from "@/app/api/users/[id]/route";
-import { User } from "@/models/User";
+import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
 
 function mockSession(role: string) {
   vi.mocked(nextAuth.getServerSession).mockResolvedValue({

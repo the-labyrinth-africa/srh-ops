@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildResetMail, buildInvitationMail, buildPasswordChangedMail } from "@/lib/auth/account-mail";
+import { buildResetMail, buildInvitationMail, buildPasswordChangedMail } from "@/backend/comptes/infrastructure/email/gabarits-email";
 
 const user = { nom: "Awa Koné", email: "awa@srh.ci" };
 const link = "https://ops.srh.ci/reset-password?token=TOKEN123";

@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { EquipeRepositoryMongoose } from "./equipe.repository.mongoose";
 import { RattachementsUtilisateursMongoose } from "./rattachements-utilisateurs.mongoose";
 import { Equipe as EquipeModel } from "./equipe.model";
-import { User } from "@/models/User";
+import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
 
 const depot = new EquipeRepositoryMongoose();
 

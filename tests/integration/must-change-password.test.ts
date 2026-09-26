@@ -7,8 +7,8 @@ vi.mock("next-auth", () => ({ getServerSession: vi.fn() }));
 
 import { GET as listOperations } from "@/app/api/operations/route";
 import { POST as changePassword } from "@/app/api/auth/change-password/route";
-import { User } from "@/models/User";
-import { PasswordResetToken } from "@/models/PasswordResetToken";
+import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
+import { PasswordResetToken } from "@/backend/comptes/infrastructure/mongoose/jeton.model";
 import { issueResetToken, consumeResetToken } from "@/lib/auth/reset-token";
 
 function session(user: Record<string, unknown>) {

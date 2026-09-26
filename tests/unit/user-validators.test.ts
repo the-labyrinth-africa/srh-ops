@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { userCreateSchema, userUpdateSchema } from "@/lib/validators/user";
+import { userCreateSchema, userUpdateSchema } from "@/backend/comptes/http/utilisateur.schema";
 
 const ID = "507f1f77bcf86cd799439011";
 const base = { username: "jean_k", nom: "Jean K", email: "jean@srh.ci", telephone: "" };

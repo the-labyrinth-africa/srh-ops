@@ -8,11 +8,11 @@ vi.mock("next-auth", () => ({
 }));
 
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
-import { User } from "@/models/User";
+import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
 import { POST as resetPassword } from "@/app/api/users/[id]/reset-password/route";
 import { PUT as updateUser } from "@/app/api/users/[id]/route";
 import { issueResetToken, consumeResetToken } from "@/lib/auth/reset-token";
-import { PasswordResetToken } from "@/models/PasswordResetToken";
+import { PasswordResetToken } from "@/backend/comptes/infrastructure/mongoose/jeton.model";
 
 const ADMIN_ID = "507f1f77bcf86cd799439011";
 const OLD_PASSWORD = "OldPassw0rd!";

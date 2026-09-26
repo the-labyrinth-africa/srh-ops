@@ -8,7 +8,7 @@ import { DELETE as deleteClient } from "@/app/api/clients/[id]/route";
 import { DELETE as deleteEquipe } from "@/app/api/equipes/[id]/route";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
-import { User } from "@/models/User";
+import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
 
 function asAdmin() {
   vi.mocked(nextAuth.getServerSession).mockResolvedValue({

@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import mongoose from "mongoose";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
-import { PasswordResetToken } from "@/models/PasswordResetToken";
+import { PasswordResetToken } from "@/backend/comptes/infrastructure/mongoose/jeton.model";
 
 export type TokenPurpose = "reset" | "invitation";
 

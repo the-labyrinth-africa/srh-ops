@@ -6,9 +6,14 @@ import { POST as forgot } from "@/app/api/auth/forgot-password/route";
 import { POST as reset } from "@/app/api/auth/reset-password/route";
 import * as rateLimit from "@/backend/platform/limiteur-debit/rate-limit";
 import * as resetToken from "@/lib/auth/reset-token";
+// `jetons` : les routes ne passent plus par les fonctions libres de `@/lib/auth/reset-token`
+// (transposées en `JetonRepositoryMongoose`, tâche 1) — seul ce module composé est maintenant
+// appelé par les contrôleurs. `resetToken` reste importé ci-dessus pour les appels directs de ce
+// fichier (amorçage/lecture de jetons), qui opèrent sur la même collection Mongo.
+import { jetons } from "@/backend/comptes/composition";
 import { getMemoryTransport } from "@/backend/platform/email";
-import { User } from "@/models/User";
-import { PasswordResetToken } from "@/models/PasswordResetToken";
+import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
+import { PasswordResetToken } from "@/backend/comptes/infrastructure/mongoose/jeton.model";
 
 const OLD = "AncienMdp1";
 const NEW = "NouveauMdp2";
@@ -371,7 +376,7 @@ describe("bornes de saisie et refus génériques", () => {
     const spies = (["log", "info", "warn", "error", "debug"] as const).map((level) =>
       vi.spyOn(console, level).mockImplementation(() => {})
     );
-    vi.spyOn(resetToken, "consumeResetToken").mockRejectedValueOnce(
+    vi.spyOn(jetons, "consommer").mockRejectedValueOnce(
       new Error(`mongodb://secret@hote ${token} ${NEW}`)
     );
 
@@ -411,7 +416,7 @@ describe("bornes de saisie et refus génériques", () => {
     await forgot(post("/api/auth/forgot-password", { identifier: "awa@srh.ci" }));
 
     // 2. échec de la tâche différée (journalisé par runAfterResponse), message d'erreur chargé de secrets
-    vi.spyOn(resetToken, "issueResetToken").mockRejectedValueOnce(
+    vi.spyOn(jetons, "emettre").mockRejectedValueOnce(
       new Error(`mongodb://secret@hote awa@srh.ci ${NEW}`)
     );
     await forgot(post("/api/auth/forgot-password", { identifier: "awa@srh.ci" }));

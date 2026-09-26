@@ -1,6 +1,6 @@
 import type { JWT } from "next-auth/jwt";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
-import { User } from "@/models/User";
+import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
 import type { UserRole } from "@/shared/acces/roles";
 
 interface RefreshedUser {

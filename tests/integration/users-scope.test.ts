@@ -8,7 +8,7 @@ import { POST as createUser } from "@/app/api/users/route";
 import { PUT as updateUser } from "@/app/api/users/[id]/route";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
-import { User } from "@/models/User";
+import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
 
 function asAdmin() {
   vi.mocked(nextAuth.getServerSession).mockResolvedValue({

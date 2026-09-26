@@ -1,6 +1,7 @@
 import { z } from "zod";
-import { USER_ROLES } from "@/shared/acces/roles";
+import { USER_ROLES, type UserRole } from "@/shared/acces/roles";
 import { optionalObjectIdSchema } from "@/lib/validators/object-id";
+import type { UtilisateurSaisie } from "../domain/utilisateur";
 
 const emptyToUndefined = (v: string | undefined) => (v ? v : undefined);
 
@@ -51,14 +52,32 @@ export const userUpdateSchema = z
   })
   .superRefine(checkRoleScope);
 
-export const changePasswordSchema = z.object({
-  currentPassword: z.string().min(1, "Mot de passe actuel requis"),
-  newPassword: z.string().min(6, "Le nouveau mot de passe doit contenir au moins 6 caractères"),
-});
+export type UserCreateInput = z.infer<typeof userCreateSchema>;
+export type UserUpdateInput = z.infer<typeof userUpdateSchema>;
 
-export const forgotPasswordSchema = z.object({
-  identifier: z
-    .string()
-    .min(1, "Identifiant (username ou e-mail) requis")
-    .max(254, "Identifiant trop long"),
-});
+export function versSaisieCreation(entree: UserCreateInput): UtilisateurSaisie {
+  return {
+    username: entree.username,
+    nom: entree.nom,
+    email: entree.email,
+    role: entree.role as UserRole,
+    telephone: entree.telephone,
+    clientId: entree.clientId,
+    equipeId: entree.equipeId,
+  };
+}
+
+export function versSaisieModification(entree: UserUpdateInput): UtilisateurSaisie {
+  return {
+    // `username` n'est jamais modifiable après création : `userUpdateSchema` ne le lit pas, et
+    // `UtilisateurRepositoryMongoose.modifier` l'ignore volontairement (cf. tâche 1). Valeur
+    // factice, jamais lue ni persistée.
+    username: "",
+    nom: entree.nom,
+    email: entree.email,
+    role: entree.role as UserRole,
+    telephone: entree.telephone,
+    clientId: entree.clientId,
+    equipeId: entree.equipeId,
+  };
+}
