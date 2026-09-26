@@ -1,4 +1,6 @@
 // Assemblage des adaptateurs pour les cas d'usage de comptes (complété aux tâches 2-4).
+import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
+import { User as UtilisateurModel } from "./infrastructure/mongoose/utilisateur.model";
 import { UtilisateurRepositoryMongoose } from "./infrastructure/mongoose/utilisateur.repository.mongoose";
 import { JetonRepositoryMongoose } from "./infrastructure/mongoose/jeton.repository.mongoose";
 import { HacheurMotDePasseBcrypt } from "./infrastructure/mongoose/hacheur-mot-de-passe.bcrypt";
@@ -14,6 +16,7 @@ import { creerCasDUsageUtilisateurs } from "./application/cas-d-usage-utilisateu
 import { creerCasDUsageMotDePasseOublie } from "./application/cas-d-usage-mot-de-passe-oublie";
 import { creerCasDUsageReinitialisation } from "./application/cas-d-usage-reinitialisation";
 import { creerCasDUsageChangementMotDePasse } from "./application/cas-d-usage-changement-mot-de-passe";
+import { creerCasDUsageEmailDeTest } from "./application/cas-d-usage-email-de-test";
 import type {
   EnvoiEmail,
   LimiteurDebit,
@@ -87,3 +90,35 @@ export const casDUsageChangementMotDePasse = creerCasDUsageChangementMotDePasse(
   jetons,
   hacheur,
 });
+
+export const casDUsageEmailDeTest = creerCasDUsageEmailDeTest({
+  utilisateurs,
+  envoiEmail,
+  limiteurDebit,
+});
+
+// API publique du domaine `comptes` pour les autres domaines (ré-exportée par `index.ts`, seul
+// point d'entrée autorisé pour les autres domaines — règle R5).
+//
+// Exception documentée (même nature que `enregistrement-modeles.ts`) : `RattachementsUtilisateursMongoose`
+// de `clients-sites` et `equipes` vérifie qu'aucun utilisateur n'est rattaché à un client/une équipe
+// avant suppression. Cette vérification interrogeait directement `User` quand le modèle vivait encore
+// dans `src/models/` (dossier hérité, toléré en infrastructure) ; son commentaire d'origine anticipait
+// déjà « l'import passera par `@/backend/comptes/index` » une fois le modèle rattaché à ce domaine.
+// Seules ces deux capacités ciblées traversent la frontière — jamais le modèle Mongoose lui-même :
+// exposer l'ODM donnerait à un autre domaine un pouvoir de requête arbitraire sur les données de
+// `comptes`, ce que cette API publique doit précisément empêcher. Vit ici (et non dans `index.ts`)
+// parce que `composition.ts` est le seul point du domaine autorisé à importer l'infrastructure
+// (`connectDB`, le modèle Mongoose) — règle INDEX.
+
+/** Vrai si au moins un compte utilisateur référence ce `clientId`. */
+export async function existeUtilisateurAvecClientId(clientId: string): Promise<boolean> {
+  await connectDB();
+  return Boolean(await UtilisateurModel.exists({ clientId }));
+}
+
+/** Vrai si au moins un compte utilisateur référence cet `equipeId`. */
+export async function existeUtilisateurAvecEquipeId(equipeId: string): Promise<boolean> {
+  await connectDB();
+  return Boolean(await UtilisateurModel.exists({ equipeId }));
+}

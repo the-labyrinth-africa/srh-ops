@@ -1,9 +1,5 @@
 import type { UserRole } from "@/shared/acces/roles";
 import type { Utilisateur, UtilisateurSaisie } from "./utilisateur";
-import type { sendMail } from "@/backend/platform/email";
-import type { consumeRateLimit } from "@/backend/platform/limiteur-debit/rate-limit";
-import type { runAfterResponse } from "@/backend/platform/execution-differee/execution-differee";
-import type { Horloge } from "@/backend/platform/horloge/horloge";
 
 export type JetonFinalite = "reset" | "invitation";
 
@@ -44,12 +40,32 @@ export interface GenerateurDeSecrets {
   motDePasseAleatoire(longueur?: number): string;
 }
 
-// Types de fonction réutilisant directement les signatures des modules `platform` déjà livrés
-// (import de type uniquement, aucune ré-implémentation).
-export type EnvoiEmail = typeof sendMail;
-export type LimiteurDebit = typeof consumeRateLimit;
-export type ExecutionDifferee = typeof runAfterResponse;
-export type { Horloge };
+// Déclarations locales, indépendantes de `platform` (règle R1 : la couche `domain` n'importe que
+// `src/shared` et son propre `domain/`). Ces formes reprennent fidèlement celles des modules
+// `platform` déjà livrés, sans les réimporter : les fonctions réelles assemblées dans
+// `composition.ts` (`sendMail`, `consumeRateLimit`, `runAfterResponse`, `SystemClock`) restent
+// structurellement compatibles avec ces types plus étroits (ex. `sendMail` accepte un second
+// paramètre `env` optionnel que ces types ne mentionnent pas — compatible côté appelant).
+export type ResultatEnvoiEmail = { ok: true } | { ok: false; reason: "not_configured" | "send_failed" };
+export type EnvoiEmail = (message: MessageEmail) => Promise<ResultatEnvoiEmail>;
+
+export interface ResultatLimiteDeDebit {
+  allowed: boolean;
+  remaining: number;
+  retryAfterSeconds: number;
+}
+export type LimiteurDebit = (
+  scope: string,
+  id: string,
+  opts: { limit: number; windowMs: number },
+  now?: number
+) => Promise<ResultatLimiteDeDebit>;
+
+export type ExecutionDifferee = (tache: () => Promise<void>) => Promise<void>;
+
+export interface Horloge {
+  maintenant(): Date;
+}
 
 /** Calcule l'URL de base de l'application ; lève si mal configurée. Port autour de `appBaseUrl`. */
 export type UrlApplicative = () => string;
