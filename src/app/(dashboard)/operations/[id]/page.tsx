@@ -1,5 +1,5 @@
 import { OperationDetailClient } from "@/components/operations/OperationDetailClient";
-import { requirePageAccess } from "@/lib/page-auth";
+import { requirePageAccess } from "@/backend/comptes";
 
 export default async function OperationDetailPage({
   params,

@@ -1,5 +1,5 @@
 import { RecurrencesListClient } from "@/components/recurrences/RecurrencesListClient";
-import { requirePageAccess } from "@/lib/page-auth";
+import { requirePageAccess } from "@/backend/comptes";
 
 export default async function RecurrencesPage() {
   await requirePageAccess("/recurrences");

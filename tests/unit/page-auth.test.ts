@@ -8,7 +8,7 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
-import { requirePageAccess } from "@/lib/page-auth";
+import { requirePageAccess } from "@/backend/comptes";
 
 function session(role: string) {
   vi.mocked(nextAuth.getServerSession).mockResolvedValue({

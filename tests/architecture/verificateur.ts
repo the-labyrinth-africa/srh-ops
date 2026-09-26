@@ -32,20 +32,26 @@ type Couche = (typeof COUCHES)[number] | "composition" | "index" | "inconnu";
 const EXCEPTION_PLATFORM = "src/backend/platform/base-de-donnees/enregistrement-modeles.ts";
 
 /**
- * Exception documentée (même nature que `EXCEPTION_PLATFORM`) : `comptes/http/acteur.ts` regroupe
- * les gardes de routes (`requireAuth` et dérivés) — API d'authentification utilisée comme
- * bibliothèque transverse par des dizaines de fichiers d'autres domaines et par `comptes` lui-même.
- * Ce n'est pas un précédent d'implémenteur : elle est mandatée par la spec elle-même
- * (`docs/superpowers/specs/2026-09-20-architecture-hexagonale-screaming-design.md`, « Exception
- * assumée » : « le domaine `comptes` possède l'identité (NextAuth, session → `Acteur`). Les
- * contrôleurs des autres domaines obtiennent l'`Acteur` via `comptes/index.ts` (`exigerActeur(...)`) »).
- * `index.ts` du domaine `comptes` est donc seul autorisé à re-exporter précisément ce fichier de
- * `http/`, alors que la règle INDEX interdit par ailleurs tout accès à `http/` pour les autres
- * domaines (leurs contrôleurs HTTP, eux, ne sont jamais une API publique) — cette exception ne
- * s'étend à aucun autre domaine ni à aucune autre cible.
+ * Exceptions documentées (même nature que `EXCEPTION_PLATFORM`) : certains fichiers de
+ * `comptes/http/` sont des API d'authentification/autorisation utilisées comme bibliothèque
+ * transverse par des dizaines de fichiers d'autres domaines (et par `comptes` lui-même) —
+ * `acteur.ts` (gardes de routes : `requireAuth` et dérivés) et `garde-pages.ts` (garde de pages :
+ * `requirePageAccess`). Ce n'est pas un précédent d'implémenteur : elle est mandatée par la spec
+ * elle-même (`docs/superpowers/specs/2026-09-20-architecture-hexagonale-screaming-design.md`,
+ * « Exception assumée » : « le domaine `comptes` possède l'identité (NextAuth, session →
+ * `Acteur`). Les contrôleurs des autres domaines obtiennent l'`Acteur` via `comptes/index.ts`
+ * (`exigerActeur(...)`) »). `index.ts` du domaine `comptes` est donc seul autorisé à re-exporter
+ * précisément ces fichiers de `http/`, alors que la règle INDEX interdit par ailleurs tout accès à
+ * `http/` pour les autres domaines (leurs contrôleurs HTTP, eux, ne sont jamais une API publique)
+ * — chaque paire (fichier, cible) ci-dessous est exacte (aucun préfixe, aucune regex) et cette
+ * liste ne s'étend à aucun autre domaine ni à aucune autre cible que celles énumérées.
  */
-const EXCEPTION_INDEX_ACTEUR_FICHIER = "src/backend/comptes/index.ts";
-const EXCEPTION_INDEX_ACTEUR_CIBLE = "src/backend/comptes/http/acteur";
+const EXCEPTIONS_INDEX_HTTP: ReadonlyArray<{ readonly fichier: string; readonly cible: string }> = [
+  { fichier: "src/backend/comptes/index.ts", cible: "src/backend/comptes/http/acteur" },
+  { fichier: "src/backend/comptes/index.ts", cible: "src/backend/comptes/http/garde-pages" },
+];
+const estExceptionIndexHttp = (fichier: string, cible: string) =>
+  EXCEPTIONS_INDEX_HTTP.some((e) => e.fichier === fichier && e.cible === cible);
 
 /**
  * Transforme un spécificateur d'import en chemin `src/...` normalisé (posix, sans extension
@@ -166,7 +172,7 @@ export function verifierImports(fichier: string, imports: string[], contexte: Co
           dans(cible, `${dansDomaine}/domain`) ||
           dans(cible, `${dansDomaine}/application`) ||
           cible === `${dansDomaine}/composition` ||
-          (fichier === EXCEPTION_INDEX_ACTEUR_FICHIER && cible === EXCEPTION_INDEX_ACTEUR_CIBLE);
+          estExceptionIndexHttp(fichier, cible);
         if (!ok) signaler("INDEX", spec);
         continue;
       }

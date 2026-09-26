@@ -1,5 +1,5 @@
 import { PageEquipements } from "@/frontend/equipements";
-import { requirePageAccess } from "@/lib/page-auth";
+import { requirePageAccess } from "@/backend/comptes";
 
 export default async function EquipementsPage() {
   await requirePageAccess("/equipements");
