@@ -11,7 +11,7 @@ import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
 import { POST as resetPassword } from "@/app/api/users/[id]/reset-password/route";
 import { PUT as updateUser } from "@/app/api/users/[id]/route";
-import { issueResetToken, consumeResetToken } from "@/lib/auth/reset-token";
+import { jetons } from "@/backend/comptes/composition";
 import { PasswordResetToken } from "@/backend/comptes/infrastructure/mongoose/jeton.model";
 
 const ADMIN_ID = "507f1f77bcf86cd799439011";
@@ -169,18 +169,18 @@ describe("POST /api/users/[id]/reset-password (régénération par un administra
 
   it("admin : la régénération révoque les liens en attente (invitation comprise)", async () => {
     const target = await seedTarget("revoke");
-    const { token } = await issueResetToken(String(target._id), "invitation");
+    const { token } = await jetons.emettre(String(target._id), "invitation", new Date());
 
     const res = await callReset(String(target._id));
     expect(res.status).toBe(200);
 
-    expect(await consumeResetToken(token)).toBeNull();
+    expect(await jetons.consommer(token, new Date())).toBeNull();
     expect(await PasswordResetToken.countDocuments({ userId: target._id, usedAt: null })).toBe(0);
   });
 
   it("utilisateur inconnu : 404 et aucun jeton d'un autre compte n'est touché", async () => {
     const other = await seedTarget("other");
-    await issueResetToken(String(other._id), "invitation");
+    await jetons.emettre(String(other._id), "invitation", new Date());
 
     const res = await callReset("507f1f77bcf86cd7994390ff");
     expect(res.status).toBe(404);
@@ -205,23 +205,23 @@ describe("PUT /api/users/[id] : changement d'e-mail et liens en attente", () => 
 
   it("e-mail modifié : les liens envoyés à l'ancienne adresse sont révoqués", async () => {
     const target = await seedTarget("mail1");
-    const { token } = await issueResetToken(String(target._id), "invitation");
+    const { token } = await jetons.emettre(String(target._id), "invitation", new Date());
 
     const res = await callUpdate(String(target._id), "nouvelle.adresse@srh.ci");
     expect(res.status).toBe(200);
 
-    expect(await consumeResetToken(token)).toBeNull();
+    expect(await jetons.consommer(token, new Date())).toBeNull();
     expect(await PasswordResetToken.countDocuments({ userId: target._id, usedAt: null })).toBe(0);
   });
 
   it("e-mail identique (casse différente) : les liens en attente sont conservés", async () => {
     const target = await seedTarget("mail2");
-    const { token } = await issueResetToken(String(target._id), "invitation");
+    const { token } = await jetons.emettre(String(target._id), "invitation", new Date());
 
     const res = await callUpdate(String(target._id), target.email.toUpperCase());
     expect(res.status).toBe(200);
 
     expect(await PasswordResetToken.countDocuments({ userId: target._id, usedAt: null })).toBe(1);
-    expect(await consumeResetToken(token)).toEqual({ userId: String(target._id), purpose: "invitation" });
+    expect(await jetons.consommer(token, new Date())).toEqual({ userId: String(target._id), finalite: "invitation" });
   });
 });

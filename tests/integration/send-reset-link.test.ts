@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs";
 vi.mock("next-auth", () => ({ getServerSession: vi.fn() }));
 
 import { POST as sendLink } from "@/app/api/users/[id]/send-reset-link/route";
-import { consumeResetToken, issueResetToken } from "@/lib/auth/reset-token";
+import { jetons } from "@/backend/comptes/composition";
 import { getMemoryTransport } from "@/backend/platform/email";
 import * as rateLimit from "@/backend/platform/limiteur-debit/rate-limit";
 import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
@@ -46,7 +46,7 @@ describe("POST /api/users/[id]/send-reset-link", () => {
     const mail = getMemoryTransport().sent[0];
     expect(mail.to).toBe("cible@srh.ci");
     const token = mail.text.match(/token=([A-Za-z0-9_-]{43})/)![1];
-    expect(await consumeResetToken(token)).toEqual({ userId: String(target._id), purpose: "reset" });
+    expect(await jetons.consommer(token, new Date())).toEqual({ userId: String(target._id), finalite: "reset" });
     const after = await User.findById(target._id);
     expect(after?.motDePasseHash).toBe(target.motDePasseHash);
   });
@@ -82,13 +82,13 @@ describe("POST /api/users/[id]/send-reset-link", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     const target = await seedTarget();
     session("admin");
-    const { token } = await issueResetToken(String(target._id), "reset");
+    const { token } = await jetons.emettre(String(target._id), "reset", new Date());
     delete process.env.NEXTAUTH_URL;
 
     const res = await call(String(target._id));
     expect(res.status).toBe(502);
     expect(await res.json()).toEqual({ sent: false, reason: "not_configured" });
-    expect(await consumeResetToken(token)).toEqual({ userId: String(target._id), purpose: "reset" });
+    expect(await jetons.consommer(token, new Date())).toEqual({ userId: String(target._id), finalite: "reset" });
   });
 
   it("échec d'envoi : 502 avec la raison", async () => {
