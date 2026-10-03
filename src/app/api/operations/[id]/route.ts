@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireAuth, isWithinClientScope, isWithinTeamScope, chauffeurWithoutTeamError } from "@/backend/comptes";
 import { checkAssignmentConflicts } from "@/backend/operations";
-import { Operation } from "@/models/Operation";
+import { Operation } from "@/backend/operations/infrastructure/mongoose/operation.model";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { Vehicule } from "@/backend/vehicules/infrastructure/mongoose/vehicule.model";
 import { Equipement } from "@/backend/equipements/infrastructure/mongoose/equipement.model";
 import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
-import { operationSchema } from "@/lib/validators/operation";
+import { operationSchema } from "@/backend/operations/http/operation.schema";
 import { guardObjectId } from "@/backend/platform/http/identifiants";
 
 type Params = { params: Promise<{ id: string }> };

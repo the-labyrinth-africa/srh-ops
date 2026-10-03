@@ -10,7 +10,7 @@ import { GET as lireVehicule, PUT as modifierVehicule, DELETE as supprimerVehicu
 import { Vehicule } from "@/backend/vehicules/infrastructure/mongoose/vehicule.model";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
-import { Operation } from "@/models/Operation";
+import { Operation } from "@/backend/operations/infrastructure/mongoose/operation.model";
 
 /**
  * Caractérisation des 5 routes `/api/vehicules` : ces tests figent le comportement HTTP

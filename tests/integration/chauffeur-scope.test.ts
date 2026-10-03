@@ -22,7 +22,7 @@ import { GET as getStats } from "@/app/api/dashboard/stats/route";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
-import { Operation } from "@/models/Operation";
+import { Operation } from "@/backend/operations/infrastructure/mongoose/operation.model";
 
 function mockSession(user: Record<string, unknown>) {
   vi.mocked(nextAuth.getServerSession).mockResolvedValue({

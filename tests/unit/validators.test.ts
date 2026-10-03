@@ -4,7 +4,7 @@ import { siteSchema } from "@/backend/clients-sites/http/site.schema";
 import { equipeSchema } from "@/backend/equipes/http/equipe.schema";
 import { vehiculeSchema } from "@/backend/vehicules/http/vehicule.schema";
 import { equipementSchema } from "@/backend/equipements/http/equipement.schema";
-import { operationSchema, statusUpdateSchema } from "@/lib/validators/operation";
+import { operationSchema, statusUpdateSchema } from "@/backend/operations/http/operation.schema";
 import { recurrenceSchema } from "@/lib/validators/recurrence";
 
 describe("Zod Validators (lib/validators/*)", () => {

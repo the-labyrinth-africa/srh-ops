@@ -4,8 +4,8 @@ import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireAuth, chauffeurWithoutTeamError } from "@/backend/comptes";
 import { isChauffeur, isClientUser } from "@/shared/acces/permissions";
 import { checkAssignmentConflicts } from "@/backend/operations";
-import { Operation } from "@/models/Operation";
-import { operationSchema } from "@/lib/validators/operation";
+import { Operation } from "@/backend/operations/infrastructure/mongoose/operation.model";
+import { operationSchema } from "@/backend/operations/http/operation.schema";
 import type { OperationStatus } from "@/shared/operations/statuts";
 
 export async function GET(req: NextRequest) {

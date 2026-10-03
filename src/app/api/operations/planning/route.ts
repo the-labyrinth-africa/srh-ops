@@ -4,7 +4,7 @@ import { requireAuth, chauffeurWithoutTeamError } from "@/backend/comptes";
 import { isChauffeur, isClientUser } from "@/shared/acces/permissions";
 import { computeEffectiveStatus } from "@/backend/operations";
 import { STATUS_CONFIG } from "@/lib/status-styles";
-import { Operation } from "@/models/Operation";
+import { Operation } from "@/backend/operations/infrastructure/mongoose/operation.model";
 import type { OperationStatus } from "@/shared/operations/statuts";
 
 export async function GET(req: NextRequest) {

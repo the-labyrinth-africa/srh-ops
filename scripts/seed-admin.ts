@@ -7,7 +7,7 @@ import { Site } from "../src/backend/clients-sites/infrastructure/mongoose/site.
 import { Equipe } from "../src/backend/equipes/infrastructure/mongoose/equipe.model";
 import { Vehicule } from "../src/backend/vehicules/infrastructure/mongoose/vehicule.model";
 import { Equipement } from "../src/backend/equipements/infrastructure/mongoose/equipement.model";
-import { Operation } from "../src/models/Operation";
+import { Operation } from "../src/backend/operations/infrastructure/mongoose/operation.model";
 
 export function shouldSeed(
   env: Record<string, string | undefined>,

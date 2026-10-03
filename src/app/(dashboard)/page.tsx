@@ -6,7 +6,7 @@ import { requirePageAccess } from "@/backend/comptes";
 import { computeEffectiveStatus } from "@/backend/operations";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
-import { Operation } from "@/models/Operation";
+import { Operation } from "@/backend/operations/infrastructure/mongoose/operation.model";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import type { OperationStatus } from "@/shared/operations/statuts";
 

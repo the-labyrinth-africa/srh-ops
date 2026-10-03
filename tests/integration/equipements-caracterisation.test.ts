@@ -9,7 +9,7 @@ import { GET as listerEquipements, POST as creerEquipement } from "@/app/api/equ
 import { GET as lireEquipement, PUT as modifierEquipement, DELETE as supprimerEquipement } from "@/app/api/equipements/[id]/route";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
-import { Operation } from "@/models/Operation";
+import { Operation } from "@/backend/operations/infrastructure/mongoose/operation.model";
 
 /**
  * Caractérisation des 5 routes `/api/equipements` : ces tests figent le comportement HTTP
