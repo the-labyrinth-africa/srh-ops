@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireInternalAuth } from "@/backend/comptes";
 import { guardObjectId } from "@/backend/platform/http/identifiants";
-import { parseExcelFile } from "@/lib/excel-import";
+import { parseExcelFile } from "@/backend/import-donnees/infrastructure/excel/lecteur-excel.exceljs";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
 import { Operation } from "@/backend/operations/infrastructure/mongoose/operation.model";
