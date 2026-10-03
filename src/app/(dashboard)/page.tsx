@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requirePageAccess } from "@/backend/comptes";
-import { computeEffectiveStatus } from "@/lib/status-transitions";
+import { computeEffectiveStatus } from "@/backend/operations";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
 import { Operation } from "@/models/Operation";

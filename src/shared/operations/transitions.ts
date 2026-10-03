@@ -22,16 +22,3 @@ export function canTransition(
 export function getNextStatuses(current: OperationStatus): OperationStatus[] {
   return ALLOWED_TRANSITIONS[current] ?? [];
 }
-
-export function computeEffectiveStatus(
-  statut: OperationStatus,
-  dateHeurePrevue: Date
-): OperationStatus {
-  if (TERMINAL.includes(statut)) return statut;
-  if (dateHeurePrevue < new Date() && statut !== "Retardée") {
-    return "Retardée";
-  }
-  return statut;
-}
-
-const TERMINAL: OperationStatus[] = ["Terminée", "Rapportée", "Annulée"];

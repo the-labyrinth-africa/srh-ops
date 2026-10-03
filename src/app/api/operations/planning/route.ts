@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireAuth, chauffeurWithoutTeamError } from "@/backend/comptes";
 import { isChauffeur, isClientUser } from "@/shared/acces/permissions";
-import { computeEffectiveStatus } from "@/lib/status-transitions";
+import { computeEffectiveStatus } from "@/backend/operations";
 import { STATUS_CONFIG } from "@/lib/status-styles";
 import { Operation } from "@/models/Operation";
 import type { OperationStatus } from "@/shared/operations/statuts";

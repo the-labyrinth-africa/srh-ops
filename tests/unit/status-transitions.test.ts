@@ -1,9 +1,6 @@
 import { describe, it, expect } from "vitest";
-import {
-  canTransition,
-  getNextStatuses,
-  computeEffectiveStatus,
-} from "@/lib/status-transitions";
+import { canTransition, getNextStatuses } from "@/shared/operations/transitions";
+import { computeEffectiveStatus } from "@/backend/operations";
 
 describe("Status Transition & Logic (lib/status-transitions.ts)", () => {
   describe("canTransition", () => {

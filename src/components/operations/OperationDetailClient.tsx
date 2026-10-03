@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { SignaturePad } from "@/components/ui/SignaturePad";
 import { PhotoUpload } from "@/components/ui/PhotoUpload";
-import { getNextStatuses } from "@/lib/status-transitions";
+import { getNextStatuses } from "@/shared/operations/transitions";
 import { canWrite } from "@/shared/acces/permissions";
 import { homePathFor } from "@/shared/acces/acces-pages";
 import { formatApiError } from "@/lib/api-error";

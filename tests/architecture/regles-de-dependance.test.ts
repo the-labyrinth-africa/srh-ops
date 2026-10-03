@@ -6,7 +6,9 @@ import { verifierImports, type Contexte } from "./verificateur";
 
 // À compléter à chaque migration de domaine (recette, étape 8).
 const contexte: Contexte = {
-  domainesBackendMigres: ["equipes", "vehicules", "equipements", "clients-sites", "comptes"],
+  // `operations` : déclaré dès R4a pour que les règles s'appliquent au nouveau code ;
+  // ses routes restent héritées (src/app/api/operations) jusqu'à 4b-4d.
+  domainesBackendMigres: ["equipes", "vehicules", "equipements", "clients-sites", "comptes", "operations"],
   fonctionnalitesFrontendMigrees: ["equipes", "vehicules", "equipements", "clients-sites"],
 };
 
