@@ -16,7 +16,7 @@ import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.m
 import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { Vehicule } from "@/backend/vehicules/infrastructure/mongoose/vehicule.model";
-import { Operation } from "@/models/Operation";
+import { Operation } from "@/backend/operations/infrastructure/mongoose/operation.model";
 import { Recurrence } from "@/models/Recurrence";
 
 describe("Collectes Récurrentes API Integration Tests", () => {

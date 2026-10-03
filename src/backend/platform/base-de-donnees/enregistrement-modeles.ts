@@ -8,5 +8,5 @@ import "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import "@/backend/vehicules/infrastructure/mongoose/vehicule.model";
 import "@/backend/equipements/infrastructure/mongoose/equipement.model";
 import "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
-import "@/models/Operation";
+import "@/backend/operations/infrastructure/mongoose/operation.model";
 import "@/models/Recurrence";

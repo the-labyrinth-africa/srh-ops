@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireTerrainWrite, isWithinTeamScope, chauffeurWithoutTeamError, TEAM_SCOPE_ERROR } from "@/backend/comptes";
 import { canTransition } from "@/shared/operations/transitions";
-import { Operation } from "@/models/Operation";
-import { statusUpdateSchema } from "@/lib/validators/operation";
+import { Operation } from "@/backend/operations/infrastructure/mongoose/operation.model";
+import { statusUpdateSchema } from "@/backend/operations/http/operation.schema";
 import { guardObjectId } from "@/backend/platform/http/identifiants";
 import type { OperationStatus } from "@/shared/operations/statuts";
 

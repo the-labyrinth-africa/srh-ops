@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
-// Modèle encore hérité : il rejoindra `./operation.model` au sous-jalon 4b.
-import { Operation } from "@/models/Operation";
+import { Operation } from "./operation.model";
 import { STATUTS_SANS_CONFLIT, type AffectationExistante } from "../../domain/conflits";
 import type { Affectations, CritereAffectations } from "../../domain/ports";
 

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import mongoose from "mongoose";
-import { Operation } from "@/models/Operation";
+import { Operation } from "./operation.model";
 import { AffectationsMongoose } from "./affectations.mongoose";
 
 const id = () => new mongoose.Types.ObjectId();
