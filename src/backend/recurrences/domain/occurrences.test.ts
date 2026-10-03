@@ -29,8 +29,8 @@ describe("horizonEnJours", () => {
     expect(horizonEnJours(valeur)).toBe(attendu);
   });
 
-  it("valeur non numérique : NaN (comportement d'origine)", () => {
-    expect(horizonEnJours("abc")).toBeNaN();
+  it.each(["abc", NaN, {}, [], "12 jours", null, ""])("valeur non numérique %j : horizon par défaut", (valeur) => {
+    expect(horizonEnJours(valeur)).toBe(30);
   });
 });
 
@@ -119,13 +119,16 @@ describe("occurrencesDe — horizon invalide (date de fin invalide)", () => {
     expect(occurrencesDe(rec, MAINTENANT, finHorizon(MAINTENANT, NaN))).toEqual([]);
   });
 
-  // Défaut d'origine, conservé par la transposition : sans date de fin valide, rien n'arrête le
-  // parcours d'une récurrence personnalisée avant la borne de sécurité.
-  it("personnalisée : le parcours va jusqu'à la borne de sécurité", () => {
+  // Sans date de fin valide, rien n'arrêterait le parcours d'une récurrence personnalisée avant
+  // la borne de sécurité (jusqu'à 1000 opérations créées d'un coup) : aucune occurrence.
+  it("personnalisée : aucune occurrence non plus", () => {
     const rec = recurrence({ frequence: "personnalisee", intervalleJours: 1, derniereGeneration: jour(1) });
-    const occurrences = occurrencesDe(rec, MAINTENANT, finHorizon(MAINTENANT, NaN));
-    expect(occurrences[0]).toEqual(jour(5));
-    expect(occurrences.length).toBeGreaterThan(MAX_OCCURRENCES_SCAN - 10);
+    expect(occurrencesDe(rec, MAINTENANT, finHorizon(MAINTENANT, NaN))).toEqual([]);
+  });
+
+  it("la borne de sécurité limite toujours le parcours d'un horizon démesuré", () => {
+    const rec = recurrence({ frequence: "personnalisee", intervalleJours: 1, derniereGeneration: jour(1) });
+    const occurrences = occurrencesDe(rec, MAINTENANT, finHorizon(MAINTENANT, 100_000));
     expect(occurrences.length).toBeLessThanOrEqual(MAX_OCCURRENCES_SCAN);
   });
 });

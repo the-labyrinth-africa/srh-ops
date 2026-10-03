@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   const auth = await requireInternalAuth(true);
   if (auth.error) return auth.error;
 
-  // Corps absent ou illisible : horizon par défaut.
+  // Corps absent ou illisible, horizon absent ou non numérique : horizon par défaut.
   const body = await req.json().catch(() => ({}));
   const horizonDays = horizonEnJours(body.horizonDays);
 

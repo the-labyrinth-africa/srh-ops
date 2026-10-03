@@ -3,12 +3,17 @@ import type { RecurrencePlanifiable } from "./recurrence";
 /** Borne de sécurité sur le parcours des occurrences d'une récurrence. */
 export const MAX_OCCURRENCES_SCAN = 1000;
 
+const HORIZON_PAR_DEFAUT = 30;
+
 /**
- * Horizon de génération : 30 jours par défaut, borné entre 1 et 90. Aucune validation de type
- * (comportement historique) : une valeur non numérique donne `NaN`, et rien n'est alors généré.
+ * Horizon de génération : 30 jours par défaut, borné entre 1 et 90. Une valeur absente, nulle ou
+ * non numérique donne l'horizon par défaut (jamais `NaN` : une date de fin invalide ne bornerait
+ * plus la génération).
  */
 export function horizonEnJours(valeur: unknown): number {
-  return Math.min(90, Math.max(1, (valeur as number) || 30));
+  const nombre = typeof valeur === "number" || typeof valeur === "string" ? Number(valeur) : NaN;
+  const jours = Number.isFinite(nombre) && nombre !== 0 ? nombre : HORIZON_PAR_DEFAUT;
+  return Math.min(90, Math.max(1, jours));
 }
 
 export function finHorizon(maintenant: Date, jours: number): Date {
@@ -31,9 +36,12 @@ function occurrencesPersonnalisees(
   heures: number,
   minutes: number
 ): Date[] {
+  const occurrences: Date[] = [];
+  // Sans date de fin valide, la boucle ci-dessous ne s'arrêterait qu'à la borne de sécurité.
+  if (Number.isNaN(fin.getTime())) return occurrences;
+
   const intervalle = rec.intervalleJours || 7;
   const ancre = new Date(rec.derniereGeneration || rec.createdAt);
-  const occurrences: Date[] = [];
 
   // Une récurrence dormante (ancre très ancienne) ne doit pas épuiser la borne de sécurité dans le
   // passé : on démarre au dernier rang possiblement encore dû. Le `- 1` couvre l'heure prévue
