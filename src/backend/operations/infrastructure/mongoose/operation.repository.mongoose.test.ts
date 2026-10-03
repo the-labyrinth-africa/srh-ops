@@ -347,6 +347,65 @@ describe("OperationRepositoryMongoose (contrat)", () => {
     });
   });
 
+  describe("collectes réalisées (import)", () => {
+    const collecte = () => ({
+      clientId,
+      siteId,
+      natureIntervention: "Collecte d'huiles usagées",
+      dateHeurePrevue: j("11"),
+      dureeEstimeeMinutes: 120,
+      informationsParticulieres: "",
+      statut: "Rapportée" as const,
+      historiqueStatuts: [
+        { statut: "Planifiée" as const, date: j("10") },
+        { statut: "Rapportée" as const, date: j("11") },
+      ],
+      quantiteCollectee: 900,
+      uniteQuantite: "Litres" as const,
+      remarquesTerrain: "Intervention importée depuis un fichier Excel",
+    });
+
+    it("creerRealisee : document exact, historique sans auteur, valeurs par défaut du schéma", async () => {
+      await depot.creerRealisee(collecte());
+
+      const [enBase] = JSON.parse(JSON.stringify(await OperationModel.find().lean()));
+      expect(enBase).toEqual({
+        _id: expect.any(String),
+        clientId,
+        siteId,
+        natureIntervention: "Collecte d'huiles usagées",
+        dateHeurePrevue: j("11").toISOString(),
+        dureeEstimeeMinutes: 120,
+        equipementIds: [],
+        informationsParticulieres: "",
+        statut: "Rapportée",
+        historiqueStatuts: [
+          { statut: "Planifiée", date: j("10").toISOString() },
+          { statut: "Rapportée", date: j("11").toISOString() },
+        ],
+        quantiteCollectee: 900,
+        uniteQuantite: "Litres",
+        remarquesTerrain: "Intervention importée depuis un fichier Excel",
+        nomSignataireClient: "",
+        signatureClient: "",
+        rapportPdf: "",
+        photos: [],
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+        __v: 0,
+      });
+    });
+
+    it("existeCollecte : même site, même date exacte, même quantité", async () => {
+      await depot.creerRealisee(collecte());
+
+      expect(await depot.existeCollecte(siteId, j("11"), 900)).toBe(true);
+      expect(await depot.existeCollecte(siteId, j("11"), 901)).toBe(false);
+      expect(await depot.existeCollecte(siteId, j("12"), 900)).toBe(false);
+      expect(await depot.existeCollecte(String(new mongoose.Types.ObjectId()), j("11"), 900)).toBe(false);
+    });
+  });
+
   describe("supprimer", () => {
     it("true puis false", async () => {
       const { id } = await depot.creer(saisie(), initial());

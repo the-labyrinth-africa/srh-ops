@@ -1,6 +1,6 @@
 import type { AffectationExistante, ConflictResult, DemandeAffectation } from "./conflits";
 import type { ChangementStatut, EtatTerrain } from "./changement-statut";
-import type { FiltreOperations, Operation, OperationSaisie, Pagination, PhotoOperation, StatutInitial } from "./operation";
+import type { FiltreOperations, Operation, OperationRealisee, OperationSaisie, Pagination, PhotoOperation, StatutInitial } from "./operation";
 
 export interface CritereAffectations {
   /** Borne haute exclusive : seules les opérations qui démarrent avant cet instant. */
@@ -35,6 +35,10 @@ export interface OperationRepository {
   supprimer(id: string): Promise<boolean>;
   /** Une opération existe pour ce client, ce site et cette date exacte (quel que soit son statut). */
   existeSurCreneau(clientId: string, siteId: string, dateHeurePrevue: Date): Promise<boolean>;
+  /** Une opération existe pour ce site, cette date exacte et cette quantité collectée. */
+  existeCollecte(siteId: string, dateHeurePrevue: Date, quantiteCollectee: number): Promise<boolean>;
+  /** Enregistre une collecte déjà réalisée, telle quelle (aucune photo). */
+  creerRealisee(collecte: OperationRealisee): Promise<void>;
   /** État brut (relations non peuplées) nécessaire aux écritures de terrain ; null si l'opération n'existe pas. */
   trouverEtatTerrain(id: string): Promise<EtatTerrain | null>;
   /**
