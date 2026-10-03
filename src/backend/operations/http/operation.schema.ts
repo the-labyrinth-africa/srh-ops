@@ -3,6 +3,7 @@ import { OPERATION_STATUSES } from "@/shared/operations/statuts";
 import { QUANTITE_UNITES } from "@/shared/operations/quantites";
 import { objectIdSchema, optionalObjectIdSchema } from "@/lib/validators/object-id";
 import type { OperationSaisie } from "../domain/operation";
+import type { DemandeChangementStatut } from "../domain/changement-statut";
 
 export const operationSchema = z.object({
   clientId: objectIdSchema("Client requis", "Identifiant client invalide"),
@@ -54,4 +55,14 @@ export type OperationInput = z.infer<typeof operationSchema>;
  */
 export function versSaisieOperation(entree: OperationInput): OperationSaisie {
   return { ...entree, dateHeurePrevue: new Date(entree.dateHeurePrevue) } as OperationSaisie;
+}
+
+export type StatusUpdateInput = z.infer<typeof statusUpdateSchema>;
+
+/**
+ * Sortie Zod → demande du domaine, sans recopie champ par champ : une clé absente doit rester
+ * absente (elle laisse la valeur stockée intacte).
+ */
+export function versDemandeStatut(entree: StatusUpdateInput): DemandeChangementStatut {
+  return entree as DemandeChangementStatut;
 }
