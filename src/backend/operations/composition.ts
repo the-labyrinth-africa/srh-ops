@@ -3,7 +3,7 @@ import { creerCasDUsageOperations } from "./application/cas-d-usage";
 import { creerCasDUsageRapport } from "./application/cas-d-usage-rapport";
 import { creerCasDUsageTerrain } from "./application/cas-d-usage-terrain";
 import { creerVerificationConflits } from "./application/verifier-conflits";
-import type { OccurrencePlanifiee } from "./domain/operation";
+import type { OccurrencePlanifiee, OperationRealisee } from "./domain/operation";
 import { AffectationsMongoose } from "./infrastructure/mongoose/affectations.mongoose";
 import { OperationRepositoryMongoose } from "./infrastructure/mongoose/operation.repository.mongoose";
 import { GenerateurRapportJsPdf } from "./infrastructure/pdf/generateur-rapport.jspdf";
@@ -45,4 +45,14 @@ export function existeOperationSurCreneau(clientId: string, siteId: string, date
 /** Crée une opération planifiée par un autre domaine ; `parUtilisateur` signe la première entrée d'historique. */
 export async function creerOperationPlanifiee(occurrence: OccurrencePlanifiee, parUtilisateur: string): Promise<void> {
   await casDUsageOperations.creerPlanifiee(parUtilisateur, occurrence);
+}
+
+/** Une opération existe déjà pour ce site, cette date exacte et cette quantité collectée. */
+export function existeOperationCollectee(siteId: string, dateHeurePrevue: Date, quantiteCollectee: number): Promise<boolean> {
+  return operations.existeCollecte(siteId, dateHeurePrevue, quantiteCollectee);
+}
+
+/** Enregistre une collecte déjà réalisée (import de données passées). */
+export function enregistrerOperationRealisee(collecte: OperationRealisee): Promise<void> {
+  return operations.creerRealisee(collecte);
 }

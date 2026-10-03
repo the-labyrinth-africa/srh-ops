@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import ExcelJS from "exceljs";
-import { parseExcelFile } from "@/lib/excel-import";
+import { parseExcelFile } from "@/backend/import-donnees/infrastructure/excel/lecteur-excel.exceljs";
 
 async function buildWorkbook(rows: unknown[][]): Promise<Buffer> {
   const wb = new ExcelJS.Workbook();

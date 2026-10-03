@@ -7,6 +7,7 @@ import {
   type Pagination,
   type PhotoOperation,
   type StatutInitial,
+  type OperationRealisee,
 } from "../../domain/operation";
 import type { ChangementStatut, EtatTerrain } from "../../domain/changement-statut";
 import type { OperationRepository } from "../../domain/ports";
@@ -87,6 +88,29 @@ export class OperationRepositoryEnMemoire implements OperationRepository {
         idDeReference(op.siteId) === siteId &&
         op.dateHeurePrevue.getTime() === dateHeurePrevue.getTime()
     );
+  }
+
+  async existeCollecte(siteId: string, dateHeurePrevue: Date, quantiteCollectee: number): Promise<boolean> {
+    return [...this.donnees.values()].some(
+      (op) =>
+        idDeReference(op.siteId) === siteId &&
+        op.dateHeurePrevue.getTime() === dateHeurePrevue.getTime() &&
+        op.quantiteCollectee === quantiteCollectee
+    );
+  }
+
+  async creerRealisee(collecte: OperationRealisee): Promise<void> {
+    this.compteur += 1;
+    const id = `operation-${this.compteur}`;
+    this.donnees.set(id, {
+      ...collecte,
+      id,
+      equipementIds: [],
+      nomSignataireClient: "",
+      signatureClient: "",
+      photos: [],
+      rapportPdf: "",
+    });
   }
 
   async trouverEtatTerrain(id: string): Promise<EtatTerrain | null> {

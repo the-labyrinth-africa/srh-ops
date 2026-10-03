@@ -152,3 +152,21 @@ export interface OccurrencePlanifiee {
   equipementIds: string[];
   informationsParticulieres: string;
 }
+
+/**
+ * Collecte déjà réalisée, enregistrée après coup par un autre domaine (import) : le statut et
+ * l'historique sont fournis tels quels, sans auteur.
+ */
+export interface OperationRealisee {
+  clientId: string;
+  siteId: string;
+  natureIntervention: string;
+  dateHeurePrevue: Date;
+  dureeEstimeeMinutes: number;
+  informationsParticulieres: string;
+  statut: OperationStatus;
+  historiqueStatuts: { statut: OperationStatus; date: Date }[];
+  quantiteCollectee: number;
+  uniteQuantite: QuantiteUnite;
+  remarquesTerrain: string;
+}

@@ -8,6 +8,7 @@ import type {
   EquipementPeuple,
   FiltreOperations,
   Operation,
+  OperationRealisee,
   OperationSaisie,
   Pagination,
   PhotoOperation,
@@ -212,6 +213,16 @@ export class OperationRepositoryMongoose implements OperationRepository {
   async existeSurCreneau(clientId: string, siteId: string, dateHeurePrevue: Date): Promise<boolean> {
     await connectDB();
     return Boolean(await OperationModel.findOne({ clientId, siteId, dateHeurePrevue }));
+  }
+
+  async existeCollecte(siteId: string, dateHeurePrevue: Date, quantiteCollectee: number): Promise<boolean> {
+    await connectDB();
+    return Boolean(await OperationModel.findOne({ siteId, dateHeurePrevue, quantiteCollectee }));
+  }
+
+  async creerRealisee(collecte: OperationRealisee): Promise<void> {
+    await connectDB();
+    await OperationModel.create({ ...collecte, photos: [] });
   }
 
   async trouverEtatTerrain(id: string): Promise<EtatTerrain | null> {
