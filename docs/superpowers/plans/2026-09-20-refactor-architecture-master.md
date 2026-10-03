@@ -36,7 +36,7 @@ NEXTAUTH_URL="http://localhost:3000" NEXT_TELEMETRY_DISABLED=1 npx next build
 | **R3** | `comptes` (utilisateurs, authentification, invitation, réinitialisation, jetons, limiteur, e-mail) — **sensible**, en 3 sous-plans : 3a `platform` (e-mail, limiteur, exécution différée, horloge, URL) ; 3b cas d'usage et adaptateurs ; 3c NextAuth, `Acteur`, gardes de pages et de routes | R1, R2 | **Réalisé** |
 | R4 | `operations` (le plus gros), en sous-plans : 4a domaine (statuts, conflits, visibilité) ; 4b cas d'usage CRUD + planning ; 4c statut/terrain/photos ; 4d rapport PDF | R3 | **Réalisé** |
 | R5 | `recurrences` | R4 | **Réalisé** |
-| R6 | `import-donnees` | R4, R2 | À détailler |
+| R6 | `import-donnees` | R4, R2 | **Réalisé** |
 | R7 | `pilotage` (statistiques) | R4 | À détailler |
 | R8 | Frontends restants : `operations`, `terrain` (PWA et outbox), `clients-sites`, `recurrences`, `import-donnees`, `comptes`, `pilotage`, `navigation`, `design-system` (peut s'intercaler après chaque jalon backend correspondant) | R2 à R7 | À détailler |
 | R9 | Clôture : réorganisation miroir des tests, règles ESLint définitives, README « Architecture », suppression des dossiers hérités, revue finale complète | tous | À détailler |
@@ -160,6 +160,15 @@ Ordre recommandé : R0 → R1 → R2 → R3 → R4 → (R5, R6, R7) → R8 → R
 - Coût accepté : chaque opération générée est relue peuplée par le dépôt d'`operations` (une requête de plus par opération qu'à l'origine). Sans effet observable ; à revoir si la génération devient volumineuse.
 - `src/models/` a disparu avec le déplacement du modèle `Recurrence` ; `DOSSIERS_HERITES` du vérificateur d'architecture cite encore `src/models/` (inoffensif, des tests du vérificateur s'en servent comme exemple) — à retirer à R9.
 - Jalon exécuté en mode natif, avec un filet de 20 tests écrit et validé contre le code d'origine avant le plan ; il est resté vert sans modification d'assertion (seul son import du modèle a été recodemodé).
+
+## Enseignements de R6
+
+- `lib/excel-import.ts` s'est scindé proprement : l'interprétation d'une cellule (date française d'abord, ISO en heure locale, numéro de série ; quantité vide ≠ zéro) et la reconnaissance des en-têtes sont des règles pures (`domain/lecture.ts`, typées `unknown`, sans ExcelJS) ; seul le parcours du classeur reste dans `infrastructure/excel/`. `parseExcelFile` garde son nom : le test unitaire existant ne change que d'import.
+- Particularité d'origine conservée et épinglée : la reconnaissance des en-têtes est très tolérante (inclusion dans les deux sens après normalisation) — un en-tête d'une seule lettre contenue dans un libellé connu (« a » dans « quartier ») est reconnu comme colonne. À resserrer par un `fix` distinct si des classeurs réels sont mal lus.
+- L'import crée ses sites et ses opérations par l'API publique de `clients-sites` (`identifiantDuClient`, `trouverSiteDuClientParNom`, `creerSite`) et d'`operations` (`existeOperationCollectee`, `enregistrerOperationRealisee`). La recherche d'un site par nom (expression régulière échappée, bornée au client) appartient désormais à `clients-sites`, pas à l'import.
+- L'analyse de la requête (multipart ou JSON base64, type MIME, extension, taille) reste dans le contrôleur, reprise à l'identique : c'est de la validation d'entrée HTTP, sans règle métier.
+- `identifiantDuClient` renvoie l'identifiant **canonique** : la réponse d'import renvoyait `String(client._id)`, donc en minuscules même si l'identifiant fourni était en majuscules.
+- Jalon exécuté en mode natif ; filet de 13 tests écrit et validé contre le code d'origine avant le plan, resté vert sans modification.
 
 ## Critères de sortie du chantier
 
