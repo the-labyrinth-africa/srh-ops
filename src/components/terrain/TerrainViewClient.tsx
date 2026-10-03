@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { SignaturePad } from "@/components/ui/SignaturePad";
-import { getNextStatuses } from "@/lib/status-transitions";
+import { getNextStatuses } from "@/shared/operations/transitions";
 import { compressImageFile } from "@/lib/image-compress";
 import { formatApiError } from "@/lib/api-error";
 import type { OperationStatus } from "@/shared/operations/statuts";
