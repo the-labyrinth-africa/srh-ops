@@ -7,6 +7,7 @@ import {
   MESSAGE_CHAUFFEUR_SANS_EQUIPE,
   MESSAGE_HORS_EQUIPE,
   chauffeurSansEquipe,
+  compteClientSansPerimetre,
   dansPerimetreClient,
   dansPerimetreEquipe,
   perimetreDeLecture,
@@ -103,6 +104,16 @@ describe("perimetreDeLecture", () => {
   it("un compte client impose son client ; un chauffeur impose son équipe", () => {
     expect(perimetreDeLecture(acteur("client", { clientId: "client-a" }))).toEqual({ clientId: "client-a" });
     expect(perimetreDeLecture(acteur("chauffeur", { equipeId: "equipe-a" }))).toEqual({ equipeId: "equipe-a" });
+  });
+});
+
+describe("compteClientSansPerimetre", () => {
+  it("vrai seulement pour un compte client sans client", () => {
+    expect(compteClientSansPerimetre(acteur("client"))).toBe(true);
+    expect(compteClientSansPerimetre(acteur("client", { clientId: "" }))).toBe(true);
+    expect(compteClientSansPerimetre(acteur("client", { clientId: "client-a" }))).toBe(false);
+    expect(compteClientSansPerimetre(acteur("admin"))).toBe(false);
+    expect(compteClientSansPerimetre(acteur("chauffeur"))).toBe(false);
   });
 });
 

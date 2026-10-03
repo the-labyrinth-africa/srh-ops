@@ -16,6 +16,11 @@ export function chauffeurSansEquipe(acteur: Acteur): boolean {
   return isChauffeur(acteur.role) && !acteur.equipeId;
 }
 
+/** Un compte client sans client ne lit aucune opération (refus avant toute lecture). */
+export function compteClientSansPerimetre(acteur: Acteur): boolean {
+  return isClientUser(acteur.role) && !acteur.clientId;
+}
+
 /** Les rôles internes voient tout ; un compte `client` ne voit que son client. */
 export function dansPerimetreClient(acteur: Acteur, clientId?: string | null): boolean {
   if (!isClientUser(acteur.role)) return true;
