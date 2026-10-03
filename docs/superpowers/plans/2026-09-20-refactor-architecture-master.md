@@ -37,7 +37,7 @@ NEXTAUTH_URL="http://localhost:3000" NEXT_TELEMETRY_DISABLED=1 npx next build
 | R4 | `operations` (le plus gros), en sous-plans : 4a domaine (statuts, conflits, visibilité) ; 4b cas d'usage CRUD + planning ; 4c statut/terrain/photos ; 4d rapport PDF | R3 | **Réalisé** |
 | R5 | `recurrences` | R4 | **Réalisé** |
 | R6 | `import-donnees` | R4, R2 | **Réalisé** |
-| R7 | `pilotage` (statistiques) | R4 | À détailler |
+| R7 | `pilotage` (statistiques) | R4 | **Réalisé** |
 | R8 | Frontends restants : `operations`, `terrain` (PWA et outbox), `clients-sites`, `recurrences`, `import-donnees`, `comptes`, `pilotage`, `navigation`, `design-system` (peut s'intercaler après chaque jalon backend correspondant) | R2 à R7 | À détailler |
 | R9 | Clôture : réorganisation miroir des tests, règles ESLint définitives, README « Architecture », suppression des dossiers hérités, revue finale complète | tous | À détailler |
 
@@ -169,6 +169,14 @@ Ordre recommandé : R0 → R1 → R2 → R3 → R4 → (R5, R6, R7) → R8 → R
 - L'analyse de la requête (multipart ou JSON base64, type MIME, extension, taille) reste dans le contrôleur, reprise à l'identique : c'est de la validation d'entrée HTTP, sans règle métier.
 - `identifiantDuClient` renvoie l'identifiant **canonique** : la réponse d'import renvoyait `String(client._id)`, donc en minuscules même si l'identifiant fourni était en majuscules.
 - Jalon exécuté en mode natif ; filet de 13 tests écrit et validé contre le code d'origine avant le plan, resté vert sans modification.
+
+## Enseignements de R7
+
+- `pilotage` est un **modèle de lecture** : son adaptateur interroge directement les collections des opérations, des clients et des sites, en récupérant les modèles par leur nom dans le registre Mongoose (rempli par `connectDB()`), sans importer les modèles des autres domaines. C'est la « `StatistiquesQuery` (agrégation Mongo) » de la spec ; la règle R5 (imports entre domaines) est respectée, et les opérations du jour restent des documents bruts — aucune conversion en entité, donc aucun écart de forme dans la réponse.
+- Une règle pure utilisée par plusieurs domaines et par une page va dans `shared/` : `computeEffectiveStatus` quitte `operations/domain` pour `src/shared/operations/statut-effectif.ts` (`pilotage/domain` ne peut pas importer `operations`, même par son `index.ts` — règle R1). `operations/index.ts` continue de l'exporter : aucun importeur existant ne change.
+- Optimisation sans effet observable : les compteurs ne chargent plus que quatre champs par opération ; l'origine chargeait chaque document en entier, photos en base64 comprises, à chaque affichage du tableau de bord.
+- Constat de fin de migration backend : plus aucun fichier de `src/app` n'importe Mongoose, `connectDB` ni un modèle ; toutes les routes d'API sont des ré-exports d'une ligne, sauf `auth/[...nextauth]`.
+- La route `GET /api/dashboard/stats` n'a aucun appelant dans l'interface (la page d'accueil calcule ses données côté serveur) : elle est conservée telle quelle, à réévaluer à R8/R9.
 
 ## Critères de sortie du chantier
 
