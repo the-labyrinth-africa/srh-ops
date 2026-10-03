@@ -34,7 +34,7 @@ NEXTAUTH_URL="http://localhost:3000" NEXT_TELEMETRY_DISABLED=1 npx next build
 | **R1** | `vehicules`, `equipements` (répétition du modèle, ≈ 1 jour chacun) | R0 | **Réalisé** |
 | **R2** | `clients-sites` (règle de périmètre du compte client, garde de suppression) | R0 | **Réalisé** |
 | **R3** | `comptes` (utilisateurs, authentification, invitation, réinitialisation, jetons, limiteur, e-mail) — **sensible**, en 3 sous-plans : 3a `platform` (e-mail, limiteur, exécution différée, horloge, URL) ; 3b cas d'usage et adaptateurs ; 3c NextAuth, `Acteur`, gardes de pages et de routes | R1, R2 | **Réalisé** |
-| R4 | `operations` (le plus gros), en sous-plans : 4a domaine (statuts, conflits, visibilité) ; 4b cas d'usage CRUD + planning ; 4c statut/terrain/photos ; 4d rapport PDF | R3 | **En cours (4a, 4b réalisés ; 4c, 4d à venir)** |
+| R4 | `operations` (le plus gros), en sous-plans : 4a domaine (statuts, conflits, visibilité) ; 4b cas d'usage CRUD + planning ; 4c statut/terrain/photos ; 4d rapport PDF | R3 | **En cours (4a, 4b, 4c réalisés ; 4d à venir)** |
 | R5 | `recurrences` | R4 | À détailler |
 | R6 | `import-donnees` | R4, R2 | À détailler |
 | R7 | `pilotage` (statistiques) | R4 | À détailler |
@@ -120,8 +120,6 @@ Ordre recommandé : R0 → R1 → R2 → R3 → R4 → (R5, R6, R7) → R8 → R
 - Une politique pure qui remplacera des fonctions héritées encore utilisées (ici `isWithinClientScope`/`isWithinTeamScope` de `comptes/http/acteur.ts`) se vérifie par une **matrice de parité** contre ces fonctions (75 cas : 5 rôles × 3 rattachements d'acteur × 5 rattachements de document), dans un test collé au code. À supprimer avec les fonctions héritées quand plus aucune route ne les utilise.
 - Les codemods `redistribuer-imports.mjs` (import multi-lignes à trois symboles éclaté en deux modules) et `remplacer-imports.mjs` ont traité les 11 importeurs sans retouche manuelle ; le filet de caractérisation du corps exact du 409 (5 tests) est resté vert sans modification à travers les trois tâches de migration.
 
-**Suivi tracé, à traiter en 4c :** brancher `peutAgirSurOperation` (`domain/visibilite.ts`) sur les routes `statut` et `photos` ; la lecture (liste, détail, planning) est branchée depuis 4b, et le modèle a été déplacé en 4b.
-
 ## Enseignements de R4b
 
 - Une sonde exécutée contre les routes actuelles **avant** d'écrire le plan a révélé des comportements que la lecture seule ne montrait pas : pagination hors norme (`page=abc`, `limit=0`/`-5`/`abc` renvoient tous les éléments), exceptions Mongoose non interceptées (`CastError`, `ValidationError` qui remontent), et `PUT` qui réinitialise les champs à défaut Zod.
@@ -132,7 +130,18 @@ Ordre recommandé : R0 → R1 → R2 → R3 → R4 → (R5, R6, R7) → R8 → R
 - Le pathspec `':!data'` de la commande `git add` fait échouer la commande, car `data/` est ignoré par `.gitignore` : à retirer des futures commandes d'ajout.
 - Deux fragilités typées, conservées par fidélité et à revoir à R9 : l'assertion `as OperationSaisie` de `versSaisieOperation` (elle masquerait un futur écart Zod/domaine), et les `?? défaut` de `versEntite`, qui remplacent aussi un `null` explicite stocké.
 
-**Suivi tracé, à traiter en 4c :** brancher `peutAgirSurOperation` sur les routes `statut` et `photos` ; retirer ensuite les gardes héritées `isWithinClientScope`/`isWithinTeamScope`/`chauffeurWithoutTeamError` de `src/backend/comptes/http/acteur.ts` si plus aucune route ne les utilise (attention : `clients-sites` utilise `isWithinClientScope`).
+## Enseignements de R4c
+
+- La révision `__v` fait partie de la réponse : un `save()` qui touche un tableau l'incrémente, d'où des écritures « charger, modifier, enregistrer » dans le dépôt plutôt qu'un `updateOne` ; seul le filet exécuté l'a montré.
+- Les contrôles de forme d'une photo précèdent la lecture de l'opération (400/413 avant 404), et l'équipe précède la transition et les plafonds.
+- Le changement de statut peut remplacer les photos **sans** plafond de poids ni de nombre : comportement d'origine conservé, à traiter par un correctif fonctionnel distinct.
+- Le filet de 17 tests, écrit et validé contre le code d'origine avant le plan, est resté vert sans aucune modification à travers les tâches 2 à 5.
+- Le code complet écrit dans le plan a été repris verbatim sans écart, et les quatre revues de tâche n'ont relevé aucun constat Critique ni Important.
+- Un implémenteur a été interrompu par la limite d'usage au milieu d'une tâche : le registre d'exécution et `git status` ont suffi à reprendre exactement où il s'était arrêté (commit de la tâche précédente présent, fichiers de test déjà écrits) avec un nouvel implémenteur.
+- Écart connu, sous concurrence uniquement : les contrôles (équipe, transition, plafonds de photos) portent sur un instantané de l'opération, puis le dépôt recharge le document pour écrire, là où la route d'origine travaillait sur un seul document. Conséquences possibles seulement si deux écritures se croisent : `ancienStatut` historisé ou plafonds évalués sur un état périmé, et une opération supprimée entre les deux lectures donne un 404 (ou, si elle disparaît entre l'enregistrement et la relecture du changement de statut, une erreur 500 au lieu d'un corps `null`). L'origine avait la même classe de course (aucun verrou) ; à traiter à R9 si besoin.
+- Fragilités de typage conservées par fidélité, à revoir à R9 : `entree as DemandeChangementStatut`, et les `as string` sur le nom et l'URL d'une photo.
+
+**Suivi tracé, à traiter en 4d ou R9 :** retirer `isWithinClientScope`, `isWithinTeamScope`, `chauffeurWithoutTeamError`, `TEAM_SCOPE_ERROR` et `extractId` de `src/backend/comptes/http/acteur.ts` quand la route `rapport` (4d) ne les utilisera plus (attention : `clients-sites` utilise `isWithinClientScope`) ; supprimer alors la matrice de parité de `src/backend/operations/domain/visibilite.test.ts`.
 
 ## Critères de sortie du chantier
 
