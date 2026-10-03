@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { objectIdSchema, optionalObjectIdSchema } from "@/lib/validators/object-id";
+import type { RecurrenceSaisie } from "../domain/recurrence";
 
 export const recurrenceSchema = z.object({
   clientId: objectIdSchema("Client requis", "Identifiant client invalide"),
@@ -22,3 +23,11 @@ export const recurrenceSchema = z.object({
 });
 
 export type RecurrenceInput = z.infer<typeof recurrenceSchema>;
+
+/**
+ * Sortie Zod → saisie du domaine, sans recopie champ par champ : une clé facultative absente doit
+ * rester absente (à la modification, elle laisse la valeur stockée intacte).
+ */
+export function versSaisieRecurrence(entree: RecurrenceInput): RecurrenceSaisie {
+  return entree as RecurrenceSaisie;
+}

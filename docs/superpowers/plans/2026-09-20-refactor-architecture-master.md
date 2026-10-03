@@ -35,7 +35,7 @@ NEXTAUTH_URL="http://localhost:3000" NEXT_TELEMETRY_DISABLED=1 npx next build
 | **R2** | `clients-sites` (règle de périmètre du compte client, garde de suppression) | R0 | **Réalisé** |
 | **R3** | `comptes` (utilisateurs, authentification, invitation, réinitialisation, jetons, limiteur, e-mail) — **sensible**, en 3 sous-plans : 3a `platform` (e-mail, limiteur, exécution différée, horloge, URL) ; 3b cas d'usage et adaptateurs ; 3c NextAuth, `Acteur`, gardes de pages et de routes | R1, R2 | **Réalisé** |
 | R4 | `operations` (le plus gros), en sous-plans : 4a domaine (statuts, conflits, visibilité) ; 4b cas d'usage CRUD + planning ; 4c statut/terrain/photos ; 4d rapport PDF | R3 | **Réalisé** |
-| R5 | `recurrences` | R4 | À détailler |
+| R5 | `recurrences` | R4 | **Réalisé** |
 | R6 | `import-donnees` | R4, R2 | À détailler |
 | R7 | `pilotage` (statistiques) | R4 | À détailler |
 | R8 | Frontends restants : `operations`, `terrain` (PWA et outbox), `clients-sites`, `recurrences`, `import-donnees`, `comptes`, `pilotage`, `navigation`, `design-system` (peut s'intercaler après chaque jalon backend correspondant) | R2 à R7 | À détailler |
@@ -151,6 +151,15 @@ Ordre recommandé : R0 → R1 → R2 → R3 → R4 → (R5, R6, R7) → R8 → R
 - Hors refactoring, correctif distinct (`fix/outbox-photos`) : la file hors-ligne rejouait les photos au mauvais format (`{ photos: [...] }` au lieu d'une requête `{ photo, nom }` par photo). Défaut latent — rien n'enfile encore de mutation dans l'application — repéré par la revue finale de R4c.
 
 **Suivi tracé, à traiter à R9 :** plus aucune route d'`operations` n'utilise `isWithinTeamScope`, `chauffeurWithoutTeamError` ni `TEAM_SCOPE_ERROR` (`src/backend/comptes/http/acteur.ts`) : les retirer, avec la matrice de parité de `src/backend/operations/domain/visibilite.test.ts` qui les prend pour oracle — non fait en R4d parce que cela supprime des tests. `isWithinClientScope` et `extractId` restent utilisés par `clients-sites` (`clients.detail.controleur.ts`, `sites.detail.controleur.ts`) : à migrer vers une politique de domaine avant de les retirer. Restent aussi tracés pour R9 : les fragilités de typage (`as OperationSaisie`, `as DemandeChangementStatut`, `as string` sur le nom et l'URL d'une photo), les `?? défaut` de `versEntite` sur un `null` stocké, la relecture supposée non nulle après un changement de statut, et le remplacement des photos sans plafond par `PATCH …/statut` (correctif fonctionnel distinct).
+
+## Enseignements de R5
+
+- Le calcul des occurrences (`customOccurrences`, `calendarOccurrences`) est devenu une règle pure à horloge injectée (`domain/occurrences.ts`), transposée ligne pour ligne et **en heure locale** comme à l'origine. Ses tests unitaires ont révélé un défaut d'origine, conservé et épinglé : avec un horizon non numérique (`horizonDays: "abc"` → `NaN` → date de fin invalide), une récurrence **personnalisée** n'a plus de borne de fin et produit jusqu'à 1000 occurrences (la borne de sécurité), alors qu'une récurrence hebdomadaire ou mensuelle n'en produit aucune. À corriger par un `fix` distinct (valider l'horizon).
+- `recurrences` crée ses opérations par l'API publique d'`operations` (`operations/index.ts`), qui expose deux capacités ciblées plutôt que son dépôt : `existeOperationSurCreneau` et `creerOperationPlanifiee` (statut initial, historique et valeurs de terrain par défaut restent la responsabilité d'`operations`). La génération ne lève jamais `ConflitAffectation` : elle retire les ressources en conflit et signale le conflit.
+- `operations` ne dépend pas de `recurrences` : l'import statique de son `index.ts` ne ferme aucune boucle de chargement (contrairement à `comptes` ↔ `clients-sites`/`equipes`, voir le suivi `scope.ts`).
+- Coût accepté : chaque opération générée est relue peuplée par le dépôt d'`operations` (une requête de plus par opération qu'à l'origine). Sans effet observable ; à revoir si la génération devient volumineuse.
+- `src/models/` a disparu avec le déplacement du modèle `Recurrence` ; `DOSSIERS_HERITES` du vérificateur d'architecture cite encore `src/models/` (inoffensif, des tests du vérificateur s'en servent comme exemple) — à retirer à R9.
+- Jalon exécuté en mode natif, avec un filet de 20 tests écrit et validé contre le code d'origine avant le plan ; il est resté vert sans modification d'assertion (seul son import du modèle a été recodemodé).
 
 ## Critères de sortie du chantier
 

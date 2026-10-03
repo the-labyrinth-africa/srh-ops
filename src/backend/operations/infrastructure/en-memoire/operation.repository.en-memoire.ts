@@ -80,6 +80,15 @@ export class OperationRepositoryEnMemoire implements OperationRepository {
     return this.donnees.delete(id);
   }
 
+  async existeSurCreneau(clientId: string, siteId: string, dateHeurePrevue: Date): Promise<boolean> {
+    return [...this.donnees.values()].some(
+      (op) =>
+        idDeReference(op.clientId) === clientId &&
+        idDeReference(op.siteId) === siteId &&
+        op.dateHeurePrevue.getTime() === dateHeurePrevue.getTime()
+    );
+  }
+
   async trouverEtatTerrain(id: string): Promise<EtatTerrain | null> {
     const operation = this.donnees.get(id);
     if (!operation) return null;

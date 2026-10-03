@@ -33,6 +33,8 @@ export interface OperationRepository {
   modifier(id: string, saisie: OperationSaisie): Promise<Operation | null>;
   /** false si l'opération n'existait pas. */
   supprimer(id: string): Promise<boolean>;
+  /** Une opération existe pour ce client, ce site et cette date exacte (quel que soit son statut). */
+  existeSurCreneau(clientId: string, siteId: string, dateHeurePrevue: Date): Promise<boolean>;
   /** État brut (relations non peuplées) nécessaire aux écritures de terrain ; null si l'opération n'existe pas. */
   trouverEtatTerrain(id: string): Promise<EtatTerrain | null>;
   /**
