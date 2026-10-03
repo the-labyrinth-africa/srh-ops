@@ -56,3 +56,8 @@ export interface Horloge {
 
 /** Signalement non bloquant d'une incohérence métier (journal). */
 export type AlerteCoherence = (message: string) => void;
+
+/** Mise en page du rapport d'intervention ; renvoie les octets du PDF. */
+export interface GenerateurRapportPdf {
+  generer(operation: Operation, genereLe: Date): Promise<Uint8Array>;
+}

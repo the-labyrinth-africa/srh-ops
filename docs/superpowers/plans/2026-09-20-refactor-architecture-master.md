@@ -34,7 +34,7 @@ NEXTAUTH_URL="http://localhost:3000" NEXT_TELEMETRY_DISABLED=1 npx next build
 | **R1** | `vehicules`, `equipements` (répétition du modèle, ≈ 1 jour chacun) | R0 | **Réalisé** |
 | **R2** | `clients-sites` (règle de périmètre du compte client, garde de suppression) | R0 | **Réalisé** |
 | **R3** | `comptes` (utilisateurs, authentification, invitation, réinitialisation, jetons, limiteur, e-mail) — **sensible**, en 3 sous-plans : 3a `platform` (e-mail, limiteur, exécution différée, horloge, URL) ; 3b cas d'usage et adaptateurs ; 3c NextAuth, `Acteur`, gardes de pages et de routes | R1, R2 | **Réalisé** |
-| R4 | `operations` (le plus gros), en sous-plans : 4a domaine (statuts, conflits, visibilité) ; 4b cas d'usage CRUD + planning ; 4c statut/terrain/photos ; 4d rapport PDF | R3 | **En cours (4a, 4b, 4c réalisés ; 4d à venir)** |
+| R4 | `operations` (le plus gros), en sous-plans : 4a domaine (statuts, conflits, visibilité) ; 4b cas d'usage CRUD + planning ; 4c statut/terrain/photos ; 4d rapport PDF | R3 | **Réalisé** |
 | R5 | `recurrences` | R4 | À détailler |
 | R6 | `import-donnees` | R4, R2 | À détailler |
 | R7 | `pilotage` (statistiques) | R4 | À détailler |
@@ -126,7 +126,7 @@ Ordre recommandé : R0 → R1 → R2 → R3 → R4 → (R5, R6, R7) → R8 → R
 - Trois niveaux de peuplement (`resume`, `liste`, `detail`) et une règle : le dépôt recopie les champs sélectionnés, la présentation les restitue.
 - L'ordre 403 → 400 du détail est préservé par `verifierAccesLecture`, appelé par le contrôleur avant le contrôle de l'identifiant (leçon R3b sur l'ordre des vérifications) ; il est donc exécuté deux fois sur `GET [id]` (de nouveau par `obtenir`, par défense).
 - Le filet de caractérisation de 29 tests, écrit et validé contre le code d'origine **avant** le plan, est resté vert sans modification à travers les tâches 2 à 5 (seul son import du modèle a été recodemodé).
-- Le code complet écrit dans le plan a été repris verbatim par les implémenteurs sans écart, et les quatre revues de tâche n'ont relevé aucun constat Critique ni Important.
+- Le code complet écrit dans le plan a été repris verbatim par les implémenteurs sans écart, et les cinq revues de tâche n'ont relevé aucun constat Critique ni Important.
 - Le pathspec `':!data'` de la commande `git add` fait échouer la commande, car `data/` est ignoré par `.gitignore` : à retirer des futures commandes d'ajout.
 - Deux fragilités typées, conservées par fidélité et à revoir à R9 : l'assertion `as OperationSaisie` de `versSaisieOperation` (elle masquerait un futur écart Zod/domaine), et les `?? défaut` de `versEntite`, qui remplacent aussi un `null` explicite stocké.
 
@@ -136,12 +136,21 @@ Ordre recommandé : R0 → R1 → R2 → R3 → R4 → (R5, R6, R7) → R8 → R
 - Les contrôles de forme d'une photo précèdent la lecture de l'opération (400/413 avant 404), et l'équipe précède la transition et les plafonds.
 - Le changement de statut peut remplacer les photos **sans** plafond de poids ni de nombre : comportement d'origine conservé, à traiter par un correctif fonctionnel distinct.
 - Le filet de 17 tests, écrit et validé contre le code d'origine avant le plan, est resté vert sans aucune modification à travers les tâches 2 à 5.
-- Le code complet écrit dans le plan a été repris verbatim sans écart, et les quatre revues de tâche n'ont relevé aucun constat Critique ni Important.
+- Le code complet écrit dans le plan a été repris verbatim sans écart, et les cinq revues de tâche n'ont relevé aucun constat Critique ni Important.
 - Un implémenteur a été interrompu par la limite d'usage au milieu d'une tâche : le registre d'exécution et `git status` ont suffi à reprendre exactement où il s'était arrêté (commit de la tâche précédente présent, fichiers de test déjà écrits) avec un nouvel implémenteur.
 - Écart connu, sous concurrence uniquement : les contrôles (équipe, transition, plafonds de photos) portent sur un instantané de l'opération, puis le dépôt recharge le document pour écrire, là où la route d'origine travaillait sur un seul document. Conséquences possibles seulement si deux écritures se croisent : `ancienStatut` historisé ou plafonds évalués sur un état périmé, et une opération supprimée entre les deux lectures donne un 404 (ou, si elle disparaît entre l'enregistrement et la relecture du changement de statut, une erreur 500 au lieu d'un corps `null`). L'origine avait la même classe de course (aucun verrou) ; à traiter à R9 si besoin.
 - Fragilités de typage conservées par fidélité, à revoir à R9 : `entree as DemandeChangementStatut`, et les `as string` sur le nom et l'URL d'une photo.
 
-**Suivi tracé, à traiter en 4d ou R9 :** retirer `isWithinClientScope`, `isWithinTeamScope`, `chauffeurWithoutTeamError`, `TEAM_SCOPE_ERROR` et `extractId` de `src/backend/comptes/http/acteur.ts` quand la route `rapport` (4d) ne les utilisera plus (attention : `clients-sites` utilise `isWithinClientScope`) ; supprimer alors la matrice de parité de `src/backend/operations/domain/visibilite.test.ts`.
+## Enseignements de R4d
+
+- Un PDF se compare octet pour octet. Une sonde ponctuelle, exécutée **avant** la bascule de la route, a appelé l'ancienne route et le nouveau contrôleur sur trois opérations types (minimale ; complète avec 30 entrées d'historique, 7 photos dont une illisible, séparateur de milliers ; relations supprimées) : après retrait des deux seules zones non déterministes (`/CreationDate` et `/ID`), les trois rapports étaient identiques. La sonde est supprimée ensuite, puisqu'elle ne peut pas survivre à la suppression de l'ancienne route ; le filet permanent (7 tests) vérifie les en-têtes, les textes présents en clair, le nombre de pages, les replis et le périmètre.
+- Le dessin du rapport a été **transposé, pas réécrit** : seules ont changé les lectures de données (entité `Operation` au lieu du document peuplé) et la date de génération (horloge injectée). `jspdf` reste confiné à `infrastructure/pdf/` et importé dynamiquement, comme à l'origine.
+- Le cas d'usage du rapport réutilise `obtenir` (même niveau de peuplement « détail », même périmètre, mêmes 404) au lieu de dupliquer la lecture : la route d'origine recopiait à l'identique la requête et les gardes du détail.
+- Écart accepté, de la même famille que R4b : la durée d'une opération sans `dureeEstimeeMinutes` en base s'imprime « 120 min » au lieu de « undefined min ».
+- Sous-jalon exécuté en mode natif (un seul contexte, plan court) : adapté ici parce que le code à transposer existait déjà et que la sonde de parité donnait un oracle exact.
+- Hors refactoring, correctif distinct (`fix/outbox-photos`) : la file hors-ligne rejouait les photos au mauvais format (`{ photos: [...] }` au lieu d'une requête `{ photo, nom }` par photo). Défaut latent — rien n'enfile encore de mutation dans l'application — repéré par la revue finale de R4c.
+
+**Suivi tracé, à traiter à R9 :** plus aucune route d'`operations` n'utilise `isWithinTeamScope`, `chauffeurWithoutTeamError` ni `TEAM_SCOPE_ERROR` (`src/backend/comptes/http/acteur.ts`) : les retirer, avec la matrice de parité de `src/backend/operations/domain/visibilite.test.ts` qui les prend pour oracle — non fait en R4d parce que cela supprime des tests. `isWithinClientScope` et `extractId` restent utilisés par `clients-sites` (`clients.detail.controleur.ts`, `sites.detail.controleur.ts`) : à migrer vers une politique de domaine avant de les retirer. Restent aussi tracés pour R9 : les fragilités de typage (`as OperationSaisie`, `as DemandeChangementStatut`, `as string` sur le nom et l'URL d'une photo), les `?? défaut` de `versEntite` sur un `null` stocké, la relecture supposée non nulle après un changement de statut, et le remplacement des photos sans plafond par `PATCH …/statut` (correctif fonctionnel distinct).
 
 ## Critères de sortie du chantier
 
