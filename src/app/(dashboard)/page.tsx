@@ -1,46 +1,10 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requirePageAccess } from "@/backend/comptes";
-import { computeEffectiveStatus } from "@/backend/operations";
-import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
-import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
-import { Operation } from "@/backend/operations/infrastructure/mongoose/operation.model";
+import { tableauDeBordDirection } from "@/backend/pilotage";
+import { computeEffectiveStatus } from "@/shared/operations/statut-effectif";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import type { OperationStatus } from "@/shared/operations/statuts";
-
-async function getDashboardData() {
-  await connectDB();
-  const operations = await Operation.find().lean();
-  const effectiveStatuses = operations.map((op) =>
-    computeEffectiveStatus(op.statut as OperationStatus, new Date(op.dateHeurePrevue))
-  );
-
-  const stats = {
-    prevues: effectiveStatuses.filter((s) => ["Planifiée", "Affectée"].includes(s)).length,
-    enCours: effectiveStatuses.filter((s) => ["En route", "En cours"].includes(s)).length,
-    terminees: effectiveStatuses.filter((s) => ["Terminée", "Rapportée"].includes(s)).length,
-    retardees: effectiveStatuses.filter((s) => s === "Retardée").length,
-  };
-
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-  const todayEnd = new Date();
-  todayEnd.setHours(23, 59, 59, 999);
-
-  const [todayOps, totalClients, totalSites] = await Promise.all([
-    Operation.find({ dateHeurePrevue: { $gte: todayStart, $lte: todayEnd } })
-      .populate("clientId", "nom")
-      .populate("siteId", "nom")
-      .sort({ dateHeurePrevue: 1 })
-      .lean(),
-    Client.countDocuments(),
-    Site.countDocuments(),
-  ]);
-
-  return { stats, todayOps, totalClients, totalSites };
-}
 
 const KPI_CARDS = [
   { key: "prevues" as const, label: "Prévues", sub: "missions", icon: "event", accent: "bg-status-planned", iconCls: "text-status-planned bg-status-planned/10" },
@@ -51,7 +15,7 @@ const KPI_CARDS = [
 
 export default async function DashboardPage() {
   await requirePageAccess("/");
-  const { stats, todayOps, totalClients, totalSites } = await getDashboardData();
+  const { stats, todayOps, totalClients, totalSites } = await tableauDeBordDirection();
 
   return (
     <div className="relative w-full overflow-hidden px-margin-mobile py-6 lg:px-margin-desktop lg:py-8">
@@ -142,10 +106,7 @@ export default async function DashboardPage() {
           <div className="flex flex-col gap-3">
             {todayOps.map((op) => {
               const id = String(op._id);
-              const statut = computeEffectiveStatus(
-                op.statut as OperationStatus,
-                new Date(op.dateHeurePrevue)
-              );
+              const statut = computeEffectiveStatus(op.statut, new Date(op.dateHeurePrevue));
               return (
                 <Link
                   key={id}
@@ -165,7 +126,7 @@ export default async function DashboardPage() {
                       <StatusBadge status={statut} />
                     </div>
                     <p className="truncate font-body-md text-body-md text-on-surface-variant">
-                      {(op.clientId as { nom?: string })?.nom} — {(op.siteId as { nom?: string })?.nom}
+                      {op.clientId?.nom} — {op.siteId?.nom}
                     </p>
                     <p className="mt-1 font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant/70">
                       {new Date(op.dateHeurePrevue).toLocaleTimeString("fr-FR", {
