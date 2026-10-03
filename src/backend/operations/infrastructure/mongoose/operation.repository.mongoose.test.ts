@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { Operation as OperationModel } from "./operation.model";
 import { OperationRepositoryMongoose } from "./operation.repository.mongoose";
 import type { OperationSaisie } from "../../domain/operation";
+import type { ChangementStatut } from "../../domain/changement-statut";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
@@ -335,6 +336,176 @@ describe("OperationRepositoryMongoose (contrat)", () => {
       expect(await depot.supprimer(id)).toBe(true);
       expect(await depot.supprimer(id)).toBe(false);
       expect(await OperationModel.countDocuments()).toBe(0);
+    });
+  });
+
+  describe("trouverEtatTerrain", () => {
+    it("statut, équipe en identifiant brut, URL des photos", async () => {
+      const { id } = await depot.creer(saisie({ equipeId, vehiculeId }), initial("Affectée"));
+      await OperationModel.updateOne({ _id: id }, { photos: [{ url: "data:image/jpeg;base64,AAAA", nom: "a.jpg" }] });
+
+      const etat = await depot.trouverEtatTerrain(id);
+
+      expect(etat).toEqual({ statut: "Affectée", equipeId, photos: [{ url: "data:image/jpeg;base64,AAAA" }] });
+    });
+
+    it("opération sans équipe : `equipeId` absent", async () => {
+      const { id } = await depot.creer(saisie(), initial());
+      const etat = await depot.trouverEtatTerrain(id);
+      expect(etat?.equipeId).toBeUndefined();
+      expect(etat?.photos).toEqual([]);
+    });
+
+    it("null si l'opération n'existe pas", async () => {
+      expect(await depot.trouverEtatTerrain(String(new mongoose.Types.ObjectId()))).toBeNull();
+    });
+  });
+
+  describe("changerStatut", () => {
+    // Typage volontairement lâche en entrée : un test passe une unité vide, que le type du domaine interdit.
+    const changement = (surcharge: Record<string, unknown> = {}) =>
+      ({
+        statut: "En route",
+        ancienStatut: "Affectée",
+        date: j("02"),
+        parUtilisateur: userId,
+        ...surcharge,
+      }) as unknown as ChangementStatut;
+
+    it("applique le statut, ajoute l'entrée d'historique, renvoie le niveau terrain, incrémente la révision", async () => {
+      const { id } = await depot.creer(saisie({ equipeId, vehiculeId, equipementIds: [equipementA] }), initial("Affectée"));
+
+      const operation = await depot.changerStatut(id, changement());
+
+      expect(operation).toMatchObject({
+        id,
+        statut: "En route",
+        clientId: { id: clientId, nom: "Client A" },
+        siteId: { id: siteId, nom: "Site A", adresse: "Rue 1" },
+        equipeId: { id: equipeId, nom: "Équipe A" },
+        vehiculeId: { id: vehiculeId, identification: "V-001" },
+        equipementIds: [{ id: equipementA, nom: "Pompe" }],
+        revision: 1,
+      });
+      expect(operation?.equipementIds[0]).not.toHaveProperty("type");
+      expect(operation?.historiqueStatuts).toEqual([
+        { statut: "Affectée", date: MAINTENANT, parUtilisateur: userId },
+        { statut: "En route", date: j("02"), parUtilisateur: userId, ancienStatut: "Affectée" },
+      ]);
+    });
+
+    it("données de terrain fournies : appliquées ; les photos fournies remplacent les existantes", async () => {
+      const { id } = await depot.creer(saisie(), initial());
+      await OperationModel.updateOne({ _id: id }, { photos: [{ url: "data:image/jpeg;base64,ANCIENNE", nom: "ancienne.jpg" }] });
+
+      const operation = await depot.changerStatut(
+        id,
+        changement({
+          statut: "Terminée",
+          ancienStatut: "En cours",
+          quantiteCollectee: 12.5,
+          uniteQuantite: "Kg",
+          remarquesTerrain: "RAS",
+          nomSignataireClient: "M. Koné",
+          signatureClient: "sig",
+          photos: [{ url: "data:image/jpeg;base64,BBBB", nom: "cuve.jpg" }, { url: "data:image/jpeg;base64,CCCC" }],
+        })
+      );
+
+      expect(operation).toMatchObject({
+        statut: "Terminée",
+        quantiteCollectee: 12.5,
+        uniteQuantite: "Kg",
+        remarquesTerrain: "RAS",
+        nomSignataireClient: "M. Koné",
+        signatureClient: "sig",
+      });
+      expect(operation?.photos).toEqual([
+        { url: "data:image/jpeg;base64,BBBB", nom: "cuve.jpg", uploadedAt: expect.any(Date) },
+        { url: "data:image/jpeg;base64,CCCC", nom: "", uploadedAt: expect.any(Date) },
+      ]);
+    });
+
+    it("données omises : conservées ; chaîne vide et tableau vide fournis : appliqués ; unité vide : ignorée", async () => {
+      const { id } = await depot.creer(saisie(), initial());
+      await OperationModel.updateOne(
+        { _id: id },
+        {
+          quantiteCollectee: 12.5,
+          uniteQuantite: "Kg",
+          remarquesTerrain: "RAS",
+          nomSignataireClient: "M. Koné",
+          signatureClient: "sig",
+          photos: [{ url: "data:image/jpeg;base64,AAAA", nom: "a.jpg" }],
+        }
+      );
+
+      const conserve = await depot.changerStatut(id, changement());
+      expect(conserve).toMatchObject({
+        quantiteCollectee: 12.5,
+        uniteQuantite: "Kg",
+        remarquesTerrain: "RAS",
+        nomSignataireClient: "M. Koné",
+        signatureClient: "sig",
+      });
+      expect(conserve?.photos).toHaveLength(1);
+
+      const vide = await depot.changerStatut(
+        id,
+        changement({ remarquesTerrain: "", nomSignataireClient: "", signatureClient: "", photos: [], uniteQuantite: "" })
+      );
+      expect(vide).toMatchObject({ remarquesTerrain: "", nomSignataireClient: "", signatureClient: "", photos: [] });
+      expect(vide?.quantiteCollectee).toBe(12.5);
+      expect(vide?.uniteQuantite).toBe("Kg");
+    });
+
+    it("null si l'opération n'existe pas", async () => {
+      expect(await depot.changerStatut(String(new mongoose.Types.ObjectId()), changement())).toBeNull();
+    });
+  });
+
+  describe("photos", () => {
+    const photo = (nom: string, url = "data:image/jpeg;base64,AAAA") => ({ url, nom, uploadedAt: j("02") });
+    const revision = async (id: string) => ((await OperationModel.findById(id).lean()) as unknown as { __v: number }).__v;
+
+    it("ajouterPhoto : ajoute à la suite, incrémente la révision", async () => {
+      const { id } = await depot.creer(saisie(), initial());
+
+      expect(await depot.ajouterPhoto(id, photo("a.jpg"))).toBe(true);
+      expect(await depot.ajouterPhoto(id, photo("b.jpg"))).toBe(true);
+
+      expect((await depot.trouverDetailParId(id))?.photos).toEqual([photo("a.jpg"), photo("b.jpg")]);
+      expect(await revision(id)).toBe(2);
+    });
+
+    it("ajouterPhoto : false si l'opération n'existe pas", async () => {
+      expect(await depot.ajouterPhoto(String(new mongoose.Types.ObjectId()), photo("a.jpg"))).toBe(false);
+    });
+
+    it("retirerPhotos : retire toutes les photos portant l'URL, incrémente la révision", async () => {
+      const { id } = await depot.creer(saisie(), initial());
+      await depot.ajouterPhoto(id, photo("a.jpg", "data:image/jpeg;base64,UN"));
+      await depot.ajouterPhoto(id, photo("b.jpg", "data:image/jpeg;base64,DEUX"));
+      await depot.ajouterPhoto(id, photo("c.jpg", "data:image/jpeg;base64,UN"));
+
+      expect(await depot.retirerPhotos(id, "data:image/jpeg;base64,UN")).toBe(true);
+
+      expect((await depot.trouverDetailParId(id))?.photos.map((p) => p.nom)).toEqual(["b.jpg"]);
+      expect(await revision(id)).toBe(4);
+    });
+
+    it("retirerPhotos : URL inconnue, succès sans effet ni changement de révision", async () => {
+      const { id } = await depot.creer(saisie(), initial());
+      await depot.ajouterPhoto(id, photo("a.jpg"));
+
+      expect(await depot.retirerPhotos(id, "data:image/jpeg;base64,INCONNUE")).toBe(true);
+
+      expect((await depot.trouverDetailParId(id))?.photos).toHaveLength(1);
+      expect(await revision(id)).toBe(1);
+    });
+
+    it("retirerPhotos : false si l'opération n'existe pas", async () => {
+      expect(await depot.retirerPhotos(String(new mongoose.Types.ObjectId()), "x")).toBe(false);
     });
   });
 });

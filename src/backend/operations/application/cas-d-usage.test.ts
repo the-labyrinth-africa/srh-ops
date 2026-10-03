@@ -2,7 +2,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import type { Acteur } from "@/shared/acces/acteur";
 import type { ConflictResult, DemandeAffectation } from "../domain/conflits";
-import { ChauffeurSansEquipe, ConflitAffectation, OperationIntrouvable } from "../domain/erreurs";
+import { ChauffeurSansEquipe, CompteClientSansPerimetre, ConflitAffectation, OperationIntrouvable } from "../domain/erreurs";
 import type { Operation, OperationSaisie } from "../domain/operation";
 import { OperationRepositoryEnMemoire } from "../infrastructure/en-memoire/operation.repository.en-memoire";
 import { creerCasDUsageOperations } from "./cas-d-usage";
@@ -269,6 +269,22 @@ describe("cas d'usage des opérations", () => {
       expect(parId.maintenant.fin).toEqual(new Date("2030-11-01T14:00:00.000Z"));
       expect(parId.terminee.statutEffectif).toBe("Terminée");
       expect(parId.passee.operation.statut).toBe("Planifiée");
+    });
+  });
+
+  describe("défense en profondeur : compte client sans périmètre", () => {
+    const clientSansPerimetre: Acteur = { id: "u-client", role: "client" };
+
+    it("refusé avant toute lecture, sur la liste, le détail et le planning", async () => {
+      deposer({ id: "operation-1" });
+      await expect(casDUsage.lister(clientSansPerimetre, {}, PAGE)).rejects.toThrow(CompteClientSansPerimetre);
+      await expect(casDUsage.obtenir(clientSansPerimetre, "operation-1")).rejects.toThrow(CompteClientSansPerimetre);
+      await expect(casDUsage.planning(clientSansPerimetre, {})).rejects.toThrow(CompteClientSansPerimetre);
+      expect(operations.filtresRecus).toHaveLength(0);
+    });
+
+    it("message : celui de la garde d'authentification", () => {
+      expect(() => casDUsage.verifierAccesLecture(clientSansPerimetre)).toThrow("Compte client sans périmètre attribué");
     });
   });
 });

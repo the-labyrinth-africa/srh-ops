@@ -2,7 +2,7 @@
 import type { Acteur } from "@/shared/acces/acteur";
 import type { OperationStatus } from "@/shared/operations/statuts";
 import { finPrevue } from "../domain/conflits";
-import { ChauffeurSansEquipe, ConflitAffectation, OperationIntrouvable } from "../domain/erreurs";
+import { ChauffeurSansEquipe, CompteClientSansPerimetre, ConflitAffectation, OperationIntrouvable } from "../domain/erreurs";
 import {
   idDeReference,
   type FiltreOperations,
@@ -12,7 +12,7 @@ import {
 } from "../domain/operation";
 import type { Horloge, OperationRepository, VerificationConflits } from "../domain/ports";
 import { computeEffectiveStatus } from "../domain/statut-effectif";
-import { chauffeurSansEquipe, perimetreDeLecture, peutVoirOperation } from "../domain/visibilite";
+import { chauffeurSansEquipe, compteClientSansPerimetre, perimetreDeLecture, peutVoirOperation } from "../domain/visibilite";
 
 export interface DependancesOperations {
   operations: OperationRepository;
@@ -30,6 +30,9 @@ export interface ElementPlanning {
 export function creerCasDUsageOperations({ operations, verifierConflits, horloge }: DependancesOperations) {
   function verifierAccesLecture(acteur: Acteur): void {
     if (chauffeurSansEquipe(acteur)) throw new ChauffeurSansEquipe();
+    // Défense en profondeur : sans ce refus, le filtre de périmètre d'un compte client sans client
+    // serait vide et il lirait tout. La garde d'authentification refuse déjà ce compte en amont.
+    if (compteClientSansPerimetre(acteur)) throw new CompteClientSansPerimetre();
   }
 
   /** Le périmètre de l'acteur l'emporte sur les filtres qu'il a demandés. */

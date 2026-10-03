@@ -1,5 +1,6 @@
 import type { AffectationExistante, ConflictResult, DemandeAffectation } from "./conflits";
-import type { FiltreOperations, Operation, OperationSaisie, Pagination, StatutInitial } from "./operation";
+import type { ChangementStatut, EtatTerrain } from "./changement-statut";
+import type { FiltreOperations, Operation, OperationSaisie, Pagination, PhotoOperation, StatutInitial } from "./operation";
 
 export interface CritereAffectations {
   /** Borne haute exclusive : seules les opérations qui démarrent avant cet instant. */
@@ -32,6 +33,17 @@ export interface OperationRepository {
   modifier(id: string, saisie: OperationSaisie): Promise<Operation | null>;
   /** false si l'opération n'existait pas. */
   supprimer(id: string): Promise<boolean>;
+  /** État brut (relations non peuplées) nécessaire aux écritures de terrain ; null si l'opération n'existe pas. */
+  trouverEtatTerrain(id: string): Promise<EtatTerrain | null>;
+  /**
+   * Applique le statut, les données de terrain fournies et ajoute l'entrée d'historique en un seul
+   * enregistrement ; niveau « terrain » (site avec adresse, équipements avec nom) ; null si absente.
+   */
+  changerStatut(id: string, changement: ChangementStatut): Promise<Operation | null>;
+  /** Ajoute la photo à la suite ; false si l'opération n'existe pas. */
+  ajouterPhoto(id: string, photo: PhotoOperation): Promise<boolean>;
+  /** Retire toutes les photos portant cette URL (aucune : sans effet) ; false si l'opération n'existe pas. */
+  retirerPhotos(id: string, url: string): Promise<boolean>;
 }
 
 /** Détection des conflits d'affectation (cas d'usage de R4a, injecté). */
@@ -41,3 +53,6 @@ export type VerificationConflits = (demande: DemandeAffectation) => Promise<Conf
 export interface Horloge {
   maintenant(): Date;
 }
+
+/** Signalement non bloquant d'une incohérence métier (journal). */
+export type AlerteCoherence = (message: string) => void;

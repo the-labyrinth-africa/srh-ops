@@ -15,6 +15,7 @@ import type {
   StatutInitial,
   VehiculePeuple,
 } from "../../domain/operation";
+import type { ChangementStatut, EtatTerrain } from "../../domain/changement-statut";
 import type { OperationRepository } from "../../domain/ports";
 import { Operation as OperationModel } from "./operation.model";
 
@@ -68,6 +69,15 @@ const DETAIL: Peuplement[] = [
   { path: "vehiculeId", select: "identification type" },
   { path: "equipementIds", select: "nom type" },
   { path: "historiqueStatuts.parUtilisateur", select: "nom" },
+];
+
+// Réponse d'un changement de statut : comme la liste, plus le nom des équipements.
+const TERRAIN: Peuplement[] = [
+  { path: "clientId", select: "nom" },
+  { path: "siteId", select: "nom adresse" },
+  { path: "equipeId", select: "nom" },
+  { path: "vehiculeId", select: "identification" },
+  { path: "equipementIds", select: "nom" },
 ];
 
 /**
@@ -197,5 +207,65 @@ export class OperationRepositoryMongoose implements OperationRepository {
   async supprimer(id: string): Promise<boolean> {
     await connectDB();
     return Boolean(await OperationModel.findByIdAndDelete(id));
+  }
+
+  async trouverEtatTerrain(id: string): Promise<EtatTerrain | null> {
+    await connectDB();
+    const doc = (await OperationModel.findById(id).lean()) as unknown as DocumentOperation | null;
+    if (!doc) return null;
+    const etat: EtatTerrain = {
+      statut: doc.statut ?? "Planifiée",
+      photos: (doc.photos ?? []).map((photo) => ({ url: photo.url })),
+    };
+    if (doc.equipeId !== undefined) etat.equipeId = doc.equipeId === null ? null : String(doc.equipeId);
+    return etat;
+  }
+
+  // Les trois écritures suivantes chargent le document, le modifient et l'enregistrent (`save()`),
+  // comme les routes d'origine : la révision `__v` renvoyée aux clients en dépend.
+
+  async changerStatut(id: string, changement: ChangementStatut): Promise<Operation | null> {
+    await connectDB();
+    const doc = await OperationModel.findById(id);
+    if (!doc) return null;
+
+    doc.statut = changement.statut;
+    if (changement.quantiteCollectee !== undefined) doc.quantiteCollectee = changement.quantiteCollectee;
+    // Véracité (et non `!== undefined`) : une unité vide est ignorée, comme dans la route d'origine.
+    if (changement.uniteQuantite) doc.uniteQuantite = changement.uniteQuantite;
+    if (changement.remarquesTerrain !== undefined) doc.remarquesTerrain = changement.remarquesTerrain;
+    if (changement.nomSignataireClient !== undefined) doc.nomSignataireClient = changement.nomSignataireClient;
+    if (changement.signatureClient !== undefined) doc.signatureClient = changement.signatureClient;
+    if (changement.photos !== undefined) doc.photos = changement.photos;
+
+    doc.historiqueStatuts.push({
+      statut: changement.statut,
+      date: changement.date,
+      parUtilisateur: new mongoose.Types.ObjectId(changement.parUtilisateur),
+      ancienStatut: changement.ancienStatut,
+    });
+
+    await doc.save();
+
+    const relu = (await OperationModel.findById(id).populate(TERRAIN).lean()) as unknown as DocumentOperation;
+    return versEntite(relu);
+  }
+
+  async ajouterPhoto(id: string, photo: PhotoOperation): Promise<boolean> {
+    await connectDB();
+    const doc = await OperationModel.findById(id);
+    if (!doc) return false;
+    doc.photos.push(photo);
+    await doc.save();
+    return true;
+  }
+
+  async retirerPhotos(id: string, url: string): Promise<boolean> {
+    await connectDB();
+    const doc = await OperationModel.findById(id);
+    if (!doc) return false;
+    doc.photos = doc.photos.filter((photo: { url: string }) => photo.url !== url);
+    await doc.save();
+    return true;
   }
 }
