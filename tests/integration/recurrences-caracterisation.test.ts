@@ -439,15 +439,23 @@ describe("Caractérisation — récurrences (formes exactes)", () => {
       expect((await illisible.json()).horizonDays).toBe(30);
     });
 
-    it("horizon non numérique : renvoyé `null`, rien n'est généré", async () => {
+    it("horizon non numérique : horizon par défaut de 30 jours", async () => {
       await poster(base());
       const corps = await (await lancer({ horizonDays: "abc" })).json();
-      expect(corps).toEqual({
-        message: "0 opération(s) récurrente(s) générée(s) avec succès.",
-        generatedCount: 0,
-        horizonDays: null,
-        conflits: [],
-      });
+      expect(corps.horizonDays).toBe(30);
+      expect(corps.generatedCount).toBeGreaterThanOrEqual(4);
+      expect(corps.generatedCount).toBeLessThanOrEqual(5);
+    });
+
+    it("horizon non numérique et récurrence personnalisée : génération bornée à l'horizon par défaut", async () => {
+      await poster(base({ frequence: "personnalisee", intervalleJours: 1, jourSemaine: undefined }));
+
+      const corps = await (await lancer({ horizonDays: "abc" })).json();
+
+      expect(corps.horizonDays).toBe(30);
+      expect(corps.generatedCount).toBeGreaterThanOrEqual(29);
+      expect(corps.generatedCount).toBeLessThanOrEqual(31);
+      expect(await Operation.countDocuments()).toBe(corps.generatedCount);
     });
 
     it("rôles : lecture et chauffeur 403 « Permission insuffisante » (le droit d'écriture est contrôlé en premier)", async () => {
