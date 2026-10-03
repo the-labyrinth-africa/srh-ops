@@ -1,7 +1,7 @@
 # Refactoring d'architecture : backend hexagonal, frontend « screaming » — Spécification de conception
 
 **Date :** 20 septembre 2026
-**Statut :** R0, R1, R2 et R3 réalisés ; jalons R4 à R9 à venir
+**Statut :** R0, R1, R2 et R3 réalisés ; R4 en cours (4a réalisé) ; jalons R5 à R9 à venir
 **Portée :** application SRH Ops entière (≈ 11 000 lignes applicatives, ≈ 5 700 lignes de tests, 30 routes d'API, 16 pages).
 
 ## 1. Objectif
@@ -108,7 +108,7 @@ Type dans `shared/acces` : `{ id, role, clientId?, equipeId? }`. Les cas d'usage
 | `lib/page-auth.ts` | `backend/comptes/http/garde-pages.ts` |
 | `lib/auth.ts`, `lib/auth-refresh.ts` | `backend/comptes/infrastructure/next-auth/` (+ règle pure de validité de session dans `domain/`) |
 | `lib/auth/reset-token.ts`, `lib/auth/account-mail.ts`, `lib/users/scope.ts`, `lib/email.ts` | `backend/comptes/{domain,application,infrastructure}` |
-| `lib/conflicts.ts`, `lib/status-transitions.ts` | `backend/operations/domain` (+ adaptateur `Affectations`) |
+| `lib/conflicts.ts`, `lib/status-transitions.ts` | `backend/operations/domain` (+ adaptateur `Affectations`) ; table des transitions dans `shared/operations/transitions.ts` (utilisée par le frontend) |
 | `lib/excel-import.ts` | `backend/import-donnees/{domain,infrastructure/excel}` |
 | `lib/db.ts`, `lib/mail/*`, `lib/rate-limit.ts`, `lib/run-after.ts`, `lib/app-url.ts`, `lib/mongo-id.ts` | `backend/platform/*` |
 | `lib/validators/*`, `types/index.ts` | `shared/*` (schémas et types utilisés des deux côtés) ; sinon dans le domaine backend concerné |
