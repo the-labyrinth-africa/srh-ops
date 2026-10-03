@@ -8,7 +8,7 @@ import { verifierImports, type Contexte } from "./verificateur";
 const contexte: Contexte = {
   // `operations` : déclaré dès R4a pour que les règles s'appliquent au nouveau code ;
   // ses routes restent héritées (src/app/api/operations) jusqu'à 4b-4d.
-  domainesBackendMigres: ["equipes", "vehicules", "equipements", "clients-sites", "comptes", "operations"],
+  domainesBackendMigres: ["equipes", "vehicules", "equipements", "clients-sites", "comptes", "operations", "recurrences"],
   fonctionnalitesFrontendMigrees: ["equipes", "vehicules", "equipements", "clients-sites"],
 };
 

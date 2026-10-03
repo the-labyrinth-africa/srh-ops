@@ -10,7 +10,7 @@ vi.mock("next-auth", () => ({
 import { GET as lister, POST as creer } from "@/app/api/recurrences/route";
 import { GET as obtenir, PUT as modifier, DELETE as supprimer } from "@/app/api/recurrences/[id]/route";
 import { POST as generer } from "@/app/api/recurrences/generate/route";
-import { Recurrence } from "@/models/Recurrence";
+import { Recurrence } from "@/backend/recurrences/infrastructure/mongoose/recurrence.model";
 import { Operation } from "@/backend/operations/infrastructure/mongoose/operation.model";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";

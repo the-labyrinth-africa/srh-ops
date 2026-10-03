@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireInternalAuth } from "@/backend/comptes";
-import { Recurrence } from "@/models/Recurrence";
-import { recurrenceSchema } from "@/lib/validators/recurrence";
+import { Recurrence } from "@/backend/recurrences/infrastructure/mongoose/recurrence.model";
+import { recurrenceSchema } from "@/backend/recurrences/http/recurrence.schema";
 import { guardObjectId } from "@/backend/platform/http/identifiants";
 
 interface RouteParams {

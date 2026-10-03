@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireInternalAuth } from "@/backend/comptes";
 import { checkAssignmentConflicts } from "@/backend/operations";
-import { Recurrence, IRecurrence } from "@/models/Recurrence";
+import { Recurrence, IRecurrence } from "@/backend/recurrences/infrastructure/mongoose/recurrence.model";
 import { Operation } from "@/backend/operations/infrastructure/mongoose/operation.model";
 import type { OperationStatus } from "@/shared/operations/statuts";
 
