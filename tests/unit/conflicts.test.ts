@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import mongoose from "mongoose";
-import { checkAssignmentConflicts } from "@/lib/conflicts";
+import { checkAssignmentConflicts } from "@/backend/operations";
 import { Operation } from "@/models/Operation";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";

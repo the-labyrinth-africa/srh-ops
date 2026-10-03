@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireAuth, chauffeurWithoutTeamError } from "@/backend/comptes";
 import { isChauffeur, isClientUser } from "@/shared/acces/permissions";
-import { checkAssignmentConflicts } from "@/lib/conflicts";
+import { checkAssignmentConflicts } from "@/backend/operations";
 import { Operation } from "@/models/Operation";
 import { operationSchema } from "@/lib/validators/operation";
 import type { OperationStatus } from "@/shared/operations/statuts";

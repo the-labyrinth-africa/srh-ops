@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { requireAuth, isWithinClientScope, isWithinTeamScope, chauffeurWithoutTeamError } from "@/backend/comptes";
-import { checkAssignmentConflicts } from "@/lib/conflicts";
+import { checkAssignmentConflicts } from "@/backend/operations";
 import { Operation } from "@/models/Operation";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
