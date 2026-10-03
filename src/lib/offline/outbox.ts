@@ -96,7 +96,12 @@ export async function clearOutbox(): Promise<void> {
   }).finally(() => closeDb());
 }
 
-async function applyMutation(m: PendingMutation): Promise<boolean> {
+/**
+ * Applique une mutation. Renvoie `null` si elle est entièrement appliquée, sinon ce qu'il en
+ * reste à rejouer : la mutation elle-même, ou — pour un lot de photos interrompu — les seules
+ * photos non encore envoyées (une photo déjà acceptée ne doit pas être renvoyée en double).
+ */
+async function applyMutation(m: PendingMutation): Promise<PendingMutation | null> {
   const base = `/api/operations/${m.id}`;
   if (m.kind === "statut") {
     const res = await fetch(`${base}/statut`, {
@@ -104,14 +109,25 @@ async function applyMutation(m: PendingMutation): Promise<boolean> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(m.payload ?? {}),
     });
-    return res.ok;
+    return res.ok ? null : m;
   }
-  const res = await fetch(`${base}/photos`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ photos: m.photos ?? [] }),
-  });
-  return res.ok;
+  // La route n'accepte qu'une photo par requête : `{ photo: <data URL>, nom }`.
+  const photos = m.photos ?? [];
+  for (let i = 0; i < photos.length; i++) {
+    let ok = false;
+    try {
+      const res = await fetch(`${base}/photos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ photo: photos[i].dataUrl, nom: photos[i].nom }),
+      });
+      ok = res.ok;
+    } catch (err) {
+      console.warn("[outbox] mutation rejouera:", m.kind, err);
+    }
+    if (!ok) return { ...m, photos: photos.slice(i) };
+  }
+  return null;
 }
 
 /**
@@ -139,16 +155,18 @@ export async function replayOutbox(): Promise<{ replayed: number; failed: number
         return;
       }
       const row = cursor.value as PendingRow;
-      let ok = false;
+      let reste: PendingMutation | null = row.mutation;
       try {
-        ok = await applyMutation(row.mutation);
+        reste = await applyMutation(row.mutation);
       } catch (err) {
         console.warn("[outbox] mutation rejouera:", row.mutation.kind, err);
       }
-      if (ok) {
+      if (reste === null) {
         cursor.delete();
         replayed += 1;
       } else {
+        // Lot de photos partiellement envoyé : ne garder que ce qui reste à envoyer.
+        if (reste !== row.mutation) cursor.update({ ts: row.ts, mutation: reste });
         failed += 1;
       }
       cursor.continue();
