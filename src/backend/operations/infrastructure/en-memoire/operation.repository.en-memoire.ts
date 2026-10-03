@@ -5,8 +5,10 @@ import {
   type Operation,
   type OperationSaisie,
   type Pagination,
+  type PhotoOperation,
   type StatutInitial,
 } from "../../domain/operation";
+import type { ChangementStatut, EtatTerrain } from "../../domain/changement-statut";
 import type { OperationRepository } from "../../domain/ports";
 
 /** Dépôt en mémoire : sert aux tests des cas d'usage. Les relations y restent des identifiants bruts. */
@@ -76,5 +78,60 @@ export class OperationRepositoryEnMemoire implements OperationRepository {
 
   async supprimer(id: string): Promise<boolean> {
     return this.donnees.delete(id);
+  }
+
+  async trouverEtatTerrain(id: string): Promise<EtatTerrain | null> {
+    const operation = this.donnees.get(id);
+    if (!operation) return null;
+    const etat: EtatTerrain = { statut: operation.statut, photos: operation.photos.map(({ url }) => ({ url })) };
+    const equipeId = idDeReference(operation.equipeId);
+    if (equipeId !== undefined) etat.equipeId = equipeId;
+    return etat;
+  }
+
+  async changerStatut(id: string, changement: ChangementStatut): Promise<Operation | null> {
+    const existante = this.donnees.get(id);
+    if (!existante) return null;
+    const modifiee: Operation = {
+      ...existante,
+      statut: changement.statut,
+      historiqueStatuts: [
+        ...existante.historiqueStatuts,
+        {
+          statut: changement.statut,
+          date: changement.date,
+          parUtilisateur: changement.parUtilisateur,
+          ancienStatut: changement.ancienStatut,
+        },
+      ],
+    };
+    if (changement.quantiteCollectee !== undefined) modifiee.quantiteCollectee = changement.quantiteCollectee;
+    if (changement.uniteQuantite) modifiee.uniteQuantite = changement.uniteQuantite;
+    if (changement.remarquesTerrain !== undefined) modifiee.remarquesTerrain = changement.remarquesTerrain;
+    if (changement.nomSignataireClient !== undefined) modifiee.nomSignataireClient = changement.nomSignataireClient;
+    if (changement.signatureClient !== undefined) modifiee.signatureClient = changement.signatureClient;
+    if (changement.photos !== undefined) {
+      modifiee.photos = changement.photos.map((photo) => ({
+        url: photo.url,
+        nom: photo.nom ?? "",
+        uploadedAt: changement.date,
+      }));
+    }
+    this.donnees.set(id, modifiee);
+    return modifiee;
+  }
+
+  async ajouterPhoto(id: string, photo: PhotoOperation): Promise<boolean> {
+    const existante = this.donnees.get(id);
+    if (!existante) return false;
+    this.donnees.set(id, { ...existante, photos: [...existante.photos, photo] });
+    return true;
+  }
+
+  async retirerPhotos(id: string, url: string): Promise<boolean> {
+    const existante = this.donnees.get(id);
+    if (!existante) return false;
+    this.donnees.set(id, { ...existante, photos: existante.photos.filter((photo) => photo.url !== url) });
+    return true;
   }
 }
