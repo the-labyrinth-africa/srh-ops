@@ -34,7 +34,7 @@ NEXTAUTH_URL="http://localhost:3000" NEXT_TELEMETRY_DISABLED=1 npx next build
 | **R1** | `vehicules`, `equipements` (répétition du modèle, ≈ 1 jour chacun) | R0 | **Réalisé** |
 | **R2** | `clients-sites` (règle de périmètre du compte client, garde de suppression) | R0 | **Réalisé** |
 | **R3** | `comptes` (utilisateurs, authentification, invitation, réinitialisation, jetons, limiteur, e-mail) — **sensible**, en 3 sous-plans : 3a `platform` (e-mail, limiteur, exécution différée, horloge, URL) ; 3b cas d'usage et adaptateurs ; 3c NextAuth, `Acteur`, gardes de pages et de routes | R1, R2 | **Réalisé** |
-| R4 | `operations` (le plus gros), en sous-plans : 4a domaine (statuts, conflits, visibilité) ; 4b cas d'usage CRUD + planning ; 4c statut/terrain/photos ; 4d rapport PDF | R3 | **En cours (4a réalisé ; 4b, 4c, 4d à venir)** |
+| R4 | `operations` (le plus gros), en sous-plans : 4a domaine (statuts, conflits, visibilité) ; 4b cas d'usage CRUD + planning ; 4c statut/terrain/photos ; 4d rapport PDF | R3 | **En cours (4a, 4b réalisés ; 4c, 4d à venir)** |
 | R5 | `recurrences` | R4 | À détailler |
 | R6 | `import-donnees` | R4, R2 | À détailler |
 | R7 | `pilotage` (statistiques) | R4 | À détailler |
@@ -120,7 +120,19 @@ Ordre recommandé : R0 → R1 → R2 → R3 → R4 → (R5, R6, R7) → R8 → R
 - Une politique pure qui remplacera des fonctions héritées encore utilisées (ici `isWithinClientScope`/`isWithinTeamScope` de `comptes/http/acteur.ts`) se vérifie par une **matrice de parité** contre ces fonctions (75 cas : 5 rôles × 3 rattachements d'acteur × 5 rattachements de document), dans un test collé au code. À supprimer avec les fonctions héritées quand plus aucune route ne les utilise.
 - Les codemods `redistribuer-imports.mjs` (import multi-lignes à trois symboles éclaté en deux modules) et `remplacer-imports.mjs` ont traité les 11 importeurs sans retouche manuelle ; le filet de caractérisation du corps exact du 409 (5 tests) est resté vert sans modification à travers les trois tâches de migration.
 
-**Suivi tracé, à traiter en 4b/4c :** brancher `domain/visibilite.ts` sur les contrôleurs d'`operations` (elle n'est appelée par aucune route à l'issue de 4a) ; déplacer `src/models/Operation.ts` vers `infrastructure/mongoose/operation.model.ts` et mettre à jour l'import de `affectations.mongoose.ts`.
+**Suivi tracé, à traiter en 4c :** brancher `peutAgirSurOperation` (`domain/visibilite.ts`) sur les routes `statut` et `photos` ; la lecture (liste, détail, planning) est branchée depuis 4b, et le modèle a été déplacé en 4b.
+
+## Enseignements de R4b
+
+- Une sonde exécutée contre les routes actuelles **avant** d'écrire le plan a révélé des comportements que la lecture seule ne montrait pas : pagination hors norme (`page=abc`, `limit=0`/`-5`/`abc` renvoient tous les éléments), exceptions Mongoose non interceptées (`CastError`, `ValidationError` qui remontent), et `PUT` qui réinitialise les champs à défaut Zod.
+- Trois niveaux de peuplement (`resume`, `liste`, `detail`) et une règle : le dépôt recopie les champs sélectionnés, la présentation les restitue.
+- L'ordre 403 → 400 du détail est préservé par `verifierAccesLecture`, appelé par le contrôleur avant le contrôle de l'identifiant (leçon R3b sur l'ordre des vérifications) ; il est donc exécuté deux fois sur `GET [id]` (de nouveau par `obtenir`, par défense).
+- Le filet de caractérisation de 29 tests, écrit et validé contre le code d'origine **avant** le plan, est resté vert sans modification à travers les tâches 2 à 5 (seul son import du modèle a été recodemodé).
+- Le code complet écrit dans le plan a été repris verbatim par les implémenteurs sans écart, et les quatre revues de tâche n'ont relevé aucun constat Critique ni Important.
+- Le pathspec `':!data'` de la commande `git add` fait échouer la commande, car `data/` est ignoré par `.gitignore` : à retirer des futures commandes d'ajout.
+- Deux fragilités typées, conservées par fidélité et à revoir à R9 : l'assertion `as OperationSaisie` de `versSaisieOperation` (elle masquerait un futur écart Zod/domaine), et les `?? défaut` de `versEntite`, qui remplacent aussi un `null` explicite stocké.
+
+**Suivi tracé, à traiter en 4c :** brancher `peutAgirSurOperation` sur les routes `statut` et `photos` ; retirer ensuite les gardes héritées `isWithinClientScope`/`isWithinTeamScope`/`chauffeurWithoutTeamError` de `src/backend/comptes/http/acteur.ts` si plus aucune route ne les utilise (attention : `clients-sites` utilise `isWithinClientScope`).
 
 ## Critères de sortie du chantier
 
