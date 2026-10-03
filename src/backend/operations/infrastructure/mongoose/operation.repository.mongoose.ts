@@ -209,6 +209,11 @@ export class OperationRepositoryMongoose implements OperationRepository {
     return Boolean(await OperationModel.findByIdAndDelete(id));
   }
 
+  async existeSurCreneau(clientId: string, siteId: string, dateHeurePrevue: Date): Promise<boolean> {
+    await connectDB();
+    return Boolean(await OperationModel.findOne({ clientId, siteId, dateHeurePrevue }));
+  }
+
   async trouverEtatTerrain(id: string): Promise<EtatTerrain | null> {
     await connectDB();
     const doc = (await OperationModel.findById(id).lean()) as unknown as DocumentOperation | null;

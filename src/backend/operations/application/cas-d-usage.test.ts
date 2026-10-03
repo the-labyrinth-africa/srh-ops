@@ -272,6 +272,57 @@ describe("cas d'usage des opérations", () => {
     });
   });
 
+  describe("opérations planifiées par un autre domaine (récurrences)", () => {
+    const occurrence = (surcharge: Record<string, unknown> = {}) => ({
+      clientId: "client-a",
+      siteId: "site-a",
+      natureIntervention: "Collecte récurrente",
+      dateHeurePrevue: new Date("2030-11-05T08:00:00.000Z"),
+      dureeEstimeeMinutes: 90,
+      equipementIds: ["equipement-a"],
+      informationsParticulieres: "Badge requis",
+      ...surcharge,
+    });
+
+    it.each([
+      [{ equipeId: "equipe-a", vehiculeId: "vehicule-a" }, "Affectée"],
+      [{ equipeId: "equipe-a" }, "Planifiée"],
+      [{}, "Planifiée"],
+    ] as const)("creerPlanifiee %j : statut %s", async (ressources, attendu) => {
+      const operation = await casDUsage.creerPlanifiee("u-generateur", occurrence(ressources));
+      expect(operation.statut).toBe(attendu);
+    });
+
+    it("creerPlanifiee : historique signé et daté par l'horloge, valeurs de terrain par défaut, aucun contrôle de conflit", async () => {
+      conflits = [CONFLIT];
+      const operation = await casDUsage.creerPlanifiee("u-generateur", occurrence({ equipeId: "equipe-a" }));
+
+      expect(demandes).toEqual([]);
+      expect(operation).toMatchObject({
+        clientId: "client-a",
+        siteId: "site-a",
+        natureIntervention: "Collecte récurrente",
+        dureeEstimeeMinutes: 90,
+        equipeId: "equipe-a",
+        equipementIds: ["equipement-a"],
+        informationsParticulieres: "Badge requis",
+        uniteQuantite: "Litres",
+        remarquesTerrain: "",
+        nomSignataireClient: "",
+        signatureClient: "",
+        historiqueStatuts: [{ statut: "Planifiée", date: MAINTENANT, parUtilisateur: "u-generateur" }],
+      });
+    });
+
+    it("existeSurCreneau : même client, même site, même date exacte", async () => {
+      await casDUsage.creerPlanifiee("u-generateur", occurrence());
+      const date = new Date("2030-11-05T08:00:00.000Z");
+      expect(await casDUsage.existeSurCreneau("client-a", "site-a", date)).toBe(true);
+      expect(await casDUsage.existeSurCreneau("client-a", "site-b", date)).toBe(false);
+      expect(await casDUsage.existeSurCreneau("client-a", "site-a", new Date("2030-11-06T08:00:00.000Z"))).toBe(false);
+    });
+  });
+
   describe("défense en profondeur : compte client sans périmètre", () => {
     const clientSansPerimetre: Acteur = { id: "u-client", role: "client" };
 

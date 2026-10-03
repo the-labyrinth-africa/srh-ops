@@ -330,6 +330,23 @@ describe("OperationRepositoryMongoose (contrat)", () => {
     });
   });
 
+  describe("existeSurCreneau", () => {
+    it("vrai seulement pour le même client, le même site et la même date exacte", async () => {
+      await depot.creer(saisie({ dateHeurePrevue: j("01") }), initial());
+
+      expect(await depot.existeSurCreneau(clientId, siteId, j("01"))).toBe(true);
+      expect(await depot.existeSurCreneau(clientId, siteId, j("02"))).toBe(false);
+      expect(await depot.existeSurCreneau(clientId, String(new mongoose.Types.ObjectId()), j("01"))).toBe(false);
+      expect(await depot.existeSurCreneau(String(new mongoose.Types.ObjectId()), siteId, j("01"))).toBe(false);
+    });
+
+    it("une opération annulée occupe toujours le créneau (aucun filtre de statut, comme à l'origine)", async () => {
+      const { id } = await depot.creer(saisie({ dateHeurePrevue: j("01") }), initial());
+      await OperationModel.updateOne({ _id: id }, { statut: "Annulée" });
+      expect(await depot.existeSurCreneau(clientId, siteId, j("01"))).toBe(true);
+    });
+  });
+
   describe("supprimer", () => {
     it("true puis false", async () => {
       const { id } = await depot.creer(saisie(), initial());

@@ -136,3 +136,19 @@ export function idDeReference(reference: Reference<{ id: string }> | undefined):
   if (reference == null) return reference;
   return typeof reference === "string" ? reference : reference.id;
 }
+
+/**
+ * Opération planifiée par un autre domaine (récurrences) : seules les données de planification ;
+ * le statut initial, l'historique et les valeurs de terrain par défaut sont posés par `operations`.
+ */
+export interface OccurrencePlanifiee {
+  clientId: string;
+  siteId: string;
+  natureIntervention: string;
+  dateHeurePrevue: Date;
+  dureeEstimeeMinutes: number;
+  equipeId?: string;
+  vehiculeId?: string;
+  equipementIds: string[];
+  informationsParticulieres: string;
+}

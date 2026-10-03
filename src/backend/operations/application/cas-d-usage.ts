@@ -6,6 +6,7 @@ import { ChauffeurSansEquipe, CompteClientSansPerimetre, ConflitAffectation, Ope
 import {
   idDeReference,
   type FiltreOperations,
+  type OccurrencePlanifiee,
   type Operation,
   type OperationSaisie,
   type Pagination,
@@ -38,6 +39,12 @@ export function creerCasDUsageOperations({ operations, verifierConflits, horloge
   /** Le périmètre de l'acteur l'emporte sur les filtres qu'il a demandés. */
   function dansLePerimetre(acteur: Acteur, filtre: FiltreOperations): FiltreOperations {
     return { ...filtre, ...perimetreDeLecture(acteur) };
+  }
+
+  /** Statut initial : « Affectée » si l'équipe et le véhicule sont renseignés, sinon « Planifiée ». */
+  function creerAvecStatutInitial(saisie: OperationSaisie, parUtilisateur: string): Promise<Operation> {
+    const statut: OperationStatus = saisie.equipeId && saisie.vehiculeId ? "Affectée" : "Planifiée";
+    return operations.creer(saisie, { statut, date: horloge.maintenant(), parUtilisateur });
   }
 
   return {
@@ -74,8 +81,23 @@ export function creerCasDUsageOperations({ operations, verifierConflits, horloge
       });
       if (conflits.some((conflit) => conflit.hasConflict)) throw new ConflitAffectation(conflits);
 
-      const statut: OperationStatus = saisie.equipeId && saisie.vehiculeId ? "Affectée" : "Planifiée";
-      return operations.creer(saisie, { statut, date: horloge.maintenant(), parUtilisateur: acteur.id });
+      return creerAvecStatutInitial(saisie, acteur.id);
+    },
+
+    /** Une opération existe déjà pour ce client, ce site et cette date exacte. */
+    existeSurCreneau(clientId: string, siteId: string, dateHeurePrevue: Date): Promise<boolean> {
+      return operations.existeSurCreneau(clientId, siteId, dateHeurePrevue);
+    },
+
+    /**
+     * Crée une opération planifiée par un autre domaine (récurrences). Aucun contrôle bloquant de
+     * conflit ici : l'appelant a déjà décidé quoi faire des ressources en conflit.
+     */
+    creerPlanifiee(parUtilisateur: string, occurrence: OccurrencePlanifiee): Promise<Operation> {
+      return creerAvecStatutInitial(
+        { ...occurrence, uniteQuantite: "Litres", remarquesTerrain: "", nomSignataireClient: "", signatureClient: "" },
+        parUtilisateur
+      );
     },
 
     async modifier(id: string, saisie: OperationSaisie): Promise<Operation> {
