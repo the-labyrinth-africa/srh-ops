@@ -12,7 +12,7 @@ import {
   type Pagination,
 } from "../domain/operation";
 import type { Horloge, OperationRepository, VerificationConflits } from "../domain/ports";
-import { computeEffectiveStatus } from "../domain/statut-effectif";
+import { computeEffectiveStatus } from "@/shared/operations/statut-effectif";
 import { chauffeurSansEquipe, compteClientSansPerimetre, perimetreDeLecture, peutVoirOperation } from "../domain/visibilite";
 
 export interface DependancesOperations {

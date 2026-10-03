@@ -1,5 +1,5 @@
 // API publique du domaine `operations` pour les autres domaines et pour `src/app`.
-export { computeEffectiveStatus } from "./domain/statut-effectif";
+export { computeEffectiveStatus } from "@/shared/operations/statut-effectif";
 export {
   checkAssignmentConflicts,
   existeOperationSurCreneau,
