@@ -1,2 +1,2 @@
-// API publique du domaine `clients-sites` pour les autres domaines : aucune pour l'instant.
-export {};
+// API publique du domaine `clients-sites` pour les autres domaines.
+export { existeClient } from "./composition";

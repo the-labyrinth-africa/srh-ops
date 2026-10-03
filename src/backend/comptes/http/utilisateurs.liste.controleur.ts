@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "./acteur";
 import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
-import { findScopeError } from "@/lib/users/scope"; // transitoire : hors périmètre de ce sous-plan
 import type { UserRole } from "@/shared/acces/roles";
 import { EmailDejaUtilise, UsernameDejaUtilise } from "../domain/erreurs";
-import { casDUsageUtilisateurs } from "../composition";
+import { casDUsageUtilisateurs, erreurDeRattachement } from "../composition";
 import { userCreateSchema, versSaisieCreation } from "./utilisateur.schema";
 import { versReponseUtilisateur } from "./presentation";
 
@@ -39,7 +38,7 @@ export async function POST(req: NextRequest) {
   }
 
   await connectDB();
-  const scopeError = await findScopeError({ clientId: parsed.data.clientId, equipeId: parsed.data.equipeId });
+  const scopeError = await erreurDeRattachement({ clientId: parsed.data.clientId, equipeId: parsed.data.equipeId });
   if (scopeError) return NextResponse.json({ error: scopeError }, { status: 400 });
 
   let resultat;

@@ -18,6 +18,7 @@ import { creerCasDUsageMotDePasseOublie } from "./application/cas-d-usage-mot-de
 import { creerCasDUsageReinitialisation } from "./application/cas-d-usage-reinitialisation";
 import { creerCasDUsageChangementMotDePasse } from "./application/cas-d-usage-changement-mot-de-passe";
 import { creerCasDUsageEmailDeTest } from "./application/cas-d-usage-email-de-test";
+import { creerVerificationRattachements } from "./application/verifier-rattachements";
 import type {
   EnvoiEmail,
   LimiteurDebit,
@@ -96,6 +97,21 @@ export const casDUsageEmailDeTest = creerCasDUsageEmailDeTest({
   utilisateurs,
   envoiEmail,
   limiteurDebit,
+});
+
+/**
+ * Message d'erreur si le client ou l'équipe de rattachement d'un compte n'existent pas, sinon `null`.
+ * Les clients et les équipes vivent dans leurs propres domaines : on interroge leur API publique,
+ * jamais leurs modèles. Import dynamique, au moment de l'appel : `clients-sites` et `equipes`
+ * dépendent eux-mêmes de `comptes` (garde de suppression) ; un import statique fermerait une
+ * boucle de chargement dont l'issue dépend du premier module chargé (constaté : « … is not a
+ * constructor » selon le point d'entrée).
+ */
+export const erreurDeRattachement = creerVerificationRattachements({
+  rattachements: {
+    clientExiste: async (clientId) => (await import("@/backend/clients-sites/index")).existeClient(clientId),
+    equipeExiste: async (equipeId) => (await import("@/backend/equipes/index")).existeEquipe(equipeId),
+  },
 });
 
 // API publique du domaine `comptes` pour les autres domaines (ré-exportée par `index.ts`, seul

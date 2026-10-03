@@ -86,3 +86,9 @@ export interface GabaritsEmail {
 
 /** Adresse IP de l'appelant, pour le limiteur de débit. Port autour de `clientIp`. */
 export type AdresseClient = (req: Request) => string;
+
+/** Existence des entités auxquelles un compte peut être rattaché (elles vivent dans d'autres domaines). */
+export interface RattachementsDeCompte {
+  clientExiste(clientId: string): Promise<boolean>;
+  equipeExiste(equipeId: string): Promise<boolean>;
+}
