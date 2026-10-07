@@ -1,6 +1,6 @@
 // tests/unit/nav.test.ts
 import { describe, it, expect } from "vitest";
-import { navForRole } from "@/lib/nav";
+import { navForRole } from "@/frontend/navigation";
 
 const hrefs = (role: string) => navForRole(role).flatMap((s) => s.items.map((i) => i.href));
 

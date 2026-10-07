@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Providers } from "@/components/providers/Providers";
-import { PwaRegistrar } from "@/components/pwa/PwaRegistrar";
+import { Providers } from "@/frontend/navigation";
+import { PwaRegistrar } from "@/frontend/terrain";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -34,7 +34,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="fr">
+    <html lang="fr" suppressHydrationWarning>
       <head>
         <link
           href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&display=swap"
@@ -47,7 +47,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body className="antialiased">
+      <body className="antialiased" suppressHydrationWarning>
         <Providers>
           {children}
           <PwaRegistrar />

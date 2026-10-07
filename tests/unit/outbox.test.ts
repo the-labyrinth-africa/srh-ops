@@ -5,7 +5,7 @@ import {
   getAllPending,
   removePending,
   replayOutbox,
-} from "@/lib/offline/outbox";
+} from "@/frontend/terrain";
 
 type FetchMock = (
   input: string | URL | Request,

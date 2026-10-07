@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth, requireReferentialRead, isWithinClientScope } from "@/backend/comptes";
+import { requireAuth, requireReferentialRead } from "@/backend/comptes";
 import { guardObjectId } from "@/backend/platform/http/identifiants";
 import { SiteIntrouvable } from "../domain/erreurs";
+import { estDansPerimetreClient } from "../domain/perimetre-client";
 import { casDUsageSites } from "../composition";
 import { siteSchema, versSaisieSite } from "./site.schema";
 import { versReponseSitePeuple, versReponseSite } from "./presentation";
@@ -23,7 +24,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
     throw error;
   }
   const clientIdBrut = typeof site.clientId === "string" ? site.clientId : site.clientId?.id;
-  if (!isWithinClientScope(auth, clientIdBrut)) {
+  if (!estDansPerimetreClient(auth.role, auth.clientId, clientIdBrut)) {
     return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
   }
   return NextResponse.json(versReponseSitePeuple(site));

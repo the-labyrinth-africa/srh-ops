@@ -1,6 +1,6 @@
 // tests/architecture/verificateur.test.ts
 import { describe, it, expect } from "vitest";
-import { verifierImports, AJOUT_HERITAGE, DOSSIERS_HERITES, EXCEPTIONS_INDEX_HTTP } from "./verificateur";
+import { verifierImports, DOSSIERS_OBSOLETES, EXCEPTIONS_INDEX_HTTP } from "./verificateur";
 
 const contexte = {
   domainesBackendMigres: ["equipes"],
@@ -89,7 +89,7 @@ describe("modules non migrés", () => {
 
 describe("composition.ts (racine d'un domaine migré)", () => {
   const f = "src/backend/equipes/composition.ts";
-  it("accepte son domain, application, infrastructure, shared, platform, paquets et le code hérité toléré", () => {
+  it("accepte son domain, application, infrastructure, shared, platform et les paquets", () => {
     expect(
       v(f, [
         "./domain/equipe",
@@ -98,10 +98,11 @@ describe("composition.ts (racine d'un domaine migré)", () => {
         "@/shared/acces/roles",
         "@/backend/platform/base-de-donnees/connexion",
         "mongoose",
-        "@/models/User",
-        "@/lib/auth",
       ])
     ).toEqual([]);
+  });
+  it("refuse tous les dossiers hérités", () => {
+    expect(v(f, ["@/models/User", "@/lib/auth"]).length).toBe(2);
   });
   it("accepte l'index d'un autre domaine mais refuse ses internes", () => {
     expect(v(f, ["@/backend/comptes/index"])).toEqual([]);
@@ -254,8 +255,9 @@ describe("platform n'importe aucun domaine", () => {
     expect(v("src/backend/platform/http/x.ts", ["@/backend/comptes/index"]).length).toBe(1);
     expect(v("src/backend/platform/http/x.ts", ["@/backend/equipes/domain/x"]).length).toBe(1);
   });
-  it("accepte platform, shared et le code hérité", () => {
-    expect(v("src/backend/platform/http/x.ts", ["../base-de-donnees/connexion", "@/shared/acces/roles", "@/lib/x"])).toEqual([]);
+  it("accepte platform et shared mais refuse le code hérité", () => {
+    expect(v("src/backend/platform/http/x.ts", ["../base-de-donnees/connexion", "@/shared/acces/roles"])).toEqual([]);
+    expect(v("src/backend/platform/http/x.ts", ["@/lib/x"]).length).toBe(1);
   });
   it("exception documentée : enregistrement-modeles.ts", () => {
     const f = "src/backend/platform/base-de-donnees/enregistrement-modeles.ts";
@@ -270,24 +272,26 @@ describe("frontend : technologies et héritage", () => {
     expect(v("src/frontend/equipes/pages/P.tsx", ["@/models/User"]).length).toBe(1);
     expect(v("src/frontend/design-system/x.tsx", ["mongoose"]).length).toBe(1);
   });
-  it("tolère le reste de l'héritage (composants, hooks, lib) jusqu'à R9", () => {
-    expect(v("src/frontend/equipes/pages/P.tsx", ["@/components/ui/x", "@/hooks/useX", "@/lib/utils"])).toEqual([]);
+  it("refuse tous les dossiers hérités", () => {
+    expect(v("src/frontend/equipes/pages/P.tsx", ["@/components/ui/x", "@/hooks/useX", "@/lib/utils"]).length).toBe(3);
   });
 });
 
-describe("héritage toléré seulement dans http, infrastructure, composition", () => {
-  it("toléré", () => {
-    expect(v("src/backend/equipes/http/x.ts", ["@/lib/auth"])).toEqual([]);
-    expect(v("src/backend/equipes/infrastructure/mongoose/x.ts", ["@/models/Equipe"])).toEqual([]);
+describe("dossiers hérités supprimés", () => {
+  it("refuse les imports legacy dans toutes les couches", () => {
+    const imports = ["@/lib/x", "@/models/x", "@/components/x", "@/hooks/x"];
+    for (const fichier of [
+      "src/backend/equipes/http/x.ts",
+      "src/backend/equipes/infrastructure/mongoose/x.ts",
+      "src/backend/equipes/composition.ts",
+      "src/frontend/equipes/pages/P.tsx",
+    ]) {
+      expect(v(fichier, imports)).toHaveLength(imports.length);
+    }
   });
-  it("refusé dans domain, application, index", () => {
-    expect(v("src/backend/equipes/domain/x.ts", ["@/types/x"]).length).toBe(1);
-    expect(v("src/backend/equipes/application/x.ts", ["@/hooks/x"]).length).toBe(1);
-    expect(v("src/backend/equipes/index.ts", ["@/components/x"]).length).toBe(1);
-  });
-  it("expose la liste transitoire", () => {
-    expect(AJOUT_HERITAGE.retraitPrevu).toBe("R9");
-    expect(DOSSIERS_HERITES).toContain("src/lib/");
+  it("répertorie uniquement les dossiers hérités réellement supprimés", () => {
+    expect(DOSSIERS_OBSOLETES).toEqual(["src/lib/", "src/models/", "src/components/", "src/hooks/"]);
+    expect(DOSSIERS_OBSOLETES).not.toContain("src/types/");
   });
 });
 
@@ -308,8 +312,38 @@ describe("R1 — durcissements", () => {
     expect(r[0]).toContain("R4");
     expect(v("src/frontend/vehicules/x.tsx", ["@/app/layout"]).length).toBe(1);
   });
-  it("n'interdit plus src/types comme dossier hérité (il n'existe plus)", () => {
-    expect(DOSSIERS_HERITES).not.toContain("src/types/");
+});
+
+describe("R6 — composition de src/app", () => {
+  it("accepte les pages, les domaines publics, shared et les imports Next", () => {
+    expect(
+      v("src/app/(dashboard)/page.tsx", [
+        "@/frontend/pilotage",
+        "@/backend/comptes",
+        "@/backend/pilotage/index",
+        "@/shared/operations/statut-effectif",
+        "next/image",
+        "next-auth/react",
+      ])
+    ).toEqual([]);
+  });
+  it("accepte les contrôleurs uniquement dans les routes API", () => {
+    expect(v("src/app/api/operations/route.ts", ["@/backend/operations/http/liste.controleur"])).toEqual([]);
+    expect(v("src/app/(dashboard)/page.tsx", ["@/backend/operations/http/liste.controleur"]).length).toBe(1);
+  });
+  it("autorise uniquement l'option NextAuth de la route NextAuth", () => {
+    expect(
+      v("src/app/api/auth/[...nextauth]/route.ts", ["@/backend/comptes/infrastructure/next-auth/options"])
+    ).toEqual([]);
+    expect(v("src/app/api/users/route.ts", ["@/backend/comptes/infrastructure/next-auth/options"]).length).toBe(1);
+  });
+  it("refuse les détails internes des domaines et les dossiers hérités", () => {
+    expect(
+      v("src/app/(dashboard)/page.tsx", ["@/backend/pilotage/application/x", "@/backend/pilotage/infrastructure/x", "@/lib/x"])
+    ).toHaveLength(3);
+  });
+  it("refuse les dépendances techniques du backend dans la composition Next", () => {
+    expect(v("src/app/api/operations/route.ts", ["mongoose", "jspdf-autotable"])).toHaveLength(2);
   });
 });
 

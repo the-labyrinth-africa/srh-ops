@@ -1,4 +1,4 @@
-import { PlanningCalendarClient } from "@/components/operations/PlanningCalendarClient";
+import { PlanningCalendarClient } from "@/frontend/operations";
 import { requirePageAccess } from "@/backend/comptes";
 
 export default async function PlanningPage() {

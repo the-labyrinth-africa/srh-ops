@@ -12,18 +12,9 @@ const PAQUETS_INTERDITS_DOMAINE = [
   /^next-auth(\/|$)/,
   /^jspdf(\/|-|$)/,
 ];
+const PAQUETS_INTERDITS_APP = [/^(mongoose|mongodb|bson|nodemailer|bcryptjs|exceljs)(\/|$)/, /^jspdf(\/|-|$)/];
 
-export const DOSSIERS_HERITES = ["src/lib/", "src/models/", "src/components/", "src/hooks/"];
-
-/**
- * Tolérance transitoire : tant que l'ancien code existe, un domaine migré peut encore
- * l'importer depuis `http/`, `infrastructure/` et `composition.ts` (et une fonctionnalité
- * frontend migrée, partout). Cette tolérance disparaît à R9 (clôture du chantier).
- */
-export const AJOUT_HERITAGE = {
-  couchesTolerees: ["http", "infrastructure", "composition"],
-  retraitPrevu: "R9",
-} as const;
+export const DOSSIERS_OBSOLETES = ["src/lib/", "src/models/", "src/components/", "src/hooks/"];
 
 const COUCHES = ["domain", "application", "infrastructure", "http"] as const;
 type Couche = (typeof COUCHES)[number] | "composition" | "index" | "inconnu";
@@ -75,7 +66,6 @@ const dans = (cible: string, dossier: string) => {
 };
 
 const estPaquetInterdit = (cible: string) => estPaquet(cible) && PAQUETS_INTERDITS_DOMAINE.some((re) => re.test(cible));
-const estHerite = (cible: string) => DOSSIERS_HERITES.some((d) => dans(cible, d));
 
 function decouper(fichier: string) {
   const backend = /^src\/backend\/([^/]+)\/(.+)$/.exec(fichier);
@@ -95,6 +85,7 @@ function decouper(fichier: string) {
     couche,
     premier,
     fonctionnalite: frontend?.[1],
+    estApp: fichier.startsWith("src/app/"),
     estBackend: fichier.startsWith("src/backend/"),
     estFrontend: fichier.startsWith("src/frontend/"),
     estShared: fichier.startsWith("src/shared/"),
@@ -103,7 +94,7 @@ function decouper(fichier: string) {
 
 export function verifierImports(fichier: string, imports: string[], contexte: Contexte): string[] {
   const violations: string[] = [];
-  const { domaine, couche, premier, fonctionnalite, estBackend, estFrontend, estShared } = decouper(fichier);
+  const { domaine, couche, premier, fonctionnalite, estApp, estBackend, estFrontend, estShared } = decouper(fichier);
   const signaler = (regle: string, spec: string) => violations.push(`${regle} ${fichier} importe « ${spec} »`);
 
   const domaineMigre = domaine !== undefined && domaine !== "platform" && contexte.domainesBackendMigres.includes(domaine);
@@ -117,6 +108,35 @@ export function verifierImports(fichier: string, imports: string[], contexte: Co
     // shared est la couche de base : rien d'autre que shared et des paquets neutres (R1).
     if (estShared) {
       if (estPaquet(cible) ? estPaquetInterdit(cible) : !dans(cible, "src/shared")) signaler("R1", spec);
+      continue;
+    }
+
+    if (estApp) {
+      if (estPaquet(cible)) {
+        if (PAQUETS_INTERDITS_APP.some((re) => re.test(cible))) signaler("R6", spec);
+        continue;
+      }
+      const backendApp = /^src\/backend\/([^/]+)(?:\/(.*))?$/.exec(cible);
+      const resteBackend = backendApp?.[2];
+      const indexPublic = backendApp && (!resteBackend || resteBackend === "index");
+      const controleurRoute =
+        fichier.startsWith("src/app/api/") && /^http\/[^/]+\.controleur$/.test(resteBackend ?? "");
+      const optionsNextAuth =
+        fichier === "src/app/api/auth/[...nextauth]/route.ts" &&
+        cible === "src/backend/comptes/infrastructure/next-auth/options";
+      const autorise =
+        dans(cible, "src/app") ||
+        dans(cible, "src/frontend") ||
+        dans(cible, "src/shared") ||
+        Boolean(indexPublic) ||
+        controleurRoute ||
+        optionsNextAuth;
+      if (!autorise) signaler("R6", spec);
+      continue;
+    }
+
+    if (DOSSIERS_OBSOLETES.some((dossier) => dans(cible, dossier))) {
+      signaler("HERITAGE", spec);
       continue;
     }
 
@@ -195,11 +215,6 @@ export function verifierImports(fichier: string, imports: string[], contexte: Co
           signaler("R5", spec);
           continue;
         }
-      }
-      // Héritage : toléré seulement dans http, infrastructure, composition (jusqu'à R9).
-      if (estHerite(cible) && !(AJOUT_HERITAGE.couchesTolerees as readonly string[]).includes(couche)) {
-        signaler("HERITAGE", spec);
-        continue;
       }
     }
 

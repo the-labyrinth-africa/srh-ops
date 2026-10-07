@@ -70,19 +70,19 @@ export function creerCasDUsageTerrain({ operations, horloge, alerteCoherence }: 
       const maintenant = horloge.maintenant();
       const photo: PhotoOperation = {
         url,
-        nom: (envoi.nom || `photo-${maintenant.getTime()}.jpg`) as string,
+        nom: String(envoi.nom || `photo-${maintenant.getTime()}.jpg`),
         uploadedAt: maintenant,
       };
       if (!(await operations.ajouterPhoto(id, photo))) throw new OperationIntrouvable();
       return photo;
     },
 
-    async retirerPhoto(acteur: Acteur, id: string, url: unknown): Promise<void> {
+    async retirerPhoto(acteur: Acteur, id: string, url: string | null | undefined): Promise<void> {
       verifierAccesTerrain(acteur);
       if (!url) throw new UrlPhotoRequise();
       await etatAccessible(acteur, id);
       // La suppression ne porte que sur les photos rattachées à cette opération.
-      if (!(await operations.retirerPhotos(id, url as string))) throw new OperationIntrouvable();
+      if (!(await operations.retirerPhotos(id, url))) throw new OperationIntrouvable();
     },
   };
 }

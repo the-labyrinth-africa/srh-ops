@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { objectIdSchema, optionalObjectIdSchema } from "@/lib/validators/object-id";
+import { objectIdSchema, optionalObjectIdSchema } from "@/shared/validators/object-id";
 import type { RecurrenceSaisie } from "../domain/recurrence";
 
 export const recurrenceSchema = z.object({

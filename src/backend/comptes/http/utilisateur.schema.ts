@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { USER_ROLES, type UserRole } from "@/shared/acces/roles";
-import { optionalObjectIdSchema } from "@/lib/validators/object-id";
+import { optionalObjectIdSchema } from "@/shared/validators/object-id";
 import type { UtilisateurSaisie } from "../domain/utilisateur";
 
 const emptyToUndefined = (v: string | undefined) => (v ? v : undefined);

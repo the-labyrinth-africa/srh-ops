@@ -8,7 +8,7 @@ export type OperationStatus =
   | "Retardée"
   | "Annulée";
 
-export const OPERATION_STATUSES: OperationStatus[] = [
+export const OPERATION_STATUSES = [
   "Planifiée",
   "Affectée",
   "En route",
@@ -17,7 +17,7 @@ export const OPERATION_STATUSES: OperationStatus[] = [
   "Rapportée",
   "Retardée",
   "Annulée",
-];
+] as const satisfies readonly OperationStatus[];
 
 export const TERMINAL_STATUSES: OperationStatus[] = [
   "Terminée",

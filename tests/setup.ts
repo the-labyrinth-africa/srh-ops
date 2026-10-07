@@ -5,7 +5,7 @@ import "fake-indexeddb/auto";
 
 // Réinitialise la base hors-ligne entre chaque test d'outbox.
 beforeEach(async () => {
-  const { clearOutbox } = await import("@/lib/offline/outbox");
+  const { clearOutbox } = await import("@/frontend/terrain");
   await clearOutbox().catch(() => {});
 });
 let mongoServer: MongoMemoryServer;

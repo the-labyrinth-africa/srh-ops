@@ -1,4 +1,4 @@
-import { UsersListClient } from "@/components/users/UsersListClient";
+import { UsersListClient } from "@/frontend/comptes";
 import { requirePageAccess } from "@/backend/comptes";
 
 export default async function UtilisateursPage() {

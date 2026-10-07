@@ -38,10 +38,12 @@ NEXTAUTH_URL="http://localhost:3000" NEXT_TELEMETRY_DISABLED=1 npx next build
 | R5 | `recurrences` | R4 | **Réalisé** |
 | R6 | `import-donnees` | R4, R2 | **Réalisé** |
 | R7 | `pilotage` (statistiques) | R4 | **Réalisé** |
-| R8 | Frontends restants : `operations`, `terrain` (PWA et outbox), `clients-sites`, `recurrences`, `import-donnees`, `comptes`, `pilotage`, `navigation`, `design-system` (peut s'intercaler après chaque jalon backend correspondant) | R2 à R7 | À détailler |
-| R9 | Clôture : réorganisation miroir des tests, règles ESLint définitives, README « Architecture », suppression des dossiers hérités, revue finale complète | tous | À détailler |
+| **R8** | Frontends restants : `operations`, `terrain` (PWA et outbox), `clients-sites`, `recurrences`, `import-donnees`, `comptes`, `pilotage`, `navigation`, `design-system` | R2 à R7 | **Réalisé** |
+| **R9** | Clôture : réorganisation miroir des tests, règles ESLint définitives, README « Architecture », suppression des dossiers hérités, revue finale complète | tous | **Réalisé** |
 
 Ordre recommandé : R0 → R1 → R2 → R3 → R4 → (R5, R6, R7) → R8 → R9. Après chaque jalon, l'application est cohérente et déployable : on peut s'arrêter à n'importe quel point.
+
+R8 a déplacé les frontends hérités et leurs utilitaires vers `src/frontend/<fonctionnalité>/` et `src/shared/validators/`. Le tableau de bord de pilotage est composé dans `src/app/` et rendu par `src/frontend/pilotage/` ; le CSS du calendrier appartient à `src/frontend/operations/`. Le test d'architecture couvre maintenant toutes les fonctionnalités migrées. La commande `verifier-build` a été tentée, mais Turbopack échoue dans l'environnement d'exécution au lancement du traitement PostCSS (`binding to a port: Operation not permitted`), y compris après relance avec autorisation d'exécution. La clôture des dossiers hérités, les règles ESLint définitives et la revue globale restent au jalon R9.
 
 ## Recette d'un domaine (à reproduire à chaque jalon, dans cet ordre)
 
@@ -179,5 +181,14 @@ Ordre recommandé : R0 → R1 → R2 → R3 → R4 → (R5, R6, R7) → R8 → R
 - La route `GET /api/dashboard/stats` n'a aucun appelant dans l'interface (la page d'accueil calcule ses données côté serveur) : elle est conservée telle quelle, à réévaluer à R8/R9.
 
 ## Critères de sortie du chantier
+
+### Clôture R9 (3 octobre 2026)
+
+- Les tests d'intégration sont rangés sous `tests/integration/<domaine>/` sans changement de contenu. Le test de stockage des jetons ne conserve que les index TTL/unique et l'égalité stricte SHA-256, couvertures complémentaires au test de contrat.
+- Le vérificateur parcourt désormais `src/app/**` pour R6, avec une exception exacte pour les options NextAuth; il interdit tout import vers les anciens dossiers et teste leur absence.
+- Les helpers de périmètre d'équipe de `comptes` et leur matrice de parité sont supprimés. Le contrôle client vit dans `clients-sites/domain/` et reste testé; les contrôleurs gardent leur ordre et leurs réponses.
+- Les enums Zod gardent leurs unions littérales; les assertions `as OperationSaisie`, `as DemandeChangementStatut` et les casts photo évitables ont été retirés. Les valeurs par défaut pour `null`/absent en base restent celles documentées.
+- ESLint conserve `react-hooks/set-state-in-effect` désactivée pour le contrat actuel des états de chargement; l'activer identifie 12 appels existants qui nécessiteraient une refonte frontend distincte. La configuration reste à zéro erreur.
+- Le README décrit l'organisation finale et les règles R1 à R6. Les critères de vérification restent ceux de la spec ci-dessous.
 
 Ceux de la spec (section 11). Le rapport d'avancement et le README sont mis à jour à R9.

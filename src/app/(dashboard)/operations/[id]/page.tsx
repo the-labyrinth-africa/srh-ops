@@ -1,4 +1,4 @@
-import { OperationDetailClient } from "@/components/operations/OperationDetailClient";
+import { OperationDetailClient } from "@/frontend/operations";
 import { requirePageAccess } from "@/backend/comptes";
 
 export default async function OperationDetailPage({

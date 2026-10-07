@@ -6,8 +6,8 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   {
-    // Baseline (lot 0) : le pattern "charger au montage" via useEffect + setState
-    // est utilisé partout dans les composants clients ; refactor hors périmètre.
+    // Les effets de chargement posent immédiatement `loading` avant l'I/O, y compris
+    // au montage ; cette règle est désactivée pour préserver ce contrat d'interface.
     rules: {
       "react-hooks/set-state-in-effect": "off",
     },

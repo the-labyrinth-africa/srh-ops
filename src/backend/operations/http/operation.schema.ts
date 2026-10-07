@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { OPERATION_STATUSES } from "@/shared/operations/statuts";
 import { QUANTITE_UNITES } from "@/shared/operations/quantites";
-import { objectIdSchema, optionalObjectIdSchema } from "@/lib/validators/object-id";
+import { objectIdSchema, optionalObjectIdSchema } from "@/shared/validators/object-id";
 import type { OperationSaisie } from "../domain/operation";
 import type { DemandeChangementStatut } from "../domain/changement-statut";
 
@@ -18,20 +18,20 @@ export const operationSchema = z.object({
     .optional()
     .default([]),
   informationsParticulieres: z.string().optional().default(""),
-  statut: z.enum(OPERATION_STATUSES as [string, ...string[]]).optional(),
+  statut: z.enum(OPERATION_STATUSES).optional(),
   // Le client SRH n'a pas de collecte à quantité nulle : 0 n'est pas une valeur
   // valide, l'absence de quantité se traduit par l'absence du champ.
   quantiteCollectee: z.coerce.number().positive("Quantité collectée invalide").optional(),
-  uniteQuantite: z.enum(QUANTITE_UNITES as [string, ...string[]]).optional().default("Litres"),
+  uniteQuantite: z.enum(QUANTITE_UNITES).optional().default("Litres"),
   remarquesTerrain: z.string().optional().default(""),
   nomSignataireClient: z.string().optional().default(""),
   signatureClient: z.string().optional().default(""),
 });
 
 export const statusUpdateSchema = z.object({
-  statut: z.enum(OPERATION_STATUSES as [string, ...string[]]),
+  statut: z.enum(OPERATION_STATUSES),
   quantiteCollectee: z.coerce.number().positive("Quantité collectée invalide").optional(),
-  uniteQuantite: z.enum(QUANTITE_UNITES as [string, ...string[]]).optional(),
+  uniteQuantite: z.enum(QUANTITE_UNITES).optional(),
   remarquesTerrain: z.string().optional(),
   nomSignataireClient: z.string().optional(),
   signatureClient: z.string().optional(),
@@ -54,7 +54,7 @@ export type OperationInput = z.infer<typeof operationSchema>;
  * une chaîne illisible donne une date invalide, rejetée par Mongoose (comportement historique).
  */
 export function versSaisieOperation(entree: OperationInput): OperationSaisie {
-  return { ...entree, dateHeurePrevue: new Date(entree.dateHeurePrevue) } as OperationSaisie;
+  return { ...entree, dateHeurePrevue: new Date(entree.dateHeurePrevue) };
 }
 
 export type StatusUpdateInput = z.infer<typeof statusUpdateSchema>;
@@ -64,5 +64,5 @@ export type StatusUpdateInput = z.infer<typeof statusUpdateSchema>;
  * absente (elle laisse la valeur stockée intacte).
  */
 export function versDemandeStatut(entree: StatusUpdateInput): DemandeChangementStatut {
-  return entree as DemandeChangementStatut;
+  return entree;
 }

@@ -1,15 +1,26 @@
 // tests/architecture/regles-de-dependance.test.ts
 import { describe, it, expect } from "vitest";
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { verifierImports, type Contexte } from "./verificateur";
 
 // À compléter à chaque migration de domaine (recette, étape 8).
 const contexte: Contexte = {
-  // `operations` : déclaré dès R4a pour que les règles s'appliquent au nouveau code ;
-  // ses routes restent héritées (src/app/api/operations) jusqu'à 4b-4d.
   domainesBackendMigres: ["equipes", "vehicules", "equipements", "clients-sites", "comptes", "operations", "recurrences", "import-donnees", "pilotage"],
-  fonctionnalitesFrontendMigrees: ["equipes", "vehicules", "equipements", "clients-sites"],
+  fonctionnalitesFrontendMigrees: [
+    "equipes",
+    "vehicules",
+    "equipements",
+    "clients-sites",
+    "design-system",
+    "navigation",
+    "operations",
+    "terrain",
+    "comptes",
+    "recurrences",
+    "import-donnees",
+    "pilotage",
+  ],
 };
 
 function fichiers(dossier: string): string[] {
@@ -35,7 +46,7 @@ function importsDe(source: string): string[] {
 
 describe("règles de dépendance de l'architecture", () => {
   const racine = path.resolve(__dirname, "../..");
-  const sources = ["backend", "frontend", "shared"]
+  const sources = ["app", "backend", "frontend", "shared"]
     .map((d) => path.join(racine, "src", d))
     .filter((d) => {
       try {
@@ -48,6 +59,12 @@ describe("règles de dépendance de l'architecture", () => {
 
   it("trouve des sources à vérifier", () => {
     expect(sources.length).toBeGreaterThan(0);
+  });
+
+  it("ne conserve aucun dossier applicatif hérité", () => {
+    for (const dossier of ["lib", "models", "components", "hooks"]) {
+      expect(existsSync(path.join(racine, "src", dossier)), `src/${dossier} doit être supprimé`).toBe(false);
+    }
   });
 
   it("n'a aucune violation", () => {

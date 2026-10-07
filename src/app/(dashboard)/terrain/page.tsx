@@ -1,4 +1,4 @@
-import { TerrainViewClient } from "@/components/terrain/TerrainViewClient";
+import { TerrainViewClient } from "@/frontend/terrain";
 import { requirePageAccess } from "@/backend/comptes";
 
 export default async function TerrainPage() {

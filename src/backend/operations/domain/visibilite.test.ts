@@ -1,8 +1,5 @@
 import { describe, it, expect } from "vitest";
 import type { Acteur } from "@/shared/acces/acteur";
-import { USER_ROLES } from "@/shared/acces/roles";
-// Oracle : les fonctions héritées que cette politique remplacera en 4b/4c.
-import { isWithinClientScope, isWithinTeamScope, TEAM_SCOPE_ERROR } from "@/backend/comptes";
 import {
   MESSAGE_CHAUFFEUR_SANS_EQUIPE,
   MESSAGE_HORS_EQUIPE,
@@ -119,26 +116,7 @@ describe("compteClientSansPerimetre", () => {
 
 describe("messages", () => {
   it("sont ceux des routes actuelles, au mot près", () => {
-    expect(MESSAGE_HORS_EQUIPE).toBe(TEAM_SCOPE_ERROR);
+    expect(MESSAGE_HORS_EQUIPE).toBe("Opération non affectée à votre équipe");
     expect(MESSAGE_CHAUFFEUR_SANS_EQUIPE).toBe("Compte chauffeur sans équipe attribuée");
   });
-});
-
-// Filet de parité : à supprimer avec les fonctions héritées quand plus aucune route ne les utilise.
-describe("parité avec les fonctions héritées de comptes/http/acteur.ts", () => {
-  const rattachementsActeur = [undefined, "", "aaa"];
-  const rattachementsDocument = [undefined, null, "", "aaa", "bbb"];
-
-  for (const role of USER_ROLES) {
-    for (const propre of rattachementsActeur) {
-      for (const document of rattachementsDocument) {
-        it(`${role} / acteur=${JSON.stringify(propre)} / document=${JSON.stringify(document)}`, () => {
-          const herite = { role, clientId: propre, equipeId: propre } as never;
-          const a = acteur(role, { clientId: propre, equipeId: propre });
-          expect(dansPerimetreClient(a, document)).toBe(isWithinClientScope(herite, document));
-          expect(dansPerimetreEquipe(a, document)).toBe(isWithinTeamScope(herite, document));
-        });
-      }
-    }
-  }
 });

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { validateNewPassword } from "@/lib/validators/password-form";
+import { validateNewPassword } from "@/shared/comptes/validators/password-form";
 
 describe("validateNewPassword", () => {
   it("accepte un mot de passe de 6 caractères et sa confirmation", () => {

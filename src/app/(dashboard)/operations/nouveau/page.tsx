@@ -1,4 +1,4 @@
-import { OperationFormClient } from "@/components/operations/OperationFormClient";
+import { OperationFormClient } from "@/frontend/operations";
 import { requirePageAccess } from "@/backend/comptes";
 
 export default async function NouvelleOperationPage() {

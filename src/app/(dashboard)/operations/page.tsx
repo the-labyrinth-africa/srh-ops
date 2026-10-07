@@ -1,4 +1,4 @@
-import { OperationsListClient } from "@/components/operations/OperationsListClient";
+import { OperationsListClient } from "@/frontend/operations";
 import { requirePageAccess } from "@/backend/comptes";
 
 export default async function OperationsPage() {

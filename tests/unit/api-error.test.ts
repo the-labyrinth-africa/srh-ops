@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatApiError } from "@/lib/api-error";
+import { formatApiError } from "@/frontend/design-system";
 
 describe("formatApiError", () => {
   it("renvoie la chaîne telle quelle", () => {

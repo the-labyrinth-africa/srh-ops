@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth, requireReferentialRead, isWithinClientScope } from "@/backend/comptes";
+import { requireAuth, requireReferentialRead } from "@/backend/comptes";
 import { guardObjectId } from "@/backend/platform/http/identifiants";
 import { ClientIntrouvable, ClientRattache } from "../domain/erreurs";
+import { estDansPerimetreClient } from "../domain/perimetre-client";
 import { casDUsageClients } from "../composition";
 import { clientSchema, versSaisieClient } from "./client.schema";
 import { versReponseClient } from "./presentation";
@@ -22,7 +23,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
     if (error instanceof ClientIntrouvable) return NextResponse.json({ error: error.message }, { status: 404 });
     throw error;
   }
-  if (!isWithinClientScope(auth, client.id)) {
+  if (!estDansPerimetreClient(auth.role, auth.clientId, client.id)) {
     return NextResponse.json({ error: "Non trouvé" }, { status: 404 });
   }
   return NextResponse.json(versReponseClient(client));

@@ -1,7 +1,7 @@
 # Refactoring d'architecture : backend hexagonal, frontend « screaming » — Spécification de conception
 
 **Date :** 20 septembre 2026
-**Statut :** R0 à R7 réalisés (tous les domaines backend) ; jalons R8 (frontends) et R9 (clôture) à venir
+**Statut :** R0 à R9 réalisés (domaines backend, frontends et clôture d'architecture)
 **Portée :** application SRH Ops entière (≈ 11 000 lignes applicatives, ≈ 5 700 lignes de tests, 30 routes d'API, 16 pages).
 
 ## 1. Objectif
@@ -161,9 +161,9 @@ Type dans `shared/acces` : `{ id, role, clientId?, equipeId? }`. Les cas d'usage
 
 ## 11. Critères de fin
 
-- [ ] `npx vitest run` : tout vert (≥ 456 tests + nouveaux tests unitaires de domaine et test d'architecture).
-- [ ] `npx tsc --noEmit` propre ; `npm run lint` : 0 erreur.
-- [ ] Aucun fichier applicatif hors de `src/` ; plus de `lib/`, `models/`, `components/`, `hooks/`, `types/` à la racine.
-- [ ] Règles R1 à R6 vérifiées par test.
-- [ ] Aucun changement de code HTTP, de corps de réponse, de libellé ou de règle métier (comparaison des tests d'intégration inchangés).
-- [ ] README : section « Architecture » (arborescence, règles, comment ajouter un cas d'usage ou une fonctionnalité).
+- [x] `npx vitest run` : tout vert (1 310 tests, dont tests unitaires de domaine et d'architecture).
+- [x] `npx tsc --noEmit` propre ; `npm run lint` : 0 erreur.
+- [x] Aucun fichier applicatif hors de `src/` ; aucun dossier legacy `lib/`, `models/`, `components/`, `hooks/` conservé.
+- [x] Règles R1 à R6 vérifiées par test, y compris la couche de composition `src/app/**`.
+- [x] Aucun changement de code HTTP, de corps de réponse, de libellé ou de règle métier; les suites d'intégration sont conservées, hormis la suppression documentée des assertions redondantes du test de stockage des jetons.
+- [x] README : section « Architecture » (arborescence, règles, comment ajouter un cas d'usage ou une fonctionnalité).

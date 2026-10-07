@@ -1,4 +1,4 @@
-import { ProfilPageClient } from "@/components/profil/ProfilPageClient";
+import { ProfilPageClient } from "@/frontend/comptes";
 import { requirePageAccess } from "@/backend/comptes";
 
 export default async function ProfilPage() {

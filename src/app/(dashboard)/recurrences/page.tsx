@@ -1,4 +1,4 @@
-import { RecurrencesListClient } from "@/components/recurrences/RecurrencesListClient";
+import { RecurrencesListClient } from "@/frontend/recurrences";
 import { requirePageAccess } from "@/backend/comptes";
 
 export default async function RecurrencesPage() {
