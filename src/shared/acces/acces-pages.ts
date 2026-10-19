@@ -26,6 +26,9 @@ const RULES: AccessRule[] = [
   { matches: (p) => OPERATION_DETAIL.test(p), roles: [...STAFF, "chauffeur"] },
   { matches: under("/operations"), roles: STAFF },
   { matches: under("/recurrences"), roles: STAFF },
+  { matches: under("/tracabilite"), roles: STAFF },
+  { matches: under("/demandes"), roles: WRITERS },
+  { matches: under("/espace-client"), roles: ["client"] },
   { matches: under("/clients"), roles: STAFF },
   { matches: under("/equipes"), roles: STAFF },
   { matches: under("/vehicules"), roles: STAFF },
@@ -50,6 +53,6 @@ export function canAccessPath(role: string | null | undefined, pathname: string)
 
 export function homePathFor(role: string | null | undefined): string {
   if (role === "chauffeur") return "/terrain";
-  if (role === "client") return "/acces-limite";
+  if (role === "client") return "/espace-client";
   return "/";
 }

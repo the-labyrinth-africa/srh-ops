@@ -11,6 +11,9 @@ describe("Status Transition & Logic (lib/status-transitions.ts)", () => {
 
     it("should allow valid forward transitions according to state machine", () => {
       expect(canTransition("Planifiée", "Affectée")).toBe(true);
+      expect(canTransition("Demande", "Planifiée")).toBe(true);
+      expect(canTransition("Demande", "Affectée")).toBe(true);
+      expect(canTransition("Demande", "Annulée")).toBe(true);
       expect(canTransition("Planifiée", "Annulée")).toBe(true);
       expect(canTransition("Affectée", "En route")).toBe(true);
       expect(canTransition("En route", "En cours")).toBe(true);
@@ -30,12 +33,14 @@ describe("Status Transition & Logic (lib/status-transitions.ts)", () => {
       expect(canTransition("Annulée", "Terminée")).toBe(false);
       expect(canTransition("Terminée", "En cours")).toBe(false);
       expect(canTransition("Planifiée", "Terminée")).toBe(false);
+      expect(canTransition("Demande", "Terminée")).toBe(false);
     });
   });
 
   describe("getNextStatuses", () => {
     it("should return the correct list of next allowed statuses", () => {
       expect(getNextStatuses("Planifiée")).toEqual(["Affectée", "Annulée", "Retardée"]);
+      expect(getNextStatuses("Demande")).toEqual(["Planifiée", "Affectée", "Annulée"]);
       expect(getNextStatuses("Terminée")).toEqual(["Rapportée"]);
       expect(getNextStatuses("Rapportée")).toEqual([]);
       expect(getNextStatuses("Annulée")).toEqual([]);
@@ -62,6 +67,11 @@ describe("Status Transition & Logic (lib/status-transitions.ts)", () => {
       expect(computeEffectiveStatus("Terminée", pastDate)).toBe("Terminée");
       expect(computeEffectiveStatus("Rapportée", pastDate)).toBe("Rapportée");
       expect(computeEffectiveStatus("Annulée", pastDate)).toBe("Annulée");
+    });
+
+    it("should keep an overdue customer request in Demande until it is qualified", () => {
+      const pastDate = new Date(Date.now() - 3600 * 1000);
+      expect(computeEffectiveStatus("Demande", pastDate)).toBe("Demande");
     });
   });
 });

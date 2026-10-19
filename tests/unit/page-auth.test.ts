@@ -37,9 +37,9 @@ describe("requirePageAccess", () => {
     ["lecture", "/operations/nouveau", "/"],
     ["chauffeur", "/", "/terrain"],
     ["chauffeur", "/clients", "/terrain"],
-    ["client", "/", "/acces-limite"],
-    ["client", "/operations", "/acces-limite"],
-    ["client", "/terrain", "/acces-limite"],
+    ["client", "/", "/espace-client"],
+    ["client", "/operations", "/espace-client"],
+    ["client", "/terrain", "/espace-client"],
   ])("%s ouvrant %s est redirigé vers %s", async (role, path, home) => {
     session(role);
     await expect(requirePageAccess(path)).rejects.toThrow(`REDIRECT:${home}`);

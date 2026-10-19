@@ -87,6 +87,7 @@ export function OperationsListClient() {
           className="rounded-lg border border-outline-variant bg-surface px-3 py-2 font-body-md text-body-md text-on-surface outline-none"
         >
           <option value="">Tous les statuts</option>
+          <option value="Demande">Demande</option>
           <option value="Planifiée">Planifiée</option>
           <option value="Affectée">Affectée</option>
           <option value="En route">En route</option>

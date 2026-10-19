@@ -1,5 +1,6 @@
 // src/backend/operations/http/presentation.ts
 import type { OperationStatus } from "@/shared/operations/statuts";
+import { versOperationClientJson } from "@/shared/operations/operation-client-view";
 import type { ElementPlanning } from "../application/cas-d-usage";
 import type { EntreeHistorique, Operation, Reference } from "../domain/operation";
 
@@ -8,6 +9,11 @@ function versReferenceJson(reference: Reference<{ id: string }> | undefined) {
   if (reference == null || typeof reference === "string") return reference;
   const { id, ...champs } = reference;
   return { _id: id, ...champs };
+}
+
+/** Représentation minimale d'une opération visible depuis l'espace client. */
+export function versReponseOperationClient(operation: Operation) {
+  return versOperationClientJson(operation);
 }
 
 function versEntreeJson(entree: EntreeHistorique) {
@@ -48,6 +54,7 @@ export function versReponseOperation(operation: Operation) {
 }
 
 const COULEURS: Record<OperationStatus, string> = {
+  Demande: "#B45309",
   Planifiée: "#546E7A",
   Affectée: "#3949AB",
   "En route": "#FB8C00",

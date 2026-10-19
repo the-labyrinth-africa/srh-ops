@@ -1,4 +1,6 @@
 import Link from "next/link";
+import type { TendanceMensuelle } from "@/shared/pilotage/tendance-mensuelle";
+import { ExportOperations } from "../composants/ExportOperations";
 import { StatusBadge } from "@/frontend/design-system";
 import type { OperationStatus } from "@/shared/operations/statuts";
 
@@ -23,12 +25,25 @@ export function TableauDeBordDirection({
   todayOps,
   totalClients,
   totalSites,
+  tendance,
+  dateDebutExport,
+  dateFinExport,
 }: {
   stats: DashboardStats;
   todayOps: TodayOperation[];
   totalClients: number;
   totalSites: number;
+  tendance: TendanceMensuelle[];
+  dateDebutExport: string;
+  dateFinExport: string;
 }) {
+  const maximum = Math.max(1, ...tendance.flatMap((mois) => [
+    mois.prevues,
+    mois.enCours,
+    mois.terminees,
+    mois.retardees,
+  ]));
+
   return (
     <div className="relative w-full overflow-hidden px-margin-mobile py-6 lg:px-margin-desktop lg:py-8">
       <div className="absolute right-0 top-0 -z-10 h-96 w-96 translate-x-1/3 -translate-y-1/3 rounded-full bg-primary-fixed/30 opacity-50 blur-3xl mix-blend-multiply" />
@@ -100,6 +115,80 @@ export function TableauDeBordDirection({
         </div>
       </div>
 
+      <section aria-labelledby="tendance-title" className="mb-gutter-md rounded-2xl bg-surface-container-lowest p-6 shadow-sm">
+        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 id="tendance-title" className="font-headline-sm text-headline-sm text-on-surface">
+              Tendance des opérations
+            </h2>
+            <p className="mt-1 font-body-md text-body-md text-on-surface-variant">
+              Répartition mensuelle par statut effectif sur les six derniers mois.
+            </p>
+          </div>
+          <ExportOperations dateDebutInitiale={dateDebutExport} dateFinInitiale={dateFinExport} />
+        </div>
+        <div
+          role="img"
+          aria-label={tendance
+            .map((mois) => `${labelMois(mois.mois)} : ${mois.prevues} prévues, ${mois.enCours} en cours, ${mois.terminees} terminées, ${mois.retardees} retardées`)
+            .join(". ")}
+          className="grid grid-cols-3 gap-4 sm:grid-cols-6"
+        >
+          {tendance.map((mois) => (
+            <div key={mois.mois} className="flex min-w-0 flex-col items-center gap-2">
+              <div className="flex h-32 w-full items-end justify-center gap-1 border-b border-outline-variant px-1" aria-hidden="true">
+                <BarreTendance value={mois.prevues} maximum={maximum} color="bg-status-planned" />
+                <BarreTendance value={mois.enCours} maximum={maximum} color="bg-status-in-progress" />
+                <BarreTendance value={mois.terminees} maximum={maximum} color="bg-status-completed" />
+                <BarreTendance value={mois.retardees} maximum={maximum} color="bg-status-delayed" />
+              </div>
+              <span className="font-label-sm text-label-sm text-on-surface-variant">{labelMois(mois.mois)}</span>
+              <span className="font-label-sm text-label-sm font-semibold text-on-surface">
+                {mois.prevues + mois.enCours + mois.terminees + mois.retardees} opérations
+              </span>
+            </div>
+          ))}
+        </div>
+        <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2 font-label-sm text-label-sm text-on-surface-variant" aria-label="Légende du graphique">
+          {[
+            ["bg-status-planned", "Prévues"],
+            ["bg-status-in-progress", "En cours"],
+            ["bg-status-completed", "Terminées"],
+            ["bg-status-delayed", "Retardées"],
+          ].map(([color, label]) => (
+            <li key={label} className="flex items-center gap-2">
+              <span aria-hidden="true" className={`h-3 w-3 rounded-sm ${color}`} />
+              {label}
+            </li>
+          ))}
+        </ul>
+        <div className="mt-5 overflow-x-auto">
+          <table className="w-full table-fixed border-collapse text-left font-label-sm text-label-sm">
+            <caption className="sr-only">Valeurs mensuelles exactes du graphique par statut effectif</caption>
+            <thead>
+              <tr className="border-b border-outline-variant text-on-surface-variant">
+                <th scope="col" className="w-1/5 px-1 py-2">Mois</th>
+                <th scope="col" className="px-1 py-2">Prévues</th>
+                <th scope="col" className="px-1 py-2">En cours</th>
+                <th scope="col" className="px-1 py-2">Terminées</th>
+                <th scope="col" className="px-1 py-2">Retardées</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tendance.map((mois) => (
+                <tr key={mois.mois} className="border-b border-outline-variant/60 text-on-surface">
+                  <th scope="row" className="px-1 py-2 font-semibold">{labelMois(mois.mois)}</th>
+                  <td className="px-1 py-2">{mois.prevues}</td>
+                  <td className="px-1 py-2">{mois.enCours}</td>
+                  <td className="px-1 py-2">{mois.terminees}</td>
+                  <td className="px-1 py-2">{mois.retardees}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       <div className="rounded-2xl bg-surface-container-lowest p-6 shadow-sm">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="flex items-center gap-2 font-headline-sm text-headline-sm text-on-surface">
@@ -151,6 +240,20 @@ export function TableauDeBordDirection({
       </div>
     </div>
   );
+}
+
+function BarreTendance({ value, maximum, color }: { value: number; maximum: number; color: string }) {
+  return (
+    <span
+      className={`w-full max-w-4 rounded-t-sm ${color}`}
+      style={{ height: `${Math.max(value === 0 ? 0 : 4, (value / maximum) * 112)}px` }}
+    />
+  );
+}
+
+function labelMois(mois: string): string {
+  const [annee, numero] = mois.split("-").map(Number);
+  return new Intl.DateTimeFormat("fr-FR", { month: "short" }).format(new Date(annee, numero - 1, 1));
 }
 
 const KPI_CARDS = [

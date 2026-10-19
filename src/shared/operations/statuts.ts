@@ -1,4 +1,5 @@
 export type OperationStatus =
+  | "Demande"
   | "Planifiée"
   | "Affectée"
   | "En route"
@@ -9,6 +10,7 @@ export type OperationStatus =
   | "Annulée";
 
 export const OPERATION_STATUSES = [
+  "Demande",
   "Planifiée",
   "Affectée",
   "En route",

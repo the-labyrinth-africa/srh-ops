@@ -1,6 +1,7 @@
 import { SystemClock } from "@/backend/platform/horloge/horloge";
 import { creerCasDUsagePilotage } from "./application/cas-d-usage";
 import { StatistiquesQueryMongoose } from "./infrastructure/mongoose/statistiques.query.mongoose";
+import { MAX_OPERATIONS_EXPORT, OperationsExportQueryMongoose } from "./infrastructure/mongoose/operations-export.query.mongoose";
 
 export const casDUsagePilotage = creerCasDUsagePilotage({
   statistiques: new StatistiquesQueryMongoose(),
@@ -11,3 +12,9 @@ export const casDUsagePilotage = creerCasDUsagePilotage({
 export function tableauDeBordDirection() {
   return casDUsagePilotage.tableauDeBord();
 }
+
+export function exporterOperations(debut: Date, fin: Date) {
+  return new OperationsExportQueryMongoose().exporter(debut, fin);
+}
+
+export { MAX_OPERATIONS_EXPORT };

@@ -17,6 +17,12 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: "/", label: "Tableau de bord", icon: "dashboard", match: (p) => p === "/" },
       {
+        href: "/espace-client",
+        label: "Espace client",
+        icon: "business_center",
+        match: (p) => p.startsWith("/espace-client"),
+      },
+      {
         href: "/terrain",
         label: "Console Web Terrain",
         icon: "touch_app",
@@ -45,6 +51,18 @@ const NAV_SECTIONS: NavSection[] = [
         label: "Collectes Récurrentes",
         icon: "update",
         match: (p) => p.startsWith("/recurrences"),
+      },
+      {
+        href: "/tracabilite",
+        label: "Traçabilité des déchets",
+        icon: "recycling",
+        match: (p) => p.startsWith("/tracabilite"),
+      },
+      {
+        href: "/demandes",
+        label: "Demandes clients",
+        icon: "inbox",
+        match: (p) => p.startsWith("/demandes"),
       },
       {
         href: "/import",

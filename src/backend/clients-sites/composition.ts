@@ -51,3 +51,14 @@ export async function trouverSiteDuClientParNom(clientId: string, nom: string): 
 export async function creerSite(saisie: SiteSaisie): Promise<string> {
   return (await casDUsageSites.creer(saisie)).id;
 }
+
+/** Vrai si le site existe et est rattaché au client indiqué. */
+export async function siteAppartientAuClient(siteId: string, clientId: string): Promise<boolean> {
+  await connectDB();
+  return Boolean(await SiteModel.exists({ _id: siteId, clientId }));
+}
+
+/** Sites visibles pour le portail du client identifié. */
+export function listerSitesDuClient(clientId: string) {
+  return casDUsageSites.lister(clientId);
+}

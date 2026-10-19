@@ -50,7 +50,12 @@ describe("cas d'usage du pilotage", () => {
       todayOps: duJour,
       totalClients: 4,
       totalSites: 9,
+      tendance: expect.arrayContaining([
+        { mois: "2030-11", prevues: 1, enCours: 0, terminees: 1, retardees: 1 },
+      ]),
     });
     expect(demandes).toEqual([{ ...journee, avecEquipe: false }]);
+    demandes.length = 0;
+    expect((await casDUsage.tableauDeBord()).tendance).toHaveLength(6);
   });
 });

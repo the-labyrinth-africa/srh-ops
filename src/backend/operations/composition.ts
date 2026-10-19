@@ -1,12 +1,20 @@
 import { SystemClock } from "@/backend/platform/horloge/horloge";
+import type { Acteur } from "@/shared/acces/acteur";
 import { creerCasDUsageOperations } from "./application/cas-d-usage";
 import { creerCasDUsageRapport } from "./application/cas-d-usage-rapport";
 import { creerCasDUsageTerrain } from "./application/cas-d-usage-terrain";
 import { creerVerificationConflits } from "./application/verifier-conflits";
-import type { OccurrencePlanifiee, OperationRealisee } from "./domain/operation";
+import type {
+  FiltreOperations,
+  OccurrencePlanifiee,
+  OperationRealisee,
+  OperationSaisie,
+  Pagination,
+} from "./domain/operation";
 import { AffectationsMongoose } from "./infrastructure/mongoose/affectations.mongoose";
 import { OperationRepositoryMongoose } from "./infrastructure/mongoose/operation.repository.mongoose";
 import { GenerateurRapportJsPdf } from "./infrastructure/pdf/generateur-rapport.jspdf";
+import { ChauffeurSansEquipe, CompteClientSansPerimetre, OperationIntrouvable } from "./domain/erreurs";
 
 const operations = new OperationRepositoryMongoose();
 const horloge = new SystemClock();
@@ -20,6 +28,28 @@ export const casDUsageOperations = creerCasDUsageOperations({
   verifierConflits: checkAssignmentConflicts,
   horloge,
 });
+
+export function listerOperationsPourActeur(
+  acteur: Acteur,
+  filtre: FiltreOperations,
+  pagination: Pagination
+) {
+  return casDUsageOperations.lister(acteur, filtre, pagination);
+}
+
+export async function verifierAccesOperation(
+  acteur: Acteur,
+  operationId: string
+): Promise<"ok" | "not-found" | "forbidden"> {
+  try {
+    await casDUsageOperations.obtenir(acteur, operationId);
+    return "ok";
+  } catch (erreur) {
+    if (erreur instanceof OperationIntrouvable) return "not-found";
+    if (erreur instanceof ChauffeurSansEquipe || erreur instanceof CompteClientSansPerimetre) return "forbidden";
+    throw erreur;
+  }
+}
 
 export const casDUsageTerrain = creerCasDUsageTerrain({
   operations,
@@ -69,6 +99,14 @@ export function existeOperationSurCreneau(clientId: string, siteId: string, date
 /** Crée une opération planifiée par un autre domaine ; `parUtilisateur` signe la première entrée d'historique. */
 export async function creerOperationPlanifiee(occurrence: OccurrencePlanifiee, parUtilisateur: string): Promise<void> {
   await casDUsageOperations.creerPlanifiee(parUtilisateur, occurrence);
+}
+
+export function creerOperationDemande(
+  saisie: OperationSaisie,
+  parUtilisateur: string,
+  sourceDemandeId?: string
+) {
+  return casDUsageOperations.soumettreDemande(saisie, parUtilisateur, sourceDemandeId);
 }
 
 /** Une opération existe déjà pour ce site, cette date exacte et cette quantité collectée. */

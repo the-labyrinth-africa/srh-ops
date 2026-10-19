@@ -29,6 +29,8 @@ export interface OperationRepository {
   trouverDetailParId(id: string): Promise<Operation | null>;
   /** Le `statut` de la saisie est remplacé par `initial.statut` ; niveau « résumé ». */
   creer(saisie: OperationSaisie, initial: StatutInitial): Promise<Operation>;
+  /** Création idempotente d'une opération issue d'une demande client ; clé absente pour les demandes authentifiées. */
+  creerDemande(saisie: OperationSaisie, initial: StatutInitial, sourceDemandeId?: string): Promise<Operation>;
   /** Les clés absentes de la saisie ne sont pas modifiées ; null si l'opération n'existe pas ; niveau « résumé ». */
   modifier(id: string, saisie: OperationSaisie): Promise<Operation | null>;
   /** false si l'opération n'existait pas. */

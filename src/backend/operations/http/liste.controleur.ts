@@ -7,6 +7,8 @@ import { versActeur } from "./acteur";
 import { versReponseErreur } from "./erreurs-http";
 import { operationSchema, versSaisieOperation } from "./operation.schema";
 import { versReponseOperation } from "./presentation";
+import { versReponseOperationClient } from "./presentation";
+import { isClientUser } from "@/shared/acces/permissions";
 
 export async function GET(req: NextRequest) {
   const auth = await requireAuth();
@@ -38,7 +40,10 @@ export async function GET(req: NextRequest) {
 
   try {
     const { items, total } = await casDUsageOperations.lister(versActeur(auth), filtre, { skip, limit });
-    return NextResponse.json({ items: items.map(versReponseOperation), total, page, limit });
+    const serializedItems = isClientUser(auth.role)
+      ? items.map(versReponseOperationClient)
+      : items.map(versReponseOperation);
+    return NextResponse.json({ items: serializedItems, total, page, limit });
   } catch (erreur) {
     return versReponseErreur(erreur);
   }

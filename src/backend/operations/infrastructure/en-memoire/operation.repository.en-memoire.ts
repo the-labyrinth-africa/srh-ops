@@ -15,6 +15,7 @@ import type { OperationRepository } from "../../domain/ports";
 /** Dépôt en mémoire : sert aux tests des cas d'usage. Les relations y restent des identifiants bruts. */
 export class OperationRepositoryEnMemoire implements OperationRepository {
   private readonly donnees = new Map<string, Operation>();
+  private readonly sourcesDemande = new Map<string, string>();
   private compteur = 0;
   /** Filtres reçus par `lister` et `listerPourPlanning`, dans l'ordre des appels. */
   readonly filtresRecus: FiltreOperations[] = [];
@@ -69,6 +70,20 @@ export class OperationRepositoryEnMemoire implements OperationRepository {
     return operation;
   }
 
+  async creerDemande(
+    saisie: OperationSaisie,
+    initial: StatutInitial,
+    sourceDemandeId?: string
+  ): Promise<Operation> {
+    if (sourceDemandeId) {
+      const operationExistante = this.donnees.get(this.sourcesDemande.get(sourceDemandeId) ?? "");
+      if (operationExistante) return operationExistante;
+    }
+    const operation = await this.creer(saisie, initial);
+    if (sourceDemandeId) this.sourcesDemande.set(sourceDemandeId, operation.id);
+    return operation;
+  }
+
   async modifier(id: string, saisie: OperationSaisie): Promise<Operation | null> {
     const existante = this.donnees.get(id);
     if (!existante) return null;
@@ -78,7 +93,13 @@ export class OperationRepositoryEnMemoire implements OperationRepository {
   }
 
   async supprimer(id: string): Promise<boolean> {
-    return this.donnees.delete(id);
+    const supprimee = this.donnees.delete(id);
+    if (supprimee) {
+      for (const [source, operationId] of this.sourcesDemande) {
+        if (operationId === id) this.sourcesDemande.delete(source);
+      }
+    }
+    return supprimee;
   }
 
   async existeSurCreneau(clientId: string, siteId: string, dateHeurePrevue: Date): Promise<boolean> {

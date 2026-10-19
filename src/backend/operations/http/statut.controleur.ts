@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireTerrainWrite } from "@/backend/comptes";
+import { notifierChangementStatut, traiterFileNotifications } from "@/backend/notifications";
+import { runAfterResponse } from "@/backend/platform/execution-differee/execution-differee";
 import { guardObjectId } from "@/backend/platform/http/identifiants";
 import { casDUsageTerrain } from "../composition";
 import { versActeur } from "./acteur";
@@ -32,6 +34,14 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
   try {
     const operation = await casDUsageTerrain.changerStatut(acteur, id, versDemandeStatut(parsed.data));
+    const derniereEntree = operation.historiqueStatuts.at(-1);
+    const ancienStatut = derniereEntree?.ancienStatut;
+    if (derniereEntree && ancienStatut) {
+      await runAfterResponse(async () => {
+        await notifierChangementStatut(id, ancienStatut, derniereEntree.statut, derniereEntree.date);
+        await traiterFileNotifications();
+      });
+    }
     return NextResponse.json(versReponseOperation(operation));
   } catch (erreur) {
     return versReponseErreur(erreur);

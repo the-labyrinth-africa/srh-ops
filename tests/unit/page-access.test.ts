@@ -14,6 +14,11 @@ const EXPECTED: Array<[string, string[]]> = [
   ["/operations/nouveau", WRITERS],
   [`/operations/${ID}`, [...STAFF, "chauffeur"]],
   ["/recurrences", STAFF],
+  ["/tracabilite", STAFF],
+  ["/demandes", WRITERS],
+  ["/espace-client", ["client"]],
+  ["/espace-client/operations", ["client"]],
+  ["/espace-client/nouvelle-demande", ["client"]],
   ["/clients", STAFF],
   ["/equipes", STAFF],
   ["/vehicules", STAFF],
@@ -65,7 +70,7 @@ describe("homePathFor", () => {
     expect(homePathFor("dispatcher")).toBe("/");
     expect(homePathFor("lecture")).toBe("/");
     expect(homePathFor("chauffeur")).toBe("/terrain");
-    expect(homePathFor("client")).toBe("/acces-limite");
+    expect(homePathFor("client")).toBe("/espace-client");
     expect(homePathFor(undefined)).toBe("/");
   });
 

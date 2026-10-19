@@ -3,10 +3,12 @@ import {
   bornesDuJour,
   compterParStatut,
   operationsEnRetard,
+  tendanceMensuelle,
   type CompteursOperations,
   type OperationDuJour,
   type OperationSuivie,
 } from "../domain/statistiques";
+import type { TendanceMensuelle } from "@/shared/pilotage/tendance-mensuelle";
 
 export interface DependancesPilotage {
   statistiques: StatistiquesQuery;
@@ -24,6 +26,7 @@ export interface TableauDeBord {
   todayOps: OperationDuJour[];
   totalClients: number;
   totalSites: number;
+  tendance: TendanceMensuelle[];
 }
 
 export function creerCasDUsagePilotage({ statistiques, horloge }: DependancesPilotage) {
@@ -57,7 +60,12 @@ export function creerCasDUsagePilotage({ statistiques, horloge }: DependancesPil
         statistiques.compterClientsEtSites(),
       ]);
 
-      return { stats: { prevues, enCours, terminees, retardees }, todayOps, ...totaux };
+      return {
+        stats: { prevues, enCours, terminees, retardees },
+        todayOps,
+        ...totaux,
+        tendance: tendanceMensuelle(operations, maintenant),
+      };
     },
   };
 }

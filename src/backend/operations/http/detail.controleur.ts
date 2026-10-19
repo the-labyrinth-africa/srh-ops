@@ -7,6 +7,8 @@ import { versActeur } from "./acteur";
 import { versReponseErreur } from "./erreurs-http";
 import { operationSchema, versSaisieOperation } from "./operation.schema";
 import { versReponseOperation } from "./presentation";
+import { versReponseOperationClient } from "./presentation";
+import { isClientUser } from "@/shared/acces/permissions";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -27,7 +29,10 @@ export async function GET(_req: NextRequest, { params }: Params) {
   if (!guard.valid) return guard.error;
 
   try {
-    return NextResponse.json(versReponseOperation(await casDUsageOperations.obtenir(acteur, id)));
+    const operation = await casDUsageOperations.obtenir(acteur, id);
+    return NextResponse.json(
+      isClientUser(auth.role) ? versReponseOperationClient(operation) : versReponseOperation(operation)
+    );
   } catch (erreur) {
     return versReponseErreur(erreur);
   }

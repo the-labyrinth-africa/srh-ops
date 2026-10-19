@@ -4,6 +4,13 @@ export const STATUS_CONFIG: Record<
   OperationStatus,
   { color: string; bg: string; border: string; icon: string; label: string }
 > = {
+  Demande: {
+    color: "text-amber-800",
+    bg: "bg-amber-500/10",
+    border: "border-amber-600/30",
+    icon: "inbox",
+    label: "Demande",
+  },
   Planifiée: {
     color: "text-status-planned",
     bg: "bg-status-planned/10",

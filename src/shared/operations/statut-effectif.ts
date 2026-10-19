@@ -9,6 +9,7 @@ export function computeEffectiveStatus(
   dateHeurePrevue: Date,
   maintenant: Date = new Date()
 ): OperationStatus {
+  if (statut === "Demande") return statut;
   if (TERMINAL_STATUSES.includes(statut)) return statut;
   if (dateHeurePrevue < maintenant && statut !== "Retardée") {
     return "Retardée";

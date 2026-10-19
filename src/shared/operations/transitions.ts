@@ -1,6 +1,7 @@
 import type { OperationStatus } from "@/shared/operations/statuts";
 
 const ALLOWED_TRANSITIONS: Record<OperationStatus, OperationStatus[]> = {
+  Demande: ["Planifiée", "Affectée", "Annulée"],
   Planifiée: ["Affectée", "Annulée", "Retardée"],
   Affectée: ["En route", "Annulée", "Retardée"],
   "En route": ["En cours", "Retardée", "Annulée"],

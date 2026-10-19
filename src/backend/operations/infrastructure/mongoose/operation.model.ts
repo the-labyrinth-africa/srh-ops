@@ -35,6 +35,7 @@ export interface IOperation {
   signatureClient?: string;
   photos: IOperationPhoto[];
   rapportPdf?: string;
+  sourceDemandeId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -73,6 +74,7 @@ const OperationSchema = new Schema<IOperation>(
       type: String,
       enum: [
         "Planifiée",
+        "Demande",
         "Affectée",
         "En route",
         "En cours",
@@ -95,6 +97,7 @@ const OperationSchema = new Schema<IOperation>(
     signatureClient: { type: String, default: "" },
     photos: { type: [PhotoSchema], default: [] },
     rapportPdf: { type: String, default: "" },
+    sourceDemandeId: { type: String },
   },
   { timestamps: true }
 );
@@ -104,6 +107,7 @@ OperationSchema.index({ statut: 1 });
 OperationSchema.index({ clientId: 1 });
 OperationSchema.index({ equipeId: 1 });
 OperationSchema.index({ vehiculeId: 1 });
+OperationSchema.index({ sourceDemandeId: 1 }, { unique: true, sparse: true });
 
 export const Operation =
   models.Operation || model<IOperation>("Operation", OperationSchema);

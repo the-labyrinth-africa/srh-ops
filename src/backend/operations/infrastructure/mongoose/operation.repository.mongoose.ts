@@ -41,6 +41,7 @@ interface DocumentOperation {
   signatureClient?: string;
   photos?: { url: string; nom?: string; uploadedAt: Date }[];
   rapportPdf?: string;
+  sourceDemandeId?: string;
   createdAt?: Date;
   updatedAt?: Date;
   __v?: number;
@@ -195,6 +196,35 @@ export class OperationRepositoryMongoose implements OperationRepository {
     });
     const doc = (await OperationModel.findById(cree._id).populate(RESUME).lean()) as unknown as DocumentOperation;
     return versEntite(doc);
+  }
+
+  async creerDemande(
+    saisie: OperationSaisie,
+    initial: StatutInitial,
+    sourceDemandeId?: string
+  ): Promise<Operation> {
+    if (!sourceDemandeId) return this.creer(saisie, initial);
+    await connectDB();
+    await OperationModel.init();
+    const doc = await OperationModel.findOneAndUpdate(
+      { sourceDemandeId },
+      {
+        $setOnInsert: {
+          ...saisie,
+          sourceDemandeId,
+          statut: initial.statut,
+          historiqueStatuts: [
+            {
+              statut: initial.statut,
+              date: initial.date,
+              parUtilisateur: initial.parUtilisateur,
+            },
+          ],
+        },
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true, runValidators: true }
+    ).lean();
+    return versEntite(doc as unknown as DocumentOperation);
   }
 
   async modifier(id: string, saisie: OperationSaisie): Promise<Operation | null> {

@@ -6,7 +6,7 @@ import { verifierImports, type Contexte } from "./verificateur";
 
 // À compléter à chaque migration de domaine (recette, étape 8).
 const contexte: Contexte = {
-  domainesBackendMigres: ["equipes", "vehicules", "equipements", "clients-sites", "comptes", "operations", "recurrences", "import-donnees", "pilotage"],
+  domainesBackendMigres: ["equipes", "vehicules", "equipements", "clients-sites", "comptes", "operations", "recurrences", "import-donnees", "pilotage", "demandes-clients", "espace-client", "notifications"],
   fonctionnalitesFrontendMigrees: [
     "equipes",
     "vehicules",
@@ -20,6 +20,7 @@ const contexte: Contexte = {
     "recurrences",
     "import-donnees",
     "pilotage",
+    "espace-client",
   ],
 };
 

@@ -84,6 +84,18 @@ export function creerCasDUsageOperations({ operations, verifierConflits, horloge
       return creerAvecStatutInitial(saisie, acteur.id);
     },
 
+    async soumettreDemande(
+      saisie: OperationSaisie,
+      parUtilisateur: string,
+      sourceDemandeId?: string
+    ): Promise<Operation> {
+      return operations.creerDemande(saisie, {
+        statut: "Demande",
+        date: horloge.maintenant(),
+        parUtilisateur,
+      }, sourceDemandeId);
+    },
+
     /** Une opération existe déjà pour ce client, ce site et cette date exacte. */
     existeSurCreneau(clientId: string, siteId: string, dateHeurePrevue: Date): Promise<boolean> {
       return operations.existeSurCreneau(clientId, siteId, dateHeurePrevue);

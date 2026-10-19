@@ -33,7 +33,7 @@ Ce module constitue la **Phase 1** du projet global et sert de fondation aux mod
 10. Authentification et gestion des rôles (Admin / Dispatcher / Lecture seule).
 
 ### 2.2 Hors périmètre (modules suivants)
-- PWA terrain : application installable et utilisable hors-ligne (Phase 2).
+- Console terrain installable : accès mobile nécessitant une connexion Internet (Phase 2).
 - Rapport digital d'intervention détaillé avec photos/signature (Phase 2).
 - Traçabilité des déchets (Phase 3).
 - Espace client / demandes en ligne (Phase 4).
@@ -340,8 +340,18 @@ srh-planification/
 ## 10. ÉVOLUTIVITÉ VERS LES MODULES SUIVANTS
 
 Le modèle de données et l'architecture sont conçus pour permettre l'ajout progressif de :
-- **Phase 2** : champ `rapportId`, `photos`, `signatureClient` sur `Operation` + console terrain en PWA (installable, hors-ligne).
-- **Phase 3** : collection `traçabilite` liée à `Operation` (identifiant de suivi, volumes, traitement).
-- **Phase 4** : espace client (lecture seule sur `Operation` filtrée par `clientId`) + formulaire de demande en ligne créant une `Operation` en statut `Demande`.
-- **Phase 5** : enrichissement du tableau de bord (graphiques, exports).
+- **Phase 2** : champ `rapportId`, `photos`, `signatureClient` sur `Operation` + console terrain installable nécessitant Internet.
+- **Phase 3** : traçabilité livrée ; collection `Traceabilite` liée à `Operation`, une ligne par flux (identifiant de suivi unique, type de déchet, volume/unité et traitement), saisie terrain/dispatch, consultation en lecture seule et accès chauffeur limité à son équipe.
+- **Phase 4 — livrée** : portail authentifié en lecture limitée au `clientId`, demandes liées aux sites du client, formulaire public conservé dans une file séparée puis qualifié par Admin/Dispatcher avant conversion idempotente en opération `Demande`. Les demandes publiques ne créent pas de client/site.
+- **Phase 5 — livrée** : notifications SMTP persistées dans une file idempotente/réessayable (nouvelle demande, demande qualifiée, évolution de statut, rappels à 24 h et alertes quotidiennes de retard), ordonnanceur Vercel protégé par `CRON_SECRET`, tendance mensuelle du tableau de bord et export CSV authentifié, borné et neutralisé contre l'injection de formules.
 - **Phase 6** : intégration d'un moteur d'optimisation de tournées basé sur `localisation` des sites.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

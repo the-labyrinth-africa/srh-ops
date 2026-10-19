@@ -6,8 +6,9 @@ import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 import { StatusBadge, SignaturePad, PhotoUpload, formatApiError } from "@/frontend/design-system";
 import { getNextStatuses } from "@/shared/operations/transitions";
-import { canWrite } from "@/shared/acces/permissions";
+import { canWrite, isChauffeur } from "@/shared/acces/permissions";
 import { homePathFor } from "@/shared/acces/acces-pages";
+import { TracabiliteOperation } from "@/frontend/tracabilite";
 import type { OperationStatus } from "@/shared/operations/statuts";
 import type { QuantiteUnite } from "@/shared/operations/quantites";
 
@@ -43,6 +44,7 @@ export function OperationDetailClient({ id }: { id: string }) {
   const { data: session } = useSession();
   const userRole = session?.user?.role;
   const canEdit = canWrite(userRole);
+  const canEditTraceabilite = canEdit || isChauffeur(userRole);
 
   const [operation, setOperation] = useState<OperationDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -305,6 +307,8 @@ export function OperationDetailClient({ id }: { id: string }) {
               </div>
             )}
           </div>
+
+          <TracabiliteOperation operationId={id} canEdit={canEditTraceabilite} />
 
           {/* Saisie de terrain (Statut, Quantités, Signature) */}
           <div className="rounded-xl border border-surface-container-high bg-surface-container-lowest p-gutter-md space-y-6">

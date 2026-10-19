@@ -34,15 +34,17 @@ Ajouter un cas d'usage : déclarer le port dans `domain/ports.ts` ; écrire le c
 
 Les tests d'intégration sont regroupés par domaine sous `tests/integration/<domaine>/`. Les tests unitaires de règles et d'adaptateurs restent à côté du code testé; les tests de règles d'architecture sont dans `tests/architecture/`.
 
-État de la migration : les domaines `equipes`, `vehicules`, `equipements` et `clients-sites` (backend `src/backend/<domaine>`, frontend `src/frontend/<domaine>`) sont migrés ; `equipes` sert de modèle. `clients-sites` regroupe deux entités liées (`Client`, `Site`) dans un seul dossier de domaine. Le backend de `comptes` (`src/backend/comptes`) est migré (R3a : socle `platform` ; R3b : domaine, ports, adaptateurs et cas d'usage — utilisateurs, mot de passe oublié/réinitialisation/changement, e-mail de test ; R3c : identité NextAuth, entité `Acteur`, gardes de pages et de routes) ; son frontend est désormais dans `src/frontend/comptes/` (R8). Le backend d'`operations` (`src/backend/operations`) est **migré** (jalon R4) : R4a — règles pures (statut effectif, conflits, visibilité ; transitions dans `src/shared/operations/transitions.ts`) ; R4b — modèle `src/backend/operations/infrastructure/mongoose/operation.model.ts`, schémas Zod `src/backend/operations/http/operation.schema.ts`, entité, dépôt, cas d'usage et contrôleurs de la liste, de la création, du détail, de la modification, de la suppression et du planning ; R4c — changement de statut avec historique et données de terrain, ajout et retrait de photos ; R4d — rapport PDF (port `GenerateurRapportPdf`, adaptateur jsPDF `src/backend/operations/infrastructure/pdf/generateur-rapport.jspdf.ts`). Toutes les routes `src/app/api/operations/**` sont des ré-exports ; les frontends opérations et terrain sont dans `src/frontend/{operations,terrain}/` (R8). Le backend de `recurrences` (`src/backend/recurrences`) est **migré** (jalon R5) : calcul des occurrences en règle pure (`domain/occurrences.ts`), CRUD, génération des opérations par l'API publique d'`operations` (`existeOperationSurCreneau`, `creerOperationPlanifiee`, `checkAssignmentConflicts`) ; les routes `src/app/api/recurrences/**` sont des ré-exports et le frontend est dans `src/frontend/recurrences/` (R8) ; le dossier `src/models` n'existe plus. Le backend d'`import-donnees` (`src/backend/import-donnees`) est **migré** (jalon R6) : interprétation des dates et des quantités et détection des en-têtes en règles pures (`domain/lecture.ts`), lecteur ExcelJS dans `infrastructure/excel/`, cas d'usage `analyser` et `importer`, sites et opérations créés par l'API publique de `clients-sites` et d'`operations` ; la route `src/app/api/import` est un ré-export et le frontend est dans `src/frontend/import-donnees/` (R8). Le backend de `pilotage` (`src/backend/pilotage`) est **migré** (jalon R7) : compteurs par statut effectif, opérations en retard et bornes du jour en règles pures, modèle de lecture `StatistiquesQuery` (requêtes directes par nom de modèle, sans import des modèles des autres domaines) ; la route `src/app/api/dashboard/stats` est un ré-export. Le rendu du tableau de bord est dans `src/frontend/pilotage/` et sa page Next en fournit les données après contrôle d'accès (R8). **Les frontends restants sont migrés (R8)** : `navigation`, `design-system`, `operations`, `terrain`, `comptes`, `recurrences`, `import-donnees` et `pilotage`. Le test d'architecture inclut ces fonctionnalités. Les répertoires hérités `src/components/`, `src/lib/` et `src/hooks/` sont vides ; leur suppression et les dernières règles d'architecture restent au jalon R9.
+État de la migration : les domaines `equipes`, `vehicules`, `equipements` et `clients-sites` (backend `src/backend/<domaine>`, frontend `src/frontend/<domaine>`) sont migrés ; `equipes` sert de modèle. `clients-sites` regroupe deux entités liées (`Client`, `Site`) dans un seul dossier de domaine. Le backend de `comptes` (`src/backend/comptes`) est migré (R3a : socle `platform` ; R3b : domaine, ports, adaptateurs et cas d'usage — utilisateurs, mot de passe oublié/réinitialisation/changement, e-mail de test ; R3c : identité NextAuth, entité `Acteur`, gardes de pages et de routes) ; son frontend est désormais dans `src/frontend/comptes/` (R8). Le backend d'`operations` (`src/backend/operations`) est **migré** (jalon R4) : R4a — règles pures (statut effectif, conflits, visibilité ; transitions dans `src/shared/operations/transitions.ts`) ; R4b — modèle `src/backend/operations/infrastructure/mongoose/operation.model.ts`, schémas Zod `src/backend/operations/http/operation.schema.ts`, entité, dépôt, cas d'usage et contrôleurs de la liste, de la création, du détail, de la modification, de la suppression et du planning ; R4c — changement de statut avec historique et données de terrain, ajout et retrait de photos ; R4d — rapport PDF (port `GenerateurRapportPdf`, adaptateur jsPDF `src/backend/operations/infrastructure/pdf/generateur-rapport.jspdf.ts`). Toutes les routes `src/app/api/operations/**` sont des ré-exports ; les frontends opérations et terrain sont dans `src/frontend/{operations,terrain}/` (R8). Le backend de `recurrences` (`src/backend/recurrences`) est **migré** (jalon R5) : calcul des occurrences en règle pure (`domain/occurrences.ts`), CRUD, génération des opérations par l'API publique d'`operations` (`existeOperationSurCreneau`, `creerOperationPlanifiee`, `checkAssignmentConflicts`) ; les routes `src/app/api/recurrences/**` sont des ré-exports et le frontend est dans `src/frontend/recurrences/` (R8) ; le dossier `src/models` n'existe plus. Le backend d'`import-donnees` (`src/backend/import-donnees`) est **migré** (jalon R6) : interprétation des dates et des quantités et détection des en-têtes en règles pures (`domain/lecture.ts`), lecteur ExcelJS dans `infrastructure/excel/`, cas d'usage `analyser` et `importer`, sites et opérations créés par l'API publique de `clients-sites` et d'`operations` ; la route `src/app/api/import` est un ré-export et le frontend est dans `src/frontend/import-donnees/` (R8). Le backend de `pilotage` (`src/backend/pilotage`) est **migré** (jalon R7) : compteurs par statut effectif, opérations en retard et bornes du jour en règles pures, modèle de lecture `StatistiquesQuery` (requêtes directes par nom de modèle, sans import des modèles des autres domaines) ; la route `src/app/api/dashboard/stats` est un ré-export. Le rendu du tableau de bord est dans `src/frontend/pilotage/` et sa page Next en fournit les données après contrôle d'accès (R8). **Les frontends restants sont migrés (R8)** : `navigation`, `design-system`, `operations`, `terrain`, `comptes`, `recurrences`, `import-donnees`, `pilotage` et `tracabilite`. Le test d'architecture inclut ces fonctionnalités. Les répertoires hérités `src/components/`, `src/lib/` et `src/hooks/` sont vides ; leur suppression et les dernières règles d'architecture restent au jalon R9.
 
 Clôture R9 : tous les domaines backend et toutes les fonctionnalités frontend sont migrés. Les tests d'intégration sont classés par domaine, les règles R1 à R6 sont contrôlées (dont `src/app/**`) et les imports vers les dossiers legacy sont interdits. La règle de périmètre client appartient désormais à `clients-sites/domain/`. Le plan R9 consigne les deux seules vérifications conservées du test de stockage des jetons.
+
+Phase 4 ajoute les domaines `src/backend/demandes-clients/` (collecte publique, qualification et conversion idempotente) et `src/backend/espace-client/` (lecture bornée par client), ainsi que `src/frontend/espace-client/`. Phase 5 ajoute `src/backend/notifications/` (file SMTP persistante, idempotente et réessayable), les alertes planifiées via Cron Vercel et les tendances/exports CSV dans `pilotage`. Ces domaines suivent les mêmes règles de dépendance et sont couverts par le test d'architecture.
 
 Vérifier la compilation Next sans toucher à la vraie base (variables factices, jamais l'URI réelle) :
 
 ```bash
 MONGODB_URI="mongodb://127.0.0.1:9/inexistant" NEXTAUTH_SECRET="verification-build" \
-NEXTAUTH_URL="http://localhost:3000" NEXT_TELEMETRY_DISABLED=1 npx next build
+NEXTAUTH_URL="http://localhost:3001" NEXT_TELEMETRY_DISABLED=1 npx next build
 ```
 
 ### Notes de migration (écarts connus et voulus des domaines migrés)
@@ -64,14 +66,14 @@ npm run seed                       # admin@srh.com / admin123
 npm run dev
 ```
 
-Ouvrir [http://localhost:3000](http://localhost:3000)
+Ouvrir [http://localhost:3001](http://localhost:3001)
 
 ## Variables d'environnement
 
 ```env
 MONGODB_URI=
 NEXTAUTH_SECRET=
-NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_URL=http://localhost:3001
 # E-mail (SMTP) : voir la section « E-mail (SMTP) »
 SMTP_HOST=
 SMTP_PORT=
@@ -79,6 +81,7 @@ SMTP_SECURE=
 SMTP_USER=
 SMTP_PASSWORD=
 MAIL_FROM=
+CRON_SECRET=
 ```
 
 ## Comptes seed
@@ -213,7 +216,7 @@ dans un ticket ou une conversation.
 **`NEXTAUTH_URL`** : les liens d'invitation et de réinitialisation sont construits à partir de
 cette variable. En production, elle doit être l'URL publique en `https://` (par exemple
 `https://<projet>.vercel.app` ou le domaine SRH) ; hors `https://`, aucun lien n'est émis en
-production (l'envoi est alors traité comme un échec). L'URL est vérifiée avant l'émission du jeton : si elle est invalide, aucun jeton n'est créé (les liens déjà en attente restent intacts) et la réponse de « Mot de passe oublié » reste générique. En local, `http://localhost:3000` convient.
+production (l'envoi est alors traité comme un échec). L'URL est vérifiée avant l'émission du jeton : si elle est invalide, aucun jeton n'est créé (les liens déjà en attente restent intacts) et la réponse de « Mot de passe oublié » reste générique. En local, `http://localhost:3001` correspond au port configuré pour `npm run dev`.
 
 **Tester l'envoi** :
 
@@ -239,6 +242,35 @@ courrier indésirable.
   compte) et aucun e-mail ne part ; l'utilisateur doit s'adresser à un administrateur ;
 - les journaux ne contiennent ni corps, ni lien, ni jeton, ni mot de passe, ni adresse
   e-mail : seuls l'objet du message et le nom de l'erreur sont tracés.
+- les notifications métier sont placées dans une file MongoDB persistante, retentées avec un
+  délai exponentiel jusqu'à huit tentatives et conservées 90 jours après leur état final.
+
+## Phase 5 — Notifications et pilotage avancé
+
+Les notifications utilisent le transport SMTP déjà décrit plus haut :
+
+- une nouvelle demande publique alerte les comptes **Admin** et **Dispatcher** ;
+- la qualification d'une demande et les changements de statut d'une opération avertissent les
+  comptes **Client** rattachés au client concerné ;
+- un rappel client est envoyé pour les opérations planifiées/affectées dans les prochaines
+  24 heures ; chaque jour, les opérations échues non terminées alertent le dispatch ;
+- les clés de déduplication empêchent un même événement d'être ajouté plusieurs fois, y compris
+  quand le job Cron est invoqué à nouveau. Les échecs SMTP sont retentés automatiquement.
+
+Vercel appelle `GET /api/cron/notifications` chaque jour à 07:00 UTC (08:00 à Abidjan), via la
+configuration de [vercel.json](./vercel.json). La route exige `Authorization: Bearer <CRON_SECRET>`
+et retourne 503 si `CRON_SECRET` est absent. Générer une valeur aléatoire (par exemple
+`openssl rand -hex 32`) et la définir en **Sensitive** dans Vercel ainsi qu'en local. Pour
+exécuter le contrôle manuellement, fournir le même en-tête Bearer ; ne pas exposer le secret.
+Les alertes qui dépendent d'un compte destinataire nécessitent que les comptes client et dispatch
+aient une adresse e-mail valide. La livraison réelle dépend également d'une configuration SMTP
+valide.
+
+Le tableau de bord interne présente une tendance des six derniers mois par statut effectif et
+permet l'export CSV d'une période choisie. L'API `/api/dashboard/export` exige une session
+interne, limite la période à 366 jours et le résultat à 5 000 opérations ; les cellules textuelles
+sont neutralisées contre les formules CSV/Excel. Un dépassement est signalé sans tronquer le
+fichier.
 
 **Purge et durée de vie des jetons** : les documents de la collection `passwordresettokens`
 sont supprimés automatiquement 24 h après leur expiration (index TTL sur `expiresAt`). Changer
@@ -271,50 +303,40 @@ comptes.
    |----------|--------|
    | `MONGODB_URI` | URI de connexion MongoDB Atlas |
    | `NEXTAUTH_SECRET` | secret généré via `openssl rand -base64 32` (différent du secret de dev) |
-   | `NEXTAUTH_URL` | URL publique du déploiement, ex. `https://<projet>.vercel.app` (ne pas laisser `http://localhost:3000`) |
+   | `NEXTAUTH_URL` | URL publique du déploiement, ex. `https://<projet>.vercel.app` (ne pas laisser une URL localhost) |
    | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `MAIL_FROM` | configuration SMTP (voir « E-mail (SMTP) ») |
    | `SMTP_PASSWORD` | mot de passe de la boîte SMTP, en mode **Sensitive** |
+   | `CRON_SECRET` | secret aléatoire pour authentifier le Cron des notifications, en mode **Sensitive** |
 
-   **Limiteur par IP** : les limites de débit par adresse IP (mot de passe oublié, réinitialisation) s'appuient sur l'en-tête posé par la plateforme (`x-vercel-forwarded-for`, ou `x-real-ip`). Sur Vercel il est présent ; derrière un autre proxy, le configurer pour qu'il transmette l'adresse du client, faute de quoi tous les clients partagent un seul seau (« unknown ») et la limite devient globale.
+   **Limiteur par IP** : les limites de débit par adresse IP (mot de passe oublié, réinitialisation et formulaire public de collecte) s'appuient sur l'en-tête posé par la plateforme (`x-vercel-forwarded-for`, ou `x-real-ip`). Sur Vercel il est présent ; derrière un autre proxy, le configurer pour qu'il transmette l'adresse du client. Le formulaire public échoue fermé avec une réponse 503 si l'adresse ne peut pas être identifiée.
 
 3. Dans MongoDB Atlas → **Network Access**, autoriser `0.0.0.0/0` (Vercel n'a pas d'IP sortante fixe sur le plan standard), ou utiliser une IP fixe via [Vercel Secure Compute](https://vercel.com/docs/secure-compute) si nécessaire.
 4. Déployer. Le build Vercel n'alimente plus la base par défaut : le seed au build n'a lieu que si `SEED_ON_BUILD=true` (à définir temporairement pour le premier déploiement SRH, puis à retirer). `npm run seed` lancé à la main seed toujours ; il ignore l'étape si les deux comptes de base existent déjà.
 5. Le seed utilise `MONGODB_URI` fourni par Vercel. Pour l'exécuter manuellement, définir cette variable dans l'environnement avant de lancer `npm run seed`, plutôt que de committer des identifiants.
 
-## Phase 2 — Console terrain (PWA)
+## Phase 2 — Console terrain (application en ligne)
 
 La console terrain est accessible sur **`/terrain`** (rôle Chauffeur) et fonctionne
-comme une Progressive Web App (PWA) installable et résiliente aux coupures réseau.
-
-### Activer / désactiver la PWA
-
-Le service worker est **activé par défaut** (`NEXT_PUBLIC_ENABLE_PWA="true"` ou absent).
-Pour le désactiver explicitement (ex. en environnement de test ou debug strict), définir
-`NEXT_PUBLIC_ENABLE_PWA="false"`. Lorsque la PWA est désactivée, l'application désenregistre
-le service worker et purge les caches locaux `srh-ops-*`.
+avec une connexion Internet. Elle peut être installée sur un appareil mobile depuis le navigateur,
+mais ses pages, données et actions nécessitent un accès réseau.
 
 ### Installer depuis le navigateur
 
 1. Ouvrir l'application en HTTPS (déploiement Vercel) dans Chrome/Edge (Android ou desktop).
 2. Android : menu ⋮ → « Ajouter à l'écran d'accueil » ; desktop : icône d'installation
    dans la barre d'adresse. L'app se lance alors en plein écran (`display: standalone`).
-3. Le manifest est servi par `src/app/manifest.ts`, le service worker par `public/sw.js`.
-4. En cas de coupure réseau sur une route non encore mise en cache, la page de repli `/offline`
-   est automatiquement présentée.
+3. Le manifest est servi par `src/app/manifest.ts`. L'installation ne rend pas l'application
+   disponible sans connexion Internet ; aucune donnée ni action n'est conservée localement pour une
+   synchronisation ultérieure.
+4. Les anciennes versions pouvaient enregistrer un service worker et des caches locaux ;
+   l'application les désenregistre et les supprime lors de l'ouverture après mise à jour.
 
-### Comportement hors-ligne (outbox)
+### Connexion requise
 
-Les actions saisies sur `/terrain` (changement d'étape, photos, signature, quantités) sont
-mises en file dans IndexedDB (`src/frontend/terrain/offline/outbox.ts`) puis rejouées dans l'ordre (FIFO)
-au retour du réseau (`src/frontend/terrain/hooks/useOfflineSync.ts`).
-- Le service worker ne met en cache que les ressources statiques et les écrans `/terrain` et
-  `/offline` ; les réponses API ne sont jamais mises en cache. Pour continuer une intervention
-  pendant une coupure, charger la console et la liste des opérations avant la perte du réseau.
-- Si l'application est lancée hors-ligne sans données d'opération déjà chargées, elle présente
-  `/offline` ; la liste des opérations n'est pas persistée localement.
-- Les transactions IndexedDB sont exécutées discrètement par opération réseau pour éviter toute fermeture asynchrone prématurée.
-- Les erreurs 4xx définitives (requête invalide côté client) sont évacuées de la file avec journalisation pour ne pas paralyser la synchronisation FIFO.
-- La console affiche un bandeau visuel d'état réseau et synchronisation avec compteur d'actions en attente.
+La consultation et les actions terrain (statuts, photos, signatures, quantités, rapports et
+traçabilité) communiquent directement avec le serveur. En cas de panne réseau, l'interface
+signale l'échec et permet de réessayer ; elle ne confirme pas une action non reçue par le serveur.
+Il n'y a ni mode hors ligne, ni cache applicatif des données, ni file locale de mutations.
 
 ### Workflow Chauffeur et Rapport Digital
 
@@ -322,6 +344,73 @@ au retour du réseau (`src/frontend/terrain/hooks/useOfflineSync.ts`).
 - **Signature & Photos** : capture sur écran tactile ou souris, validation des déchets collectés et observations.
 - **Rapport d'intervention PDF** : génération et téléchargement direct côté chauffeur ou backoffice (`GET /api/operations/[id]/rapport`).
 - **Envoi automatique par e-mail** : génération du PDF joint et expédition SMTP au client (`POST /api/operations/[id]/rapport`), avec transition automatique vers le statut `Rapportée`.
+
+## Phase 3 — Traçabilité des déchets
+
+Chaque opération peut contenir plusieurs lignes de traçabilité, une par flux de déchets. Une ligne
+enregistre l'identifiant de suivi externe (unique, insensible à la casse), le type de déchet, la
+quantité et son unité (`Litres`, `Kg`, `M3` ou `Bacs`), ainsi que le traitement prévu ou réalisé.
+L'enregistrement conserve l'acteur de création et de dernière modification, ainsi que les dates
+de création et de mise à jour.
+
+- **Saisie et correction** : admin, dispatcher et chauffeur affecté à l'opération, depuis la fiche
+  d'intervention ou la console `/terrain`.
+- **Intégrité** : une ligne peut être corrigée mais ne peut pas être supprimée ; l'identifiant
+  externe, l'auteur de création et l'auteur de la dernière modification sont conservés.
+- **Consultation** : la page `/tracabilite` donne à l'équipe interne une vue filtrable par texte ;
+  le rôle lecture seule peut consulter, sans modifier.
+- **API** : `GET /api/tracabilite` pour la vue interne ; `GET/POST /api/operations/[id]/tracabilite`
+  et `PUT /api/operations/[id]/tracabilite/[traceId]` pour les opérations.
+- **Sécurité** : accès chauffeur limité aux opérations de son équipe ; les comptes client n'ont
+  pas accès aux fiches de traçabilité ; les identifiants en doublon sont refusés.
+- **Connexion** : la saisie et la consultation nécessitent une connexion Internet, comme le reste
+  de l'application ; aucune mise en file locale n'est effectuée en cas de coupure.
+
+Le backend de `tracabilite` suit les conventions du projet (domain/application/HTTP/Mongoose) et
+expose son API via des ré-exports `src/app/api`. Le frontend de cette fonctionnalité est isolé dans
+`src/frontend/tracabilite`, avec une vue de synthèse et un formulaire réutilisé par les opérations
+et la console terrain.
+
+## Phase 4 — Espace client et demandes en ligne
+
+### Formulaire public
+
+`/demande` permet à une entreprise sans compte de transmettre ses coordonnées, son site et la date
+souhaitée. La soumission est validée côté serveur, limitée à 16 Ko, protégée par un débit de
+5 soumissions par adresse IP et par heure et de 3 par adresse e-mail et par heure. Une demande est
+stockée séparément, au statut interne `en_attente` : elle ne crée ni client, ni site, ni opération
+avant vérification par le dispatch. La confirmation s'affiche dans le navigateur et les comptes
+Admin/Dispatcher reçoivent un e-mail interne. Le contact public ne reçoit pas d'e-mail avant
+qualification par SRH.
+
+### Qualification par SRH
+
+Les rôles **Admin** et **Dispatcher** traitent la file `/demandes`. Ils vérifient la demande,
+choisissent le client et un site déjà rattaché à ce client, puis la convertissent en opération au
+statut `Demande`, ou la refusent avec un motif facultatif. La conversion est protégée contre les
+conversions concurrentes et idempotente ; les demandes refusées restent conservées dans l'historique.
+
+### Portail authentifié
+
+Un compte **Client** se connecte via `/login` et doit être rattaché à un `clientId` par un
+administrateur. `/espace-client` affiche son tableau de bord, `/espace-client/operations` liste ses
+opérations et `/espace-client/nouvelle-demande` soumet une demande liée à l'un de ses sites. Le
+périmètre client est imposé par la session côté serveur, jamais par un identifiant fourni par le
+navigateur. Les réponses du portail excluent les équipes, véhicules, notes internes, signatures et
+historiques d'employés. Les demandes publiques non vérifiées ne sont pas visibles par les clients.
+
+### API
+
+- `POST /api/demandes/publiques` : soumission publique protégée par validation et limite de débit.
+- `GET /api/demandes` : file interne, Admin/Dispatcher uniquement.
+- `POST /api/demandes/[id]/convertir` et `/refuser` : qualification et traitement interne.
+- `GET /api/espace-client/dashboard`, `/operations` et `/sites` : données bornées au client connecté.
+- `POST /api/espace-client/demandes` : création d'une opération `Demande` avec validation serveur
+  du rattachement site/client.
+
+Toutes ces pages et API nécessitent Internet, à l'exception du formulaire public qui doit
+naturellement être accessible sans session. Les données ne sont ni mises en cache hors ligne ni
+synchronisées en différé.
 
 ## Documentation
 

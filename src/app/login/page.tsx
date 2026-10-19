@@ -145,6 +145,13 @@ export default function LoginPage() {
           </button>
         </form>
 
+        <p className="mt-5 text-center font-body-sm text-body-sm text-on-surface-variant">
+          Vous n’avez pas encore d’accès ?{" "}
+          <Link href="/demande" className="font-semibold text-primary underline-offset-4 hover:underline">
+            Demander une collecte
+          </Link>
+        </p>
+
         <div className="mt-8 flex items-center justify-center gap-2 border-t border-surface-variant pt-6 text-on-surface-variant/60">
           <span className="material-symbols-outlined text-[16px]">verified_user</span>
           <span className="font-label-sm text-label-sm">Connexion chiffrée de bout en bout</span>

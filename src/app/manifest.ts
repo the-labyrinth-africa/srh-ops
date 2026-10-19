@@ -17,7 +17,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "SRH Ops — Terrain",
     short_name: "SRH Ops",
     description:
-      "Console terrain SRH Recyclage : collectes, photos, signature et rapport digital, utilisable hors-ligne.",
+      "Console terrain SRH Recyclage pour les collectes, photos, signatures et rapports en ligne.",
     lang: "fr",
     id: "/",
     start_url: "/terrain",

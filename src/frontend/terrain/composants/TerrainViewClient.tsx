@@ -4,9 +4,10 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { StatusBadge, SignaturePad, formatApiError } from "@/frontend/design-system";
+import { TracabiliteOperation } from "@/frontend/tracabilite";
 import { getNextStatuses } from "@/shared/operations/transitions";
+import { canWrite, isChauffeur } from "@/shared/acces/permissions";
 import { compressImageFile } from "../utils/image-compress";
-import { useOfflineSync } from "../hooks/useOfflineSync";
 import type { OperationStatus } from "@/shared/operations/statuts";
 import type { QuantiteUnite } from "@/shared/operations/quantites";
 
@@ -30,10 +31,11 @@ interface OperationTerrain {
 
 export function TerrainViewClient() {
   const { data: session } = useSession();
-  const { online, pendingCount, replaying, replayNow, enqueueLocal } = useOfflineSync();
+  const canEditTraceabilite = canWrite(session?.user?.role) || isChauffeur(session?.user?.role);
 
   const [operations, setOperations] = useState<OperationTerrain[]>([]);
   const [loading, setLoading] = useState(true);
+  const [listError, setListError] = useState("");
   const [selectedOp, setSelectedOp] = useState<OperationTerrain | null>(null);
   const [actionError, setActionError] = useState("");
   const [actionSuccess, setActionSuccess] = useState("");
@@ -57,14 +59,17 @@ export function TerrainViewClient() {
 
   const fetchTerrainOps = useCallback(async () => {
     setLoading(true);
+    setListError("");
     try {
       const res = await fetch("/api/operations");
-      if (res.ok) {
-        const data = await res.json();
-        setOperations(Array.isArray(data.items) ? data.items : []);
+      const data = await res.json();
+      if (!res.ok) {
+        setListError(formatApiError(data.error));
+        return;
       }
+      setOperations(Array.isArray(data.items) ? data.items : []);
     } catch {
-      // En cas de panne ou hors-ligne, on conserve la liste actuelle
+      setListError("Impossible de charger les opérations. Vérifiez votre connexion Internet puis réessayez.");
     } finally {
       setLoading(false);
     }
@@ -103,17 +108,6 @@ export function TerrainViewClient() {
       signatureClient: signatureData || undefined,
     };
 
-    if (!online) {
-      await enqueueLocal({ kind: "statut", id: selectedOp._id, payload });
-      setSelectedOp((prev) => (prev ? { ...prev, ...payload, statut: targetStatus } : null));
-      setOperations((prev) =>
-        prev.map((op) => (op._id === selectedOp._id ? { ...op, ...payload, statut: targetStatus } : op))
-      );
-      setActionSuccess("Statut enregistré hors-ligne (en attente de synchronisation).");
-      setSaving(false);
-      return;
-    }
-
     try {
       const res = await fetch(`/api/operations/${selectedOp._id}/statut`, {
         method: "PATCH",
@@ -131,12 +125,7 @@ export function TerrainViewClient() {
       await fetchTerrainOps();
       setSelectedOp((prev) => (prev ? { ...prev, ...payload, statut: targetStatus } : null));
     } catch {
-      await enqueueLocal({ kind: "statut", id: selectedOp._id, payload });
-      setSelectedOp((prev) => (prev ? { ...prev, ...payload, statut: targetStatus } : null));
-      setOperations((prev) =>
-        prev.map((op) => (op._id === selectedOp._id ? { ...op, ...payload, statut: targetStatus } : op))
-      );
-      setActionSuccess("Problème réseau : statut enregistré hors-ligne pour envoi ultérieur.");
+      setActionError("Impossible de mettre à jour le statut. Vérifiez votre connexion Internet puis réessayez.");
     } finally {
       setSaving(false);
     }
@@ -154,24 +143,6 @@ export function TerrainViewClient() {
       dataUrl = await compressImageFile(file);
       if (!dataUrl) {
         setActionError("Image trop lourde même après compression.");
-        return;
-      }
-
-      if (!online) {
-        await enqueueLocal({
-          kind: "photos",
-          id: selectedOp._id,
-          photos: [{ dataUrl, nom: file.name }],
-        });
-        setSelectedOp((prev) =>
-          prev
-            ? {
-                ...prev,
-                photos: [...(prev.photos || []), { url: dataUrl!, nom: file.name }],
-              }
-            : null
-        );
-        setActionSuccess("Photo enregistrée hors-ligne (en attente de synchronisation).");
         return;
       }
 
@@ -199,24 +170,7 @@ export function TerrainViewClient() {
       setActionSuccess("Photo ajoutée avec succès.");
       await fetchTerrainOps();
     } catch {
-      if (dataUrl) {
-        await enqueueLocal({
-          kind: "photos",
-          id: selectedOp._id,
-          photos: [{ dataUrl, nom: files[0].name }],
-        });
-        setSelectedOp((prev) =>
-          prev
-            ? {
-                ...prev,
-                photos: [...(prev.photos || []), { url: dataUrl!, nom: files[0].name }],
-              }
-            : null
-        );
-        setActionSuccess("Photo enregistrée hors-ligne pour envoi ultérieur.");
-      } else {
-        setActionError("Erreur lors de l'enregistrement de la photo.");
-      }
+      setActionError("Impossible d'enregistrer la photo. Vérifiez votre connexion Internet puis réessayez.");
     } finally {
       setUploadingPhoto(false);
       if (cameraInputRef.current) cameraInputRef.current.value = "";
@@ -278,35 +232,6 @@ export function TerrainViewClient() {
         </Link>
       </div>
 
-      {/* Bandeau d'état réseau et synchronisation hors-ligne */}
-      {!online && (
-        <div className="flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-amber-700 dark:text-amber-300 font-label-md text-label-md font-semibold">
-          <span className="material-symbols-outlined text-[20px]">cloud_off</span>
-          <span>
-            Mode hors-ligne ({pendingCount} action{pendingCount > 1 ? "s" : ""} en attente de synchronisation)
-          </span>
-        </div>
-      )}
-
-      {online && pendingCount > 0 && (
-        <div className="flex items-center justify-between rounded-xl border border-primary/30 bg-primary/10 p-3 text-primary">
-          <div className="flex items-center gap-2 font-label-md text-label-md font-semibold">
-            <span className="material-symbols-outlined text-[20px]">sync</span>
-            <span>
-              {pendingCount} action{pendingCount > 1 ? "s" : ""} à synchroniser
-            </span>
-          </div>
-          <button
-            type="button"
-            disabled={replaying}
-            onClick={() => void replayNow()}
-            className="rounded-lg bg-primary px-3 py-1.5 text-xs font-bold text-on-primary hover:bg-primary/90 disabled:opacity-50"
-          >
-            {replaying ? "Envoi..." : "Synchroniser"}
-          </button>
-        </div>
-      )}
-
       {/* Vue détail / action sur opération sélectionnée */}
       {selectedOp ? (
         <div className="space-y-4 rounded-xl border border-surface-container-high bg-surface-container-lowest p-gutter-md shadow-sm">
@@ -342,6 +267,8 @@ export function TerrainViewClient() {
               </p>
             </div>
           )}
+
+          <TracabiliteOperation operationId={selectedOp._id} canEdit={canEditTraceabilite} />
 
           {actionSuccess && (
             <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-3 font-body-md text-body-md text-emerald-800 dark:text-emerald-300">
@@ -598,6 +525,17 @@ export function TerrainViewClient() {
         <div className="space-y-3">
           {loading ? (
             <div className="p-gutter-md text-center text-outline">Chargement des opérations...</div>
+          ) : listError ? (
+            <div role="alert" className="rounded-xl border border-error/30 bg-error-container p-gutter-md text-center text-on-error-container">
+              <p>{listError}</p>
+              <button
+                type="button"
+                onClick={() => void fetchTerrainOps()}
+                className="mt-3 rounded-lg bg-primary px-4 py-2 font-label-md text-label-md font-semibold text-on-primary"
+              >
+                Réessayer
+              </button>
+            </div>
           ) : operationsAffichees.length === 0 ? (
             <div className="rounded-xl border border-surface-container-high bg-surface-container-lowest p-gutter-md text-center text-outline">
               Aucune opération affectée à votre équipe.

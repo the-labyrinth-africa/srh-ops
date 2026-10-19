@@ -2,7 +2,7 @@
 
 **Projet :** SRH — Digitalisation des Opérations  
 **Stack :** Next.js 16 / TypeScript / MongoDB / NextAuth  
-**État actuel :** Phase 1 (Sprints 0–5 + S1.5) terminée (100 %) ; Phase 2 (PWA terrain & rapport digital) terminée (100 %)
+**État actuel :** Phases 1–5 terminées (100 %) ; Phases 2–5 sont des modules en ligne nécessitant Internet
 **Durée estimée :** 7 à 9 semaines  
 **Spec de référence :** [AGENTS.md](./AGENTS.md)
 
@@ -21,17 +21,20 @@
 | S4 | Dashboard & Finitions | 1 sem. | Terminé | KPI, permissions, responsive mobile |
 | S5 | Recette & Déploiement | 1 sem. | Terminé | Tests unitaires & E2E (100%), build prod, docs, validation |
 | S1.5 | Collectes Récurrentes | 1 sem. | Terminé | Modèle Recurrence, Moteur de génération auto sans doublon, UI /recurrences, tests dédiés |
-| P2 | PWA terrain & rapport digital | — | Terminé (100 %) | Console `/terrain`, rôle chauffeur, photos réduites, signature tactile, quantités, rapport PDF, manifest, SW résilient activé par défaut, outbox offline résiliente (purge 4xx, transactions isolées), repli `/offline`, envoi automatique du rapport par e-mail avec PJ PDF & transition vers `Rapportée` |
+| P2 | Console terrain & rapport digital | — | Terminé (100 %) | Console `/terrain` installable et en ligne, rôle chauffeur, photos réduites, signature tactile, quantités, rapport PDF, manifest, envoi du rapport par e-mail avec PJ PDF et transition vers `Rapportée` |
+| P3 | Traçabilité des déchets | — | Terminé (100 %) | Flux multiples par opération, identifiant unique, volume/unité, traitement, saisie terrain/dispatch, consultation direction, contrôle du périmètre chauffeur, correction sans suppression des données |
+| P4 | Espace client & demandes en ligne | — | Terminé (100 %) | Formulaire public limité en débit, qualification Admin/Dispatcher, portail client isolé par `clientId`, demandes authentifiées liées aux sites |
+| P5 | Notifications & dashboard avancé | — | Terminé (100 %) | File de notifications SMTP durable, alertes et rappels planifiés, tendances mensuelles, export CSV contrôlé |
 
 ### Avancement par phase
 
 | Phase | Module | Avancement |
 |-------|--------|-----------|
 | 1 | Planification des collectes | 100 % |
-| 2 | PWA terrain & rapport digital | 100 % (console terrain, PWA activée, outbox résiliente, rapport PDF & email) |
-| 3 | Traçabilité des déchets | 0 % |
-| 4 | Espace client & demandes en ligne | 5 % |
-| 5 | Notifications & dashboard avancé | 10 % |
+| 2 | Console terrain & rapport digital | 100 % (application installable en ligne, rapport PDF & email) |
+| 3 | Traçabilité des déchets | 100 % (fiches par flux, API contrôlée, saisie terrain/dispatch et vue direction) |
+| 4 | Espace client & demandes en ligne | 100 % |
+| 5 | Notifications & dashboard avancé | 100 % |
 | 6 | Optimisation des tournées | 5 % |
 
 ---
@@ -59,7 +62,7 @@ Ce module constitue la **Phase 1** du projet global et sert de fondation aux mod
 3. Gestion des **véhicules** (CRUD basique).
 4. Gestion des **équipements** (CRUD basique).
 5. Création et planification d'une **opération/intervention**.
-6. Suivi du **statut** de chaque opération : `Planifiée → Affectée → En route → En cours → Terminée → Rapportée` (+ `Retardée`, `Annulée`).
+6. Suivi du **statut** de chaque opération : `Demande → Planifiée → Affectée → En route → En cours → Terminée → Rapportée` (+ `Retardée`, `Annulée`).
 7. Vue **calendrier / planning** des interventions (par jour, semaine, mois).
 8. Vue **liste** filtrable (par client, statut, équipe, véhicule, date).
 9. Tableau de bord simple : compteurs (prévues, en cours, terminées, retardées).
@@ -67,7 +70,7 @@ Ce module constitue la **Phase 1** du projet global et sert de fondation aux mod
 
 ### 2.2 Hors périmètre (modules suivants)
 
-- PWA terrain : application installable et utilisable hors-ligne (Phase 2).
+- Console terrain installable avec connexion Internet requise (Phase 2).
 - Rapport digital d'intervention détaillé avec photos/signature (Phase 2).
 - Traçabilité des déchets (Phase 3).
 - Espace client / demandes en ligne (Phase 4).
@@ -558,7 +561,7 @@ MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/srh-ops
 
 # NextAuth
 NEXTAUTH_SECRET=<générer avec: openssl rand -base64 32>
-NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_URL=http://localhost:3001
 ```
 
 En production (Vercel), configurer les mêmes variables avec `NEXTAUTH_URL` pointant vers l'URL de production.
@@ -590,10 +593,10 @@ Avant et pendant le développement, SRH doit fournir :
 
 | Phase | Module | Évolutions prévues |
 |-------|--------|-------------------|
-| 2 | PWA terrain & rapport digital | **Livrée (100 %)** : console `/terrain`, service worker activé par défaut, repli hors-ligne, file IndexedDB résiliente, rapport PDF envoyé par SMTP et statut `Rapportée` après transmission |
+| 2 | Console terrain & rapport digital | **Livrée (100 %)** : console `/terrain` installable nécessitant Internet, rapport PDF envoyé par SMTP et statut `Rapportée` après transmission |
 | 3 | Traçabilité | Collection `tracabilite` liée à Operation (identifiant suivi, volumes, traitement) |
-| 4 | Espace client | Lecture seule sur Operation filtrée par `clientId` + formulaire demande en ligne |
-| 5 | Notifications | Enrichissement dashboard (graphiques, exports), alertes automatisées |
+| 4 | Espace client | **Livrée (100 %)** : portail authentifié borné par `clientId`, formulaire public sans compte, file de qualification interne et conversion idempotente en opération `Demande` |
+| 5 | Notifications & dashboard avancé | **Livrée (100 %)** : file SMTP persistante et réessayable, alertes de nouvelles demandes et transitions, rappels à 24 h et retards quotidiens via Cron Vercel, tendance mensuelle accessible et export CSV borné |
 | 6 | Optimisation tournées | Moteur d'optimisation basé sur `localisation` des sites |
 
 > Détails : voir [AGENTS.md §10](./AGENTS.md#10-évolutivité-vers-les-modules-suivants).
@@ -607,7 +610,7 @@ Avant et pendant le développement, SRH doit fournir :
 | 2026-09-09 | — | Création du plan d'exécution (PLAN.md) | Fait |
 | 2026-09-09 | S0–S4 | Implémentation complète Module 1 (YOLO) | Fait |
 | 2026-09-09 | S5 | Développement suite de tests unitaires & E2E Vitest (47/47 passés), corrections & finalisation à 100% | Fait |
-| 2026-09-17 | S1.5 / P2 | Collectes récurrentes, console `/terrain`, PDF, photos, signature, manifest, service worker, outbox (commit 7995783) | Fait (partiel, voir P2) |
+| 2026-09-17 | S1.5 / P2 | Collectes récurrentes, console `/terrain`, PDF, photos, signature, manifest, premières fonctions hors-ligne (commit 7995783 ; fonctions hors-ligne retirées depuis, application désormais en ligne uniquement) | Fait (partiel, voir P2) |
 | 2026-09-19 | P2 | Récupération du commit 7995783 perdu après un reset (branche de sauvegarde `recovery/phase2-pwa-7995783`, réintégration par cherry-pick) | Fait |
 | 2026-09-19 | Lot 0 | Stabilisation : passage à Next 16, script `lint` ESLint (config flat), 0 erreur / 9 avertissements, 74/74 tests | Fait |
 | 2026-09-19 | Lot 0 | Garde du seed : le build n'alimente la base que si `SEED_ON_BUILD=true` | Fait |
@@ -615,7 +618,10 @@ Avant et pendant le développement, SRH doit fournir :
 | 2026-09-19 | Lot 0 | Alignement README / PLAN / rapport d'avancement sur le code réel ; plan d'alignement avec la proposition | Fait |
 | 2026-09-20 | Lot 1A | Lot 1A — fuites d'accès fermées : matrice d'accès unique des pages par rôle (tableau de bord, menu, `/acces-limite`), rattachement client/équipe imposé aux comptes, chauffeur limité à son équipe et fermé aux référentiels dans l'API, changement forcé du mot de passe temporaire, JWT relu en base toutes les 5 minutes | Fait |
 | 2026-09-20 | Lot 1B | Lot 1B — e-mail SMTP et réinitialisation par jeton : transport SMTP (`nodemailer`, mot de passe hors Git), invitation par e-mail à la création d'un compte (lien de 72 h), « mot de passe oublié » par jeton à usage unique (30 min, réponse identique, débit limité), action administrateur « Envoyer un lien de réinitialisation », liens en attente révoqués à la régénération du mot de passe ou au changement d'e-mail, sessions ouvertes invalidées après une réinitialisation, e-mail de test administrateur et script `scripts/send-test-mail.ts` | Fait |
-| 2026-10-19 | P2 | Stabilisation PWA/outbox et rapport SMTP ; garde d'accès et statut terminé, repli `/offline`, validation production Next.js, 1 322 tests passés | Fait |
+| 2026-10-19 | P2 | Historique : stabilisation de la PWA/outbox et du rapport SMTP ; garde d'accès et statut terminé, validation production Next.js, 1 322 tests passés. Les fonctions hors-ligne ont ensuite été retirées pour adopter le fonctionnement connecté uniquement. | Fait |
+| 2026-10-19 | P3 | Traçabilité par flux de déchets : identifiant de suivi unique, volume/unité, traitement, API et interfaces liées aux opérations, permissions métier et tests | Fait |
+| 2026-10-19 | P2/P3 | Alignement produit en mode connecté uniquement : retrait du service worker, du cache hors-ligne et de la file locale ; les actions nécessitent Internet et les erreurs réseau sont affichées | Fait |
+| 2026-10-19 | P5 | Notifications SMTP idempotentes avec reprises, déclenchement demande/statut, rappels et retards par Cron protégé ; tendance dashboard six mois et export CSV sécurisé par rôle/période/volume | Fait |
 
 ---
 

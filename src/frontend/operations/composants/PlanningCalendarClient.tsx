@@ -28,6 +28,7 @@ interface CalendarEvent {
 export function PlanningCalendarClient() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [statutFilter, setStatutFilter] = useState<string[]>([
+    "Demande",
     "Planifiée",
     "Affectée",
     "En route",
@@ -96,11 +97,13 @@ export function PlanningCalendarClient() {
           Filtres :
         </span>
         {[
+          { label: "Demande", val: "Demande", color: "bg-amber-600" },
           { label: "Planifiée", val: "Planifiée", color: "bg-status-planned" },
           { label: "Affectée", val: "Affectée", color: "bg-status-assigned" },
           { label: "En route", val: "En route", color: "bg-status-on-route" },
           { label: "En cours", val: "En cours", color: "bg-status-in-progress" },
           { label: "Terminée", val: "Terminée", color: "bg-status-completed" },
+          { label: "Rapportée", val: "Rapportée", color: "bg-status-reported" },
           { label: "Retardée", val: "Retardée", color: "bg-status-delayed" },
           { label: "Annulée", val: "Annulée", color: "bg-status-cancelled" },
         ].map((item) => {

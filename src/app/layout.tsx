@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Providers } from "@/frontend/navigation";
-import { PwaRegistrar } from "@/frontend/terrain";
+import { ServiceWorkerCleanup } from "@/frontend/terrain";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "SRH Ops — Terrain",
-  description: "Console terrain SRH Recyclage : collectes, photos, signature et rapport, utilisable hors-ligne.",
+  description: "Plateforme SRH Ops de planification, suivi et traçabilité des collectes.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
@@ -50,7 +50,7 @@ export default function RootLayout({
       <body className="antialiased" suppressHydrationWarning>
         <Providers>
           {children}
-          <PwaRegistrar />
+          <ServiceWorkerCleanup />
         </Providers>
       </body>
     </html>
