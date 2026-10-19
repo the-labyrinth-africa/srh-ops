@@ -29,10 +29,34 @@ export const casDUsageTerrain = creerCasDUsageTerrain({
   alerteCoherence: (message) => console.warn(message),
 });
 
+import { sendMail } from "@/backend/platform/email";
+import type { MessageEmailRapport } from "./domain/ports";
+
+const adaptateurEmailRapport = {
+  async envoyer(message: MessageEmailRapport) {
+    const res = await sendMail({
+      to: message.destinataire,
+      subject: message.sujet,
+      text: message.texte,
+      html: message.html,
+      attachments: [
+        {
+          filename: message.pieceJointe.nomFichier,
+          content: message.pieceJointe.contenu,
+          contentType: message.pieceJointe.typeMime,
+        },
+      ],
+    });
+    return res.ok ? { ok: true } : { ok: false, raison: res.reason };
+  },
+};
+
 export const casDUsageRapport = creerCasDUsageRapport({
   obtenir: casDUsageOperations.obtenir,
   generateur: new GenerateurRapportJsPdf(),
   horloge,
+  envoiEmail: adaptateurEmailRapport,
+  changerStatut: (id, changement) => operations.changerStatut(id, changement),
 });
 
 // Capacités ciblées exposées aux autres domaines par `index.ts` (jamais le dépôt ni le modèle).

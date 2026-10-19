@@ -2,55 +2,61 @@
 
 import { useEffect } from "react";
 
+export async function manageServiceWorker(
+  env: Record<string, string | undefined> = process.env,
+  swNavigator: typeof navigator.serviceWorker | undefined = typeof navigator !== "undefined"
+    ? navigator.serviceWorker
+    : undefined
+): Promise<"registered" | "cleaned" | "unsupported"> {
+  if (!swNavigator) return "unsupported";
+
+  const disabled = env.NEXT_PUBLIC_ENABLE_PWA === "false";
+
+  if (!disabled) {
+    try {
+      const reg = await swNavigator.register("/sw.js", { scope: "/" });
+      console.info("[PWA] Service worker opérationnel (scope:", reg.scope, ")");
+      return "registered";
+    } catch (err) {
+      console.warn("[PWA] Enregistrement SW impossible:", err);
+      return "unsupported";
+    }
+  }
+
+  let cleanupSucceeded = true;
+  try {
+    const registrations = await swNavigator.getRegistrations();
+    await Promise.all(registrations.map((reg) => reg.unregister()));
+  } catch (err) {
+    cleanupSucceeded = false;
+    console.warn("[PWA] Désenregistrement du service worker impossible:", err);
+  }
+
+  try {
+    if (typeof caches !== "undefined") {
+      const keys = await caches.keys();
+      await Promise.all(
+        keys.filter((key) => key.startsWith("srh-ops-")).map((key) => caches.delete(key))
+      );
+    }
+  } catch (err) {
+    cleanupSucceeded = false;
+    console.warn("[PWA] Purge du cache impossible:", err);
+  }
+
+  return cleanupSucceeded ? "cleaned" : "unsupported";
+}
+
 /**
- * Enregistrement du service worker SRH Ops.
+ * Enregistrement du service worker PWA SRH Ops.
  *
- * La PWA est désactivée par défaut (`NEXT_PUBLIC_ENABLE_PWA` ≠ "true") : le
- * service worker met en cache des navigations authentifiées sous "/" et sert
- * les requêtes RSC en cache-first, et l'outbox hors-ligne a des défauts connus
- * (voir « Limites connues » du README). Tant que ces points ne sont pas
- * corrigés, le composant non seulement n'enregistre rien, mais désinstalle un
- * service worker déjà présent et vide les caches "srh-ops-*" laissés sur les
- * postes qui ont visité une version précédente.
+ * Le service worker gère la mise en cache réseau d'abord, le repli hors-ligne
+ * et la synchronisation avec l'outbox IndexedDB.
+ * Il est activé par défaut, sauf si explicitement désactivé (`NEXT_PUBLIC_ENABLE_PWA="false"`).
  */
 export function PwaRegistrar() {
   useEffect(() => {
-    if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
-
-    const enabled = process.env.NEXT_PUBLIC_ENABLE_PWA === "true";
-
-    if (enabled) {
-      navigator.serviceWorker
-        .register("/sw.js", { scope: "/" })
-        .then((reg) => {
-          console.info("[PWA] Service worker enregistré (scope:", reg.scope, ")");
-        })
-        .catch((err) => {
-          console.warn("[PWA] Enregistrement SW impossible:", err);
-        });
-      return;
-    }
-
-    const cleanup = async () => {
-      try {
-        const registrations = await navigator.serviceWorker.getRegistrations();
-        await Promise.all(registrations.map((reg) => reg.unregister()));
-      } catch {
-        // Désinstallation impossible (navigateur ou contexte non sécurisé) : sans effet.
-      }
-
-      try {
-        if (typeof caches === "undefined") return;
-        const keys = await caches.keys();
-        await Promise.all(
-          keys.filter((key) => key.startsWith("srh-ops-")).map((key) => caches.delete(key))
-        );
-      } catch {
-        // Cache Storage indisponible : rien à nettoyer.
-      }
-    };
-
-    void cleanup();
+    void manageServiceWorker();
   }, []);
 
   return null;

@@ -9,9 +9,12 @@ import {
   PhotoRequise,
   PhotoTropLourde,
   PhotosTropLourdes,
+  RapportOperationNonTerminee,
   TransitionInterdite,
   TropDePhotos,
   UrlPhotoRequise,
+  EmailClientManquant,
+  EchecEnvoiRapportEmail,
 } from "../domain/erreurs";
 
 type ClasseErreur = abstract new (...args: never[]) => Error;
@@ -27,6 +30,9 @@ const CODES: [ClasseErreur, number][] = [
   [FormatPhotoInvalide, 400],
   [TropDePhotos, 400],
   [UrlPhotoRequise, 400],
+  [EmailClientManquant, 400],
+  [EchecEnvoiRapportEmail, 502],
+  [RapportOperationNonTerminee, 409],
   [PhotoTropLourde, 413],
   [PhotosTropLourdes, 413],
 ];

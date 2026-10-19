@@ -1,1 +1,1 @@
-export { GET } from "@/backend/operations/http/rapport.controleur";
+export { GET, POST } from "@/backend/operations/http/rapport.controleur";

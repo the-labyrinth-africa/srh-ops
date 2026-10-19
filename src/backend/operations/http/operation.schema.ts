@@ -45,6 +45,12 @@ export const statusUpdateSchema = z.object({
     .optional(),
 });
 
+export const rapportEmailSchema = z
+  .object({
+    email: z.string().trim().email("Adresse e-mail invalide").optional(),
+  })
+  .strict();
+
 export type OperationInput = z.infer<typeof operationSchema>;
 
 /**

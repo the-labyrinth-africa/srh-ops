@@ -7,7 +7,8 @@ vi.mock("next-auth", () => ({
   getServerSession: vi.fn(),
 }));
 
-import { GET as genererRapport } from "@/app/api/operations/[id]/rapport/route";
+import { GET as genererRapport, POST as envoyerRapport } from "@/app/api/operations/[id]/rapport/route";
+import { getMemoryTransport } from "@/backend/platform/email";
 import { Operation } from "@/backend/operations/infrastructure/mongoose/operation.model";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
@@ -47,6 +48,18 @@ describe("Caractérisation — rapport PDF d'intervention", () => {
     genererRapport(new NextRequest(`http://localhost:3000/api/operations/${id}/rapport`), {
       params: Promise.resolve({ id }),
     });
+
+  const postRapport = (id: string, body?: { email?: string }) =>
+    envoyerRapport(
+      new NextRequest(`http://localhost:3000/api/operations/${id}/rapport`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: body ? JSON.stringify(body) : undefined,
+      }),
+      {
+        params: Promise.resolve({ id }),
+      }
+    );
 
   /** Contenu brut du PDF : les textes y figurent en clair (police standard, sans compression). */
   const contenu = async (res: Response) => Buffer.from(await res.arrayBuffer()).toString("latin1");
@@ -221,5 +234,64 @@ describe("Caractérisation — rapport PDF d'intervention", () => {
 
     connecter("lecture");
     expect((await rapport(affectee)).status).toBe(200);
+  });
+
+  it("POST : envoie le rapport par e-mail et passe le statut en Rapportée si l'opération était Terminée", async () => {
+    getMemoryTransport().reset();
+    await Client.findByIdAndUpdate(clientId, { contact: { email: "contact@client-a.ci" } });
+    const id = await creer({ statut: "Terminée", quantiteCollectee: 150 });
+
+    const res = await postRapport(id);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data).toMatchObject({
+      ok: true,
+      destinataire: "contact@client-a.ci",
+    });
+
+    const sent = getMemoryTransport().sent;
+    expect(sent).toHaveLength(1);
+    expect(sent[0].to).toBe("contact@client-a.ci");
+    expect(sent[0].attachments).toHaveLength(1);
+    expect(sent[0].attachments![0].contentType).toBe("application/pdf");
+
+    const doc = await Operation.findById(id);
+    expect(doc?.statut).toBe("Rapportée");
+  });
+
+  it("POST : refuse si aucun e-mail n'est disponible pour le client", async () => {
+    const id = await creer({ statut: "Terminée" });
+    const res = await postRapport(id);
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: "Aucune adresse e-mail trouvée pour ce client" });
+  });
+
+  it("POST : refuse les rôles lecture seule et client", async () => {
+    getMemoryTransport().reset();
+    const id = await creer({ statut: "Terminée" });
+
+    connecter("lecture");
+    expect((await postRapport(id)).status).toBe(403);
+
+    connecter("client", { clientId });
+    expect((await postRapport(id)).status).toBe(403);
+    expect(getMemoryTransport().sent).toHaveLength(0);
+  });
+
+  it("POST : refuse les opérations non terminées et les adresses invalides", async () => {
+    getMemoryTransport().reset();
+    await Client.findByIdAndUpdate(clientId, { contact: { email: "contact@client-a.ci" } });
+    const id = await creer({ statut: "Planifiée" });
+    const avantFin = await postRapport(id);
+    expect(avantFin.status).toBe(409);
+    expect(await avantFin.json()).toEqual({
+      error: "Le rapport ne peut être envoyé qu'après la fin de l'intervention",
+    });
+    expect(getMemoryTransport().sent).toHaveLength(0);
+
+    await Operation.findByIdAndUpdate(id, { statut: "Terminée" });
+    const adresseInvalide = await postRapport(id, { email: "pas-une-adresse" });
+    expect(adresseInvalide.status).toBe(400);
+    expect(getMemoryTransport().sent).toHaveLength(0);
   });
 });

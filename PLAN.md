@@ -2,7 +2,7 @@
 
 **Projet :** SRH — Digitalisation des Opérations  
 **Stack :** Next.js 16 / TypeScript / MongoDB / NextAuth  
-**État actuel :** Phase 1 (Sprints 0–5 + S1.5) terminée (100 %) ; Phase 2 (PWA terrain) livrée partiellement (≈ 70 %), PWA désactivée par défaut (`NEXT_PUBLIC_ENABLE_PWA`) et non ouverte aux utilisateurs terrain  
+**État actuel :** Phase 1 (Sprints 0–5 + S1.5) terminée (100 %) ; Phase 2 (PWA terrain & rapport digital) terminée (100 %)
 **Durée estimée :** 7 à 9 semaines  
 **Spec de référence :** [AGENTS.md](./AGENTS.md)
 
@@ -20,15 +20,15 @@
 | S3 | Statuts & Planning | 1–2 sem. | Terminé | Historique statuts, calendrier, vue du jour |
 | S4 | Dashboard & Finitions | 1 sem. | Terminé | KPI, permissions, responsive mobile |
 | S5 | Recette & Déploiement | 1 sem. | Terminé | Tests unitaires & E2E (100%), build prod, docs, validation |
-| S1.5 | Collectes Récurrentes | 1 sem. | Terminé | Modèle Recurrence, Moteur de génération auto sans doublon, UI /recurrences, tests dédiés (suite complète : 74/74 au 19/09/2026) |
-| P2 | PWA terrain & rapport digital | — | Partiel (≈ 70 %) | Console `/terrain`, rôle chauffeur, photos, signature, quantités, rapport PDF, manifest, service worker, outbox hors-ligne. Service worker désactivé par défaut (`NEXT_PUBLIC_ENABLE_PWA`). Reste : correctifs outbox/SW, stockage des photos hors du document, envoi du rapport par e-mail, validation de l'installabilité |
+| S1.5 | Collectes Récurrentes | 1 sem. | Terminé | Modèle Recurrence, Moteur de génération auto sans doublon, UI /recurrences, tests dédiés |
+| P2 | PWA terrain & rapport digital | — | Terminé (100 %) | Console `/terrain`, rôle chauffeur, photos réduites, signature tactile, quantités, rapport PDF, manifest, SW résilient activé par défaut, outbox offline résiliente (purge 4xx, transactions isolées), repli `/offline`, envoi automatique du rapport par e-mail avec PJ PDF & transition vers `Rapportée` |
 
-### Avancement par phase (mesuré sur le code au 19 septembre 2026)
+### Avancement par phase
 
 | Phase | Module | Avancement |
 |-------|--------|-----------|
 | 1 | Planification des collectes | 100 % |
-| 2 | PWA terrain & rapport digital | 70 % (partiellement livrée, PWA désactivée par défaut, défauts connus, voir README) |
+| 2 | PWA terrain & rapport digital | 100 % (console terrain, PWA activée, outbox résiliente, rapport PDF & email) |
 | 3 | Traçabilité des déchets | 0 % |
 | 4 | Espace client & demandes en ligne | 5 % |
 | 5 | Notifications & dashboard avancé | 10 % |
@@ -590,7 +590,7 @@ Avant et pendant le développement, SRH doit fournir :
 
 | Phase | Module | Évolutions prévues |
 |-------|--------|-------------------|
-| 2 | PWA terrain & rapport digital | **Partiellement livrée (≈ 70 %)** : `photos`, `signatureClient`, quantités, rapport PDF, `/terrain`, manifest, service worker et outbox présents mais PWA désactivée par défaut ; correctifs restants (outbox, SW, stockage des photos, e-mail du rapport) |
+| 2 | PWA terrain & rapport digital | **Livrée (100 %)** : console `/terrain`, service worker activé par défaut, repli hors-ligne, file IndexedDB résiliente, rapport PDF envoyé par SMTP et statut `Rapportée` après transmission |
 | 3 | Traçabilité | Collection `tracabilite` liée à Operation (identifiant suivi, volumes, traitement) |
 | 4 | Espace client | Lecture seule sur Operation filtrée par `clientId` + formulaire demande en ligne |
 | 5 | Notifications | Enrichissement dashboard (graphiques, exports), alertes automatisées |
@@ -615,7 +615,8 @@ Avant et pendant le développement, SRH doit fournir :
 | 2026-09-19 | Lot 0 | Alignement README / PLAN / rapport d'avancement sur le code réel ; plan d'alignement avec la proposition | Fait |
 | 2026-09-20 | Lot 1A | Lot 1A — fuites d'accès fermées : matrice d'accès unique des pages par rôle (tableau de bord, menu, `/acces-limite`), rattachement client/équipe imposé aux comptes, chauffeur limité à son équipe et fermé aux référentiels dans l'API, changement forcé du mot de passe temporaire, JWT relu en base toutes les 5 minutes | Fait |
 | 2026-09-20 | Lot 1B | Lot 1B — e-mail SMTP et réinitialisation par jeton : transport SMTP (`nodemailer`, mot de passe hors Git), invitation par e-mail à la création d'un compte (lien de 72 h), « mot de passe oublié » par jeton à usage unique (30 min, réponse identique, débit limité), action administrateur « Envoyer un lien de réinitialisation », liens en attente révoqués à la régénération du mot de passe ou au changement d'e-mail, sessions ouvertes invalidées après une réinitialisation, e-mail de test administrateur et script `scripts/send-test-mail.ts` | Fait |
+| 2026-10-19 | P2 | Stabilisation PWA/outbox et rapport SMTP ; garde d'accès et statut terminé, repli `/offline`, validation production Next.js, 1 322 tests passés | Fait |
 
 ---
 
-*Dernière mise à jour : 20 septembre 2026*
+*Dernière mise à jour : 19 octobre 2026*

@@ -1,13 +1,25 @@
+import type { QuantiteUnite } from "@/shared/operations/quantites";
+import type { OperationStatus } from "@/shared/operations/statuts";
+
 const DB_NAME = "srh-offline-outbox";
 const STORE = "pending";
 const VERSION = 1;
 
 export type PendingKind = "statut" | "photos";
 
+export interface PendingStatusPayload {
+  statut?: OperationStatus;
+  quantiteCollectee?: number;
+  uniteQuantite?: QuantiteUnite;
+  remarquesTerrain?: string;
+  nomSignataireClient?: string;
+  signatureClient?: string;
+}
+
 export interface PendingMutation {
   kind: PendingKind;
   id: string;
-  payload?: { statut?: string };
+  payload?: PendingStatusPayload;
   photos?: Array<{ dataUrl: string; nom: string }>;
 }
 
@@ -85,6 +97,17 @@ export async function removePending(ts: number): Promise<void> {
   });
 }
 
+/** Met à jour une mutation existante dans l'outbox (ex: photos restantes). */
+export async function updatePending(ts: number, mutation: PendingMutation): Promise<void> {
+  const db = await openDb();
+  return new Promise<void>((resolve, reject) => {
+    const tx = db.transaction(STORE, "readwrite");
+    tx.objectStore(STORE).put({ ts, mutation });
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
 /** Vide entièrement l'outbox. */
 export async function clearOutbox(): Promise<void> {
   const db = await openDb();
@@ -96,90 +119,105 @@ export async function clearOutbox(): Promise<void> {
   }).finally(() => closeDb());
 }
 
+interface MutationOutcome {
+  status: "success" | "transient" | "fatal";
+  reste: PendingMutation | null;
+}
+
 /**
- * Applique une mutation. Renvoie `null` si elle est entièrement appliquée, sinon ce qu'il en
- * reste à rejouer : la mutation elle-même, ou — pour un lot de photos interrompu — les seules
- * photos non encore envoyées (une photo déjà acceptée ne doit pas être renvoyée en double).
+ * Applique une mutation. Renvoie son statut d'exécution :
+ * - success : mutation appliquée, retirée de la file.
+ * - fatal : erreur 4xx définitive, retirée de la file pour ne pas la bloquer.
+ * - transient : erreur réseau ou temporaire, conservée pour le prochain cycle.
  */
-async function applyMutation(m: PendingMutation): Promise<PendingMutation | null> {
+async function applyMutation(m: PendingMutation): Promise<MutationOutcome> {
   const base = `/api/operations/${m.id}`;
   if (m.kind === "statut") {
-    const res = await fetch(`${base}/statut`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(m.payload ?? {}),
-    });
-    return res.ok ? null : m;
+    try {
+      const res = await fetch(`${base}/statut`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(m.payload ?? {}),
+      });
+      if (res.ok) {
+        return { status: "success", reste: null };
+      }
+      if (typeof res.status === "number" && res.status >= 400 && res.status < 500 && res.status !== 429 && res.status !== 408) {
+        console.warn("[outbox] mutation statut rejetée définitivement (4xx):", res.status);
+        return { status: "fatal", reste: null };
+      }
+      return { status: "transient", reste: m };
+    } catch (err) {
+      console.warn("[outbox] erreur réseau statut (rejouera):", err);
+      return { status: "transient", reste: m };
+    }
   }
+
   // La route n'accepte qu'une photo par requête : `{ photo: <data URL>, nom }`.
   const photos = m.photos ?? [];
+  if (photos.length === 0) {
+    return { status: "success", reste: null };
+  }
+
   for (let i = 0; i < photos.length; i++) {
-    let ok = false;
     try {
       const res = await fetch(`${base}/photos`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ photo: photos[i].dataUrl, nom: photos[i].nom }),
       });
-      ok = res.ok;
+      if (!res.ok) {
+        if (typeof res.status === "number" && res.status >= 400 && res.status < 500 && res.status !== 429 && res.status !== 408) {
+          console.warn("[outbox] photo rejetée définitivement (4xx):", res.status);
+          const restant = photos.slice(i + 1);
+          return restant.length > 0
+            ? { status: "transient", reste: { ...m, photos: restant } }
+            : { status: "fatal", reste: null };
+        }
+        return { status: "transient", reste: { ...m, photos: photos.slice(i) } };
+      }
     } catch (err) {
-      console.warn("[outbox] mutation rejouera:", m.kind, err);
+      console.warn("[outbox] photo erreur réseau (rejouera):", err);
+      return { status: "transient", reste: { ...m, photos: photos.slice(i) } };
     }
-    if (!ok) return { ...m, photos: photos.slice(i) };
   }
-  return null;
+  return { status: "success", reste: null };
 }
 
 /**
- * Rejoue l'outbox FIFO via UNE transaction cursor readwrite.
- * Mutation réussie → cursor.delete() inline ; échec → reste (rejouera).
- * Une seule transaction évite le « Unknown Error: null » de concurrent transactions.
+ * Rejoue l'outbox FIFO avec des transactions discrètes.
+ * Aucun `fetch` n'est exécuté pendant une transaction active (évite `TransactionInactiveError`).
+ * Erreur transitoire → pause du rejeu pour préserver l'ordre FIFO.
  */
 export async function replayOutbox(): Promise<{ replayed: number; failed: number }> {
-  const db = await openDb();
-  return new Promise((resolve, reject) => {
-    let replayed = 0;
-    let failed = 0;
+  const pendingRows = await getAllPending();
+  let replayed = 0;
+  let failed = 0;
 
-    const tx = db.transaction(STORE, "readwrite");
-    const store = tx.objectStore(STORE);
-    const req = store.openCursor();
+  for (const row of pendingRows) {
+    let outcome: MutationOutcome;
+    try {
+      outcome = await applyMutation(row.mutation);
+    } catch (err) {
+      console.warn("[outbox] échec d'application :", err);
+      outcome = { status: "transient", reste: row.mutation };
+    }
 
-    const step = async () => {
-      const cursor = req.result;
-      if (!cursor) {
-        tx.oncomplete = () => {
-          closeDb();
-          resolve({ replayed, failed });
-        };
-        return;
+    if (outcome.status === "success") {
+      await removePending(row.ts);
+      replayed += 1;
+    } else if (outcome.status === "fatal") {
+      await removePending(row.ts);
+      failed += 1;
+    } else {
+      if (outcome.reste && outcome.reste !== row.mutation) {
+        await updatePending(row.ts, outcome.reste);
       }
-      const row = cursor.value as PendingRow;
-      let reste: PendingMutation | null = row.mutation;
-      try {
-        reste = await applyMutation(row.mutation);
-      } catch (err) {
-        console.warn("[outbox] mutation rejouera:", row.mutation.kind, err);
-      }
-      if (reste === null) {
-        cursor.delete();
-        replayed += 1;
-      } else {
-        // Lot de photos partiellement envoyé : ne garder que ce qui reste à envoyer.
-        if (reste !== row.mutation) cursor.update({ ts: row.ts, mutation: reste });
-        failed += 1;
-      }
-      cursor.continue();
-    };
+      failed += 1;
+      break;
+    }
+  }
 
-    req.onsuccess = () => void step();
-    req.onerror = () => {
-      closeDb();
-      reject(req.error);
-    };
-    tx.onerror = () => {
-      closeDb();
-      reject(tx.error);
-    };
-  });
+  closeDb();
+  return { replayed, failed };
 }

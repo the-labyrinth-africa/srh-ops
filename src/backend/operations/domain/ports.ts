@@ -67,3 +67,21 @@ export type AlerteCoherence = (message: string) => void;
 export interface GenerateurRapportPdf {
   generer(operation: Operation, genereLe: Date): Promise<Uint8Array>;
 }
+
+export interface PieceJointeEmailRapport {
+  nomFichier: string;
+  contenu: Buffer;
+  typeMime: string;
+}
+
+export interface MessageEmailRapport {
+  destinataire: string;
+  sujet: string;
+  texte: string;
+  html?: string;
+  pieceJointe: PieceJointeEmailRapport;
+}
+
+export interface EnvoiEmailRapport {
+  envoyer(message: MessageEmailRapport): Promise<{ ok: boolean; raison?: string }>;
+}

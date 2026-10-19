@@ -87,3 +87,24 @@ export class UrlPhotoRequise extends Error {
     this.name = "UrlPhotoRequise";
   }
 }
+
+export class EmailClientManquant extends Error {
+  constructor() {
+    super("Aucune adresse e-mail trouvée pour ce client");
+    this.name = "EmailClientManquant";
+  }
+}
+
+export class EchecEnvoiRapportEmail extends Error {
+  constructor(message = "Échec lors de l'envoi du rapport par e-mail") {
+    super(message);
+    this.name = "EchecEnvoiRapportEmail";
+  }
+}
+
+export class RapportOperationNonTerminee extends Error {
+  constructor() {
+    super("Le rapport ne peut être envoyé qu'après la fin de l'intervention");
+    this.name = "RapportOperationNonTerminee";
+  }
+}

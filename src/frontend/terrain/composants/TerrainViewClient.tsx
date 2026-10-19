@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { StatusBadge, SignaturePad, formatApiError } from "@/frontend/design-system";
 import { getNextStatuses } from "@/shared/operations/transitions";
 import { compressImageFile } from "../utils/image-compress";
+import { useOfflineSync } from "../hooks/useOfflineSync";
 import type { OperationStatus } from "@/shared/operations/statuts";
 import type { QuantiteUnite } from "@/shared/operations/quantites";
 
@@ -20,7 +21,7 @@ interface OperationTerrain {
   nomSignataireClient?: string;
   signatureClient?: string;
   photos?: { url: string; nom: string }[];
-  clientId?: { nom: string };
+  clientId?: { nom: string; contact?: { email?: string; telephone?: string } };
   siteId?: { nom: string; adresse: string };
   equipeId?: { _id: string; nom: string };
   vehiculeId?: { identification: string };
@@ -29,10 +30,13 @@ interface OperationTerrain {
 
 export function TerrainViewClient() {
   const { data: session } = useSession();
+  const { online, pendingCount, replaying, replayNow, enqueueLocal } = useOfflineSync();
+
   const [operations, setOperations] = useState<OperationTerrain[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOp, setSelectedOp] = useState<OperationTerrain | null>(null);
   const [actionError, setActionError] = useState("");
+  const [actionSuccess, setActionSuccess] = useState("");
   const [saving, setSaving] = useState(false);
 
   // Formulaire d'édition de terrain
@@ -42,6 +46,11 @@ export function TerrainViewClient() {
   const [remarques, setRemarques] = useState("");
   const [nomSignataire, setNomSignataire] = useState("");
   const [signatureData, setSignatureData] = useState("");
+
+  // Envoi de rapport par email
+  const [emailClient, setEmailClient] = useState("");
+  const [showEmailInput, setShowEmailInput] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
 
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
@@ -55,7 +64,7 @@ export function TerrainViewClient() {
         setOperations(Array.isArray(data.items) ? data.items : []);
       }
     } catch {
-      // Ignorer
+      // En cas de panne ou hors-ligne, on conserve la liste actuelle
     } finally {
       setLoading(false);
     }
@@ -73,24 +82,39 @@ export function TerrainViewClient() {
     setRemarques(op.remarquesTerrain || "");
     setNomSignataire(op.nomSignataireClient || "");
     setSignatureData(op.signatureClient || "");
+    setEmailClient(op.clientId?.contact?.email || "");
+    setShowEmailInput(false);
     setActionError("");
+    setActionSuccess("");
   };
 
   const handleUpdateStatus = async (targetStatus: OperationStatus) => {
     if (!selectedOp) return;
     setActionError("");
+    setActionSuccess("");
     setSaving(true);
 
-    try {
-      const payload = {
-        statut: targetStatus,
-        quantiteCollectee: quantite ? Number(quantite) : undefined,
-        uniteQuantite: quantite ? unite : undefined,
-        remarquesTerrain: remarques || undefined,
-        nomSignataireClient: nomSignataire || undefined,
-        signatureClient: signatureData || undefined,
-      };
+    const payload = {
+      statut: targetStatus,
+      quantiteCollectee: quantite ? Number(quantite) : undefined,
+      uniteQuantite: quantite ? unite : undefined,
+      remarquesTerrain: remarques || undefined,
+      nomSignataireClient: nomSignataire || undefined,
+      signatureClient: signatureData || undefined,
+    };
 
+    if (!online) {
+      await enqueueLocal({ kind: "statut", id: selectedOp._id, payload });
+      setSelectedOp((prev) => (prev ? { ...prev, ...payload, statut: targetStatus } : null));
+      setOperations((prev) =>
+        prev.map((op) => (op._id === selectedOp._id ? { ...op, ...payload, statut: targetStatus } : op))
+      );
+      setActionSuccess("Statut enregistré hors-ligne (en attente de synchronisation).");
+      setSaving(false);
+      return;
+    }
+
+    try {
       const res = await fetch(`/api/operations/${selectedOp._id}/statut`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -103,10 +127,16 @@ export function TerrainViewClient() {
         return;
       }
 
+      setActionSuccess(`Statut mis à jour : ${targetStatus}`);
       await fetchTerrainOps();
-      setSelectedOp(null);
+      setSelectedOp((prev) => (prev ? { ...prev, ...payload, statut: targetStatus } : null));
     } catch {
-      setActionError("Erreur réseau lors de la mise à jour.");
+      await enqueueLocal({ kind: "statut", id: selectedOp._id, payload });
+      setSelectedOp((prev) => (prev ? { ...prev, ...payload, statut: targetStatus } : null));
+      setOperations((prev) =>
+        prev.map((op) => (op._id === selectedOp._id ? { ...op, ...payload, statut: targetStatus } : op))
+      );
+      setActionSuccess("Problème réseau : statut enregistré hors-ligne pour envoi ultérieur.");
     } finally {
       setSaving(false);
     }
@@ -115,13 +145,33 @@ export function TerrainViewClient() {
   const handleTakePhoto = async (files: FileList | null) => {
     if (!files || files.length === 0 || !selectedOp) return;
     setActionError("");
+    setActionSuccess("");
     setUploadingPhoto(true);
 
+    let dataUrl: string | null = null;
     try {
       const file = files[0];
-      const dataUrl = await compressImageFile(file);
+      dataUrl = await compressImageFile(file);
       if (!dataUrl) {
         setActionError("Image trop lourde même après compression.");
+        return;
+      }
+
+      if (!online) {
+        await enqueueLocal({
+          kind: "photos",
+          id: selectedOp._id,
+          photos: [{ dataUrl, nom: file.name }],
+        });
+        setSelectedOp((prev) =>
+          prev
+            ? {
+                ...prev,
+                photos: [...(prev.photos || []), { url: dataUrl!, nom: file.name }],
+              }
+            : null
+        );
+        setActionSuccess("Photo enregistrée hors-ligne (en attente de synchronisation).");
         return;
       }
 
@@ -146,12 +196,62 @@ export function TerrainViewClient() {
             }
           : null
       );
+      setActionSuccess("Photo ajoutée avec succès.");
       await fetchTerrainOps();
     } catch {
-      setActionError("Erreur lors de l'envoi de la photo.");
+      if (dataUrl) {
+        await enqueueLocal({
+          kind: "photos",
+          id: selectedOp._id,
+          photos: [{ dataUrl, nom: files[0].name }],
+        });
+        setSelectedOp((prev) =>
+          prev
+            ? {
+                ...prev,
+                photos: [...(prev.photos || []), { url: dataUrl!, nom: files[0].name }],
+              }
+            : null
+        );
+        setActionSuccess("Photo enregistrée hors-ligne pour envoi ultérieur.");
+      } else {
+        setActionError("Erreur lors de l'enregistrement de la photo.");
+      }
     } finally {
       setUploadingPhoto(false);
       if (cameraInputRef.current) cameraInputRef.current.value = "";
+    }
+  };
+
+  const handleSendReportEmail = async () => {
+    if (!selectedOp) return;
+    setActionError("");
+    setActionSuccess("");
+    setSendingEmail(true);
+
+    try {
+      const res = await fetch(`/api/operations/${selectedOp._id}/rapport`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: emailClient || undefined }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setActionError(formatApiError(data.error));
+        return;
+      }
+
+      setActionSuccess(`Rapport officiel envoyé par e-mail à ${data.destinataire}.`);
+      setShowEmailInput(false);
+      setSelectedOp((prev) => (prev ? { ...prev, statut: "Rapportée" } : null));
+      setOperations((prev) =>
+        prev.map((op) => (op._id === selectedOp._id ? { ...op, statut: "Rapportée" } : op))
+      );
+    } catch {
+      setActionError("Erreur réseau lors de l'envoi du rapport par e-mail.");
+    } finally {
+      setSendingEmail(false);
     }
   };
 
@@ -166,16 +266,46 @@ export function TerrainViewClient() {
             Console Terrain
           </h1>
           <p className="font-label-sm text-label-sm text-on-surface-variant">
-            {session?.user?.name || "Chauffeur"}
+            {session?.user?.name || "Chauffeur"} • SRH Recyclage
           </p>
         </div>
         <Link
           href="/"
           className="rounded-lg bg-surface-container-high p-2 text-on-surface-variant hover:text-on-surface"
+          title="Accueil"
         >
           <span className="material-symbols-outlined text-[20px]">home</span>
         </Link>
       </div>
+
+      {/* Bandeau d'état réseau et synchronisation hors-ligne */}
+      {!online && (
+        <div className="flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-amber-700 dark:text-amber-300 font-label-md text-label-md font-semibold">
+          <span className="material-symbols-outlined text-[20px]">cloud_off</span>
+          <span>
+            Mode hors-ligne ({pendingCount} action{pendingCount > 1 ? "s" : ""} en attente de synchronisation)
+          </span>
+        </div>
+      )}
+
+      {online && pendingCount > 0 && (
+        <div className="flex items-center justify-between rounded-xl border border-primary/30 bg-primary/10 p-3 text-primary">
+          <div className="flex items-center gap-2 font-label-md text-label-md font-semibold">
+            <span className="material-symbols-outlined text-[20px]">sync</span>
+            <span>
+              {pendingCount} action{pendingCount > 1 ? "s" : ""} à synchroniser
+            </span>
+          </div>
+          <button
+            type="button"
+            disabled={replaying}
+            onClick={() => void replayNow()}
+            className="rounded-lg bg-primary px-3 py-1.5 text-xs font-bold text-on-primary hover:bg-primary/90 disabled:opacity-50"
+          >
+            {replaying ? "Envoi..." : "Synchroniser"}
+          </button>
+        </div>
+      )}
 
       {/* Vue détail / action sur opération sélectionnée */}
       {selectedOp ? (
@@ -213,148 +343,254 @@ export function TerrainViewClient() {
             </div>
           )}
 
+          {actionSuccess && (
+            <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-3 font-body-md text-body-md text-emerald-800 dark:text-emerald-300">
+              {actionSuccess}
+            </div>
+          )}
+
           {actionError && (
             <div className="rounded-xl bg-error-container p-3 font-body-md text-body-md text-on-error-container">
               {actionError}
             </div>
           )}
 
-          {/* Formulaire terrain */}
-          <div className="space-y-4 pt-2 border-t border-surface-container-high">
-            <div>
-              <label className="block font-label-md text-label-md font-semibold text-on-surface">
-                Changer le statut :
-              </label>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {getNextStatuses(selectedOp.statut).map((st) => (
-                  <button
-                    key={st}
-                    type="button"
-                    onClick={() => setNextStatut(st)}
-                    className={`rounded-xl border px-3 py-2 font-label-md text-label-md transition-all ${
-                      nextStatut === st
-                        ? "border-primary bg-primary-container font-bold text-on-primary"
-                        : "border-outline-variant bg-surface text-on-surface-variant hover:bg-surface-container-high"
-                    }`}
-                  >
-                    {st}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block font-label-md text-label-md font-semibold text-on-surface">
-                  Quantité
-                </label>
-                <input
-                  type="number"
-                  step="0.1"
-                  placeholder="0.0"
-                  value={quantite}
-                  onChange={(e) => setQuantite(e.target.value)}
-                  className="mt-1 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2.5 font-body-md text-body-md text-on-surface outline-none"
-                />
-              </div>
-              <div>
-                <label className="block font-label-md text-label-md font-semibold text-on-surface">
-                  Unité
-                </label>
-                <select
-                  value={unite}
-                  onChange={(e) => setUnite(e.target.value as QuantiteUnite)}
-                  className="mt-1 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2.5 font-body-md text-body-md text-on-surface outline-none"
-                >
-                  <option value="Litres">Litres</option>
-                  <option value="Kg">Kg</option>
-                  <option value="M3">M3</option>
-                  <option value="Bacs">Bacs</option>
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label className="block font-label-md text-label-md font-semibold text-on-surface">
-                Remarques
-              </label>
-              <textarea
-                rows={2}
-                placeholder="Remarques..."
-                value={remarques}
-                onChange={(e) => setRemarques(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-body-md text-on-surface outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block font-label-md text-label-md font-semibold text-on-surface">
-                Nom du signataire
-              </label>
-              <input
-                type="text"
-                placeholder="Nom du client"
-                value={nomSignataire}
-                onChange={(e) => setNomSignataire(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-body-md text-on-surface outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block font-label-md text-label-md font-semibold text-on-surface mb-2">
-                Signature
-              </label>
-              <SignaturePad
-                onSignature={setSignatureData}
-                existingSignature={selectedOp.signatureClient}
-              />
-            </div>
-
-            {/* Envoi de photo par appareil photo mobile */}
-            <div>
-              <input
-                ref={cameraInputRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                className="hidden"
-                onChange={(e) => handleTakePhoto(e.target.files)}
-              />
-              <button
-                type="button"
-                disabled={uploadingPhoto}
-                onClick={() => cameraInputRef.current?.click()}
-                className="w-full flex items-center justify-center gap-2 rounded-xl border border-outline-variant bg-surface-container-low px-4 py-3 font-label-md text-label-md font-semibold text-on-surface hover:bg-surface-container-high disabled:opacity-50"
-              >
-                <span className="material-symbols-outlined text-[20px]">photo_camera</span>
-                {uploadingPhoto ? "Prise de photo..." : "Prendre une photo"}
-              </button>
-
-              {selectedOp.photos && selectedOp.photos.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {selectedOp.photos.map((p, i) => (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      key={i}
-                      src={p.url}
-                      alt={p.nom}
-                      className="h-16 w-16 rounded-lg object-cover border border-outline-variant"
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {nextStatut && (
+          {/* Action rapide selon le stade actuel de l'intervention (PDF §6) */}
+          <div className="pt-2 border-t border-surface-container-high space-y-3">
+            {(selectedOp.statut === "Planifiée" || selectedOp.statut === "Affectée") && (
               <button
                 type="button"
                 disabled={saving}
-                onClick={() => handleUpdateStatus(nextStatut as OperationStatus)}
-                className="w-full rounded-xl bg-primary px-4 py-3.5 font-label-md text-label-md font-bold text-on-primary shadow-md hover:bg-primary/90 disabled:opacity-50"
+                onClick={() => handleUpdateStatus("En route")}
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 font-label-md text-label-md font-bold text-on-primary shadow-md hover:bg-primary/90 disabled:opacity-50"
               >
-                {saving ? "Mise à jour..." : `Valider "${nextStatut}"`}
+                <span className="material-symbols-outlined text-[20px]">directions_car</span>
+                {saving ? "Mise à jour..." : "1. Prendre la route (En route)"}
               </button>
             )}
+
+            {selectedOp.statut === "En route" && (
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => handleUpdateStatus("En cours")}
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 font-label-md text-label-md font-bold text-on-primary shadow-md hover:bg-primary/90 disabled:opacity-50"
+              >
+                <span className="material-symbols-outlined text-[20px]">pin_drop</span>
+                {saving ? "Mise à jour..." : "2. Arrivé sur site (Passer En cours)"}
+              </button>
+            )}
+
+            {/* Formulaire de collecte (actif quand en cours ou modifiable) */}
+            {(selectedOp.statut === "En cours" || selectedOp.statut === "Retardée" || nextStatut) && (
+              <div className="space-y-4 pt-2">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-label-md text-label-md font-semibold text-on-surface">
+                      Quantité collectée
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      placeholder="0.0"
+                      value={quantite}
+                      onChange={(e) => setQuantite(e.target.value)}
+                      className="mt-1 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2.5 font-body-md text-body-md text-on-surface outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-label-md text-label-md font-semibold text-on-surface">
+                      Unité
+                    </label>
+                    <select
+                      value={unite}
+                      onChange={(e) => setUnite(e.target.value as QuantiteUnite)}
+                      className="mt-1 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2.5 font-body-md text-body-md text-on-surface outline-none"
+                    >
+                      <option value="Litres">Litres</option>
+                      <option value="Kg">Kg</option>
+                      <option value="M3">M3</option>
+                      <option value="Bacs">Bacs</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-label-md text-label-md font-semibold text-on-surface">
+                    Remarques terrain
+                  </label>
+                  <textarea
+                    rows={2}
+                    placeholder="Observations, état du bac, propreté..."
+                    value={remarques}
+                    onChange={(e) => setRemarques(e.target.value)}
+                    className="mt-1 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-body-md text-on-surface outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-label-md text-label-md font-semibold text-on-surface">
+                    Nom du signataire client
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Nom du responsable sur site"
+                    value={nomSignataire}
+                    onChange={(e) => setNomSignataire(e.target.value)}
+                    className="mt-1 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-body-md text-on-surface outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-label-md text-label-md font-semibold text-on-surface mb-2">
+                    Signature du client
+                  </label>
+                  <SignaturePad
+                    onSignature={setSignatureData}
+                    existingSignature={selectedOp.signatureClient}
+                  />
+                </div>
+
+                {/* Prise de photos terrain */}
+                <div>
+                  <input
+                    ref={cameraInputRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                    onChange={(e) => handleTakePhoto(e.target.files)}
+                  />
+                  <button
+                    type="button"
+                    disabled={uploadingPhoto}
+                    onClick={() => cameraInputRef.current?.click()}
+                    className="w-full flex items-center justify-center gap-2 rounded-xl border border-outline-variant bg-surface-container-low px-4 py-3 font-label-md text-label-md font-semibold text-on-surface hover:bg-surface-container-high disabled:opacity-50"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">photo_camera</span>
+                    {uploadingPhoto ? "Traitement de la photo..." : "Prendre une photo"}
+                  </button>
+
+                  {selectedOp.photos && selectedOp.photos.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {selectedOp.photos.map((p, i) => (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          key={i}
+                          src={p.url}
+                          alt={p.nom}
+                          className="h-16 w-16 rounded-lg object-cover border border-outline-variant"
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {selectedOp.statut === "En cours" && (
+                  <button
+                    type="button"
+                    disabled={saving}
+                    onClick={() => handleUpdateStatus("Terminée")}
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 font-label-md text-label-md font-bold text-on-primary shadow-md hover:bg-primary/90 disabled:opacity-50"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">task_alt</span>
+                    {saving ? "Enregistrement..." : "3. Clôturer l'intervention (Terminée)"}
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Actions post-intervention : rapport PDF et e-mail client */}
+            {(selectedOp.statut === "Terminée" || selectedOp.statut === "Rapportée") && (
+              <div className="space-y-3 pt-2">
+                {selectedOp.statut === "Rapportée" && (
+                  <div className="flex items-center gap-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-3 text-emerald-800 dark:text-emerald-300 font-label-md text-label-md font-semibold">
+                    <span className="material-symbols-outlined text-[20px]">mark_email_read</span>
+                    Rapport officiel transmis au client
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <a
+                    href={`/api/operations/${selectedOp._id}/rapport`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-outline-variant bg-surface px-4 py-3 font-label-md text-label-md font-semibold text-on-surface hover:bg-surface-container-high"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">download</span>
+                    Télécharger le PDF
+                  </a>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowEmailInput((v) => !v)}
+                    className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 font-label-md text-label-md font-bold text-on-primary hover:bg-primary/90"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">send</span>
+                    Envoyer par e-mail
+                  </button>
+                </div>
+
+                {showEmailInput && (
+                  <div className="rounded-xl border border-primary/30 bg-surface-container-low p-4 space-y-3">
+                    <label className="block font-label-md text-label-md font-semibold text-on-surface">
+                      Adresse e-mail de réception du client :
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="contact@client.ci"
+                      value={emailClient}
+                      onChange={(e) => setEmailClient(e.target.value)}
+                      className="w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-body-md text-on-surface outline-none"
+                    />
+                    <button
+                      type="button"
+                      disabled={sendingEmail || !emailClient}
+                      onClick={handleSendReportEmail}
+                      className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 font-label-md text-label-md font-bold text-on-primary hover:bg-primary/90 disabled:opacity-50"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">outgoing_mail</span>
+                      {sendingEmail ? "Envoi du rapport..." : "Envoyer le rapport"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Sélecteur de statut libre pour cas exceptionnels (Retardée, Annulée) */}
+            <div className="pt-2">
+              <details className="text-xs text-outline cursor-pointer">
+                <summary className="font-semibold hover:text-on-surface py-1">
+                  Changement de statut alternatif (Retardée, Annulée)...
+                </summary>
+                <div className="mt-2 flex flex-wrap gap-2 pt-2 border-t border-surface-container-high">
+                  {getNextStatuses(selectedOp.statut).map((st) => (
+                    <button
+                      key={st}
+                      type="button"
+                      onClick={() => setNextStatut(st)}
+                      className={`rounded-xl border px-3 py-1.5 font-label-sm text-label-sm transition-all ${
+                        nextStatut === st
+                          ? "border-primary bg-primary-container font-bold text-on-primary"
+                          : "border-outline-variant bg-surface text-on-surface-variant hover:bg-surface-container-high"
+                      }`}
+                    >
+                      Passer à « {st} »
+                    </button>
+                  ))}
+                </div>
+                {nextStatut && (
+                  <button
+                    type="button"
+                    disabled={saving}
+                    onClick={() => handleUpdateStatus(nextStatut as OperationStatus)}
+                    className="mt-3 w-full rounded-xl bg-surface-container-high px-3 py-2 font-label-md text-label-md font-bold text-on-surface hover:bg-surface-container-highest"
+                  >
+                    Valider le statut « {nextStatut} »
+                  </button>
+                )}
+              </details>
+            </div>
           </div>
         </div>
       ) : (

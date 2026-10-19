@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  clearOutbox,
   enqueueMutation,
   getAllPending,
   removePending,
@@ -120,6 +119,16 @@ describe("outbox hors-ligne (IndexedDB)", () => {
     await enqueueMutation({ kind: "photos", id: "op1", photos: [{ dataUrl: "data:image/png;base64,abcd", nom: "a.png" }] });
     const pending = await getAllPending();
     await removePending(pending[0].ts);
+    expect(await getAllPending()).toHaveLength(0);
+  });
+
+  it("retire une mutation rejetée définitivement avec un code 4xx (400, 404) pour ne pas bloquer l'outbox FIFO", async () => {
+    vi.stubGlobal("fetch", vi.fn(() => Promise.resolve({ ok: false, status: 404 } as Response)));
+
+    await enqueueMutation({ kind: "statut", id: "op-supprimee", payload: { statut: "En route" } });
+    const res = await replayOutbox();
+    expect(res).toEqual({ replayed: 0, failed: 1 });
+    // La mutation définitivement invalide a été sortie de la file
     expect(await getAllPending()).toHaveLength(0);
   });
 });

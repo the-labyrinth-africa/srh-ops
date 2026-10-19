@@ -49,6 +49,8 @@ export function OperationDetailClient({ id }: { id: string }) {
   const [error, setError] = useState("");
   const [actionError, setActionError] = useState("");
   const [statusLoading, setStatusLoading] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailSuccess, setEmailSuccess] = useState("");
 
   // Formulaire changement de statut & terrain
   const [nextStatut, setNextStatut] = useState<OperationStatus | "">("");
@@ -139,6 +141,29 @@ export function OperationDetailClient({ id }: { id: string }) {
     }
   };
 
+  const handleSendReportEmail = async () => {
+    setActionError("");
+    setEmailSuccess("");
+    setSendingEmail(true);
+    try {
+      const res = await fetch(`/api/operations/${id}/rapport`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setActionError(formatApiError(data.error));
+        return;
+      }
+      setEmailSuccess(`Rapport officiel envoyé par e-mail à ${data.destinataire}.`);
+      await fetchDetail();
+    } catch {
+      setActionError("Erreur lors de l'envoi du rapport par e-mail.");
+    } finally {
+      setSendingEmail(false);
+    }
+  };
+
   if (loading) {
     return <div className="p-margin-desktop text-outline">Chargement du détail...</div>;
   }
@@ -160,6 +185,7 @@ export function OperationDetailClient({ id }: { id: string }) {
   }
 
   const nextOptions = getNextStatuses(operation.statut);
+  const rapportEnvoyable = operation.statut === "Terminée" || operation.statut === "Rapportée";
 
   return (
     <div className="mx-auto max-w-5xl space-y-gutter-md p-margin-mobile lg:p-margin-desktop">
@@ -185,7 +211,7 @@ export function OperationDetailClient({ id }: { id: string }) {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <a
             href={`/api/operations/${id}/rapport`}
             target="_blank"
@@ -195,6 +221,18 @@ export function OperationDetailClient({ id }: { id: string }) {
             <span className="material-symbols-outlined text-[18px]">picture_as_pdf</span>
             Rapport PDF
           </a>
+          {canEdit && rapportEnvoyable && (
+            <button
+              type="button"
+              disabled={sendingEmail}
+              onClick={handleSendReportEmail}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2 font-label-md text-label-md font-semibold text-primary hover:bg-primary/20 disabled:opacity-50"
+              title="Envoyer le rapport officiel par e-mail au client"
+            >
+              <span className="material-symbols-outlined text-[18px]">outgoing_mail</span>
+              {sendingEmail ? "Envoi..." : "Envoyer au client"}
+            </button>
+          )}
           {canEdit && (
             <button
               type="button"
@@ -208,11 +246,18 @@ export function OperationDetailClient({ id }: { id: string }) {
         </div>
       </div>
 
+      {emailSuccess && (
+        <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-gutter-sm text-emerald-800 dark:text-emerald-300 font-label-md text-label-md">
+          {emailSuccess}
+        </div>
+      )}
+
       {actionError && (
         <div className="rounded-xl bg-error-container p-gutter-sm text-on-error-container">
           {actionError}
         </div>
       )}
+
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Colonne gauche/centre : Détails & Terrain */}
