@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireTerrainWrite } from "@/backend/comptes";
 import { notifierChangementStatut, traiterFileNotifications } from "@/backend/notifications";
+import { envoyerPushAuxAbonnes } from "@/backend/notifications/application/web-push";
 import { runAfterResponse } from "@/backend/platform/execution-differee/execution-differee";
 import { guardObjectId } from "@/backend/platform/http/identifiants";
 import { casDUsageTerrain } from "../composition";
@@ -40,6 +41,12 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       await runAfterResponse(async () => {
         await notifierChangementStatut(id, ancienStatut, derniereEntree.statut, derniereEntree.date);
         await traiterFileNotifications();
+        await envoyerPushAuxAbonnes({
+          title: "Statut d’opération mis à jour",
+          body: `${ancienStatut} → ${derniereEntree.statut}`,
+          tag: `operation-${id}`,
+          roles: ["admin", "dispatcher"],
+        });
       });
     }
     return NextResponse.json(versReponseOperation(operation));

@@ -21,6 +21,6 @@ export default async function middleware(req: NextRequestWithAuth, event: NextFe
 
 export const config = {
   matcher: [
-    "/((?!login|forgot-password|reset-password|demande(?:/|$)|api/demandes/publiques(?:/|$)|api/cron/notifications(?:/|$)|api/auth|_next/static|_next/image|favicon.ico|apple-touch-icon|manifest\\.webmanifest|logo-noir\\.png|icons/).*)",
+    "/((?!login|forgot-password|reset-password|demande(?:/|$)|api/demandes/publiques(?:/|$)|api/cron/notifications(?:/|$)|api/auth|_next/static|_next/image|favicon.ico|apple-touch-icon|manifest\\.webmanifest|push-sw\\.js|logo-noir\\.png|icons/).*)",
   ],
 };

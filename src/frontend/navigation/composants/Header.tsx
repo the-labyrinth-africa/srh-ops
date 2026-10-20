@@ -4,6 +4,7 @@ import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { useState } from "react";
 import { roleLabel } from "@/shared/acces/permissions";
+import { PushNotificationSettings } from "@/frontend/terrain/composants/PushNotificationSettings";
 
 export function Header({
   onMenuClick,
@@ -57,13 +58,15 @@ export function Header({
           {notificationsOpen && (
             <div
               id="notifications-panel"
-              role="status"
+              role="region"
+              aria-label="Notifications"
               className="absolute right-0 top-full z-50 mt-2 w-72 rounded-2xl border border-surface-container-high bg-surface-container-lowest p-4 shadow-lg sm:w-80"
             >
               <p className="font-label-md text-label-md font-semibold text-on-surface">Notifications</p>
               <p className="mt-2 font-body-md text-body-md text-on-surface-variant">
-                Les alertes automatiques sont envoyées par e-mail. Le centre de notifications dans l’application n’est pas encore disponible.
+                Recevez les alertes opérationnelles sur cet appareil.
               </p>
+              <PushNotificationSettings />
             </div>
           )}
         </div>

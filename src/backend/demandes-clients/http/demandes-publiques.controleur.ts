@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { notifierNouvelleDemande, traiterFileNotifications } from "@/backend/notifications";
+import { envoyerPushAuxAbonnes } from "@/backend/notifications/application/web-push";
 import { runAfterResponse } from "@/backend/platform/execution-differee/execution-differee";
 import { adresseIpDemande, casDUsageDemandes } from "../composition";
 import { LimiteDemandesAtteinte } from "../domain/erreurs";
@@ -85,6 +86,12 @@ export async function POST(request: NextRequest) {
     await runAfterResponse(async () => {
       await notifierNouvelleDemande(demande);
       await traiterFileNotifications();
+      await envoyerPushAuxAbonnes({
+        title: "Nouvelle demande client",
+        body: "Une demande attend d’être examinée.",
+        url: "/terrain",
+        roles: ["admin", "dispatcher"],
+      });
     });
     return NextResponse.json(
       { message: "Votre demande a été transmise à l'équipe pour vérification." },

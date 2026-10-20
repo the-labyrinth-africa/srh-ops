@@ -129,6 +129,9 @@ SMTP_USER=
 SMTP_PASSWORD=
 MAIL_FROM=
 CRON_SECRET=
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+VAPID_SUBJECT=mailto:admin@votre-domaine.com
 ```
 
 ## Comptes seed
@@ -312,6 +315,21 @@ Les alertes qui dépendent d'un compte destinataire nécessitent que les comptes
 aient une adresse e-mail valide. La livraison réelle dépend également d'une configuration SMTP
 valide.
 
+### Notifications Web Push de la console terrain
+
+La cloche du tableau de bord permet d'activer les notifications sur l'appareil courant. Le
+navigateur demande la permission à l'utilisateur ; les abonnements sont liés à son compte et
+stockés dans MongoDB. Les changements de statut et les nouvelles demandes publiques déclenchent
+une notification qui ouvre la console terrain. Les navigateurs doivent
+supporter Push API et service workers, et l'application doit être servie en HTTPS (localhost est
+accepté pour le développement).
+
+Générer une paire de clés avec `npx web-push generate-vapid-keys`, puis définir `VAPID_PUBLIC_KEY`,
+`VAPID_PRIVATE_KEY` et `VAPID_SUBJECT` (`mailto:adresse@domaine.tld`) dans `.env.local` et dans les
+variables de l'hébergeur. La clé privée doit rester secrète. L'API authentifiée expose la clé
+publique via `GET /api/push/public-key` et gère les abonnements via `POST` / `DELETE`
+`/api/push/subscriptions`.
+
 Le tableau de bord interne présente une tendance des six derniers mois par statut effectif et
 permet l'export CSV d'une période choisie. L'API `/api/dashboard/export` exige une session
 interne, limite la période à 366 jours et le résultat à 5 000 opérations ; les cellules textuelles
@@ -353,6 +371,9 @@ comptes.
    | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `MAIL_FROM` | configuration SMTP (voir « E-mail (SMTP) ») |
    | `SMTP_PASSWORD` | mot de passe de la boîte SMTP, en mode **Sensitive** |
    | `CRON_SECRET` | secret aléatoire pour authentifier le Cron des notifications, en mode **Sensitive** |
+   | `VAPID_PUBLIC_KEY` | clé publique générée avec `npx web-push generate-vapid-keys` |
+   | `VAPID_PRIVATE_KEY` | clé privée VAPID, en mode **Sensitive** |
+   | `VAPID_SUBJECT` | adresse de contact VAPID, ex. `mailto:admin@domaine.tld` |
 
    Pour **Production uniquement**, ajouter aussi `PLATFORM_SUPERADMIN_USERNAME`,
    `PLATFORM_SUPERADMIN_NAME`, `PLATFORM_SUPERADMIN_EMAIL` et `PLATFORM_SUPERADMIN_PASSWORD`
