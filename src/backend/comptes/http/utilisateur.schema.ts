@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { USER_ROLES, type UserRole } from "@/shared/acces/roles";
+import { TENANT_ROLES } from "@/shared/acces/roles";
 import { optionalObjectIdSchema } from "@/shared/validators/object-id";
 import type { UtilisateurSaisie } from "../domain/utilisateur";
 
@@ -36,17 +36,28 @@ export const userCreateSchema = z
       .regex(/^[a-zA-Z0-9_.-]+$/, "Caractères autorisés: lettres, chiffres, _, ., -"),
     nom: z.string().min(2, "Le nom est requis"),
     email: z.string().email("Adresse email invalide"),
-    role: z.enum(USER_ROLES as [string, ...string[]]),
+    role: z.enum(TENANT_ROLES),
     telephone: z.string().optional().default(""),
     ...scopedFields,
   })
   .superRefine(checkRoleScope);
 
+export const premierAdminCreateSchema = z.object({
+  username: z
+    .string()
+    .min(3, "Le nom d'utilisateur doit contenir au moins 3 caractères")
+    .max(32, "Le nom d'utilisateur ne peut pas dépasser 32 caractères")
+    .regex(/^[a-zA-Z0-9_.-]+$/, "Caractères autorisés: lettres, chiffres, _, ., -"),
+  nom: z.string().min(2, "Le nom est requis"),
+  email: z.string().email("Adresse email invalide"),
+  telephone: z.string().optional().default(""),
+});
+
 export const userUpdateSchema = z
   .object({
     nom: z.string().min(2, "Le nom est requis"),
     email: z.string().email("Adresse email invalide"),
-    role: z.enum(USER_ROLES as [string, ...string[]]),
+    role: z.enum(TENANT_ROLES),
     telephone: z.string().optional().default(""),
     ...scopedFields,
   })
@@ -60,7 +71,7 @@ export function versSaisieCreation(entree: UserCreateInput): UtilisateurSaisie {
     username: entree.username,
     nom: entree.nom,
     email: entree.email,
-    role: entree.role as UserRole,
+    role: entree.role,
     telephone: entree.telephone,
     clientId: entree.clientId,
     equipeId: entree.equipeId,
@@ -75,7 +86,7 @@ export function versSaisieModification(entree: UserUpdateInput): UtilisateurSais
     username: "",
     nom: entree.nom,
     email: entree.email,
-    role: entree.role as UserRole,
+    role: entree.role,
     telephone: entree.telephone,
     clientId: entree.clientId,
     equipeId: entree.equipeId,

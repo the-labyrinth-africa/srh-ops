@@ -106,15 +106,15 @@ describe("Caractérisation — import Excel (formes exactes)", () => {
       expect(await Operation.countDocuments()).toBe(0);
     });
 
-    it("lignes ignorées et erreurs reportées dans le résumé ; aperçu limité à dix lignes", async () => {
+    it("lignes ignorées et erreurs reportées dans le résumé ; aperçu complet disponible", async () => {
       const lignes: Ligne[] = Array.from({ length: 12 }, (_, i) => [`site ${i}`, J11, 10 + i]);
       lignes.push(["sans quantité", J11, null], ["date illisible", "pas une date", 5], [null, null, null]);
 
       const { summary } = await (await importer(multipart(await classeur(lignes), { mode: "preview" }))).json();
 
       expect(summary.totalRows).toBe(12);
-      expect(summary.apercu).toHaveLength(10);
-      expect(summary.skippedRows).toBe(3);
+      expect(summary.apercu).toHaveLength(12);
+      expect(summary.skippedRows).toBe(2);
       expect(summary.errors).toEqual([
         { row: 14, message: "Ligne 14 ignorée : quantité nulle ou absente" },
         { row: 15, message: 'Date invalide à la ligne 15: "pas une date"' },
@@ -280,7 +280,7 @@ describe("Caractérisation — import Excel (formes exactes)", () => {
       const sansEntetes = await importer(multipart(await classeur([[111, 222, 333]], ["foo1", "bar2", "xyz3"]), { mode: "preview" }));
       expect(sansEntetes.status).toBe(422);
       const message =
-        "Impossible de détecter les colonnes (SITES, DATES, QTES). Vérifiez que la première feuille contient ces en-têtes sur les 12 premières lignes.";
+        "Colonnes obligatoires introuvables : SITES, DATES et QTES. Vérifiez les en-têtes de la première feuille dans les 12 premières lignes.";
       expect(await sansEntetes.json()).toEqual({ error: message, errors: [{ row: 0, message }] });
 
       const vide = await importer(multipart(await classeur([]), { mode: "import", clientId }));

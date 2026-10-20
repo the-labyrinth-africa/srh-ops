@@ -99,7 +99,7 @@ describe("notifications automatiques", () => {
     expect(resultat).toEqual({ envoyes: 1, aReessayer: 0, echecDefinitif: 0 });
     expect(envoyer).toHaveBeenCalledWith(expect.objectContaining({
       to: "client@example.com",
-      subject: "Mise à jour de votre collecte SRH",
+      subject: "Mise à jour de votre collecte",
     }));
   });
 

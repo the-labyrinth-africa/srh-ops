@@ -9,6 +9,15 @@ describe("visibilité du guide selon le rôle", () => {
     expect(ids("admin")).toEqual(["lecture", "dispatcher", "admin", "chauffeur", "client"]);
   });
 
+  it("le super administrateur peut consulter les guides de tous les rôles d'entreprise", () => {
+    expect(ids("superadmin")).toEqual(["lecture", "dispatcher", "admin", "superadmin", "chauffeur", "client"]);
+  });
+
+  it("le guide du super administrateur explique le provisionnement du premier Admin Ops", () => {
+    const guideSuperadmin = guideSectionsForRole("superadmin").find((section) => section.id === "superadmin");
+    expect(guideSuperadmin?.topics.map((topic) => topic.title)).toContain("Créer le premier compte Admin Ops");
+  });
+
   it("le dispatcher voit son guide et celui de lecture seule, mais pas les rôles supérieurs ou spécialisés", () => {
     expect(ids("dispatcher")).toEqual(["lecture", "dispatcher"]);
   });

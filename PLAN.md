@@ -143,7 +143,7 @@ gantt
 ### 3.4 Structure cible du projet
 
 ```
-srh-ops/
+wom/
 ├── app/                                    # à créer
 │   ├── (auth)/
 │   │   ├── login/page.tsx                  # à créer

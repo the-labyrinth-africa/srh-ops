@@ -80,7 +80,7 @@ export function ForgotPasswordClient() {
                 required
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="ex: jdupont ou j.dupont@srh.com"
+                placeholder="ex: jdupont ou j.dupont@entreprise.com"
                 className="h-12 w-full rounded-xl bg-surface-container-low px-4 font-body-md text-body-md text-on-surface outline-none focus:ring-2 focus:ring-primary"
               />
             </div>

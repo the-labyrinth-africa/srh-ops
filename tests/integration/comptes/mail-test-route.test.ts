@@ -40,7 +40,7 @@ describe("POST /api/mail/test", () => {
     const sent = getMemoryTransport().sent;
     expect(sent).toHaveLength(1);
     expect(sent[0].to).toBe("admin1@srh.ci");
-    expect(sent[0].subject).toContain("SRH Ops");
+    expect(sent[0].subject).toContain("WOM");
   });
 
   it.each(["dispatcher", "lecture", "chauffeur", "client"])("%s est refusé (403) et rien n'est envoyé", async (role) => {

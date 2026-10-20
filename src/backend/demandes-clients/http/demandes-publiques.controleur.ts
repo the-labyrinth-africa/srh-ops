@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
       await traiterFileNotifications();
     });
     return NextResponse.json(
-      { message: "Votre demande a été transmise à l'équipe SRH pour vérification." },
+      { message: "Votre demande a été transmise à l'équipe pour vérification." },
       { status: 202, headers: { "Cache-Control": "no-store" } }
     );
   } catch (error) {

@@ -46,7 +46,6 @@ export async function parseExcelFile(buffer: Uint8Array, fileName: string): Prom
     const headers = Object.entries(cells);
     if (headers.length === 0) continue;
 
-    let detected = 0;
     let siteCol = -1;
     let dateCol = -1;
     let qteCol = -1;
@@ -55,17 +54,14 @@ export async function parseExcelFile(buffer: Uint8Array, fileName: string): Prom
       const colNum = parseInt(col, 10);
       if (siteCol === -1 && correspondAUnEntete(value, ENTETES_SITE)) {
         siteCol = colNum;
-        detected++;
       } else if (dateCol === -1 && correspondAUnEntete(value, ENTETES_DATE)) {
         dateCol = colNum;
-        detected++;
       } else if (qteCol === -1 && correspondAUnEntete(value, ENTETES_QUANTITE)) {
         qteCol = colNum;
-        detected++;
       }
     }
 
-    if (detected >= 2) {
+    if (siteCol !== -1 && dateCol !== -1 && qteCol !== -1) {
       headerRowIndex = r;
       colSite = siteCol;
       colDate = dateCol;
@@ -78,7 +74,7 @@ export async function parseExcelFile(buffer: Uint8Array, fileName: string): Prom
     result.errors.push({
       row: 0,
       message:
-        "Impossible de détecter les colonnes (SITES, DATES, QTES). Vérifiez que la première feuille contient ces en-têtes sur les 12 premières lignes.",
+        "Colonnes obligatoires introuvables : SITES, DATES et QTES. Vérifiez les en-têtes de la première feuille dans les 12 premières lignes.",
     });
     return result;
   }
@@ -105,8 +101,9 @@ export async function parseExcelFile(buffer: Uint8Array, fileName: string): Prom
         ? siteVal.toLocaleDateString("fr-FR")
         : "";
 
-    if (!siteStr && dateVal === undefined && qteVal === undefined) {
-      result.skippedRows++;
+    const estVide = (value: ExcelJS.CellValue | undefined) =>
+      value === undefined || value === null || (typeof value === "string" && !value.trim());
+    if (estVide(siteVal) && estVide(dateVal) && estVide(qteVal)) {
       continue;
     }
 

@@ -13,7 +13,7 @@ describe("readSmtpConfig", () => {
       SMTP_PORT: "465",
       SMTP_USER: "contact@example.org",
       SMTP_PASSWORD: "secret-value",
-      MAIL_FROM: "SRH <contact@example.org>",
+      MAIL_FROM: "WOM <contact@example.org>",
     });
     expect(config).toEqual({
       host: "mail.example.org",
@@ -21,7 +21,7 @@ describe("readSmtpConfig", () => {
       secure: true,
       user: "contact@example.org",
       pass: "secret-value",
-      from: "SRH <contact@example.org>",
+      from: "WOM <contact@example.org>",
     });
   });
 
@@ -32,10 +32,10 @@ describe("readSmtpConfig", () => {
     expect(readSmtpConfig({ ...base, SMTP_PORT: "465", SMTP_SECURE: "false" })?.secure).toBe(false);
   });
 
-  it("le port vaut 465 par défaut et l'expéditeur retombe sur SRH <SMTP_USER>", () => {
+  it("le port vaut 465 par défaut et l'expéditeur retombe sur WOM <SMTP_USER>", () => {
     const config = readSmtpConfig({ SMTP_HOST: "h", SMTP_USER: "u@x.org", SMTP_PASSWORD: "p" });
     expect(config?.port).toBe(465);
-    expect(config?.from).toBe("SRH <u@x.org>");
+    expect(config?.from).toBe("WOM <u@x.org>");
   });
 
   it("liste les variables manquantes par leur NOM, jamais par leur valeur", () => {

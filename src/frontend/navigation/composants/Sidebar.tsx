@@ -3,12 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { cn } from "@/frontend/design-system/utils";
 import { roleLabel } from "@/shared/acces/permissions";
+import { IDENTITE_ENTREPRISE_PAR_DEFAUT, type IdentiteEntreprise } from "@/shared/entreprise/identite";
 import { navForRole, type NavItem } from "../nav";
-
-const LOGO_URL =
-  "https://lh3.googleusercontent.com/aida/AEtjO1UIOMOlwpX4WXcEJVQ2Ohnr_h8CJr8ezeAviwWd6bfftDfVYPIHz7hMK1R8At9R37SRIjsDzZHGgXwp7eYlpJZJj8cOIqbXk-0m3ywbzjSN4ZgLm4M1ssU9PKwfychAFZEOmhDJJGzY8OVK5QwCYl8QQT2Om6hjZLJSR5FnZqNP_hasv6LbUU1UBo9xK-OyywfTZmk6No7iNtUiNgFcRwQetY0ebRGhHR2YO9vWUV0tbrQcl_EYwfTc5xxs_vA8BAjmFAKzspyUYQ";
 
 function isActive(pathname: string, item: NavItem) {
   return item.match ? item.match(pathname) : pathname === item.href;
@@ -26,6 +25,20 @@ export function Sidebar({
   userRole?: string | null;
 }) {
   const pathname = usePathname();
+  const [identite, setIdentite] = useState(IDENTITE_ENTREPRISE_PAR_DEFAUT);
+
+  useEffect(() => {
+    if (!userRole) return;
+    fetch("/api/plateforme/entreprise", { cache: "no-store" })
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Impossible de charger l'identité de l'entreprise.");
+        setIdentite(data as IdentiteEntreprise);
+      })
+      .catch((error: unknown) => {
+        console.error("Chargement de l'identité de l'entreprise impossible.", error);
+      });
+  }, [userRole]);
 
   return (
     <>
@@ -45,13 +58,21 @@ export function Sidebar({
         )}
       >
         <div className="flex h-16 items-center gap-3 px-gutter-md border-b border-surface-container-high">
-          <Image src={LOGO_URL} alt="SRH Logo" width={32} height={32} className="h-8 w-auto object-contain" />
-          <div className="flex flex-col">
-            <span className="font-label-md text-label-md font-bold uppercase tracking-tight text-primary">
-              SRH Recyclage
+          <div className="relative h-9 w-9 shrink-0">
+            <Image
+              src={identite.logoDataUrl || "/icons/icon.svg"}
+              alt={identite.logoDataUrl ? `Logo ${identite.nomEntreprise}` : "Logo WOM"}
+              fill
+              unoptimized
+              className="object-contain"
+            />
+          </div>
+          <div className="flex min-w-0 flex-col">
+            <span title={identite.nomEntreprise} className="truncate font-label-md text-label-md font-bold uppercase tracking-tight text-primary">
+              {identite.sigle}
             </span>
-            <span className="font-label-sm text-label-sm text-on-surface-variant">
-              Digitalisation des Opérations
+            <span className="truncate font-label-sm text-label-sm text-on-surface-variant">
+              Waste Operations Manager
             </span>
           </div>
           <button

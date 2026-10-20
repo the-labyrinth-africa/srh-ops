@@ -64,13 +64,13 @@ export function DemandePubliqueForm() {
           Connexion client
         </Link>
         <header className="mb-8 mt-6">
-          <p className="font-label-sm text-label-sm font-bold uppercase tracking-widest text-primary">SRH Recyclage</p>
+          <p className="font-label-sm text-label-sm font-bold uppercase tracking-widest text-primary">WOM · Waste Operations Manager</p>
           <h1 className="mt-2 font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface lg:font-headline-lg lg:text-headline-lg">
             Demander une collecte
           </h1>
           <p className="mt-3 max-w-2xl font-body-md text-body-md text-on-surface-variant">
             Transmettez les informations de votre entreprise, du site et de l’intervention souhaitée.
-            L’équipe SRH vérifiera votre demande et vous recontactera avant toute planification.
+            L’équipe de l&apos;entreprise vérifiera votre demande et vous recontactera avant toute planification.
           </p>
         </header>
 
@@ -79,7 +79,7 @@ export function DemandePubliqueForm() {
             <span aria-hidden="true" className="material-symbols-outlined text-3xl text-primary">mark_email_read</span>
             <h2 className="mt-3 font-headline-sm text-headline-sm font-bold text-on-surface">Demande transmise</h2>
             <p className="mt-2 font-body-md text-body-md text-on-surface-variant">
-              Votre demande a été transmise à l’équipe SRH pour vérification. Cet accusé de réception
+              Votre demande a été transmise à l’équipe de l&apos;entreprise pour vérification. Cet accusé de réception
               ne confirme pas encore une intervention ni un créneau.
             </p>
             <button type="button" onClick={() => setSuccess(false)} className="mt-5 min-h-11 rounded-xl bg-primary px-4 py-2 font-label-md text-label-md font-semibold text-on-primary hover:bg-primary/90">
@@ -139,11 +139,11 @@ export function DemandePubliqueForm() {
             </fieldset>
 
             <p className="font-body-sm text-body-sm text-on-surface-variant">
-              Les informations sont utilisées par SRH pour examiner et recontacter votre entreprise.
+              Les informations sont utilisées par l&apos;entreprise pour examiner et vous recontacter.
               La demande publique reste en attente de validation et n’est pas visible dans un espace client.
             </p>
             <button type="submit" disabled={saving} className="min-h-12 w-full rounded-xl bg-primary px-5 py-3 font-label-md text-label-md font-bold text-on-primary transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto">
-              {saving ? "Transmission…" : "Transmettre à SRH"}
+              {saving ? "Transmission…" : "Transmettre la demande"}
             </button>
           </form>
         )}

@@ -19,7 +19,7 @@ export const operationSchema = z.object({
     .default([]),
   informationsParticulieres: z.string().optional().default(""),
   statut: z.enum(OPERATION_STATUSES).optional(),
-  // Le client SRH n'a pas de collecte à quantité nulle : 0 n'est pas une valeur
+  // Une collecte de quantité nulle n'est pas une valeur
   // valide, l'absence de quantité se traduit par l'absence du champ.
   quantiteCollectee: z.coerce.number().positive("Quantité collectée invalide").optional(),
   uniteQuantite: z.enum(QUANTITE_UNITES).optional().default("Litres"),

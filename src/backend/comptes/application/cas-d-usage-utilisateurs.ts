@@ -4,6 +4,7 @@ import {
   UtilisateurIntrouvable,
   EmailDejaUtilise,
   UsernameDejaUtilise,
+  PremierAdministrateurDejaCree,
   SuppressionDeSoiInterdite,
 } from "../domain/erreurs";
 import type {
@@ -56,6 +57,32 @@ export function creerCasDUsageUtilisateurs({
   urlApplicative,
   gabarits,
 }: DependancesUtilisateurs) {
+  async function creerCompte(saisie: UtilisateurSaisie, premierAdministrateur = false): Promise<ResultatCreationUtilisateur> {
+    const existe = await utilisateurs.existeEmailOuUsername(saisie.email, saisie.username);
+    if (existe.email) throw new EmailDejaUtilise();
+    if (existe.username) throw new UsernameDejaUtilise();
+
+    const motDePasseGenere = generateurDeSecrets.motDePasseAleatoire(10);
+    const motDePasseHash = await hacheur.hacher(motDePasseGenere);
+    const utilisateur = premierAdministrateur
+      ? await utilisateurs.creerPremierAdministrateur(saisie, motDePasseHash)
+      : await utilisateurs.creer(saisie, motDePasseHash);
+    if (!utilisateur) throw new PremierAdministrateurDejaCree();
+
+    let invitationEnvoyee = false;
+    try {
+      const base = urlApplicative();
+      const { token } = await jetons.emettre(utilisateur.id, "invitation", horloge.maintenant());
+      const lien = `${base}/reset-password?token=${token}`;
+      const resultat = await envoiEmail(gabarits.invitation({ nom: utilisateur.nom, email: utilisateur.email }, lien));
+      invitationEnvoyee = resultat.ok;
+    } catch (error) {
+      console.error("[invitation] impossible de préparer l'e-mail :", error instanceof Error ? error.name : "erreur");
+    }
+
+    return { utilisateur, invitationEnvoyee, motDePasseGenere };
+  }
+
   return {
     lister(role?: UserRole): Promise<Utilisateur[]> {
       return utilisateurs.lister(role);
@@ -67,33 +94,22 @@ export function creerCasDUsageUtilisateurs({
       return utilisateur;
     },
 
-    async creer(saisie: UtilisateurSaisie): Promise<ResultatCreationUtilisateur> {
-      // Doublon email/username vérifié AVANT toute écriture (même priorité que la route d'origine :
-      // l'e-mail est signalé en premier si les deux sont pris).
-      const existe = await utilisateurs.existeEmailOuUsername(saisie.email, saisie.username);
-      if (existe.email) throw new EmailDejaUtilise();
-      if (existe.username) throw new UsernameDejaUtilise();
+    creer(saisie: UtilisateurSaisie): Promise<ResultatCreationUtilisateur> {
+      return creerCompte(saisie);
+    },
 
-      const motDePasseGenere = generateurDeSecrets.motDePasseAleatoire(10);
-      const motDePasseHash = await hacheur.hacher(motDePasseGenere);
-      // `UtilisateurRepositoryMongoose.creer` force déjà `mustChangePassword: true`.
-      const utilisateur = await utilisateurs.creer(saisie, motDePasseHash);
-
-      // Invitation : lien d'activation valable 72 h (durée encodée dans `JetonRepositoryMongoose`).
-      // Le mot de passe temporaire ne sert qu'en repli si l'e-mail ne part pas.
-      let invitationEnvoyee = false;
-      try {
-        // Base d'URL calculée AVANT d'émettre le jeton : sans URL valide, aucun jeton n'est créé.
-        const base = urlApplicative();
-        const { token } = await jetons.emettre(utilisateur.id, "invitation", horloge.maintenant());
-        const lien = `${base}/reset-password?token=${token}`;
-        const resultat = await envoiEmail(gabarits.invitation({ nom: utilisateur.nom, email: utilisateur.email }, lien));
-        invitationEnvoyee = resultat.ok;
-      } catch (error) {
-        console.error("[invitation] impossible de préparer l'e-mail :", error instanceof Error ? error.name : "erreur");
+    async creerPremierAdministrateur(saisie: UtilisateurSaisie): Promise<ResultatCreationUtilisateur> {
+      if (saisie.role !== "admin") {
+        throw new Error("Le compte initial de l'entreprise doit avoir le rôle admin.");
       }
+      if (await utilisateurs.premierAdministrateurCree()) {
+        throw new PremierAdministrateurDejaCree();
+      }
+      return creerCompte(saisie, true);
+    },
 
-      return { utilisateur, invitationEnvoyee, motDePasseGenere };
+    premierAdministrateurCree(): Promise<boolean> {
+      return utilisateurs.premierAdministrateurCree();
     },
 
     async modifier(id: string, saisie: UtilisateurSaisie): Promise<Utilisateur> {

@@ -33,14 +33,14 @@ function iconSvg(maskable: boolean): string {
   const rect = maskable
     ? `<rect x="0" y="0" width="512" height="512" fill="url(#bg)"/>`
     : `<rect x="24" y="24" width="464" height="464" rx="95" fill="url(#bg)" stroke="#064a12" stroke-width="14"/>`;
-  const ring = `<circle cx="256" cy="256" r="150" fill="none" stroke="#ffffff" stroke-width="42"/>`;
-  const check = `<path d="M198 262 L244 308 L322 210" fill="none" stroke="#ffffff" stroke-width="42" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const ring = `<circle cx="256" cy="256" r="150" fill="none" stroke="#ffffff" stroke-width="34"/>`;
+  const monogram = `<path d="M148 195 L190 317 L256 220 L322 317 L364 195" fill="none" stroke="#ffffff" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>`;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>${bg}</defs>
   ${rect}
   ${maskable ? `<rect x="0" y="0" width="512" height="512" fill="none"/>` : ""}
   ${ring}
-  ${check}
+  ${monogram}
 </svg>`;
 }
 
@@ -57,7 +57,9 @@ async function main() {
   }
 
   writeFileSync(join(process.cwd(), "src", "app", "icon.svg"), iconSvg(false));
-  console.log("Icônes PWA + src/app/icon.svg générées.");
+  const appleIcon = await sharp(Buffer.from(iconSvg(false))).resize(180, 180).png().toBuffer();
+  writeFileSync(join(process.cwd(), "public", "apple-touch-icon.png"), appleIcon);
+  console.log("Icônes WOM PWA, Apple et favicon générées.");
 }
 
 main().catch((e) => {

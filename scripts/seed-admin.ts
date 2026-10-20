@@ -143,7 +143,7 @@ async function seed() {
   await User.db.close();
 }
 
-// Exécuté uniquement en lancement direct (npm run seed / npm run build) :
+// Exécuté uniquement par la commande manuelle `npm run seed` :
 // l'import du module (tests) n'a aucun effet de bord.
 if (require.main === module) {
   loadEnvConfig(process.cwd());

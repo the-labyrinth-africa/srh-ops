@@ -95,8 +95,8 @@ describe("cas d'usage de l'e-mail de test", () => {
     expect(envoisEnvoyes).toEqual([
       {
         to: "awa@srh.ci",
-        subject: "SRH Ops — e-mail de test",
-        text: "Bonjour Awa,\n\nCet e-mail confirme que l'envoi de messages depuis SRH Ops fonctionne.\n\nL'équipe SRH Ops",
+        subject: "WOM — e-mail de test",
+        text: "Bonjour Awa,\n\nCet e-mail confirme que l'envoi de messages depuis WOM fonctionne.\n\nL'équipe WOM",
       },
     ]);
   });

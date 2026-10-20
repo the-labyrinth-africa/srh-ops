@@ -31,6 +31,10 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
   if (!guard.valid) return guard.error;
 
   try {
+    const utilisateur = await casDUsageUtilisateurs.obtenir(id);
+    if (utilisateur.role === "superadmin") {
+      return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404 });
+    }
     const { motDePasseGenere } = await casDUsageUtilisateurs.regenererMotDePasse(id);
     // Réponse contenant un secret : ne jamais la mettre en cache.
     return NextResponse.json({ generatedPassword: motDePasseGenere }, { headers: { "Cache-Control": "no-store" } });

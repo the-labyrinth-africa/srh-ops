@@ -10,6 +10,7 @@ const WRITERS = ["admin", "dispatcher"];
 const EXPECTED: Array<[string, string[]]> = [
   ["/", STAFF],
   ["/guide", [...USER_ROLES]],
+  ["/plateforme/entreprise", ["superadmin"]],
   ["/operations", STAFF],
   ["/operations/planning", STAFF],
   ["/operations/nouveau", WRITERS],
@@ -47,6 +48,14 @@ describe("canAccessPath", () => {
     }
   });
 
+  it("réserve les pages de plateforme au super administrateur", () => {
+    expect(canAccessPath("admin", "/plateforme/entreprise")).toBe(false);
+    expect(canAccessPath("dispatcher", "/plateforme/entreprise")).toBe(false);
+    expect(canAccessPath("superadmin", "/plateforme/entreprise")).toBe(true);
+    expect(canAccessPath("superadmin", "/operations")).toBe(false);
+    expect(canAccessPath("superadmin", "/utilisateurs")).toBe(false);
+  });
+
   it("refuse un rôle absent ou inconnu", () => {
     expect(canAccessPath(undefined, "/")).toBe(false);
     expect(canAccessPath(null, "/")).toBe(false);
@@ -72,6 +81,7 @@ describe("homePathFor", () => {
     expect(homePathFor("lecture")).toBe("/");
     expect(homePathFor("chauffeur")).toBe("/terrain");
     expect(homePathFor("client")).toBe("/espace-client");
+    expect(homePathFor("superadmin")).toBe("/plateforme/entreprise");
     expect(homePathFor(undefined)).toBe("/");
   });
 

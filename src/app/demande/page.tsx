@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { DemandePubliqueForm } from "@/frontend/espace-client";
 
 export const metadata: Metadata = {
-  title: "Demander une collecte | SRH Ops",
-  description: "Transmettez une demande de collecte à l'équipe SRH pour vérification.",
+  title: "Demander une collecte | WOM",
+  description: "Transmettez une demande de collecte à votre équipe pour vérification.",
 };
 
 export default function DemandePage() {

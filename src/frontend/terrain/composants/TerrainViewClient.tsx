@@ -220,7 +220,7 @@ export function TerrainViewClient() {
             Console Terrain
           </h1>
           <p className="font-label-sm text-label-sm text-on-surface-variant">
-            {session?.user?.name || "Chauffeur"} • SRH Recyclage
+            {session?.user?.name || "Chauffeur"} • WOM
           </p>
         </div>
         <Link

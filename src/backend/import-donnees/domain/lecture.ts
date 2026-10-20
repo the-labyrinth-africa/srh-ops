@@ -78,7 +78,7 @@ export function interpreterDate(valeur: unknown, ligne: number): { date?: Date; 
 }
 
 /**
- * Renvoie `quantite: undefined` quand la cellule est vide. Le client SRH n'a pas
+ * Renvoie `quantite: undefined` quand la cellule est vide. L'entreprise cliente n'a pas
  * de collecte à quantité nulle : une absence de quantité n'est pas un zéro.
  */
 export function interpreterQuantite(valeur: unknown, ligne: number): { quantite?: number; error?: string } {

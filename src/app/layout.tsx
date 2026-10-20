@@ -1,16 +1,17 @@
 import type { Metadata, Viewport } from "next";
 import { Providers } from "@/frontend/navigation";
+import { Footer } from "@/frontend/navigation/composants/Footer";
 import { ServiceWorkerCleanup } from "@/frontend/terrain";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "SRH Ops — Terrain",
-  description: "Plateforme SRH Ops de planification, suivi et traçabilité des collectes.",
+  title: "WOM — Waste Operations Manager",
+  description: "Plateforme de planification, de suivi et de traçabilité des opérations de collecte.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "SRH Ops",
+    title: "WOM",
   },
   icons: {
     icon: "/icons/icon-512x512.png",
@@ -50,6 +51,7 @@ export default function RootLayout({
       <body className="antialiased" suppressHydrationWarning>
         <Providers>
           {children}
+          <Footer />
           <ServiceWorkerCleanup />
         </Providers>
       </body>

@@ -1,5 +1,5 @@
 {
-  "name": "srh-ops",
+  "name": "wom",
   "version": "0.1.0",
   "private": true,
   "engines": {
@@ -7,10 +7,11 @@
   },
   "scripts": {
     "dev": "next dev --turbopack -p 3001",
-    "build": "tsx scripts/seed-admin.ts --on-build && next build",
+    "build": "tsx scripts/seed-superadmin.ts --on-build && next build",
     "start": "next start",
     "lint": "eslint .",
     "seed": "tsx scripts/seed-admin.ts",
+    "seed:superadmin": "tsx scripts/seed-superadmin.ts",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage"
   },

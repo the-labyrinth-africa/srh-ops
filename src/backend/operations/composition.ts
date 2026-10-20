@@ -1,4 +1,5 @@
 import { SystemClock } from "@/backend/platform/horloge/horloge";
+import { obtenirIdentiteEntreprise } from "@/backend/identite-entreprise";
 import type { Acteur } from "@/shared/acces/acteur";
 import { creerCasDUsageOperations } from "./application/cas-d-usage";
 import { creerCasDUsageRapport } from "./application/cas-d-usage-rapport";
@@ -85,6 +86,7 @@ export const casDUsageRapport = creerCasDUsageRapport({
   obtenir: casDUsageOperations.obtenir,
   generateur: new GenerateurRapportJsPdf(),
   horloge,
+  obtenirIdentiteEntreprise,
   envoiEmail: adaptateurEmailRapport,
   changerStatut: (id, changement) => operations.changerStatut(id, changement),
 });

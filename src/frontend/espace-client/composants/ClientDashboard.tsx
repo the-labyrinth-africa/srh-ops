@@ -55,7 +55,7 @@ export function ClientDashboard() {
     <div className="mx-auto max-w-6xl space-y-6 px-margin-mobile py-gutter-lg lg:px-margin-desktop">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="font-label-sm text-label-sm font-bold uppercase tracking-widest text-primary">Espace client SRH</p>
+          <p className="font-label-sm text-label-sm font-bold uppercase tracking-widest text-primary">Espace client</p>
           <h1 className="mt-2 font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface lg:font-headline-lg lg:text-headline-lg">Suivi de vos collectes</h1>
           <p className="mt-2 max-w-2xl font-body-md text-body-md text-on-surface-variant">Consultez les opérations rattachées à votre entreprise ou soumettez une nouvelle demande.</p>
         </div>
@@ -122,7 +122,7 @@ export function ClientDashboard() {
         )}
       </section>
       <p className="font-body-sm text-body-sm text-on-surface-variant">
-        Les informations affichées sont réservées à votre entreprise. Pour toute correction ou question, contactez votre interlocuteur SRH.
+        Les informations affichées sont réservées à votre entreprise. Pour toute correction ou question, contactez votre interlocuteur habituel.
       </p>
     </div>
   );

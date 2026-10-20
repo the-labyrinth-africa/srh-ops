@@ -8,7 +8,7 @@ describe("gabarits d'e-mails de compte", () => {
   it("réinitialisation : destinataire, lien, durée de validité, aucun mot de passe", () => {
     const m = buildResetMail(user, link);
     expect(m.to).toBe("awa@srh.ci");
-    expect(m.subject).toContain("SRH Ops");
+    expect(m.subject).toContain("WOM");
     expect(m.text).toContain(link);
     expect(m.text).toContain("30 minutes");
     expect(m.html).toContain(link);
@@ -20,7 +20,7 @@ describe("gabarits d'e-mails de compte", () => {
     expect(m.text).toContain(link);
     expect(m.text).toContain("72 heures");
   });
-  it("mot de passe modifié : pas de lien, conseille de contacter SRH si ce n'est pas l'utilisateur", () => {
+  it("mot de passe modifié : pas de lien, conseille de contacter un administrateur en cas d'erreur", () => {
     const m = buildPasswordChangedMail(user);
     expect(m.text).not.toContain("http");
     expect(m.text).toContain("Si vous n'êtes pas à l'origine");

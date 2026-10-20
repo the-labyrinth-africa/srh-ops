@@ -64,6 +64,6 @@ export function resumerLecture(lecture: LectureClasseur): ResumeImport {
     uniteApercu: "Litres",
     dateMin: dateMin.toISOString(),
     dateMax: dateMax.toISOString(),
-    apercu: lecture.rows.slice(0, 10),
+    apercu: lecture.rows,
   };
 }

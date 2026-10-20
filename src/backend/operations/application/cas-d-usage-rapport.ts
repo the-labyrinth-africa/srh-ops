@@ -7,6 +7,10 @@ import {
 } from "../domain/erreurs";
 import type { Operation } from "../domain/operation";
 import type { EnvoiEmailRapport, GenerateurRapportPdf, Horloge } from "../domain/ports";
+import {
+  IDENTITE_ENTREPRISE_PAR_DEFAUT,
+  type IdentiteEntreprise,
+} from "@/shared/entreprise/identite";
 import { nomFichierRapport, referenceRapport } from "../domain/rapport";
 
 export interface DependancesRapport {
@@ -14,6 +18,7 @@ export interface DependancesRapport {
   obtenir: (acteur: Acteur, id: string) => Promise<Operation>;
   generateur: GenerateurRapportPdf;
   horloge: Horloge;
+  obtenirIdentiteEntreprise?: () => Promise<IdentiteEntreprise>;
   envoiEmail?: EnvoiEmailRapport;
   changerStatut?: (id: string, changement: ChangementStatut) => Promise<Operation | null>;
 }
@@ -33,6 +38,7 @@ export function creerCasDUsageRapport({
   obtenir,
   generateur,
   horloge,
+  obtenirIdentiteEntreprise = async () => IDENTITE_ENTREPRISE_PAR_DEFAUT,
   envoiEmail,
   changerStatut,
 }: DependancesRapport) {
@@ -40,8 +46,9 @@ export function creerCasDUsageRapport({
     /** Le rapport est régénéré à chaque demande ; il n'est jamais stocké dans l'opération. */
     async generer(acteur: Acteur, id: string): Promise<RapportGenere> {
       const operation = await obtenir(acteur, id);
+      const identite = await obtenirIdentiteEntreprise();
       return {
-        contenu: await generateur.generer(operation, horloge.maintenant()),
+        contenu: await generateur.generer(operation, horloge.maintenant(), identite),
         nomFichier: nomFichierRapport(operation.id),
       };
     },
@@ -71,7 +78,8 @@ export function creerCasDUsageRapport({
       }
 
       const maintenant = horloge.maintenant();
-      const contenu = await generateur.generer(operation, maintenant);
+      const identite = await obtenirIdentiteEntreprise();
+      const contenu = await generateur.generer(operation, maintenant, identite);
       const nomFichier = nomFichierRapport(operation.id);
       const ref = referenceRapport(operation.id);
 
@@ -86,8 +94,8 @@ export function creerCasDUsageRapport({
 
       const res = await envoiEmail.envoyer({
         destinataire: emailClient,
-        sujet: `[SRH Recyclage] Rapport d'intervention #${ref} - ${operation.natureIntervention}`,
-        texte: `Bonjour,\n\nVeuillez trouver ci-joint le rapport officiel pour l'intervention d'enlèvement et collecte #${ref} réalisée sur le site « ${siteNom} ».\n\nQuantité collectée : ${operation.quantiteCollectee ?? 0} ${operation.uniteQuantite || "Litres"}\n\nPour toute question, notre cellule exploitation reste à votre entière disposition.\n\nCordialement,\nSRH Recyclage`,
+        sujet: `[${identite.sigle}] Rapport d'intervention #${ref} - ${operation.natureIntervention}`,
+        texte: `Bonjour,\n\nVeuillez trouver ci-joint le rapport officiel pour l'intervention d'enlèvement et collecte #${ref} réalisée sur le site « ${siteNom} ».\n\nQuantité collectée : ${operation.quantiteCollectee ?? 0} ${operation.uniteQuantite || "Litres"}\n\nPour toute question, notre équipe d'exploitation reste à votre disposition.\n\nCordialement,\n${identite.nomEntreprise}${identite.siteWeb ? `\n${identite.siteWeb}` : ""}`,
         pieceJointe: {
           nomFichier,
           contenu: Buffer.from(contenu),

@@ -2,9 +2,6 @@ import { Suspense } from "react";
 import Image from "next/image";
 import { ResetPasswordClient } from "@/frontend/comptes";
 
-const LOGO_URL =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuB1xOxGNUjWSBV2jk4DZt3xE-9Srw8jX7XbK5hgKOxsQTlamjCfm-2mAMvEtEnC-KLykmgDkBxuDs8c7o1SPBRM2AduE-2njQSsETOV73grhkotl4Uzs6tfUUzxjUgt8_U9tzeerdggWxLZKX5c8HM6tCM7yzpImj69LA89rUBoFAIQZ5M8I-MpD3rs0APTX2Rlew8DF4TksbmckxhcMoYgXyNxllMLBFolhd-Ki1ZlHvKfJu0rD7qu4qNJPBu79T5QHg";
-
 /**
  * Page publique de choix d'un nouveau mot de passe (lien reçu par e-mail).
  * Pas de requirePageAccess : le jeton du lien fait office d'autorisation.
@@ -20,11 +17,11 @@ export default function ResetPasswordPage() {
       <div className="group relative z-10 w-full max-w-md overflow-hidden rounded-xl bg-surface-container-lowest p-8 shadow-xl lg:p-12">
         <div className="mb-8 flex flex-col items-center">
           <Image
-            src={LOGO_URL}
-            alt="SRH Logo"
-            width={120}
-            height={48}
-            className="mb-6 h-12 w-auto object-contain"
+            src="/icons/icon.svg"
+            alt="Logo WOM"
+            width={64}
+            height={64}
+            className="mb-6 h-16 w-16 object-contain"
           />
           <h1 className="text-center font-headline-md text-headline-md tracking-tight text-on-surface">
             Nouveau mot de passe

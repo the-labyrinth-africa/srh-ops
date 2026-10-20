@@ -90,12 +90,12 @@ export function ClientRequestForm() {
       <header>
         <p className="font-label-sm text-label-sm font-bold uppercase tracking-widest text-primary">Nouvelle demande</p>
         <h1 className="mt-2 font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface lg:font-headline-lg lg:text-headline-lg">Demander une intervention</h1>
-        <p className="mt-2 font-body-md text-body-md text-on-surface-variant">Votre demande sera enregistrée sous le statut « Demande ». La date souhaitée reste à confirmer par SRH.</p>
+        <p className="mt-2 font-body-md text-body-md text-on-surface-variant">Votre demande sera enregistrée sous le statut « Demande ». La date souhaitée reste à confirmer par votre équipe.</p>
       </header>
       {error && <div role="alert" className="rounded-xl bg-error-container p-4 text-on-error-container">{error}<button type="button" onClick={() => void loadSites()} className="ml-3 min-h-11 underline">Réessayer</button></div>}
       {!loadingSites && sites.length === 0 ? (
         <div className="rounded-2xl border border-surface-container-high bg-surface-container-lowest p-6">
-          <p className="font-body-md text-body-md text-on-surface-variant">Aucun site n’est rattaché à votre entreprise. Contactez votre interlocuteur SRH pour ajouter un site avant de soumettre une demande.</p>
+          <p className="font-body-md text-body-md text-on-surface-variant">Aucun site n’est rattaché à votre entreprise. Contactez votre interlocuteur habituel pour ajouter un site avant de soumettre une demande.</p>
         </div>
       ) : (
         <form onSubmit={submit} className="space-y-5 rounded-2xl border border-surface-container-high bg-surface-container-lowest p-5 shadow-sm sm:p-8">

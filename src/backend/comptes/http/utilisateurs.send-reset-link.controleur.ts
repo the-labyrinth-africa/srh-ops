@@ -27,6 +27,10 @@ export async function POST(_req: NextRequest, { params }: RouteParams) {
 
   let resultat;
   try {
+    const utilisateur = await casDUsageUtilisateurs.obtenir(id);
+    if (utilisateur.role === "superadmin") {
+      return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404, headers: NO_STORE });
+    }
     resultat = await casDUsageUtilisateurs.envoyerLienDeReinitialisation(id);
   } catch (error) {
     if (error instanceof UtilisateurIntrouvable) {

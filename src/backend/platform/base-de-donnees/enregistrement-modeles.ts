@@ -11,3 +11,4 @@ import "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
 import "@/backend/operations/infrastructure/mongoose/operation.model";
 import "@/backend/recurrences/infrastructure/mongoose/recurrence.model";
 import "@/backend/notifications/infrastructure/mongoose/notification-job.model";
+import "@/backend/identite-entreprise/infrastructure/mongoose/identite-entreprise.model";

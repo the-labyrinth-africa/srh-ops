@@ -14,10 +14,9 @@ const ICONS: MetadataRoute.Manifest["icons"] = [
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "SRH Ops — Terrain",
-    short_name: "SRH Ops",
-    description:
-      "Console terrain SRH Recyclage pour les collectes, photos, signatures et rapports en ligne.",
+    name: "WOM — Waste Operations Manager",
+    short_name: "WOM",
+    description: "Application de gestion des opérations de collecte.",
     lang: "fr",
     id: "/",
     start_url: "/terrain",

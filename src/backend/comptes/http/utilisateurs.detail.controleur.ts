@@ -12,7 +12,7 @@ interface RouteParams {
 }
 
 export async function GET(_req: NextRequest, { params }: RouteParams) {
-  const auth = await requireAuth();
+  const auth = await requireAuth(false, { allowSuperadmin: true });
   if (auth.error) return auth.error;
 
   const { id } = await params;
@@ -24,6 +24,9 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
 
   try {
     const utilisateur = await casDUsageUtilisateurs.obtenir(id);
+    if (utilisateur.role === "superadmin" && auth.user.role !== "superadmin") {
+      return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404 });
+    }
     return NextResponse.json(versReponseUtilisateur(utilisateur));
   } catch (error) {
     if (error instanceof UtilisateurIntrouvable) {

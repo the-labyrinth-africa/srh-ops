@@ -310,7 +310,7 @@ const checks: [string, string][] = [
   ["Build de production", "Non rejoué depuis le passage à Next 16"],
   ["Pages navigateur et endpoints API", "Non rejoués (vérification de fumée à refaire)"],
   ["Règles métier", "Conflits (409, y compris opérations longues), transitions de statut et retard automatique couverts par les tests"],
-  ["Sécurité du build", "Seed au build désactivé sauf SEED_ON_BUILD=true"],
+  ["Sécurité du build", "Seed superadmin en production ; désactivé en Preview et en local"],
 ];
 
 doc.setTextColor(...DARK);

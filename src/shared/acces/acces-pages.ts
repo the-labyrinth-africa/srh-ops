@@ -1,4 +1,4 @@
-import type { UserRole } from "@/shared/acces/roles";
+import { TENANT_ROLES, type UserRole } from "@/shared/acces/roles";
 
 /**
  * Matrice d'accès aux pages du tableau de bord : source unique pour la
@@ -7,7 +7,7 @@ import type { UserRole } from "@/shared/acces/roles";
  */
 const STAFF: UserRole[] = ["admin", "dispatcher", "lecture"];
 const WRITERS: UserRole[] = ["admin", "dispatcher"];
-const ALL: UserRole[] = ["admin", "dispatcher", "lecture", "chauffeur", "client"];
+const PROFILE_ROLES: UserRole[] = [...TENANT_ROLES, "superadmin"];
 
 interface AccessRule {
   matches: (path: string) => boolean;
@@ -20,7 +20,8 @@ const OPERATION_DETAIL = /^\/operations\/[a-f\d]{24}$/i;
 // L'ordre compte : la première règle qui correspond s'applique.
 const RULES: AccessRule[] = [
   { matches: (p) => p === "/", roles: STAFF },
-  { matches: under("/guide"), roles: ALL },
+  { matches: under("/guide"), roles: PROFILE_ROLES },
+  { matches: under("/plateforme/entreprise"), roles: ["superadmin"] },
   { matches: under("/utilisateurs"), roles: ["admin"] },
   { matches: under("/import"), roles: WRITERS },
   { matches: under("/operations/nouveau"), roles: WRITERS },
@@ -35,7 +36,7 @@ const RULES: AccessRule[] = [
   { matches: under("/vehicules"), roles: STAFF },
   { matches: under("/equipements"), roles: STAFF },
   { matches: under("/terrain"), roles: ["admin", "dispatcher", "chauffeur"] },
-  { matches: under("/profil"), roles: ALL },
+  { matches: under("/profil"), roles: PROFILE_ROLES },
   { matches: under("/acces-limite"), roles: ["client"] },
 ];
 
@@ -55,5 +56,6 @@ export function canAccessPath(role: string | null | undefined, pathname: string)
 export function homePathFor(role: string | null | undefined): string {
   if (role === "chauffeur") return "/terrain";
   if (role === "client") return "/espace-client";
+  if (role === "superadmin") return "/plateforme/entreprise";
   return "/";
 }

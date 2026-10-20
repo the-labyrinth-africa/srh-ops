@@ -98,7 +98,7 @@ export function creerCasDUsageNotifications({
         destinataires,
         "Nouvelle demande de collecte à examiner",
         [
-          "Une demande publique attend la qualification de l'équipe SRH.",
+          "Une demande publique attend la qualification de l'équipe.",
           `Entreprise : ${demande.nomClient}`,
           `Contact : ${demande.nomContact} (${demande.email})`,
           `Site : ${demande.nomSite}`,
@@ -116,7 +116,7 @@ export function creerCasDUsageNotifications({
         `operation:${operation.id}:demande-qualifiee`,
         operation.clientEmails,
         "Votre demande de collecte est prise en compte",
-        `Votre demande pour ${titreOperation(operation)} a été qualifiée par SRH et figure dans votre espace client.`
+        `Votre demande pour ${titreOperation(operation)} a été qualifiée et figure dans votre espace client.`
       );
     },
 
@@ -131,7 +131,7 @@ export function creerCasDUsageNotifications({
       await ajouterPourDestinataires(
         `operation:${operation.id}:statut:${dateChangement.toISOString()}`,
         operation.clientEmails,
-        "Mise à jour de votre collecte SRH",
+        "Mise à jour de votre collecte",
         [
           `Le statut de votre opération « ${operation.natureIntervention} » a changé :`,
           `${ancienStatut} → ${nouveauStatut}`,

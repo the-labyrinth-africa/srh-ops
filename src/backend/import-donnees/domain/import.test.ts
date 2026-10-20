@@ -62,10 +62,11 @@ describe("resumerLecture", () => {
     });
   });
 
-  it("aperçu limité aux dix premières lignes", () => {
+  it("inclut toutes les lignes pour permettre d'afficher l'aperçu complet", () => {
     const rows = Array.from({ length: 12 }, (_, i) => ({ site: `s${i}`, date: J11, quantite: 1, rowNumber: i + 2 }));
     const resume = resumerLecture(lecture(rows));
-    expect(resume.apercu).toHaveLength(10);
+    expect(resume.apercu).toHaveLength(12);
+    expect(resume.apercu[11].site).toBe("s11");
     expect(resume.totalRows).toBe(12);
   });
 });

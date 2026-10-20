@@ -261,7 +261,7 @@ export function DemandeInbox() {
             <div className="flex min-h-64 flex-col items-center justify-center text-center">
               <span aria-hidden="true" className="material-symbols-outlined text-4xl text-outline">fact_check</span>
               <h2 className="mt-3 font-headline-sm text-headline-sm font-bold text-on-surface">Sélectionnez une demande</h2>
-              <p className="mt-2 max-w-sm font-body-sm text-body-sm text-on-surface-variant">Les demandes publiques restent séparées des opérations et du portail client tant que SRH ne les a pas vérifiées.</p>
+              <p className="mt-2 max-w-sm font-body-sm text-body-sm text-on-surface-variant">Les demandes publiques restent séparées des opérations et du portail client tant qu&apos;elles n&apos;ont pas été vérifiées.</p>
             </div>
           )}
         </section>

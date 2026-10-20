@@ -37,7 +37,7 @@ describe("GenerateurRapportJsPdf", () => {
     expect(pdf.startsWith("%PDF")).toBe(true);
     expect(pages(pdf)).toBe(1);
     for (const texte of [
-      "SRH Recyclage",
+      "WOM",
       "Rapport d'Intervention",
       "Ref: #B0CED976",
       "le 05/11/2030",
@@ -125,6 +125,20 @@ describe("GenerateurRapportJsPdf", () => {
     const pdf = await generer(operation({ quantiteCollectee: 5 }));
     expect(pdf).toContain("5 Litres");
     expect(pdf).toContain("Aucune");
+  });
+
+  it("utilise le nom et le logo configurés pour l'entreprise", async () => {
+    const pdf = Buffer.from(
+      await new GenerateurRapportJsPdf().generer(operation(), GENERE_LE, {
+        nomEntreprise: "Entreprise Exemple",
+        sigle: "EX",
+        siteWeb: "https://exemple.com",
+        logoDataUrl: PIXEL,
+      })
+    ).toString("latin1");
+
+    expect(pdf).toContain("Entreprise Exemple");
+    expect(pdf).not.toContain("WOM");
   });
 
   it("signature ou photo illisible : repli textuel, pas d'exception", async () => {

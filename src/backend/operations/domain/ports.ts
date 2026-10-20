@@ -1,6 +1,7 @@
 import type { AffectationExistante, ConflictResult, DemandeAffectation } from "./conflits";
 import type { ChangementStatut, EtatTerrain } from "./changement-statut";
 import type { FiltreOperations, Operation, OperationRealisee, OperationSaisie, Pagination, PhotoOperation, StatutInitial } from "./operation";
+import type { IdentiteEntreprise } from "@/shared/entreprise/identite";
 
 export interface CritereAffectations {
   /** Borne haute exclusive : seules les opérations qui démarrent avant cet instant. */
@@ -67,7 +68,11 @@ export type AlerteCoherence = (message: string) => void;
 
 /** Mise en page du rapport d'intervention ; renvoie les octets du PDF. */
 export interface GenerateurRapportPdf {
-  generer(operation: Operation, genereLe: Date): Promise<Uint8Array>;
+  generer(
+    operation: Operation,
+    genereLe: Date,
+    identite?: IdentiteEntreprise
+  ): Promise<Uint8Array>;
 }
 
 export interface PieceJointeEmailRapport {

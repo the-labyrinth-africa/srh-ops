@@ -48,6 +48,6 @@ export function readSmtpConfig(env: Env): SmtpConfig | null {
     secure,
     user: user as string,
     pass: pass as string,
-    from: env.MAIL_FROM?.trim() || `SRH <${user}>`,
+    from: env.MAIL_FROM?.trim() || `WOM <${user}>`,
   };
 }

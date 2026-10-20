@@ -1,4 +1,4 @@
-import type { UserRole } from "@/shared/acces/roles";
+import type { TenantRole, UserRole } from "@/shared/acces/roles";
 
 export interface Utilisateur {
   id: string;
@@ -22,7 +22,7 @@ export interface UtilisateurSaisie {
   username: string;
   nom: string;
   email: string;
-  role: UserRole;
+  role: TenantRole;
   telephone: string;
   clientId?: string;
   equipeId?: string;

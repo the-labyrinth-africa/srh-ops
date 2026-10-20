@@ -6,6 +6,7 @@ import {
   RapportOperationNonTerminee,
 } from "../domain/erreurs";
 import type { Operation } from "../domain/operation";
+import type { IdentiteEntreprise } from "@/shared/entreprise/identite";
 import { creerCasDUsageRapport } from "./cas-d-usage-rapport";
 
 const MAINTENANT = new Date("2030-11-05T09:00:00.000Z");
@@ -54,6 +55,26 @@ describe("cas d'usage : rapport d'intervention", () => {
 
   it("nom de fichier : rapport-<référence>.pdf", async () => {
     expect((await casDUsage.generer(admin, operation.id)).nomFichier).toBe("rapport-B0CED976.pdf");
+  });
+
+  it("transmet l'identité configurée au générateur du rapport", async () => {
+    const identite: IdentiteEntreprise = {
+      nomEntreprise: "Entreprise Exemple",
+      sigle: "EX",
+      siteWeb: "https://exemple.com",
+      logoDataUrl: null,
+    };
+    const generer = vi.fn(async () => PDF);
+    const casAvecIdentite = creerCasDUsageRapport({
+      obtenir: async () => operation,
+      generateur: { generer },
+      obtenirIdentiteEntreprise: async () => identite,
+      horloge: { maintenant: () => MAINTENANT },
+    });
+
+    await casAvecIdentite.generer(admin, operation.id);
+
+    expect(generer).toHaveBeenCalledWith(operation, MAINTENANT, identite);
   });
 
   it.each([

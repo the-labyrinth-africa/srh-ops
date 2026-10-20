@@ -27,6 +27,8 @@ export function isAdmin(role?: UserRole | string | null): boolean {
 
 export function roleLabel(role?: UserRole | string | null): string {
   switch (role) {
+    case "superadmin":
+      return "Super administrateur plateforme";
     case "admin":
       return "Admin Ops";
     case "dispatcher":

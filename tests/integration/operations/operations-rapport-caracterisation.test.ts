@@ -101,7 +101,7 @@ describe("Caractérisation — rapport PDF d'intervention", () => {
     expect(pdf.startsWith("%PDF")).toBe(true);
     expect(pages(pdf)).toBe(1);
     for (const texte of [
-      "SRH Recyclage",
+      "WOM",
       "Rapport d'Intervention",
       `Ref: #${id.slice(-8).toUpperCase()}`,
       "Collecte Rapport",

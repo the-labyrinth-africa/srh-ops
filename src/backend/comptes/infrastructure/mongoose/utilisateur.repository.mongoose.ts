@@ -2,7 +2,9 @@ import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import type { UserRole } from "@/shared/acces/roles";
 import type { Utilisateur, UtilisateurSaisie } from "../../domain/utilisateur";
 import type { UtilisateurRepository } from "../../domain/ports";
+import { EmailDejaUtilise, UsernameDejaUtilise } from "../../domain/erreurs";
 import { User as UserModel } from "./utilisateur.model";
+import { InitialisationEntreprise } from "./initialisation-entreprise.model";
 
 interface DocumentUtilisateur {
   _id: unknown;
@@ -68,7 +70,8 @@ function versEntite(doc: DocumentUtilisateur): Utilisateur {
 export class UtilisateurRepositoryMongoose implements UtilisateurRepository {
   async lister(role?: UserRole): Promise<Utilisateur[]> {
     await connectDB();
-    const filtre = role ? { role } : {};
+    if (role === "superadmin") return [];
+    const filtre = role ? { role } : { role: { $ne: "superadmin" } };
     const docs = (await UserModel.find(filtre)
       .select("-motDePasseHash")
       .populate("clientId", "nom")
@@ -115,6 +118,66 @@ export class UtilisateurRepositoryMongoose implements UtilisateurRepository {
   }
 
   async creer(saisie: UtilisateurSaisie, motDePasseHash: string): Promise<Utilisateur> {
+    return this.creerAvecOptions(saisie, motDePasseHash, {});
+  }
+
+  async creerPremierAdministrateur(
+    saisie: UtilisateurSaisie,
+    motDePasseHash: string
+  ): Promise<Utilisateur | null> {
+    if (saisie.role !== "admin") {
+      throw new Error("Le compte initial de l'entreprise doit avoir le rôle admin.");
+    }
+    await connectDB();
+    if (await InitialisationEntreprise.exists({ _id: "premier-admin-entreprise" })) return null;
+    try {
+      const utilisateur = await this.creerAvecOptions(saisie, motDePasseHash, { premierAdminEntreprise: true });
+      await InitialisationEntreprise.updateOne(
+        { _id: "premier-admin-entreprise" },
+        { $setOnInsert: { premierAdminId: utilisateur.id } },
+        { upsert: true }
+      );
+      return utilisateur;
+    } catch (error) {
+      if (
+        error &&
+        typeof error === "object" &&
+        "code" in error &&
+        error.code === 11000 &&
+        "keyPattern" in error &&
+        typeof error.keyPattern === "object" &&
+        error.keyPattern !== null &&
+        "premierAdminEntreprise" in error.keyPattern
+      ) {
+        return null;
+      }
+      if (
+        error &&
+        typeof error === "object" &&
+        "code" in error &&
+        error.code === 11000 &&
+        "keyPattern" in error &&
+        typeof error.keyPattern === "object" &&
+        error.keyPattern !== null
+      ) {
+        if ("email" in error.keyPattern) throw new EmailDejaUtilise();
+        if ("username" in error.keyPattern) throw new UsernameDejaUtilise();
+      }
+      throw error;
+    }
+  }
+
+  async premierAdministrateurCree(): Promise<boolean> {
+    await connectDB();
+    if (await InitialisationEntreprise.exists({ _id: "premier-admin-entreprise" })) return true;
+    return Boolean(await UserModel.exists({ role: "admin" }));
+  }
+
+  private async creerAvecOptions(
+    saisie: UtilisateurSaisie,
+    motDePasseHash: string,
+    options: { premierAdminEntreprise?: boolean }
+  ): Promise<Utilisateur> {
     await connectDB();
     const doc = await UserModel.create({
       username: saisie.username.toLowerCase(),
@@ -127,6 +190,7 @@ export class UtilisateurRepositoryMongoose implements UtilisateurRepository {
       equipeId: saisie.equipeId || undefined,
       // Un compte créé par un administrateur doit toujours choisir son propre mot de passe.
       mustChangePassword: true,
+      ...options,
     });
     const cree = (await UserModel.findById(doc._id)
       .select("-motDePasseHash")
@@ -161,8 +225,8 @@ export class UtilisateurRepositoryMongoose implements UtilisateurRepository {
     if (saisie.equipeId) set.equipeId = saisie.equipeId;
     else unset.equipeId = 1;
 
-    const doc = (await UserModel.findByIdAndUpdate(
-      id,
+    const doc = (await UserModel.findOneAndUpdate(
+      { _id: id, role: { $ne: "superadmin" } },
       Object.keys(unset).length ? { $set: set, $unset: unset } : { $set: set },
       { new: true }
     )
@@ -175,7 +239,7 @@ export class UtilisateurRepositoryMongoose implements UtilisateurRepository {
 
   async supprimer(id: string): Promise<boolean> {
     await connectDB();
-    return Boolean(await UserModel.findByIdAndDelete(id));
+    return Boolean(await UserModel.findOneAndDelete({ _id: id, role: { $ne: "superadmin" } }));
   }
 
   async changerMotDePasse(

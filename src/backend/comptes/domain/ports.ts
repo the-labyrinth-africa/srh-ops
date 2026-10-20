@@ -10,6 +10,9 @@ export interface UtilisateurRepository {
   trouverProjectionParIdentifiant(identifiant: string): Promise<{ id: string; nom: string; email: string } | null>;
   existeEmailOuUsername(email: string, username: string): Promise<{ email: boolean; username: boolean }>;
   creer(saisie: UtilisateurSaisie, motDePasseHash: string): Promise<Utilisateur>;
+  /** Création atomique du compte initial unique de l'entreprise ; null si déjà réservé. */
+  creerPremierAdministrateur(saisie: UtilisateurSaisie, motDePasseHash: string): Promise<Utilisateur | null>;
+  premierAdministrateurCree(): Promise<boolean>;
   /** null si l'utilisateur n'existe pas. */
   modifier(id: string, saisie: UtilisateurSaisie): Promise<Utilisateur | null>;
   /** false si l'utilisateur n'existait pas. */

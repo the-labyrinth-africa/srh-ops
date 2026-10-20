@@ -1,4 +1,4 @@
-import type { UserRole } from "@/shared/acces/roles";
+import { TENANT_ROLES, type UserRole } from "@/shared/acces/roles";
 
 export interface GuideTopic {
   title: string;
@@ -162,6 +162,39 @@ export const GUIDE_SECTIONS: GuideSection[] = [
     ],
   },
   {
+    id: "superadmin",
+    role: "superadmin",
+    roleLabel: "Super administrateur plateforme",
+    title: "Configurer l'entreprise et son premier accès",
+    description: "Ce chapitre explique comment créer le premier compte Admin Ops et configurer l'identité de l'entreprise cliente.",
+    topics: [
+      {
+        title: "Créer le premier compte Admin Ops",
+        steps: [
+          "Ouvrez « Identité de l'entreprise » dans le menu de la plateforme.",
+          "Dans « Premier compte Admin Ops », saisissez l'identifiant, le nom et l'adresse e-mail du responsable de l'entreprise.",
+          "Créez le compte. Si l'invitation par e-mail échoue, transmettez son mot de passe temporaire par un canal sûr.",
+          "Demandez à l'Admin Ops de se connecter et de choisir son mot de passe. Il pourra ensuite créer les autres comptes depuis « Utilisateurs & Rôles ».",
+        ],
+        note: "Ce compte initial ne peut être créé qu'une seule fois. Le rôle admin est attribué automatiquement.",
+        href: "/plateforme/entreprise",
+        linkLabel: "Créer le premier Admin Ops",
+      },
+      {
+        title: "Modifier les informations de l'entreprise",
+        steps: [
+          "Ouvrez « Identité de l'entreprise » dans le menu de la plateforme.",
+          "Saisissez le nom, le sigle et, si besoin, le site web de l'entreprise.",
+          "Ajoutez un logo PNG ou JPEG si l'entreprise souhaite l'afficher sur ses rapports.",
+          "Enregistrez les paramètres et vérifiez l'aperçu.",
+        ],
+        note: "Ce réglage est réservé au super administrateur plateforme. Le logo WOM de l'application et son favicon ne changent pas.",
+        href: "/plateforme/entreprise",
+        linkLabel: "Ouvrir l'identité de l'entreprise",
+      },
+    ],
+  },
+  {
     id: "chauffeur",
     role: "chauffeur",
     roleLabel: "Chauffeur / Terrain",
@@ -225,7 +258,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
           "Vérifiez les informations puis envoyez la demande.",
           "Consultez ensuite son évolution dans votre espace.",
         ],
-        note: "L'envoi d'une demande ne vaut pas confirmation de la collecte. L'équipe SRH doit d'abord la vérifier et la traiter.",
+        note: "L'envoi d'une demande ne vaut pas confirmation de la collecte. L'équipe de votre entreprise doit d'abord la vérifier et la traiter.",
         href: "/espace-client/nouvelle-demande",
         linkLabel: "Faire une demande",
       },
@@ -239,6 +272,7 @@ const ROLES_INTERNES: Record<UserRole, UserRole[]> = {
   lecture: ["lecture"],
   chauffeur: ["chauffeur"],
   client: ["client"],
+  superadmin: [...TENANT_ROLES, "superadmin"],
 };
 
 export function guideSectionsForRole(role: UserRole): GuideSection[] {

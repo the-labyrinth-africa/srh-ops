@@ -5,7 +5,10 @@ import { changePasswordSchema } from "./mot-de-passe.schema";
 import { casDUsageChangementMotDePasse } from "../composition";
 
 export async function POST(req: NextRequest) {
-  const auth = await requireAuth(false, { allowMustChangePassword: true });
+  const auth = await requireAuth(false, {
+    allowMustChangePassword: true,
+    allowSuperadmin: true,
+  });
   if (auth.error) return auth.error;
 
   const body = await req.json();

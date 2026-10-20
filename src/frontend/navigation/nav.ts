@@ -82,6 +82,12 @@ const NAV_SECTIONS: NavSection[] = [
     title: "Référentiels & Administration",
     items: [
       {
+        href: "/plateforme/entreprise",
+        label: "Identité de l'entreprise",
+        icon: "domain",
+        match: (p) => p.startsWith("/plateforme/entreprise"),
+      },
+      {
         href: "/clients",
         label: "Clients & Sites",
         icon: "store",
@@ -118,6 +124,7 @@ const NAV_SECTIONS: NavSection[] = [
 export function navForRole(role: string | null | undefined): NavSection[] {
   return NAV_SECTIONS.map((section) => ({
     ...section,
+    title: role === "superadmin" && section.title ? "Administration plateforme" : section.title,
     items: section.items.filter((item) => canAccessPath(role, item.href)),
   })).filter((section) => section.items.length > 0);
 }

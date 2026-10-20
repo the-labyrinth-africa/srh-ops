@@ -1,6 +1,6 @@
-# SRH Ops — Module 1 Planification des Collectes
+# WOM — Waste Operations Manager
 
-Plateforme back-office de planification et suivi des opérations de collecte SRH.
+Plateforme de planification et de suivi des opérations de collecte.
 
 ## Stack
 
@@ -40,11 +40,42 @@ Clôture R9 : tous les domaines backend et toutes les fonctionnalités frontend 
 
 Phase 4 ajoute les domaines `src/backend/demandes-clients/` (collecte publique, qualification et conversion idempotente) et `src/backend/espace-client/` (lecture bornée par client), ainsi que `src/frontend/espace-client/`. Phase 5 ajoute `src/backend/notifications/` (file SMTP persistante, idempotente et réessayable), les alertes planifiées via Cron Vercel et les tendances/exports CSV dans `pilotage`. Ces domaines suivent les mêmes règles de dépendance et sont couverts par le test d'architecture.
 
-Le guide utilisateur est disponible dans l'application à `/guide`, après connexion. Son contenu est filtré selon le rôle connecté : l'administrateur peut consulter tous les chapitres, le dispatcher voit son guide et celui de lecture seule, et les rôles Chauffeur et Client disposent chacun de leur guide dédié.
+Le guide utilisateur est disponible dans l'application à `/guide`, après connexion. Son contenu est filtré selon le rôle connecté : l'administrateur peut consulter tous les chapitres de l'entreprise, le super administrateur voit aussi le chapitre de configuration plateforme, le dispatcher voit son guide et celui de lecture seule, et les rôles Chauffeur et Client disposent chacun de leur guide dédié.
+
+## Super administrateur et identité de l'entreprise
+
+Le rôle `superadmin` est réservé à la plateforme. Il n'est pas proposé dans la gestion des
+utilisateurs de l'entreprise et ne peut pas être attribué par un administrateur.
+L'identité de l'entreprise (nom, sigle, site web et logo) se gère dans
+`/plateforme/entreprise`. Elle apparaît dans le menu et sur les rapports PDF. Le favicon et
+l'identité du produit restent WOM.
+
+Au déploiement de production, le build crée automatiquement le super administrateur à partir
+des quatre variables ci-dessous. Renseignez-les dans les variables d'environnement de
+production, avec `MONGODB_URI`. Les builds Preview ne créent aucun compte. Pour un hébergement
+hors Vercel, activez le seed du build avec `PLATFORM_SEED_ON_BUILD=true`. En local, la commande
+`npm run seed:superadmin` reste disponible. Le mot de passe doit faire au moins 12 caractères
+et sera remplacé à la première connexion.
+
+```text
+PLATFORM_SUPERADMIN_USERNAME
+PLATFORM_SUPERADMIN_NAME
+PLATFORM_SUPERADMIN_EMAIL
+PLATFORM_SUPERADMIN_PASSWORD
+```
+
+Le seed est idempotent : si un super administrateur existe déjà, il ne le modifie pas. Après sa
+première connexion et le changement de son mot de passe, le super administrateur ouvre
+`/plateforme/entreprise` et crée le premier compte Admin Ops. Ce compte reçoit une invitation
+par e-mail ou, si l'envoi échoue, un mot de passe temporaire à transmettre de manière sécurisée.
+Une fois créé, le super administrateur ne peut plus créer un autre compte initial ; l'Admin Ops
+gère ensuite les autres utilisateurs depuis la page Utilisateurs.
+
+Ne publiez jamais ces valeurs dans le dépôt ou dans les identifiants de démonstration.
 
 ## Accès de démonstration publics
 
-Ces identifiants sont volontairement publics et sont à utiliser **uniquement** sur l'instance de démonstration SRH Ops. La page de connexion permet aussi de remplir automatiquement le formulaire avec le compte choisi.
+Ces identifiants sont volontairement publics et sont à utiliser **uniquement** sur l'instance de démonstration WOM. La page de connexion permet aussi de remplir automatiquement le formulaire avec le compte choisi.
 
 | Rôle | Identifiant | Mot de passe |
 |---|---|---|
@@ -78,7 +109,7 @@ NEXTAUTH_URL="http://localhost:3001" NEXT_TELEMETRY_DISABLED=1 npx next build
 ```bash
 npm install
 cp .env.local.example .env.local   # ou utiliser .env.local existant
-npm run seed                       # admin@srh.com / admin123
+npm run seed                       # identifiant admin / mot de passe de démonstration
 npm run dev
 ```
 
@@ -104,8 +135,8 @@ CRON_SECRET=
 
 | Email | Mot de passe | Rôle |
 |-------|--------------|------|
-| admin@srh.com | admin123 | admin |
-| dispatcher@srh.com | dispatch123 | dispatcher |
+| admin | admin123 | admin |
+| dispatcher | dispatch123 | dispatcher |
 
 ## Rôles et accès
 
@@ -214,14 +245,14 @@ l'envoi échoue avec une erreur de configuration qui ne nomme que les variables 
 `SMTP_PORT` doit être un entier décimal entre 1 et 65535, et un `SMTP_PASSWORD` uniquement composé
 d'espaces compte comme absent. `MAIL_TRANSPORT=memory` est réservé aux tests et refusé en production.
 
-| Variable | Rôle | Valeur pour SRH |
+| Variable | Rôle | Exemple |
 |---|---|---|
-| `SMTP_HOST` | serveur SMTP | `mail.thelabyrinth.africa` |
+| `SMTP_HOST` | serveur SMTP | `smtp.votre-entreprise.com` |
 | `SMTP_PORT` | port (465 par défaut) | `465` (SSL) ou `587` (STARTTLS) |
 | `SMTP_SECURE` | `true` = SSL dès la connexion ; `false` = STARTTLS ; absent = déduit du port (`true` pour 465) | `true` avec 465, `false` avec 587 |
-| `SMTP_USER` | boîte d'authentification | `contact@thelabyrinth.africa` |
+| `SMTP_USER` | boîte d'authentification | `contact@votre-entreprise.com` |
 | `SMTP_PASSWORD` | mot de passe de cette boîte | **secret**, voir ci-dessous |
-| `MAIL_FROM` | expéditeur affiché | `"SRH <contact@thelabyrinth.africa>"` (par défaut : `SRH <SMTP_USER>`) |
+| `MAIL_FROM` | expéditeur affiché | `"WOM <contact@votre-entreprise.com>"` (par défaut : `WOM <SMTP_USER>`) |
 | `NEXTAUTH_URL` | URL publique servant à construire les liens des e-mails | voir ci-dessous |
 
 **Où renseigner le mot de passe SMTP** : uniquement dans `.env.local` en local (fichier ignoré
@@ -231,7 +262,7 @@ dans un ticket ou une conversation.
 
 **`NEXTAUTH_URL`** : les liens d'invitation et de réinitialisation sont construits à partir de
 cette variable. En production, elle doit être l'URL publique en `https://` (par exemple
-`https://<projet>.vercel.app` ou le domaine SRH) ; hors `https://`, aucun lien n'est émis en
+`https://<projet>.vercel.app` ou le domaine de votre entreprise) ; hors `https://`, aucun lien n'est émis en
 production (l'envoi est alors traité comme un échec). L'URL est vérifiée avant l'émission du jeton : si elle est invalide, aucun jeton n'est créé (les liens déjà en attente restent intacts) et la réponse de « Mot de passe oublié » reste générique. En local, `http://localhost:3001` correspond au port configuré pour `npm run dev`.
 
 **Tester l'envoi** :
@@ -244,9 +275,8 @@ production (l'envoi est alors traité comme un échec). L'URL est vérifiée ava
 Le script refuse de s'exécuter avec le transport mémoire (`MAIL_TRANSPORT=memory` ou `NODE_ENV=test`) : il affiche « Transport mémoire actif : aucun e-mail n'est réellement envoyé. » et se termine avec le code 1, au lieu d'annoncer un envoi qui n'a pas eu lieu.
 
 **Délivrabilité** : l'expéditeur (`MAIL_FROM`) doit correspondre à la boîte authentifiée
-(`SMTP_USER`). Vérifier chez l'hébergeur de messagerie que les enregistrements SPF et DKIM du
-domaine `thelabyrinth.africa` sont en place, faute de quoi les messages risquent de finir en
-courrier indésirable.
+(`SMTP_USER`). Vérifiez auprès de l'hébergeur de messagerie que les enregistrements SPF et DKIM
+du domaine d'envoi sont configurés, faute de quoi les messages risquent de finir en courrier indésirable.
 
 **En cas d'échec d'envoi** (SMTP absent, mal configuré ou en panne) :
 
@@ -324,11 +354,17 @@ comptes.
    | `SMTP_PASSWORD` | mot de passe de la boîte SMTP, en mode **Sensitive** |
    | `CRON_SECRET` | secret aléatoire pour authentifier le Cron des notifications, en mode **Sensitive** |
 
+   Pour **Production uniquement**, ajouter aussi `PLATFORM_SUPERADMIN_USERNAME`,
+   `PLATFORM_SUPERADMIN_NAME`, `PLATFORM_SUPERADMIN_EMAIL` et `PLATFORM_SUPERADMIN_PASSWORD`
+   (au moins 12 caractères, en mode **Sensitive**). Ces valeurs servent à créer le compte
+   superadmin au premier build de production. Ne les renseignez pas dans Preview.
+
    **Limiteur par IP** : les limites de débit par adresse IP (mot de passe oublié, réinitialisation et formulaire public de collecte) s'appuient sur l'en-tête posé par la plateforme (`x-vercel-forwarded-for`, ou `x-real-ip`). Sur Vercel il est présent ; derrière un autre proxy, le configurer pour qu'il transmette l'adresse du client. Le formulaire public échoue fermé avec une réponse 503 si l'adresse ne peut pas être identifiée.
 
 3. Dans MongoDB Atlas → **Network Access**, autoriser `0.0.0.0/0` (Vercel n'a pas d'IP sortante fixe sur le plan standard), ou utiliser une IP fixe via [Vercel Secure Compute](https://vercel.com/docs/secure-compute) si nécessaire.
-4. Déployer. Le build Vercel n'alimente plus la base par défaut : le seed au build n'a lieu que si `SEED_ON_BUILD=true` (à définir temporairement pour le premier déploiement SRH, puis à retirer). `npm run seed` lancé à la main seed toujours ; il ignore l'étape si les deux comptes de base existent déjà.
-5. Le seed utilise `MONGODB_URI` fourni par Vercel. Pour l'exécuter manuellement, définir cette variable dans l'environnement avant de lancer `npm run seed`, plutôt que de committer des identifiants.
+4. Déployer. En production, le build Vercel crée le super administrateur si aucun n'existe ; les builds Preview sautent ce seed. Le compte reçoit le rôle plateforme et doit changer son mot de passe à la première connexion.
+5. Le superadmin ouvre `/plateforme/entreprise` et crée le premier Admin Ops. Cette création n'est possible qu'une seule fois ; l'Admin Ops gère ensuite les autres comptes depuis `/utilisateurs`. Le guide de l'application, accessible après connexion, détaille aussi ces étapes pour le superadmin.
+6. `npm run seed` reste réservé aux données de démonstration en développement. Pour créer manuellement un superadmin, définir les quatre variables `PLATFORM_SUPERADMIN_*` et `MONGODB_URI`, puis lancer `npm run seed:superadmin`. Ne jamais committer ces valeurs.
 
 ## Phase 2 — Console terrain (application en ligne)
 
@@ -396,10 +432,9 @@ souhaitée. La soumission est validée côté serveur, limitée à 16 Ko, proté
 5 soumissions par adresse IP et par heure et de 3 par adresse e-mail et par heure. Une demande est
 stockée séparément, au statut interne `en_attente` : elle ne crée ni client, ni site, ni opération
 avant vérification par le dispatch. La confirmation s'affiche dans le navigateur et les comptes
-Admin/Dispatcher reçoivent un e-mail interne. Le contact public ne reçoit pas d'e-mail avant
-qualification par SRH.
+Admin/Dispatcher reçoivent un e-mail interne. Le contact public ne reçoit pas d'e-mail avant la qualification de sa demande.
 
-### Qualification par SRH
+### Qualification des demandes
 
 Les rôles **Admin** et **Dispatcher** traitent la file `/demandes`. Ils vérifient la demande,
 choisissent le client et un site déjà rattaché à ce client, puis la convertissent en opération au

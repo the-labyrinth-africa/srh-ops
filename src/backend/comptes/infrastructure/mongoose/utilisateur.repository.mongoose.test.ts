@@ -3,7 +3,7 @@ import { UtilisateurRepositoryMongoose } from "./utilisateur.repository.mongoose
 import { User as UserModel } from "./utilisateur.model";
 import { Client as ClientModel } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Equipe as EquipeModel } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
-import type { UserRole } from "@/shared/acces/roles";
+import type { TenantRole } from "@/shared/acces/roles";
 
 const depot = new UtilisateurRepositoryMongoose();
 
@@ -12,7 +12,7 @@ function saisie(
     username: string;
     nom: string;
     email: string;
-    role: UserRole;
+    role: TenantRole;
     telephone: string;
     clientId?: string;
     equipeId?: string;
@@ -22,7 +22,7 @@ function saisie(
     username: "jdupont",
     nom: "Jean Dupont",
     email: "jean@srh.ci",
-    role: "dispatcher" as UserRole,
+    role: "dispatcher" as TenantRole,
     telephone: "0102030405",
     ...overrides,
   };
@@ -148,6 +148,22 @@ describe("UtilisateurRepositoryMongoose (contrat)", () => {
       await depot.creer(saisie({ username: "adm", email: "adm@srh.ci", role: "admin" }), "h");
       await depot.creer(saisie({ username: "disp", email: "disp@srh.ci", role: "dispatcher" }), "h");
       expect((await depot.lister("admin")).map((u) => u.username)).toEqual(["adm"]);
+    });
+
+    it("les comptes superadmin sont invisibles et intouchables depuis la gestion des utilisateurs d'entreprise", async () => {
+      const superadmin = await UserModel.create({
+        username: "platform-admin",
+        nom: "Super Admin",
+        email: "platform-admin@example.com",
+        motDePasseHash: "hash",
+        role: "superadmin",
+      });
+
+      expect(await depot.lister()).toEqual([]);
+      expect(await depot.lister("superadmin")).toEqual([]);
+      expect(await depot.modifier(String(superadmin._id), saisie({ role: "admin" }))).toBeNull();
+      expect(await depot.supprimer(String(superadmin._id))).toBe(false);
+      expect(await UserModel.exists({ _id: superadmin._id, role: "superadmin" })).toBeTruthy();
     });
 
     it("trouverParId renvoie null pour un identifiant inconnu", async () => {

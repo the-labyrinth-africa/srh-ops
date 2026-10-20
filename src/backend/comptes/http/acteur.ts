@@ -38,7 +38,7 @@ function fail(message: string, status: number, code?: string): AuthFailure {
  */
 export async function requireAuth(
   requireWrite = false,
-  opts: { allowMustChangePassword?: boolean } = {}
+  opts: { allowMustChangePassword?: boolean; allowSuperadmin?: boolean } = {}
 ): Promise<AuthResult> {
   const session = await getServerSession(authOptions);
 
@@ -50,6 +50,10 @@ export async function requireAuth(
 
   if (!canRead(role)) {
     return fail("Accès refusé", 403);
+  }
+
+  if (role === "superadmin" && !opts.allowSuperadmin) {
+    return fail("Ce compte plateforme n'a pas accès aux données de l'entreprise.", 403);
   }
 
   if (isClientUser(role) && !session.user.clientId) {

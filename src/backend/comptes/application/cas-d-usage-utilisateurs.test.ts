@@ -5,6 +5,7 @@ import {
   EmailDejaUtilise,
   UsernameDejaUtilise,
   SuppressionDeSoiInterdite,
+  PremierAdministrateurDejaCree,
 } from "../domain/erreurs";
 import type { Utilisateur, UtilisateurSaisie } from "../domain/utilisateur";
 import type {
@@ -31,6 +32,7 @@ type UtilisateurInterne = Utilisateur & { motDePasseHash: string };
 class UtilisateurRepositoryEnMemoire implements UtilisateurRepository {
   private items = new Map<string, UtilisateurInterne>();
   private sequence = 0;
+  private premierAdminEntrepriseCree = false;
 
   private sansHash(u: UtilisateurInterne): Utilisateur {
     const reste: Partial<UtilisateurInterne> = { ...u };
@@ -68,6 +70,28 @@ class UtilisateurRepositoryEnMemoire implements UtilisateurRepository {
   }
 
   async creer(saisie: UtilisateurSaisie, motDePasseHash: string): Promise<Utilisateur> {
+    return this.creerInterne(saisie, motDePasseHash);
+  }
+
+  async creerPremierAdministrateur(
+    saisie: UtilisateurSaisie,
+    motDePasseHash: string
+  ): Promise<Utilisateur | null> {
+    if (this.premierAdminEntrepriseCree || (await this.lister("admin")).length > 0) return null;
+    this.premierAdminEntrepriseCree = true;
+    try {
+      return await this.creerInterne(saisie, motDePasseHash);
+    } catch (error) {
+      this.premierAdminEntrepriseCree = false;
+      throw error;
+    }
+  }
+
+  async premierAdministrateurCree(): Promise<boolean> {
+    return this.premierAdminEntrepriseCree || (await this.lister("admin")).length > 0;
+  }
+
+  private async creerInterne(saisie: UtilisateurSaisie, motDePasseHash: string): Promise<Utilisateur> {
     this.sequence += 1;
     const id = `u${this.sequence}`;
     const maintenant = new Date(this.sequence * 1000);
@@ -267,6 +291,33 @@ describe("cas d'usage des utilisateurs", () => {
       expect(await utilisateurs.trouverHashMotDePasse(resultat.utilisateur.id)).toBe(
         await hacheur.hacher(resultat.motDePasseGenere)
       );
+    });
+
+    describe("creerPremierAdministrateur", () => {
+      it("crée un seul compte Admin Ops initial et refuse toute seconde tentative", async () => {
+        const { deps, utilisateurs } = creerDependances();
+        const cas = creerCasDUsageUtilisateurs(deps);
+        const premier = await cas.creerPremierAdministrateur(
+          saisie({ username: "admin-ops", email: "admin-ops@example.com", role: "admin" })
+        );
+
+        expect(premier.utilisateur.role).toBe("admin");
+        await expect(
+          cas.creerPremierAdministrateur(
+            saisie({ username: "autre-admin", email: "autre-admin@example.com", role: "admin" })
+          )
+        ).rejects.toBeInstanceOf(PremierAdministrateurDejaCree);
+        expect((await utilisateurs.lister("admin")).map((user) => user.username)).toEqual(["admin-ops"]);
+      });
+
+      it("refuse un rôle autre que admin", async () => {
+        const { deps } = creerDependances();
+        const cas = creerCasDUsageUtilisateurs(deps);
+
+        await expect(
+          cas.creerPremierAdministrateur(saisie({ username: "dispatch", email: "dispatch@example.com", role: "dispatcher" }))
+        ).rejects.toThrow("Le compte initial de l'entreprise doit avoir le rôle admin.");
+      });
     });
 
     it("émet un jeton d'invitation et envoie l'e-mail (gabarit invitation) quand l'URL applicative est disponible", async () => {

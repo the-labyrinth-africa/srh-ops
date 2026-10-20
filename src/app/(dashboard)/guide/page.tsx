@@ -3,8 +3,8 @@ import { GuideUtilisation } from "@/frontend/guide/GuideUtilisation";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Guide d'utilisation | SRH Ops",
-  description: "Guide de prise en main de SRH Ops, adapté au rôle de l'utilisateur connecté.",
+  title: "Guide d'utilisation | WOM",
+  description: "Guide de prise en main de WOM, adapté au rôle de l'utilisateur connecté.",
 };
 
 export default async function GuidePage() {

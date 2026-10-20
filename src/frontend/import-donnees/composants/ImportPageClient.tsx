@@ -29,6 +29,7 @@ export function ImportPageClient() {
   const { data: session } = useSession();
   const canImport = canWrite(session?.user?.role);
   const [dragOver, setDragOver] = useState(false);
+  const [showAllPreviewRows, setShowAllPreviewRows] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [file, setFile] = useState<File | null>(null);
@@ -47,19 +48,29 @@ export function ImportPageClient() {
   );
   const [clients, setClients] = useState<{ _id: string; nom: string }[]>([]);
   const [clientId, setClientId] = useState("");
+  const [clientsLoading, setClientsLoading] = useState(true);
+  const [clientsError, setClientsError] = useState("");
+
+  const loadClients = useCallback(async () => {
+    setClientsLoading(true);
+    setClientsError("");
+    try {
+      const response = await fetch("/api/clients");
+      const data = await response.json();
+      if (!response.ok || !Array.isArray(data)) {
+        throw new Error(typeof data.error === "string" ? data.error : "Impossible de charger la liste des clients.");
+      }
+      setClients(data);
+    } catch (cause) {
+      setClientsError(cause instanceof Error ? cause.message : "Impossible de charger la liste des clients.");
+    } finally {
+      setClientsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    fetch("/api/clients")
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data) => {
-        if (!cancelled && Array.isArray(data)) setClients(data);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    void loadClients();
+  }, [loadClients]);
 
   async function runPreview(f: File) {
     setLoading(true);
@@ -79,10 +90,14 @@ export function ImportPageClient() {
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Erreur lors de l'analyse du fichier.");
+        const details = Array.isArray(data.errors)
+          ? data.errors.slice(0, 5).map((item: { message?: string }) => item.message).filter(Boolean).join("\n")
+          : "";
+        setError([data.error || "Erreur lors de l'analyse du fichier.", details].filter(Boolean).join("\n"));
         return;
       }
       setPreview(data.summary);
+      setShowAllPreviewRows(false);
     } catch {
       setError("Erreur lors de l'analyse du fichier.");
     } finally {
@@ -103,6 +118,7 @@ export function ImportPageClient() {
         return;
       }
       setFile(f);
+      setShowAllPreviewRows(false);
       runPreview(f);
       if (fileInputRef.current) fileInputRef.current.value = "";
     },
@@ -167,10 +183,10 @@ export function ImportPageClient() {
           <span className="material-symbols-outlined text-[14px]">chevron_right</span>
           <span className="font-bold text-on-surface">Import Excel</span>
         </nav>
-        <h1 className="font-headline-lg-mobile text-headline-lg-mobile text-on-surface lg:font-headline-lg lg:text-headline-lg">
+        <h1 className="break-words font-headline-lg-mobile text-headline-lg-mobile text-on-surface lg:font-headline-lg lg:text-headline-lg">
           Import des interventions sur site
         </h1>
-        <p className="font-body-md text-body-md text-on-surface-variant">
+        <p className="mt-2 max-w-2xl font-body-md text-body-md leading-6 text-on-surface-variant">
           Importez un fichier Excel (SITES, DATES, QTES) pour alimenter la base d&apos;interventions.
         </p>
       </div>
@@ -179,12 +195,22 @@ export function ImportPageClient() {
         <div className="rounded-2xl border border-error/20 bg-error-container/20 p-4">
           <div className="flex items-start gap-2">
             <span className="material-symbols-outlined text-[20px] text-error">error</span>
-            <div className="font-body-md text-body-md text-on-error-container">{error}</div>
+            <div className="whitespace-pre-line font-body-md text-body-md text-on-error-container">{error}</div>
           </div>
         </div>
       )}
 
       {!file ? (
+        <>
+        <input
+          ref={fileInputRef}
+          id="excel-import-file"
+          type="file"
+          accept=".xlsx"
+          className="sr-only"
+          onChange={(e) => handleFile(e.target.files?.[0])}
+          aria-label="Choisir un fichier Excel"
+        />
         <div
           onDragOver={(e) => {
             e.preventDefault();
@@ -196,43 +222,43 @@ export function ImportPageClient() {
             setDragOver(false);
             handleFile(e.dataTransfer.files?.[0]);
           }}
-          onClick={() => fileInputRef.current?.click()}
-          className={`cursor-pointer rounded-3xl border-2 border-dashed p-10 text-center transition-all ${
+          className={`rounded-3xl border-2 border-dashed p-6 text-center transition-colors sm:p-10 ${
             dragOver
               ? "border-primary bg-primary/5"
-              : "border-outline-variant bg-surface-container-lowest hover:border-primary/50"
+              : "border-outline-variant bg-surface-container-lowest"
           }`}
         >
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".xlsx"
-            className="hidden"
-            onChange={(e) => handleFile(e.target.files?.[0])}
-          />
           <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-primary-container text-on-primary-container">
             <span className="material-symbols-outlined text-[28px]">upload_file</span>
           </div>
-          <h2 className="font-headline-sm text-headline-sm text-on-surface">
+          <h2 className="break-words font-headline-sm text-headline-sm text-on-surface">
             Glissez votre fichier Excel ici
           </h2>
-          <p className="mt-1 font-body-md text-body-md text-on-surface-variant">
-            ou cliquez pour sélectionner un fichier .xlsx (5 Mo maximum)
+          <p className="mx-auto mt-1 max-w-xl font-body-md text-body-md leading-6 text-on-surface-variant">
+            Vous pouvez aussi choisir un fichier .xlsx depuis votre appareil (5 Mo maximum).
           </p>
-          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-surface-container-low px-4 py-2 font-label-sm text-label-sm text-on-surface-variant">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="mt-4 min-h-11 rounded-xl bg-primary px-5 py-2 font-label-md text-label-md font-bold text-on-primary hover:bg-primary-container focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            Choisir un fichier
+          </button>
+          <p className="mt-4 inline-flex max-w-full flex-wrap items-center justify-center gap-2 rounded-full bg-surface-container-low px-4 py-2 font-label-sm text-label-sm text-on-surface-variant">
             <span className="material-symbols-outlined text-[16px]">table_chart</span>
             Format attendu : colonnes « SITES », « DATES », « QTES »
-          </div>
+          </p>
         </div>
+        </>
       ) : (
         <>
-          <div className="flex items-center justify-between rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-4">
-            <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center justify-between gap-3 rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-4">
+            <div className="flex min-w-0 items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-container text-on-primary-container">
                 <span className="material-symbols-outlined">table_chart</span>
               </div>
-              <div>
-                <p className="font-label-md text-label-md font-bold text-on-surface">{file.name}</p>
+              <div className="min-w-0">
+                <p title={file.name} className="break-words [overflow-wrap:anywhere] font-label-md text-label-md font-bold text-on-surface">{file.name}</p>
                 <p className="font-label-sm text-label-sm text-on-surface-variant">
                   {(file.size / 1024).toFixed(0)} Ko
                 </p>
@@ -246,6 +272,8 @@ export function ImportPageClient() {
                 setResult(null);
                 setError(null);
               }}
+              aria-label="Choisir un autre fichier"
+              title="Choisir un autre fichier"
               className="rounded-xl bg-surface-container-high p-2 text-on-surface-variant hover:bg-surface-container-highest"
             >
               <span className="material-symbols-outlined">close</span>
@@ -261,6 +289,8 @@ export function ImportPageClient() {
             </label>
             <select
               id="import-client"
+              required
+              disabled={clientsLoading || Boolean(clientsError)}
               value={clientId}
               onChange={(e) => setClientId(e.target.value)}
               className="h-11 w-full rounded-xl bg-surface-container-low px-3.5 font-body-md text-body-md outline-none focus:ring-2 focus:ring-primary"
@@ -275,13 +305,26 @@ export function ImportPageClient() {
             <p className="font-label-sm text-label-sm text-outline">
               Les sites et opérations importés sont rattachés à ce client.
             </p>
+            {clientsLoading && <p role="status" className="text-sm text-on-surface-variant">Chargement des clients…</p>}
+            {clientsError && (
+              <div className="flex flex-wrap items-center gap-2 text-sm text-error" role="alert">
+                <span>{clientsError}</span>
+                <button type="button" onClick={() => void loadClients()} className="min-h-10 rounded-lg px-3 font-bold underline">
+                  Réessayer
+                </button>
+              </div>
+            )}
+            {!clientsLoading && !clientsError && clients.length === 0 && (
+              <p role="status" className="text-sm text-on-surface-variant">Aucun client n&apos;est disponible. Créez un client avant de lancer l&apos;import.</p>
+            )}
           </div>
 
           <div className="flex flex-col gap-2 rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-4">
-            <label className="font-label-md text-label-md text-on-surface-variant">
+            <label htmlFor="import-nature" className="font-label-md text-label-md text-on-surface-variant">
               Nature de l&apos;intervention (appliquée à toutes les lignes importées)
             </label>
             <input
+              id="import-nature"
               type="text"
               value={natureIntervention}
               onChange={(e) => setNatureIntervention(e.target.value)}
@@ -292,7 +335,7 @@ export function ImportPageClient() {
       )}
 
       {loading && (
-        <div className="flex items-center gap-3 rounded-2xl bg-surface-container-lowest p-6">
+        <div role="status" aria-live="polite" className="flex items-center gap-3 rounded-2xl bg-surface-container-lowest p-6">
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           <span className="font-body-md text-body-md text-on-surface-variant">
             Analyse du fichier en cours...
@@ -303,41 +346,91 @@ export function ImportPageClient() {
       {preview && !loading && !result && (
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-2xl bg-surface-container-lowest p-4 text-center border">
+            <div className="min-w-0 rounded-2xl border bg-surface-container-lowest p-4 text-center">
               <p className="font-kpi-value text-kpi-value text-primary">{preview.totalRows}</p>
               <p className="font-label-sm text-label-sm text-on-surface-variant uppercase">Lignes détectées</p>
             </div>
-            <div className="rounded-2xl bg-surface-container-lowest p-4 text-center border">
+            <div className="min-w-0 rounded-2xl border bg-surface-container-lowest p-4 text-center">
               <p className="font-kpi-value text-kpi-value text-primary">{preview.uniqueSites}</p>
               <p className="font-label-sm text-label-sm text-on-surface-variant uppercase">Sites</p>
             </div>
-            <div className="rounded-2xl bg-surface-container-lowest p-4 text-center border">
+            <div className="min-w-0 rounded-2xl border bg-surface-container-lowest p-4 text-center">
               <p className="font-kpi-value text-kpi-value text-primary">
                 {preview.totalQuantite.toLocaleString("fr-FR")}
               </p>
               <p className="font-label-sm text-label-sm text-on-surface-variant uppercase">Litres</p>
             </div>
-            <div className="rounded-2xl bg-surface-container-lowest p-4 text-center border">
-              <p className="font-kpi-value text-kpi-value text-primary">
-                {new Date(preview.dateMin).toLocaleDateString("fr-FR")}
-                {" → "}
-                {new Date(preview.dateMax).toLocaleDateString("fr-FR")}
+            <div className="min-w-0 rounded-2xl border bg-surface-container-lowest p-4 text-center">
+              <p className="flex flex-col items-center justify-center gap-1 text-base leading-6 text-primary sm:flex-row sm:flex-wrap">
+                <span>{new Date(preview.dateMin).toLocaleDateString("fr-FR")}</span>
+                <span aria-hidden="true">→</span>
+                <span>{new Date(preview.dateMax).toLocaleDateString("fr-FR")}</span>
               </p>
               <p className="font-label-sm text-label-sm text-on-surface-variant uppercase">Période</p>
             </div>
           </div>
 
           {preview.skippedRows > 0 && (
-            <p className="font-label-sm text-label-sm text-on-surface-variant">
-              {preview.skippedRows} ligne(s) ignorée(s)
-              {preview.errors.length > 0 && ` (${preview.errors.length} erreur(s))` }
-            </p>
+            <div className="rounded-xl border border-outline-variant/50 bg-surface-container-lowest p-4">
+              <p className="font-label-md text-label-md text-on-surface">
+                {preview.skippedRows} ligne(s) ignorée(s)
+                {preview.errors.length > 0 && ` · ${preview.errors.length} anomalie(s) à vérifier`}
+              </p>
+              <p className="mt-1 text-sm leading-6 text-on-surface-variant">
+                Les lignes vides et les collectes sans quantité positive ne sont pas importées.
+              </p>
+              {preview.errors.length > 0 && (
+                <details className="mt-3">
+                  <summary className="min-h-11 cursor-pointer py-2 font-label-md text-label-md font-semibold text-primary">
+                    Voir les {preview.errors.length} anomalie(s)
+                  </summary>
+                  <ul className="space-y-2 pl-5 text-sm leading-6 text-on-surface-variant">
+                    {preview.errors.slice(0, 8).map((item, index) => (
+                      <li key={`${item.row}-${index}`} className="list-disc">{item.message}</li>
+                    ))}
+                    {preview.errors.length > 8 && (
+                      <li className="list-none">… et {preview.errors.length - 8} autre(s)</li>
+                    )}
+                  </ul>
+                </details>
+              )}
+            </div>
           )}
 
           {preview.apercu.length > 0 && (
             <div className="overflow-hidden rounded-2xl bg-surface-container shadow-sm">
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[480px]">
+              {preview.apercu.length > 10 && (
+                <div className="flex justify-center border-b border-outline-variant/30 p-3">
+                  <button
+                    type="button"
+                    aria-expanded={showAllPreviewRows}
+                    onClick={() => setShowAllPreviewRows((visible) => !visible)}
+                    className="min-h-11 rounded-xl px-4 font-label-md text-label-md font-semibold text-primary underline-offset-4 hover:bg-surface-container-low hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+                  >
+                    {showAllPreviewRows
+                      ? "Afficher moins"
+                      : `Afficher les ${preview.apercu.length} lignes`}
+                  </button>
+                </div>
+              )}
+              <div className="space-y-2 p-3 md:hidden">
+                {preview.apercu.slice(0, showAllPreviewRows ? undefined : 10).map((row) => (
+                  <article key={row.rowNumber} className="rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="min-w-0 break-words font-label-md text-label-md font-bold text-on-surface">{row.site}</p>
+                      <span className="shrink-0 rounded-full bg-surface-container-high px-2.5 py-1 text-xs font-semibold text-on-surface-variant">
+                        Ligne {row.rowNumber}
+                      </span>
+                    </div>
+                    <div className="mt-2 flex flex-wrap justify-between gap-x-4 gap-y-1 text-sm text-on-surface-variant">
+                      <span>{new Date(row.date).toLocaleDateString("fr-FR")}</span>
+                      <span className="font-semibold text-on-surface">{row.quantite.toLocaleString("fr-FR")} L</span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+              <div className="hidden overflow-x-auto md:block">
+                <table className="w-full min-w-[560px]">
                   <thead>
                     <tr className="border-b border-outline-variant/30 bg-surface-container-low">
                       <th className="px-4 py-3 text-left font-label-md text-label-md uppercase text-on-surface-variant">Ligne</th>
@@ -347,10 +440,10 @@ export function ImportPageClient() {
                     </tr>
                   </thead>
                   <tbody>
-                    {preview.apercu.map((row) => (
+                    {preview.apercu.slice(0, showAllPreviewRows ? undefined : 10).map((row) => (
                       <tr key={row.rowNumber} className="border-b border-outline-variant/20">
                         <td className="px-4 py-2.5 font-label-sm text-label-sm text-on-surface-variant">{row.rowNumber}</td>
-                        <td className="px-4 py-2.5 font-label-md text-label-md font-bold text-on-surface">{row.site}</td>
+                        <td className="max-w-sm break-words px-4 py-2.5 font-label-md text-label-md font-bold text-on-surface">{row.site}</td>
                         <td className="px-4 py-2.5 font-body-md text-body-md text-on-surface-variant">
                           {new Date(row.date).toLocaleDateString("fr-FR")}
                         </td>
@@ -362,11 +455,6 @@ export function ImportPageClient() {
                   </tbody>
                 </table>
               </div>
-              {preview.totalRows > 10 && (
-                <p className="px-4 py-2 font-label-sm text-label-sm text-on-surface-variant text-center">
-                  … et {preview.totalRows - 10} autres lignes
-                </p>
-              )}
             </div>
           )}
 
@@ -387,7 +475,7 @@ export function ImportPageClient() {
               type="button"
               onClick={runImport}
               disabled={importing || !clientId}
-              className="flex items-center gap-2 justify-center rounded-xl bg-primary px-5 py-2.5 font-label-md text-label-md text-on-primary hover:bg-primary-container disabled:opacity-50"
+              className="min-h-11 flex items-center gap-2 justify-center rounded-xl bg-primary px-5 py-2.5 font-label-md text-label-md text-on-primary hover:bg-primary-container disabled:opacity-50"
             >
               <span className="material-symbols-outlined text-[18px]">database_download</span>
               {importing ? "Import en cours..." : `Importer ${preview.totalRows} intervention(s)`}

@@ -27,8 +27,8 @@ export function creerCasDUsageEmailDeTest({ utilisateurs, envoiEmail, limiteurDe
 
       return envoiEmail({
         to: utilisateur.email,
-        subject: "SRH Ops — e-mail de test",
-        text: `Bonjour ${utilisateur.nom},\n\nCet e-mail confirme que l'envoi de messages depuis SRH Ops fonctionne.\n\nL'équipe SRH Ops`,
+        subject: "WOM — e-mail de test",
+        text: `Bonjour ${utilisateur.nom},\n\nCet e-mail confirme que l'envoi de messages depuis WOM fonctionne.\n\nL'équipe WOM`,
       });
     },
   };

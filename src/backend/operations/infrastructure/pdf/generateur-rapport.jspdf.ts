@@ -1,6 +1,10 @@
 import type { Operation, Reference } from "../../domain/operation";
 import type { GenerateurRapportPdf } from "../../domain/ports";
 import { referenceRapport } from "../../domain/rapport";
+import {
+  IDENTITE_ENTREPRISE_PAR_DEFAUT,
+  type IdentiteEntreprise,
+} from "@/shared/entreprise/identite";
 
 /** Champ d'une relation peuplée ; `undefined` si la relation est absente, pendante ou non peuplée. */
 function champ<T extends { id: string }, K extends keyof T>(reference: Reference<T> | undefined, cle: K): T[K] | undefined {
@@ -13,7 +17,11 @@ function champ<T extends { id: string }, K extends keyof T>(reference: Reference
  * à la demande.
  */
 export class GenerateurRapportJsPdf implements GenerateurRapportPdf {
-  async generer(operation: Operation, genereLe: Date): Promise<Uint8Array> {
+  async generer(
+    operation: Operation,
+    genereLe: Date,
+    identite: IdentiteEntreprise = IDENTITE_ENTREPRISE_PAR_DEFAUT
+  ): Promise<Uint8Array> {
     const { jsPDF } = await import("jspdf");
     const autoTable = (await import("jspdf-autotable")).default;
 
@@ -27,7 +35,11 @@ export class GenerateurRapportJsPdf implements GenerateurRapportPdf {
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(20);
     doc.setFont("helvetica", "bold");
-    doc.text("SRH Recyclage", 20, 18);
+    if (identite.logoDataUrl) {
+      doc.addImage(identite.logoDataUrl, "PNG", 18, 7, 24, 24);
+    }
+    const titreX = identite.logoDataUrl ? 48 : 20;
+    doc.text(identite.nomEntreprise, titreX, 18, { maxWidth: pageWidth - titreX - 15 });
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
     doc.text("Rapport d'Intervention", 20, 28);
@@ -200,7 +212,7 @@ export class GenerateurRapportJsPdf implements GenerateurRapportPdf {
       doc.setFontSize(8);
       doc.setTextColor(150, 150, 150);
       doc.text(
-        `SRH Recyclage — Rapport d'intervention — Page ${i}/${totalPages}`,
+        `${identite.nomEntreprise} — Rapport d'intervention — Page ${i}/${totalPages}`,
         pageWidth / 2,
         doc.internal.pageSize.getHeight() - 10,
         { align: "center" }

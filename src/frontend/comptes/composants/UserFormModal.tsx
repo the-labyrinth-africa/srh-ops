@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { USER_ROLES } from "@/shared/acces/roles";
+import { TENANT_ROLES } from "@/shared/acces/roles";
 import { roleLabel } from "@/shared/acces/permissions";
 import { formatApiError } from "@/frontend/design-system";
 import { TemporaryPasswordPanel } from "./TemporaryPasswordPanel";
@@ -114,7 +114,12 @@ export function UserFormModal({ isOpen, onClose, onSuccess, initialData }: UserF
         onSuccess();
         if (!isEditing && data.user) {
           const sent = data.invitation !== "not_sent";
-          const pass = typeof data.temporaryPassword === "string" ? data.temporaryPassword : undefined;
+          const pass =
+            typeof data.temporaryPassword === "string"
+              ? data.temporaryPassword
+              : typeof data.generatedPassword === "string"
+                ? data.generatedPassword
+                : undefined;
           setCreatedResult({ password: pass, invitationSent: sent });
         } else {
           onClose();
@@ -217,7 +222,7 @@ export function UserFormModal({ isOpen, onClose, onSuccess, initialData }: UserF
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="ex: j.dupont@srh.com"
+                placeholder="ex: j.dupont@entreprise.com"
                 className="h-10 w-full rounded-xl bg-surface-container-low px-3 font-body-md text-body-md text-on-surface outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
@@ -240,7 +245,7 @@ export function UserFormModal({ isOpen, onClose, onSuccess, initialData }: UserF
                 onChange={(e) => setRole(e.target.value)}
                 className="h-10 w-full rounded-xl bg-surface-container-low px-3 font-body-md text-body-md text-on-surface outline-none focus:ring-2 focus:ring-primary"
               >
-                {USER_ROLES.map((r) => (
+                {TENANT_ROLES.map((r) => (
                   <option key={r} value={r}>
                     {roleLabel(r)}
                   </option>

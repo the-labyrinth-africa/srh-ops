@@ -6,9 +6,6 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const LOGO_URL =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuB1xOxGNUjWSBV2jk4DZt3xE-9Srw8jX7XbK5hgKOxsQTlamjCfm-2mAMvEtEnC-KLykmgDkBxuDs8c7o1SPBRM2AduE-2njQSsETOV73grhkotl4Uzs6tfUUzxjUgt8_U9tzeerdggWxLZKX5c8HM6tCM7yzpImj69LA89rUBoFAIQZ5M8I-MpD3rs0APTX2Rlew8DF4TksbmckxhcMoYgXyNxllMLBFolhd-Ki1ZlHvKfJu0rD7qu4qNJPBu79T5QHg";
-
 const DEMO_ACCOUNTS = [
   { role: "Admin Ops", username: "wom-test-admin", password: "WomDemo-admin-_XWrBoHzB-pGxLZFme4bytIp" },
   { role: "Dispatcher", username: "wom-test-dispatcher", password: "WomDemo-dispatcher-LiUoMb9Tuw_C4Y_mK-uP-9aG" },
@@ -59,12 +56,13 @@ export default function LoginPage() {
 
         <div className="mb-8 flex flex-col items-center">
           <Image
-            src={LOGO_URL}
-            alt="SRH Logo"
-            width={120}
-            height={48}
-            className="mb-6 h-12 w-auto object-contain"
+            src="/icons/icon.svg"
+            alt="Logo WOM"
+            width={64}
+            height={64}
+            className="mb-3 h-16 w-16 object-contain"
           />
+          <p className="mb-5 font-label-md text-label-md font-bold tracking-wide text-primary">WOM · Waste Operations Manager</p>
           <h1 className="text-center font-headline-md text-headline-md tracking-tight text-on-surface">
             Connexion à votre espace
           </h1>
@@ -94,7 +92,7 @@ export default function LoginPage() {
                 required
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="username ou email@srh.com"
+                placeholder="Nom d'utilisateur ou adresse e-mail"
                 className="h-12 w-full rounded-DEFAULT border-none bg-surface-container-low pl-10 pr-4 font-body-md text-body-md text-on-surface outline-none transition-all placeholder:text-on-surface-variant/40 focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary"
               />
             </div>
@@ -201,7 +199,7 @@ export default function LoginPage() {
       </div>
 
       <div className="relative z-10 mt-6 text-center font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant/40">
-        © 2026 SRH Ops Platform
+        WOM · Waste Operations Manager
       </div>
     </main>
   );

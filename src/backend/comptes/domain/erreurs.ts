@@ -19,6 +19,13 @@ export class UsernameDejaUtilise extends Error {
   }
 }
 
+export class PremierAdministrateurDejaCree extends Error {
+  constructor() {
+    super("Le premier compte Admin Ops de l'entreprise a déjà été créé.");
+    this.name = "PremierAdministrateurDejaCree";
+  }
+}
+
 export class SuppressionDeSoiInterdite extends Error {
   constructor() {
     super("Impossible de supprimer votre propre compte");
