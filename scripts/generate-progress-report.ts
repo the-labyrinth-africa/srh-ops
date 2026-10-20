@@ -151,7 +151,7 @@ doc.setFontSize(13);
 doc.setFont("helvetica", "normal");
 doc.text("Rapport d'Avancement du Projet", MARGIN, 29);
 doc.setFontSize(9);
-doc.text("Digitalisation des Opérations  |  Plateforme SRH Ops", MARGIN, 37);
+doc.text("Digitalisation des Opérations  |  Plateforme WOM", MARGIN, 37);
 
 y = 52;
 
@@ -164,7 +164,7 @@ y += 6;
 doc.setFont("helvetica", "normal");
 doc.setFontSize(10);
 const intro = doc.splitTextToSize(
-  "La plateforme SRH Ops digitalise les opérations de collecte de SRH. La Phase 1 (Module 1 - Planification des Collectes) est terminée à 100% et sert de socle aux phases suivantes. Ce rapport présente l'état d'avancement réel de chaque phase, les livrables terminés et le reste à faire, sur la base des contrôles rejoués le 19 septembre 2026 (tests, lint, TypeScript) et d'une relecture du code. Le build de production et les vérifications navigateur/API n'ont pas été rejoués depuis le passage à Next 16.",
+  "La plateforme WOM digitalise les opérations de collecte de SRH. La Phase 1 (Module 1 - Planification des Collectes) est terminée à 100% et sert de socle aux phases suivantes. Ce rapport présente l'état d'avancement réel de chaque phase, les livrables terminés et le reste à faire, sur la base des contrôles rejoués le 19 septembre 2026 (tests, lint, TypeScript) et d'une relecture du code. Le build de production et les vérifications navigateur/API n'ont pas été rejoués depuis le passage à Next 16.",
   pageWidth - 2 * MARGIN
 );
 doc.text(intro, MARGIN, y);

@@ -1,12 +1,22 @@
 import withAuth from "next-auth/middleware";
 import type { NextRequestWithAuth } from "next-auth/middleware";
-import type { NextFetchEvent } from "next/server";
+import { NextResponse, type NextFetchEvent } from "next/server";
 
 // Export explicite : Next 16 ne reconnaît pas le re-export `export { default } from
-// "next-auth/middleware"` (module CommonJS) comme une fonction. Comportement identique : withAuth
-// sans option (redirection vers la connexion NextAuth si le jeton de session est absent/invalide).
-export default function middleware(req: NextRequestWithAuth, event: NextFetchEvent) {
-  return withAuth(req, event);
+// "next-auth/middleware"` (module CommonJS) comme une fonction. Les pages gardent la redirection
+// NextAuth ; les API répondent 401 JSON sans session.
+export default async function middleware(req: NextRequestWithAuth, event: NextFetchEvent) {
+  const response = await withAuth(req, event);
+  const location = response?.headers.get("location");
+  if (!req.nextUrl.pathname.startsWith("/api/") || response?.status !== 307 || !location) {
+    return response;
+  }
+
+  if (new URL(location, req.url).pathname !== "/api/auth/signin") {
+    return response;
+  }
+
+  return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
 }
 
 export const config = {

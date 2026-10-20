@@ -20,8 +20,8 @@ async function main() {
   }
   const result = await sendMail({
     to,
-    subject: "SRH Ops — e-mail de test",
-    text: "Cet e-mail confirme que l'envoi de messages depuis SRH Ops fonctionne.\n\nL'équipe SRH Ops",
+    subject: "WOM — e-mail de test",
+    text: "Cet e-mail confirme que l'envoi de messages depuis WOM fonctionne.\n\nL'équipe WOM",
   });
   console.log(result.ok ? "E-mail envoyé." : `Échec : ${result.reason}`);
   process.exit(result.ok ? 0 : 1);

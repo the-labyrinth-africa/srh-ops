@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- Le client s'appelle **SRH** ; libellés et e-mails en français ; les e-mails sont signés « L'équipe SRH Ops ».
+- Le client s'appelle **SRH** ; libellés et e-mails en français ; les e-mails sont signés « L'équipe WOM ».
 - Expéditeur : `contact@thelabyrinth.africa`. Serveur sortant : `mail.thelabyrinth.africa` (repli : `mail38.lwspanel.com`), port **465 (SSL)** ou **587 (STARTTLS)**. L'adresse d'expédition doit être celle de la boîte authentifiée.
 - Le mot de passe SMTP se renseigne **uniquement** dans `.env.local` (ignoré par Git) et dans les variables d'environnement Vercel (mode Sensitive). Jamais dans Git, dans un test, dans un journal, dans un message d'erreur ni dans le chat.
 - Variables : `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM` (déjà dans `.env.local.example`), plus `NEXTAUTH_URL` (URL publique, en `https` en production) pour construire les liens.
@@ -744,7 +744,7 @@ describe("POST /api/mail/test", () => {
     const sent = getMemoryTransport().sent;
     expect(sent).toHaveLength(1);
     expect(sent[0].to).toBe("admin1@srh.ci");
-    expect(sent[0].subject).toContain("SRH Ops");
+    expect(sent[0].subject).toContain("WOM");
   });
 
   it.each(["dispatcher", "lecture", "chauffeur", "client"])("%s est refusé (403) et rien n'est envoyé", async (role) => {
@@ -820,8 +820,8 @@ export async function POST() {
 
   const result = await sendMail({
     to: user.email,
-    subject: "SRH Ops — e-mail de test",
-    text: `Bonjour ${user.nom},\n\nCet e-mail confirme que l'envoi de messages depuis SRH Ops fonctionne.\n\nL'équipe SRH Ops`,
+    subject: "WOM — e-mail de test",
+    text: `Bonjour ${user.nom},\n\nCet e-mail confirme que l'envoi de messages depuis WOM fonctionne.\n\nL'équipe WOM`,
   });
 
   return NextResponse.json(result, { status: result.ok ? 200 : 502, headers: NO_STORE });
@@ -1176,7 +1176,7 @@ describe("gabarits d'e-mails de compte", () => {
   it("réinitialisation : destinataire, lien, durée de validité, aucun mot de passe", () => {
     const m = buildResetMail(user, link);
     expect(m.to).toBe("awa@srh.ci");
-    expect(m.subject).toContain("SRH Ops");
+    expect(m.subject).toContain("WOM");
     expect(m.text).toContain(link);
     expect(m.text).toContain("30 minutes");
     expect(m.html).toContain(link);
@@ -1447,7 +1447,7 @@ interface Recipient {
   email: string;
 }
 
-const SIGNATURE = "L'équipe SRH Ops";
+const SIGNATURE = "L'équipe WOM";
 
 function escapeHtml(value: string): string {
   return value
@@ -1468,13 +1468,13 @@ function html(paragraphs: string[], link?: { href: string; label: string }): str
 export function buildResetMail(user: Recipient, link: string): MailMessage {
   const lines = [
     `Bonjour ${user.nom},`,
-    "Vous avez demandé la réinitialisation de votre mot de passe SRH Ops.",
+    "Vous avez demandé la réinitialisation de votre mot de passe WOM.",
     "Ce lien est valable 30 minutes et ne peut servir qu'une fois.",
     "Si vous n'êtes pas à l'origine de cette demande, ignorez ce message : votre mot de passe reste inchangé.",
   ];
   return {
     to: user.email,
-    subject: "SRH Ops — Réinitialisation de votre mot de passe",
+    subject: "WOM — Réinitialisation de votre mot de passe",
     text: `${lines.join("\n\n")}\n\n${link}\n\n${SIGNATURE}`,
     html: html(lines, { href: link, label: "Choisir un nouveau mot de passe" }),
   };
@@ -1483,12 +1483,12 @@ export function buildResetMail(user: Recipient, link: string): MailMessage {
 export function buildInvitationMail(user: Recipient, link: string): MailMessage {
   const lines = [
     `Bonjour ${user.nom},`,
-    "Un compte SRH Ops vient de vous être créé. Pour l'activer, choisissez votre mot de passe.",
+    "Un compte WOM vient de vous être créé. Pour l'activer, choisissez votre mot de passe.",
     "Ce lien est valable 72 heures et ne peut servir qu'une fois. S'il expire, demandez un nouveau lien à votre administrateur.",
   ];
   return {
     to: user.email,
-    subject: "SRH Ops — Activez votre compte",
+    subject: "WOM — Activez votre compte",
     text: `${lines.join("\n\n")}\n\n${link}\n\n${SIGNATURE}`,
     html: html(lines, { href: link, label: "Activer mon compte" }),
   };
@@ -1497,12 +1497,12 @@ export function buildInvitationMail(user: Recipient, link: string): MailMessage 
 export function buildPasswordChangedMail(user: Recipient): MailMessage {
   const lines = [
     `Bonjour ${user.nom},`,
-    "Le mot de passe de votre compte SRH Ops vient d'être modifié.",
+    "Le mot de passe de votre compte WOM vient d'être modifié.",
     "Si vous n'êtes pas à l'origine de cette modification, contactez immédiatement un administrateur SRH.",
   ];
   return {
     to: user.email,
-    subject: "SRH Ops — Votre mot de passe a été modifié",
+    subject: "WOM — Votre mot de passe a été modifié",
     text: `${lines.join("\n\n")}\n\n${SIGNATURE}`,
     html: html(lines),
   };
@@ -2086,8 +2086,8 @@ async function main() {
   }
   const result = await sendMail({
     to,
-    subject: "SRH Ops — e-mail de test",
-    text: "Cet e-mail confirme que l'envoi de messages depuis SRH Ops fonctionne.\n\nL'équipe SRH Ops",
+    subject: "WOM — e-mail de test",
+    text: "Cet e-mail confirme que l'envoi de messages depuis WOM fonctionne.\n\nL'équipe WOM",
   });
   console.log(result.ok ? "E-mail envoyé." : `Échec : ${result.reason}`);
   process.exit(result.ok ? 0 : 1);

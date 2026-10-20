@@ -1,4 +1,4 @@
-# Module 1 — Planification des Collectes — SRH Ops
+# Module 1 — Planification des Collectes — WOM
 
 **Projet :** SRH — Digitalisation des Opérations  
 **Stack :** Next.js 16 / TypeScript / MongoDB / NextAuth  

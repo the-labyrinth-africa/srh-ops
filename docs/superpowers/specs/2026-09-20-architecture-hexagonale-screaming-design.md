@@ -2,7 +2,7 @@
 
 **Date :** 20 septembre 2026
 **Statut :** R0 à R9 réalisés (domaines backend, frontends et clôture d'architecture)
-**Portée :** application SRH Ops entière (≈ 11 000 lignes applicatives, ≈ 5 700 lignes de tests, 30 routes d'API, 16 pages).
+**Portée :** application WOM entière (≈ 11 000 lignes applicatives, ≈ 5 700 lignes de tests, 30 routes d'API, 16 pages).
 
 ## 1. Objectif
 
