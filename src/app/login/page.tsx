@@ -9,6 +9,14 @@ import { useState } from "react";
 const LOGO_URL =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuB1xOxGNUjWSBV2jk4DZt3xE-9Srw8jX7XbK5hgKOxsQTlamjCfm-2mAMvEtEnC-KLykmgDkBxuDs8c7o1SPBRM2AduE-2njQSsETOV73grhkotl4Uzs6tfUUzxjUgt8_U9tzeerdggWxLZKX5c8HM6tCM7yzpImj69LA89rUBoFAIQZ5M8I-MpD3rs0APTX2Rlew8DF4TksbmckxhcMoYgXyNxllMLBFolhd-Ki1ZlHvKfJu0rD7qu4qNJPBu79T5QHg";
 
+const DEMO_ACCOUNTS = [
+  { role: "Admin Ops", username: "wom-test-admin", password: "WomDemo-admin-_XWrBoHzB-pGxLZFme4bytIp" },
+  { role: "Dispatcher", username: "wom-test-dispatcher", password: "WomDemo-dispatcher-LiUoMb9Tuw_C4Y_mK-uP-9aG" },
+  { role: "Chauffeur / Terrain", username: "wom-test-chauffeur", password: "WomDemo-chauffeur-vZ6m1EX-C-BwZcHi_7ro2e7O" },
+  { role: "Espace Client", username: "wom-test-client", password: "WomDemo-client-Y4t24Ypg7GzBI4VBIqACBM9u" },
+  { role: "Lecture seule", username: "wom-test-lecture", password: "WomDemo-lecture-UAKLpNUD2O-Sim83UgFX1b6m" },
+];
+
 export default function LoginPage() {
   const router = useRouter();
   const [identifier, setIdentifier] = useState("");
@@ -145,6 +153,40 @@ export default function LoginPage() {
           </button>
         </form>
 
+        <details open className="mt-6 rounded-xl border border-outline-variant bg-surface p-4">
+          <summary className="cursor-pointer font-label-md text-label-md font-bold text-on-surface">
+            Accès de démonstration publics
+          </summary>
+          <p className="mt-3 rounded-lg bg-error-container p-3 font-body-sm text-body-sm text-on-error-container">
+            Environnement de démonstration partagé : les actions sont visibles par les autres testeurs.
+            N&apos;y saisissez aucune donnée personnelle ou confidentielle.
+          </p>
+          <ul className="mt-3 space-y-3">
+            {DEMO_ACCOUNTS.map((account) => (
+              <li key={account.username} className="rounded-lg border border-outline-variant bg-surface-container-lowest p-3">
+                <p className="font-label-md text-label-md font-bold text-on-surface">{account.role}</p>
+                <p className="mt-1 break-all font-body-sm text-body-sm text-on-surface-variant">
+                  Identifiant : <code>{account.username}</code>
+                </p>
+                <p className="break-all font-body-sm text-body-sm text-on-surface-variant">
+                  Mot de passe : <code>{account.password}</code>
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIdentifier(account.username);
+                    setPassword(account.password);
+                    setError("");
+                  }}
+                  className="mt-2 inline-flex min-h-11 items-center rounded-lg px-3 font-label-sm text-label-sm font-semibold text-primary underline-offset-4 hover:bg-surface-container-low hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+                >
+                  Remplir le formulaire avec ce compte
+                </button>
+              </li>
+            ))}
+          </ul>
+        </details>
+
         <p className="mt-5 text-center font-body-sm text-body-sm text-on-surface-variant">
           Vous n’avez pas encore d’accès ?{" "}
           <Link href="/demande" className="font-semibold text-primary underline-offset-4 hover:underline">
@@ -158,7 +200,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <div className="absolute bottom-margin-mobile text-center font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant/40 lg:bottom-margin-desktop">
+      <div className="relative z-10 mt-6 text-center font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant/40">
         © 2026 SRH Ops Platform
       </div>
     </main>

@@ -42,6 +42,20 @@ Phase 4 ajoute les domaines `src/backend/demandes-clients/` (collecte publique, 
 
 Le guide utilisateur est disponible dans l'application à `/guide`, après connexion. Son contenu est filtré selon le rôle connecté : l'administrateur peut consulter tous les chapitres, le dispatcher voit son guide et celui de lecture seule, et les rôles Chauffeur et Client disposent chacun de leur guide dédié.
 
+## Accès de démonstration publics
+
+Ces identifiants sont volontairement publics et sont à utiliser **uniquement** sur l'instance de démonstration SRH Ops. La page de connexion permet aussi de remplir automatiquement le formulaire avec le compte choisi.
+
+| Rôle | Identifiant | Mot de passe |
+|---|---|---|
+| Admin Ops | `wom-test-admin` | `WomDemo-admin-_XWrBoHzB-pGxLZFme4bytIp` |
+| Dispatcher | `wom-test-dispatcher` | `WomDemo-dispatcher-LiUoMb9Tuw_C4Y_mK-uP-9aG` |
+| Chauffeur / Terrain | `wom-test-chauffeur` | `WomDemo-chauffeur-vZ6m1EX-C-BwZcHi_7ro2e7O` |
+| Espace Client | `wom-test-client` | `WomDemo-client-Y4t24Ypg7GzBI4VBIqACBM9u` |
+| Lecture seule | `wom-test-lecture` | `WomDemo-lecture-UAKLpNUD2O-Sim83UgFX1b6m` |
+
+**Important :** ces comptes sont partagés. Les modifications faites par un testeur sont visibles par les autres. Ne saisissez aucune donnée personnelle, réelle ou confidentielle. Ne configurez jamais ces identifiants sur une base de production. Les adresses e-mail associées utilisent le domaine réservé `.invalid` et ne reçoivent pas de courrier.
+
 Vérifier la compilation Next sans toucher à la vraie base (variables factices, jamais l'URI réelle) :
 
 ```bash
