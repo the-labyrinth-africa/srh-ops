@@ -9,6 +9,7 @@ const WRITERS = ["admin", "dispatcher"];
 // [chemin, rôles autorisés] — miroir de la matrice du plan.
 const EXPECTED: Array<[string, string[]]> = [
   ["/", STAFF],
+  ["/guide", [...USER_ROLES]],
   ["/operations", STAFF],
   ["/operations/planning", STAFF],
   ["/operations/nouveau", WRITERS],

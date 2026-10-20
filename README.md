@@ -40,6 +40,8 @@ Clôture R9 : tous les domaines backend et toutes les fonctionnalités frontend 
 
 Phase 4 ajoute les domaines `src/backend/demandes-clients/` (collecte publique, qualification et conversion idempotente) et `src/backend/espace-client/` (lecture bornée par client), ainsi que `src/frontend/espace-client/`. Phase 5 ajoute `src/backend/notifications/` (file SMTP persistante, idempotente et réessayable), les alertes planifiées via Cron Vercel et les tendances/exports CSV dans `pilotage`. Ces domaines suivent les mêmes règles de dépendance et sont couverts par le test d'architecture.
 
+Le guide utilisateur est disponible dans l'application à `/guide`, après connexion. Son contenu est filtré selon le rôle connecté : l'administrateur peut consulter tous les chapitres, le dispatcher voit son guide et celui de lecture seule, et les rôles Chauffeur et Client disposent chacun de leur guide dédié.
+
 Vérifier la compilation Next sans toucher à la vraie base (variables factices, jamais l'URI réelle) :
 
 ```bash

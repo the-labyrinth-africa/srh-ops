@@ -17,6 +17,12 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: "/", label: "Tableau de bord", icon: "dashboard", match: (p) => p === "/" },
       {
+        href: "/guide",
+        label: "Guide d'utilisation",
+        icon: "menu_book",
+        match: (p) => p.startsWith("/guide"),
+      },
+      {
         href: "/espace-client",
         label: "Espace client",
         icon: "business_center",

@@ -8,7 +8,7 @@ describe("navForRole", () => {
   it("admin voit tout, dont les demandes clients, Utilisateurs et Import", () => {
     const h = hrefs("admin");
     expect(h).toEqual(
-      expect.arrayContaining(["/", "/terrain", "/operations/planning", "/operations", "/recurrences", "/tracabilite", "/demandes", "/import", "/clients", "/equipes", "/vehicules", "/equipements", "/utilisateurs"])
+      expect.arrayContaining(["/", "/guide", "/terrain", "/operations/planning", "/operations", "/recurrences", "/tracabilite", "/demandes", "/import", "/clients", "/equipes", "/vehicules", "/equipements", "/utilisateurs"])
     );
   });
 
@@ -30,22 +30,22 @@ describe("navForRole", () => {
 
   it("lecture : liste exacte des entrées", () => {
     expect(hrefs("lecture")).toEqual([
-      "/", "/operations/planning", "/operations", "/recurrences", "/tracabilite", "/clients", "/equipes", "/vehicules", "/equipements",
+      "/", "/guide", "/operations/planning", "/operations", "/recurrences", "/tracabilite", "/clients", "/equipes", "/vehicules", "/equipements",
     ]);
   });
 
   it("dispatcher : liste exacte des entrées (lecture + terrain + import)", () => {
     expect([...hrefs("dispatcher")].sort()).toEqual(
-      ["/", "/operations/planning", "/operations", "/recurrences", "/tracabilite", "/demandes", "/clients", "/equipes", "/vehicules", "/equipements", "/terrain", "/import"].sort()
+      ["/", "/guide", "/operations/planning", "/operations", "/recurrences", "/tracabilite", "/demandes", "/clients", "/equipes", "/vehicules", "/equipements", "/terrain", "/import"].sort()
     );
   });
 
   it("chauffeur ne voit que la console terrain", () => {
-    expect(hrefs("chauffeur")).toEqual(["/terrain"]);
+    expect(hrefs("chauffeur")).toEqual(["/guide", "/terrain"]);
   });
 
   it("client ne voit que les entrées de son espace", () => {
-    expect(hrefs("client")).toEqual(["/espace-client"]);
+    expect(hrefs("client")).toEqual(["/guide", "/espace-client"]);
     expect(hrefs("client")).not.toContain("/clients");
     expect(hrefs("client")).not.toContain("/demandes");
   });

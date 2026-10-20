@@ -21,6 +21,7 @@ const contexte: Contexte = {
     "import-donnees",
     "pilotage",
     "espace-client",
+    "guide",
   ],
 };
 

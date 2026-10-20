@@ -20,6 +20,7 @@ const OPERATION_DETAIL = /^\/operations\/[a-f\d]{24}$/i;
 // L'ordre compte : la première règle qui correspond s'applique.
 const RULES: AccessRule[] = [
   { matches: (p) => p === "/", roles: STAFF },
+  { matches: under("/guide"), roles: ALL },
   { matches: under("/utilisateurs"), roles: ["admin"] },
   { matches: under("/import"), roles: WRITERS },
   { matches: under("/operations/nouveau"), roles: WRITERS },
