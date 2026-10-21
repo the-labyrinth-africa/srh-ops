@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { notifierNouvelleDemande, traiterFileNotifications } from "@/backend/notifications";
-import { envoyerPushAuxAbonnes } from "@/backend/notifications/application/web-push";
+import { notifierNouvelleDemande, traiterFileNotifications, envoyerPushAuxAbonnes } from "@/backend/notifications";
 import { runAfterResponse } from "@/backend/platform/execution-differee/execution-differee";
 import { adresseIpDemande, casDUsageDemandes } from "../composition";
 import { LimiteDemandesAtteinte } from "../domain/erreurs";

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { formatApiError } from "@/frontend/design-system";
 import { QUANTITE_UNITES, type QuantiteUnite } from "@/shared/operations/quantites";
 import type { TraceabiliteView } from "../types";
+import { useUniteQuantiteGlobale } from "@/frontend/parametres";
 
 const API_ERROR = "Impossible de charger la traçabilité. Vérifiez votre connexion puis réessayez.";
 
@@ -14,6 +15,7 @@ export function TracabiliteOperation({
   operationId: string;
   canEdit: boolean;
 }) {
+  const { uniteQuantiteGlobale } = useUniteQuantiteGlobale();
   const [items, setItems] = useState<TraceabiliteView[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -25,6 +27,11 @@ export function TracabiliteOperation({
   const [volume, setVolume] = useState("");
   const [unite, setUnite] = useState<QuantiteUnite>("Litres");
   const [traitement, setTraitement] = useState("");
+  const ligneEnEdition = items.find((item) => item.id === editingId);
+  const quantiteModifiee = Boolean(ligneEnEdition && volume !== String(ligneEnEdition.volume));
+  const uniteAffichee = uniteQuantiteGlobale && (!editingId || quantiteModifiee)
+    ? uniteQuantiteGlobale
+    : ligneEnEdition?.unite ?? unite;
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -76,7 +83,7 @@ export function TracabiliteOperation({
             identifiantSuivi,
             typeDechet,
             volume: Number(volume),
-            unite,
+            unite: uniteAffichee,
             traitement,
           }),
         }
@@ -185,16 +192,22 @@ export function TracabiliteOperation({
                   className="min-h-11 min-w-0 flex-1 rounded-lg border border-outline-variant bg-surface px-3 py-2 text-on-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
                   placeholder="Ex. 250"
                 />
-                <select
-                  aria-label="Unité de mesure"
-                  value={unite}
-                  onChange={(event) => setUnite(event.target.value as QuantiteUnite)}
-                  className="min-h-11 rounded-lg border border-outline-variant bg-surface px-3 py-2 text-on-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
-                >
-                  {QUANTITE_UNITES.map((unit) => (
-                    <option key={unit} value={unit}>{unit}</option>
-                  ))}
-                </select>
+                {uniteQuantiteGlobale ? (
+                  <p className="flex min-h-11 items-center rounded-lg border border-outline-variant bg-surface-container-low px-3 text-on-surface">
+                    {uniteAffichee}
+                  </p>
+                ) : (
+                  <select
+                    aria-label="Unité de mesure"
+                    value={unite}
+                    onChange={(event) => setUnite(event.target.value as QuantiteUnite)}
+                    className="min-h-11 rounded-lg border border-outline-variant bg-surface px-3 py-2 text-on-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+                  >
+                    {QUANTITE_UNITES.map((unit) => (
+                      <option key={unit} value={unit}>{unit}</option>
+                    ))}
+                  </select>
+                )}
               </div>
             </div>
             <div>

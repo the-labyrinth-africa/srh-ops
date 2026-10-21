@@ -11,6 +11,8 @@ import { homePathFor } from "@/shared/acces/acces-pages";
 import { TracabiliteOperation } from "@/frontend/tracabilite";
 import type { OperationStatus } from "@/shared/operations/statuts";
 import type { QuantiteUnite } from "@/shared/operations/quantites";
+import { QUANTITE_UNITES } from "@/shared/operations/quantites";
+import { useUniteQuantiteGlobale } from "@/frontend/parametres";
 
 interface OperationPhoto {
   url: string;
@@ -43,6 +45,7 @@ export function OperationDetailClient({ id }: { id: string }) {
   const router = useRouter();
   const { data: session } = useSession();
   const userRole = session?.user?.role;
+  const { uniteQuantiteGlobale } = useUniteQuantiteGlobale();
   const canEdit = canWrite(userRole);
   const canEditTraceabilite = canEdit || isChauffeur(userRole);
 
@@ -61,6 +64,12 @@ export function OperationDetailClient({ id }: { id: string }) {
   const [remarques, setRemarques] = useState<string>("");
   const [nomSignataire, setNomSignataire] = useState<string>("");
   const [signatureData, setSignatureData] = useState<string>("");
+  const quantiteModifiee = operation
+    ? quantite !== (operation.quantiteCollectee === undefined ? "" : String(operation.quantiteCollectee))
+    : false;
+  const uniteAffichee = uniteQuantiteGlobale && !quantiteModifiee
+    ? operation?.uniteQuantite ?? uniteQuantiteGlobale
+    : uniteQuantiteGlobale ?? unite;
 
   const fetchDetail = useCallback(async () => {
     setLoading(true);
@@ -101,7 +110,7 @@ export function OperationDetailClient({ id }: { id: string }) {
       const payload = {
         statut: targetStatus,
         quantiteCollectee: quantite ? Number(quantite) : undefined,
-        uniteQuantite: quantite ? unite : undefined,
+        uniteQuantite: quantite ? uniteAffichee : undefined,
         remarquesTerrain: remarques || undefined,
         nomSignataireClient: nomSignataire || undefined,
         signatureClient: signatureData || undefined,
@@ -362,16 +371,21 @@ export function OperationDetailClient({ id }: { id: string }) {
                     <label className="block font-label-md text-label-md font-semibold text-on-surface">
                       Unité
                     </label>
-                    <select
-                      value={unite}
-                      onChange={(e) => setUnite(e.target.value as QuantiteUnite)}
-                      className="mt-1 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-body-md text-on-surface outline-none"
-                    >
-                      <option value="Litres">Litres</option>
-                      <option value="Kg">Kg</option>
-                      <option value="M3">M3</option>
-                      <option value="Bacs">Bacs</option>
-                    </select>
+                    {uniteQuantiteGlobale ? (
+                      <p className="mt-1 flex min-h-11 items-center rounded-xl border border-outline-variant bg-surface-container-low px-3 font-body-md text-body-md text-on-surface">
+                        {uniteAffichee} <span className="ml-2 text-sm text-on-surface-variant">
+                          {quantiteModifiee ? "(unité globale)" : "(unité enregistrée)"}
+                        </span>
+                      </p>
+                    ) : (
+                      <select
+                        value={unite}
+                        onChange={(e) => setUnite(e.target.value as QuantiteUnite)}
+                        className="mt-1 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-body-md text-on-surface outline-none"
+                      >
+                        {QUANTITE_UNITES.map((unit) => <option key={unit} value={unit}>{unit}</option>)}
+                      </select>
+                    )}
                   </div>
                 </div>
 

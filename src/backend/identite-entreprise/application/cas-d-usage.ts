@@ -4,6 +4,7 @@ import type { IdentiteEntrepriseRepository } from "../domain/ports";
 export function creerCasDUsageIdentiteEntreprise(repository: IdentiteEntrepriseRepository) {
   return {
     obtenir: () => repository.obtenir(),
+    obtenirUniteQuantiteGlobale: () => repository.obtenirUniteQuantiteGlobale(),
     enregistrer: (identite: IdentiteEntreprise) => repository.enregistrer(identite),
   };
 }

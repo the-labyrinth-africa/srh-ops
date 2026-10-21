@@ -18,6 +18,7 @@ import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { Operation } from "@/backend/operations/infrastructure/mongoose/operation.model";
 import { TraceabiliteModel } from "@/backend/tracabilite/infrastructure/mongoose/tracabilite.model";
+import { IdentiteEntrepriseModel } from "@/backend/identite-entreprise/infrastructure/mongoose/identite-entreprise.model";
 
 const ID_ACTEUR = "507f1f77bcf86cd799439011";
 const req = (url: string, init?: ConstructorParameters<typeof NextRequest>[1]) =>
@@ -95,6 +96,64 @@ describe("API de traçabilité", () => {
     expect(data.items).toHaveLength(1);
     expect(data.items[0].operation.client.nom).toBe("Client A");
     expect(data.items[0].operation.site.nom).toBe("Site A");
+  });
+
+  it("impose l'unité globale à une nouvelle ligne de traçabilité", async () => {
+    await IdentiteEntrepriseModel.create({
+      cle: "principale",
+      nomEntreprise: "Entreprise Exemple",
+      sigle: "EX",
+      uniteQuantiteGlobale: "Kg",
+    });
+    session("admin");
+
+    const response = await createForOperation(
+      req(`/api/operations/${operationId}/tracabilite`, {
+        method: "POST",
+        body: JSON.stringify({ ...body, unite: "Litres" }),
+      }),
+      params(operationId)
+    );
+
+    expect(response.status).toBe(201);
+    expect(await response.json()).toMatchObject({ volume: 250, unite: "Kg" });
+    expect(await TraceabiliteModel.findOne({ operationId }).lean()).toMatchObject({ unite: "Kg" });
+  });
+
+  it("préserve l'unité historique si le volume reste identique et applique la globale si le volume change", async () => {
+    session("admin");
+    const created = await createForOperation(
+      req(`/api/operations/${operationId}/tracabilite`, {
+        method: "POST",
+        body: JSON.stringify({ ...body, unite: "Bacs" }),
+      }),
+      params(operationId)
+    );
+    const traceId = (await created.json()).id;
+    await IdentiteEntrepriseModel.create({
+      cle: "principale",
+      nomEntreprise: "Entreprise Exemple",
+      sigle: "EX",
+      uniteQuantiteGlobale: "M3",
+    });
+
+    const unchanged = await updateTrace(
+      req(`/api/operations/${operationId}/tracabilite/${traceId}`, {
+        method: "PUT",
+        body: JSON.stringify({ ...body, unite: "Kg" }),
+      }),
+      traceParams(operationId, traceId)
+    );
+    expect((await unchanged.json()).unite).toBe("Bacs");
+
+    const changed = await updateTrace(
+      req(`/api/operations/${operationId}/tracabilite/${traceId}`, {
+        method: "PUT",
+        body: JSON.stringify({ ...body, volume: 300, unite: "Kg" }),
+      }),
+      traceParams(operationId, traceId)
+    );
+    expect((await changed.json())).toMatchObject({ volume: 300, unite: "M3" });
   });
 
   it("refuse les identifiants dupliqués sans tenir compte de la casse", async () => {

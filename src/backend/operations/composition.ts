@@ -1,5 +1,5 @@
 import { SystemClock } from "@/backend/platform/horloge/horloge";
-import { obtenirIdentiteEntreprise } from "@/backend/identite-entreprise";
+import { obtenirIdentiteEntreprise, obtenirUniteQuantiteGlobale } from "@/backend/identite-entreprise";
 import type { Acteur } from "@/shared/acces/acteur";
 import { creerCasDUsageOperations } from "./application/cas-d-usage";
 import { creerCasDUsageRapport } from "./application/cas-d-usage-rapport";
@@ -55,6 +55,7 @@ export async function verifierAccesOperation(
 export const casDUsageTerrain = creerCasDUsageTerrain({
   operations,
   horloge,
+  obtenirUniteQuantiteGlobale,
   // Fonction (et non alias direct de `console.warn`) : relit `console.warn` à chaque appel, donc
   // reste observable par un test qui l'espionne après le chargement du module (leçon R3b).
   alerteCoherence: (message) => console.warn(message),

@@ -1,6 +1,9 @@
 import { sendMail } from "@/backend/platform/email";
 import { creerCasDUsageNotifications } from "./application/cas-d-usage";
 import { NotificationRepositoryMongoose } from "./infrastructure/mongoose/notification.repository.mongoose";
+import { creerCasDUsagePush } from "./application/cas-d-usage-push";
+import { PushSubscriptionRepositoryMongoose } from "./infrastructure/mongoose/push-subscription.repository.mongoose";
+import { LivraisonWebPush } from "./infrastructure/web-push/livraison-web-push";
 
 export const casDUsageNotifications = creerCasDUsageNotifications({
   repository: new NotificationRepositoryMongoose(),
@@ -10,6 +13,16 @@ export const casDUsageNotifications = creerCasDUsageNotifications({
     },
   },
 });
+
+const casDUsagePush = creerCasDUsagePush({
+  abonnements: new PushSubscriptionRepositoryMongoose(),
+  livraison: new LivraisonWebPush(),
+});
+
+export const clePubliquePush = casDUsagePush.clePublique;
+export const enregistrerAbonnementPush = casDUsagePush.enregistrer;
+export const retirerAbonnementPush = casDUsagePush.retirer;
+export const envoyerPushAuxAbonnes = casDUsagePush.envoyerAuxAbonnes;
 
 export function notifierNouvelleDemande(demande: Parameters<typeof casDUsageNotifications.notifierNouvelleDemande>[0]) {
   return casDUsageNotifications.notifierNouvelleDemande(demande);

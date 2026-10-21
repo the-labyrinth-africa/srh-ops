@@ -23,9 +23,15 @@ export interface DependancesTerrain {
   operations: OperationRepository;
   horloge: Horloge;
   alerteCoherence: AlerteCoherence;
+  obtenirUniteQuantiteGlobale?: () => Promise<import("@/shared/operations/quantites").QuantiteUnite | null>;
 }
 
-export function creerCasDUsageTerrain({ operations, horloge, alerteCoherence }: DependancesTerrain) {
+export function creerCasDUsageTerrain({
+  operations,
+  horloge,
+  alerteCoherence,
+  obtenirUniteQuantiteGlobale,
+}: DependancesTerrain) {
   function verifierAccesTerrain(acteur: Acteur): void {
     if (chauffeurSansEquipe(acteur)) throw new ChauffeurSansEquipe();
   }
@@ -50,8 +56,18 @@ export function creerCasDUsageTerrain({ operations, horloge, alerteCoherence }: 
         alerteCoherence(messageAlerteCoherence(id, etat.statut));
       }
 
+      const demandeEffective = { ...demande };
+      if (
+        demandeEffective.quantiteCollectee !== undefined &&
+        demandeEffective.quantiteCollectee !== etat.quantiteCollectee
+      ) {
+        demandeEffective.uniteQuantite = (await obtenirUniteQuantiteGlobale?.()) ?? demandeEffective.uniteQuantite;
+      } else if (demandeEffective.quantiteCollectee !== undefined && etat.uniteQuantite) {
+        demandeEffective.uniteQuantite = etat.uniteQuantite;
+      }
+
       const operation = await operations.changerStatut(id, {
-        ...demande,
+        ...demandeEffective,
         ancienStatut: etat.statut,
         date: horloge.maintenant(),
         parUtilisateur: acteur.id,

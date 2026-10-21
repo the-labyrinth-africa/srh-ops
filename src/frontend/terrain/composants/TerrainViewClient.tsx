@@ -10,6 +10,8 @@ import { canWrite, isChauffeur } from "@/shared/acces/permissions";
 import { compressImageFile } from "../utils/image-compress";
 import type { OperationStatus } from "@/shared/operations/statuts";
 import type { QuantiteUnite } from "@/shared/operations/quantites";
+import { QUANTITE_UNITES } from "@/shared/operations/quantites";
+import { useUniteQuantiteGlobale } from "@/frontend/parametres";
 
 interface OperationTerrain {
   _id: string;
@@ -31,6 +33,7 @@ interface OperationTerrain {
 
 export function TerrainViewClient() {
   const { data: session } = useSession();
+  const { uniteQuantiteGlobale } = useUniteQuantiteGlobale();
   const canEditTraceabilite = canWrite(session?.user?.role) || isChauffeur(session?.user?.role);
 
   const [operations, setOperations] = useState<OperationTerrain[]>([]);
@@ -48,6 +51,12 @@ export function TerrainViewClient() {
   const [remarques, setRemarques] = useState("");
   const [nomSignataire, setNomSignataire] = useState("");
   const [signatureData, setSignatureData] = useState("");
+  const quantiteModifiee = selectedOp
+    ? quantite !== (selectedOp.quantiteCollectee === undefined ? "" : String(selectedOp.quantiteCollectee))
+    : false;
+  const uniteAffichee = uniteQuantiteGlobale && !quantiteModifiee
+    ? selectedOp?.uniteQuantite ?? uniteQuantiteGlobale
+    : uniteQuantiteGlobale ?? unite;
 
   // Envoi de rapport par email
   const [emailClient, setEmailClient] = useState("");
@@ -102,7 +111,7 @@ export function TerrainViewClient() {
     const payload = {
       statut: targetStatus,
       quantiteCollectee: quantite ? Number(quantite) : undefined,
-      uniteQuantite: quantite ? unite : undefined,
+      uniteQuantite: quantite ? uniteAffichee : undefined,
       remarquesTerrain: remarques || undefined,
       nomSignataireClient: nomSignataire || undefined,
       signatureClient: signatureData || undefined,
@@ -329,16 +338,21 @@ export function TerrainViewClient() {
                     <label className="block font-label-md text-label-md font-semibold text-on-surface">
                       Unité
                     </label>
-                    <select
-                      value={unite}
-                      onChange={(e) => setUnite(e.target.value as QuantiteUnite)}
-                      className="mt-1 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2.5 font-body-md text-body-md text-on-surface outline-none"
-                    >
-                      <option value="Litres">Litres</option>
-                      <option value="Kg">Kg</option>
-                      <option value="M3">M3</option>
-                      <option value="Bacs">Bacs</option>
-                    </select>
+                    {uniteQuantiteGlobale ? (
+                      <p className="mt-1 flex min-h-11 items-center rounded-xl border border-outline-variant bg-surface-container-low px-3 font-body-md text-body-md text-on-surface">
+                        {uniteAffichee} <span className="ml-2 text-sm text-on-surface-variant">
+                          {quantiteModifiee ? "(unité globale)" : "(unité enregistrée)"}
+                        </span>
+                      </p>
+                    ) : (
+                      <select
+                        value={unite}
+                        onChange={(e) => setUnite(e.target.value as QuantiteUnite)}
+                        className="mt-1 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2.5 font-body-md text-body-md text-on-surface outline-none"
+                      >
+                        {QUANTITE_UNITES.map((unit) => <option key={unit} value={unit}>{unit}</option>)}
+                      </select>
+                    )}
                   </div>
                 </div>
 

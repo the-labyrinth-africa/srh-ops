@@ -12,6 +12,7 @@ import { POST as importer } from "@/app/api/import/route";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
 import { Operation } from "@/backend/operations/infrastructure/mongoose/operation.model";
+import { IdentiteEntrepriseModel } from "@/backend/identite-entreprise/infrastructure/mongoose/identite-entreprise.model";
 
 const XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 const DATE_ISO = expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
@@ -97,6 +98,21 @@ describe("Caractérisation — import Excel (formes exactes)", () => {
   });
 
   describe("aperçu", () => {
+    it("utilise l'unité globale configurée dans l'aperçu sans écrire de données", async () => {
+      await IdentiteEntrepriseModel.create({
+        cle: "principale",
+        nomEntreprise: "Entreprise Exemple",
+        sigle: "EX",
+        uniteQuantiteGlobale: "Kg",
+      });
+
+      const response = await importer(multipart(await classeur(LIGNES), { mode: "preview" }));
+
+      expect((await response.json()).summary.uniteApercu).toBe("Kg");
+      expect(await Operation.countDocuments()).toBe(0);
+      expect(await Site.countDocuments()).toBe(0);
+    });
+
     it("corps exact, rien n'est écrit, le client n'est ni requis ni vérifié", async () => {
       const res = await importer(multipart(await classeur(LIGNES), { mode: "preview", clientId: "pas-un-identifiant" }));
 
@@ -123,6 +139,22 @@ describe("Caractérisation — import Excel (formes exactes)", () => {
   });
 
   describe("import", () => {
+    it("utilise l'unité globale dans le résumé et sur chaque collecte importée", async () => {
+      await IdentiteEntrepriseModel.create({
+        cle: "principale",
+        nomEntreprise: "Entreprise Exemple",
+        sigle: "EX",
+        uniteQuantiteGlobale: "M3",
+      });
+
+      const response = await importer(multipart(await classeur(LIGNES), { mode: "import", clientId }));
+      const result = await response.json();
+
+      expect(result.summary.uniteApercu).toBe("M3");
+      expect(await Operation.distinct("uniteQuantite")).toEqual(["M3"]);
+      expect(await Operation.countDocuments()).toBe(3);
+    });
+
     it("corps exact ; sites et opérations créés avec leurs valeurs exactes", async () => {
       const res = await importer(multipart(await classeur(LIGNES), { mode: "import", clientId }));
 

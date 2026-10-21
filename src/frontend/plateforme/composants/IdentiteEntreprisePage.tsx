@@ -3,12 +3,14 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import type { IdentiteEntreprise } from "@/shared/entreprise/identite";
+import { QUANTITE_UNITES } from "@/shared/operations/quantites";
 
 const INITIAL: IdentiteEntreprise = {
   nomEntreprise: "",
   sigle: "",
   siteWeb: "",
   logoDataUrl: null,
+  uniteQuantiteGlobale: null,
 };
 
 export function IdentiteEntreprisePage() {
@@ -77,6 +79,7 @@ export function IdentiteEntreprisePage() {
     form.set("nomEntreprise", identite.nomEntreprise);
     form.set("sigle", identite.sigle);
     form.set("siteWeb", identite.siteWeb);
+    form.set("uniteQuantiteGlobale", identite.uniteQuantiteGlobale ?? "");
     form.set("removeLogo", String(removeLogo));
     if (logoFile) form.set("logo", logoFile);
 
@@ -153,6 +156,28 @@ export function IdentiteEntreprisePage() {
                 className="h-12 w-full rounded-xl bg-surface-container-low px-3 font-body-md text-body-md text-on-surface outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
+          </div>
+
+          <div>
+            <label htmlFor="global-quantity-unit" className="mb-1 block font-label-md text-label-md text-on-surface">
+              Unité globale des collectes
+            </label>
+            <select
+              id="global-quantity-unit"
+              value={identite.uniteQuantiteGlobale ?? ""}
+              onChange={(event) => setIdentite({
+                ...identite,
+                uniteQuantiteGlobale: (event.target.value || null) as IdentiteEntreprise["uniteQuantiteGlobale"],
+              })}
+              className="h-12 w-full rounded-xl bg-surface-container-low px-3 font-body-md text-body-md text-on-surface outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="">Aucune — choix par collecte</option>
+              {QUANTITE_UNITES.map((unit) => <option key={unit} value={unit}>{unit}</option>)}
+            </select>
+            <p className="mt-1 font-body-sm text-body-sm text-on-surface-variant">
+              Si une unité est choisie, elle sera imposée pour les nouvelles collectes, la traçabilité et les imports.
+              Les données déjà enregistrées ne sont pas converties.
+            </p>
           </div>
 
           <div>

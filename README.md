@@ -47,8 +47,12 @@ Le guide utilisateur est disponible dans l'application à `/guide`, après conne
 Le rôle `superadmin` est réservé à la plateforme. Il n'est pas proposé dans la gestion des
 utilisateurs de l'entreprise et ne peut pas être attribué par un administrateur.
 L'identité de l'entreprise (nom, sigle, site web et logo) se gère dans
-`/plateforme/entreprise`. Elle apparaît dans le menu et sur les rapports PDF. Le favicon et
-l'identité du produit restent WOM.
+`/plateforme/entreprise`. Elle apparaît dans le menu et sur les rapports PDF. Cette page permet
+aussi de définir une unité globale des collectes (`Litres`, `Kg`, `M3` ou `Bacs`) ; sans unité
+globale, les formulaires laissent le choix à chaque saisie. Une unité définie s'applique aux
+nouvelles saisies de collecte, à la traçabilité et aux imports. Les données historiques gardent
+l'unité enregistrée. Le favicon et l'identité du produit restent WOM.
+L'API authentifiée `GET /api/plateforme/unite-quantite` fournit ce réglage aux formulaires.
 
 Au déploiement de production, le build crée automatiquement le super administrateur à partir
 des quatre variables ci-dessous. Renseignez-les dans les variables d'environnement de
@@ -423,6 +427,9 @@ Il n'y a ni mode hors ligne, ni cache applicatif des données, ni file locale de
 Chaque opération peut contenir plusieurs lignes de traçabilité, une par flux de déchets. Une ligne
 enregistre l'identifiant de suivi externe (unique, insensible à la casse), le type de déchet, la
 quantité et son unité (`Litres`, `Kg`, `M3` ou `Bacs`), ainsi que le traitement prévu ou réalisé.
+Si une unité globale est configurée sur `/plateforme/entreprise`, elle est imposée pour les nouvelles
+saisies et modifications de quantité ; sinon, l'utilisateur choisit l'unité. Ce réglage ne convertit
+pas les valeurs historiques.
 L'enregistrement conserve l'acteur de création et de dernière modification, ainsi que les dates
 de création et de mise à jour.
 

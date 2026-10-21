@@ -100,7 +100,7 @@ export interface OperationSaisie {
   /** Ignoré à la création (statut initial calculé) ; appliqué tel quel à la modification. */
   statut?: OperationStatus;
   quantiteCollectee?: number;
-  uniteQuantite: QuantiteUnite;
+  uniteQuantite?: QuantiteUnite;
   remarquesTerrain: string;
   nomSignataireClient: string;
   signatureClient: string;

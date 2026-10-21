@@ -4,4 +4,5 @@ import { IdentiteEntrepriseRepositoryMongoose } from "./infrastructure/mongoose/
 const casDUsage = creerCasDUsageIdentiteEntreprise(new IdentiteEntrepriseRepositoryMongoose());
 
 export const obtenirIdentiteEntreprise = casDUsage.obtenir;
+export const obtenirUniteQuantiteGlobale = casDUsage.obtenirUniteQuantiteGlobale;
 export const enregistrerIdentiteEntreprise = casDUsage.enregistrer;

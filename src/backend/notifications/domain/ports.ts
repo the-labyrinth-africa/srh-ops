@@ -1,4 +1,5 @@
 import type { EmailNotification, NotificationJob, OperationNotification, OperationNotificationInfo } from "./notification";
+import type { AbonnementPush, MessagePush } from "./push";
 
 export interface NotificationRepository {
   enqueue(key: string, message: EmailNotification, now: Date): Promise<boolean>;
@@ -13,4 +14,17 @@ export interface NotificationRepository {
 
 export interface NotificationMail {
   send(message: EmailNotification): Promise<{ ok: true } | { ok: false; reason: string }>;
+}
+
+export interface AbonnementPushRepository {
+  enregistrer(userId: string, role: string, subscription: Omit<AbonnementPush, "id" | "userId" | "role">): Promise<void>;
+  retirer(userId: string, endpoint: string): Promise<void>;
+  lister(roles: string[]): Promise<AbonnementPush[]>;
+  supprimer(id: string): Promise<void>;
+}
+
+export interface LivraisonPush {
+  clePublique(): string | null;
+  estConfiguree(): boolean;
+  envoyer(abonnement: AbonnementPush, message: MessagePush): Promise<void>;
 }

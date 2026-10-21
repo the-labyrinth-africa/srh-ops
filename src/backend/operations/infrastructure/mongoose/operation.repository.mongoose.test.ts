@@ -422,7 +422,12 @@ describe("OperationRepositoryMongoose (contrat)", () => {
 
       const etat = await depot.trouverEtatTerrain(id);
 
-      expect(etat).toEqual({ statut: "Affectée", equipeId, photos: [{ url: "data:image/jpeg;base64,AAAA" }] });
+      expect(etat).toEqual({
+        statut: "Affectée",
+        uniteQuantite: "Litres",
+        equipeId,
+        photos: [{ url: "data:image/jpeg;base64,AAAA" }],
+      });
     });
 
     it("opération sans équipe : `equipeId` absent", async () => {

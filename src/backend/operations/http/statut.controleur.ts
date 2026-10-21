@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireTerrainWrite } from "@/backend/comptes";
 import { notifierChangementStatut, traiterFileNotifications } from "@/backend/notifications";
-import { envoyerPushAuxAbonnes } from "@/backend/notifications/application/web-push";
+import { envoyerPushAuxAbonnes } from "@/backend/notifications";
 import { runAfterResponse } from "@/backend/platform/execution-differee/execution-differee";
 import { guardObjectId } from "@/backend/platform/http/identifiants";
 import { casDUsageTerrain } from "../composition";

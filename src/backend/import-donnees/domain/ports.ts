@@ -1,4 +1,5 @@
 import type { OperationStatus } from "@/shared/operations/statuts";
+import type { QuantiteUnite } from "@/shared/operations/quantites";
 import type { LectureClasseur } from "./lecture";
 
 export interface LecteurExcel {
@@ -32,7 +33,7 @@ export interface CollecteImportee {
   statut: OperationStatus;
   historiqueStatuts: { statut: OperationStatus; date: Date }[];
   quantiteCollectee: number;
-  uniteQuantite: "Litres";
+  uniteQuantite: QuantiteUnite;
   remarquesTerrain: string;
 }
 

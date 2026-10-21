@@ -128,6 +128,31 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
+    async redirect({ url, baseUrl }) {
+      // `NEXTAUTH_URL` définit l'origine canonique, mais les utilisateurs peuvent aussi
+      // ouvrir l'application via son domaine public personnalisé. NextAuth refuse par
+      // défaut les callbackUrl d'une autre origine, ce qui renvoyait la déconnexion vers
+      // Vercel (ou vers une page d'erreur sur ce domaine).
+      const allowedOrigins = new Set([new URL(baseUrl).origin, "https://wom.thelabyrinth.africa"]);
+
+      // Vercel expose les domaines de déploiement sous forme de noms d'hôte. Les ajouter
+      // explicitement permet aussi les URL Preview/Production sans accepter tout *.vercel.app.
+      for (const host of [process.env.VERCEL_URL, process.env.VERCEL_PROJECT_PRODUCTION_URL]) {
+        if (!host) continue;
+        try {
+          allowedOrigins.add(new URL(host.startsWith("http") ? host : `https://${host}`).origin);
+        } catch {
+          // Une variable d'environnement invalide ne doit pas élargir les redirections permises.
+        }
+      }
+
+      try {
+        const target = new URL(url, baseUrl);
+        return allowedOrigins.has(target.origin) ? target.toString() : baseUrl;
+      } catch {
+        return baseUrl;
+      }
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
 };

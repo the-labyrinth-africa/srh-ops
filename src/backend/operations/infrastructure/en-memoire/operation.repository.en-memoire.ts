@@ -59,6 +59,7 @@ export class OperationRepositoryEnMemoire implements OperationRepository {
       photos: [],
       rapportPdf: "",
       ...saisie,
+      uniteQuantite: saisie.uniteQuantite ?? "Litres",
       id: `operation-${this.compteur}`,
       statut: initial.statut,
       historiqueStatuts: [{ statut: initial.statut, date: initial.date, parUtilisateur: initial.parUtilisateur }],
@@ -137,7 +138,12 @@ export class OperationRepositoryEnMemoire implements OperationRepository {
   async trouverEtatTerrain(id: string): Promise<EtatTerrain | null> {
     const operation = this.donnees.get(id);
     if (!operation) return null;
-    const etat: EtatTerrain = { statut: operation.statut, photos: operation.photos.map(({ url }) => ({ url })) };
+    const etat: EtatTerrain = {
+      statut: operation.statut,
+      uniteQuantite: operation.uniteQuantite,
+      photos: operation.photos.map(({ url }) => ({ url })),
+    };
+    if (operation.quantiteCollectee !== undefined) etat.quantiteCollectee = operation.quantiteCollectee;
     const equipeId = idDeReference(operation.equipeId);
     if (equipeId !== undefined) etat.equipeId = equipeId;
     return etat;

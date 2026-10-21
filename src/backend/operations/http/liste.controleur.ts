@@ -9,6 +9,7 @@ import { operationSchema, versSaisieOperation } from "./operation.schema";
 import { versReponseOperation } from "./presentation";
 import { versReponseOperationClient } from "./presentation";
 import { isClientUser } from "@/shared/acces/permissions";
+import { obtenirUniteQuantiteGlobale } from "@/backend/identite-entreprise";
 
 export async function GET(req: NextRequest) {
   const auth = await requireAuth();
@@ -60,7 +61,11 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const operation = await casDUsageOperations.creer(versActeur(auth), versSaisieOperation(parsed.data));
+    const saisie = versSaisieOperation(parsed.data);
+    const uniteGlobale = await obtenirUniteQuantiteGlobale();
+    if (uniteGlobale) saisie.uniteQuantite = uniteGlobale;
+    saisie.uniteQuantite ??= "Litres";
+    const operation = await casDUsageOperations.creer(versActeur(auth), saisie);
     return NextResponse.json(versReponseOperation(operation), { status: 201 });
   } catch (erreur) {
     return versReponseErreur(erreur);

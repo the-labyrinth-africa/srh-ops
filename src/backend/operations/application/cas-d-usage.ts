@@ -44,7 +44,10 @@ export function creerCasDUsageOperations({ operations, verifierConflits, horloge
   /** Statut initial : « Affectée » si l'équipe et le véhicule sont renseignés, sinon « Planifiée ». */
   function creerAvecStatutInitial(saisie: OperationSaisie, parUtilisateur: string): Promise<Operation> {
     const statut: OperationStatus = saisie.equipeId && saisie.vehiculeId ? "Affectée" : "Planifiée";
-    return operations.creer(saisie, { statut, date: horloge.maintenant(), parUtilisateur });
+    return operations.creer(
+      { ...saisie, uniteQuantite: saisie.uniteQuantite ?? "Litres" },
+      { statut, date: horloge.maintenant(), parUtilisateur }
+    );
   }
 
   return {

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { canWrite } from "@/shared/acces/permissions";
+import { useUniteQuantiteGlobale } from "@/frontend/parametres";
 
 interface ApercuRow {
   site: string;
@@ -27,6 +28,7 @@ interface PreviewSummary {
 
 export function ImportPageClient() {
   const { data: session } = useSession();
+  const { uniteQuantiteGlobale } = useUniteQuantiteGlobale();
   const canImport = canWrite(session?.user?.role);
   const [dragOver, setDragOver] = useState(false);
   const [showAllPreviewRows, setShowAllPreviewRows] = useState(false);
@@ -50,6 +52,7 @@ export function ImportPageClient() {
   const [clientId, setClientId] = useState("");
   const [clientsLoading, setClientsLoading] = useState(true);
   const [clientsError, setClientsError] = useState("");
+  const uniteApercu = uniteQuantiteGlobale ?? preview?.uniteApercu ?? "Litres";
 
   const loadClients = useCallback(async () => {
     setClientsLoading(true);
@@ -424,7 +427,7 @@ export function ImportPageClient() {
                     </div>
                     <div className="mt-2 flex flex-wrap justify-between gap-x-4 gap-y-1 text-sm text-on-surface-variant">
                       <span>{new Date(row.date).toLocaleDateString("fr-FR")}</span>
-                      <span className="font-semibold text-on-surface">{row.quantite.toLocaleString("fr-FR")} L</span>
+                      <span className="font-semibold text-on-surface">{row.quantite.toLocaleString("fr-FR")} {uniteApercu}</span>
                     </div>
                   </article>
                 ))}
@@ -436,7 +439,7 @@ export function ImportPageClient() {
                       <th className="px-4 py-3 text-left font-label-md text-label-md uppercase text-on-surface-variant">Ligne</th>
                       <th className="px-4 py-3 text-left font-label-md text-label-md uppercase text-on-surface-variant">Site</th>
                       <th className="px-4 py-3 text-left font-label-md text-label-md uppercase text-on-surface-variant">Date</th>
-                      <th className="px-4 py-3 text-right font-label-md text-label-md uppercase text-on-surface-variant">Quantité (L)</th>
+                      <th className="px-4 py-3 text-right font-label-md text-label-md uppercase text-on-surface-variant">Quantité ({uniteApercu})</th>
                     </tr>
                   </thead>
                   <tbody>

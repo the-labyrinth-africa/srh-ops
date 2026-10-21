@@ -261,8 +261,10 @@ export class OperationRepositoryMongoose implements OperationRepository {
     if (!doc) return null;
     const etat: EtatTerrain = {
       statut: doc.statut ?? "Planifiée",
+      uniteQuantite: doc.uniteQuantite ?? "Litres",
       photos: (doc.photos ?? []).map((photo) => ({ url: photo.url })),
     };
+    if (doc.quantiteCollectee !== undefined) etat.quantiteCollectee = doc.quantiteCollectee;
     if (doc.equipeId !== undefined) etat.equipeId = doc.equipeId === null ? null : String(doc.equipeId);
     return etat;
   }

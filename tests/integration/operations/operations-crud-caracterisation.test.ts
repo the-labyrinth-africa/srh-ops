@@ -17,6 +17,8 @@ import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { Vehicule } from "@/backend/vehicules/infrastructure/mongoose/vehicule.model";
 import { Equipement } from "@/backend/equipements/infrastructure/mongoose/equipement.model";
 import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
+import { IdentiteEntrepriseModel } from "@/backend/identite-entreprise/infrastructure/mongoose/identite-entreprise.model";
+import { QUANTITE_UNITES } from "@/shared/operations/quantites";
 
 const DATE_ISO = expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
 const nouvelId = () => String(new mongoose.Types.ObjectId());
@@ -81,6 +83,28 @@ describe("Caractérisation — CRUD et planning des opérations (formes exactes)
   });
 
   describe("POST /api/operations", () => {
+    it.each(QUANTITE_UNITES)("sans configuration globale, accepte la sélection de %s pour la collecte", async (unite) => {
+      const response = await poster(base({ quantiteCollectee: 2.5, uniteQuantite: unite }));
+
+      expect(response.status).toBe(201);
+      expect(await response.json()).toMatchObject({ quantiteCollectee: 2.5, uniteQuantite: unite });
+    });
+
+    it("applique l'unité globale à la quantité créée même si le formulaire en envoie une autre", async () => {
+      await IdentiteEntrepriseModel.create({
+        cle: "principale",
+        nomEntreprise: "Entreprise Exemple",
+        sigle: "EX",
+        uniteQuantiteGlobale: "M3",
+      });
+
+      const res = await poster(complet({ quantiteCollectee: 4.5, uniteQuantite: "Litres" }));
+
+      expect(res.status).toBe(201);
+      const created = await res.json();
+      expect(created).toMatchObject({ quantiteCollectee: 4.5, uniteQuantite: "M3" });
+    });
+
     it("opération complète : 201, corps exact, statut du corps ignoré", async () => {
       const res = await poster(complet({ statut: "Terminée" }));
 
@@ -388,6 +412,24 @@ describe("Caractérisation — CRUD et planning des opérations (formes exactes)
   });
 
   describe("PUT /api/operations/[id]", () => {
+    it("applique l'unité globale à une quantité modifiée", async () => {
+      const creee = await (await poster(complet({ quantiteCollectee: 12, uniteQuantite: "Litres" }))).json();
+      await IdentiteEntrepriseModel.create({
+        cle: "principale",
+        nomEntreprise: "Entreprise Exemple",
+        sigle: "EX",
+        uniteQuantiteGlobale: "Kg",
+      });
+
+      const res = await mettre(
+        creee._id,
+        complet({ quantiteCollectee: 20, uniteQuantite: "Bacs", dateHeurePrevue: "2030-11-02T08:00:00Z" })
+      );
+
+      expect(res.status).toBe(200);
+      expect(await res.json()).toMatchObject({ quantiteCollectee: 20, uniteQuantite: "Kg" });
+    });
+
     it("corps exact ; équipe et véhicule omis sont conservés ; équipements et champs de terrain omis sont réinitialisés", async () => {
       const creee = await (await poster(complet())).json();
       await Operation.updateOne(

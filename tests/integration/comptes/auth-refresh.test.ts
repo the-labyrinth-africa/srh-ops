@@ -84,3 +84,28 @@ describe("callback jwt", () => {
     expect(token.invalid).toBeUndefined();
   });
 });
+
+describe("callback redirect NextAuth", () => {
+  const redirect = authOptions.callbacks!.redirect!;
+
+  it("autorise le domaine personnalisé pour revenir après la déconnexion", async () => {
+    await expect(redirect({
+      url: "https://wom.thelabyrinth.africa/login",
+      baseUrl: "https://wom-production.vercel.app",
+    } as never)).resolves.toBe("https://wom.thelabyrinth.africa/login");
+  });
+
+  it("garde les redirections relatives sur l'origine canonique", async () => {
+    await expect(redirect({
+      url: "/login",
+      baseUrl: "https://wom-production.vercel.app",
+    } as never)).resolves.toBe("https://wom-production.vercel.app/login");
+  });
+
+  it("refuse les destinations externes non autorisées", async () => {
+    await expect(redirect({
+      url: "https://attacker.example/login",
+      baseUrl: "https://wom-production.vercel.app",
+    } as never)).resolves.toBe("https://wom-production.vercel.app");
+  });
+});

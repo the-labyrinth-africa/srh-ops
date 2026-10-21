@@ -1,1 +1,5 @@
-export { obtenirIdentiteEntreprise, enregistrerIdentiteEntreprise } from "./composition";
+export {
+  obtenirIdentiteEntreprise,
+  obtenirUniteQuantiteGlobale,
+  enregistrerIdentiteEntreprise,
+} from "./composition";

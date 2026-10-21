@@ -4,7 +4,7 @@ import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { useState } from "react";
 import { roleLabel } from "@/shared/acces/permissions";
-import { PushNotificationSettings } from "@/frontend/terrain/composants/PushNotificationSettings";
+import { PushNotificationSettings } from "./PushNotificationSettings";
 
 export function Header({
   onMenuClick,

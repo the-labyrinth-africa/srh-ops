@@ -23,6 +23,7 @@ const contexte: Contexte = {
     "espace-client",
     "guide",
     "plateforme",
+    "parametres",
   ],
 };
 

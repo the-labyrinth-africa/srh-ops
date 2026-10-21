@@ -12,11 +12,13 @@ import {
 } from "../domain/import";
 import type { LectureClasseur } from "../domain/lecture";
 import type { CollectesRealisees, LecteurExcel, SitesDuClient } from "../domain/ports";
+import type { QuantiteUnite } from "@/shared/operations/quantites";
 
 export interface DependancesImport {
   lecteur: LecteurExcel;
   sites: SitesDuClient;
   collectes: CollectesRealisees;
+  obtenirUniteQuantiteGlobale?: () => Promise<QuantiteUnite | null>;
 }
 
 export interface Analyse {
@@ -31,13 +33,20 @@ export interface ResultatImport {
   clientId: string;
 }
 
-export function creerCasDUsageImport({ lecteur, sites, collectes }: DependancesImport) {
+export function creerCasDUsageImport({ lecteur, sites, collectes, obtenirUniteQuantiteGlobale }: DependancesImport) {
   return {
     /** Lit le classeur et le résume ; ne touche pas la base. */
     async analyser(contenu: Uint8Array, nomFichier: string): Promise<Analyse> {
       const lecture = await lecteur.lire(contenu, nomFichier);
       if (lecture.rows.length === 0) throw new AucuneLigneExploitable(lecture.errors);
-      return { lecture, resume: resumerLecture(lecture) };
+      const resume = resumerLecture(lecture);
+      return {
+        lecture,
+        resume: {
+          ...resume,
+          uniteApercu: (await obtenirUniteQuantiteGlobale?.()) ?? resume.uniteApercu,
+        },
+      };
     },
 
     /**
@@ -47,6 +56,7 @@ export function creerCasDUsageImport({ lecteur, sites, collectes }: DependancesI
     async importer(lecture: LectureClasseur, clientId: string, natureIntervention: string): Promise<ResultatImport> {
       const client = await sites.identifiantDuClient(clientId);
       if (!client) throw new ClientIntrouvable();
+      const uniteQuantite = (await obtenirUniteQuantiteGlobale?.()) ?? "Litres";
 
       // Résolution ou création des sites, une fois par nom lu.
       const siteParNom = new Map<string, string>();
@@ -94,7 +104,7 @@ export function creerCasDUsageImport({ lecteur, sites, collectes }: DependancesI
           statut: "Rapportée",
           historiqueStatuts: historiqueImporte(dateHeurePrevue),
           quantiteCollectee: ligne.quantite,
-          uniteQuantite: "Litres",
+          uniteQuantite,
           remarquesTerrain: REMARQUE_OPERATION_IMPORTEE,
         });
         created++;

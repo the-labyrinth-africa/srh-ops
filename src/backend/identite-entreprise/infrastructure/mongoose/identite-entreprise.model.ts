@@ -1,4 +1,5 @@
 import mongoose, { Schema, models, model } from "mongoose";
+import { QUANTITE_UNITES, type QuantiteUnite } from "@/shared/operations/quantites";
 
 export interface IIdentiteEntrepriseModel {
   _id: mongoose.Types.ObjectId;
@@ -8,6 +9,7 @@ export interface IIdentiteEntrepriseModel {
   siteWeb: string;
   logoMimeType?: "image/png";
   logoBase64?: string;
+  uniteQuantiteGlobale?: QuantiteUnite | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -20,6 +22,7 @@ const IdentiteEntrepriseSchema = new Schema<IIdentiteEntrepriseModel>(
     siteWeb: { type: String, default: "" },
     logoMimeType: { type: String, enum: ["image/png"] },
     logoBase64: { type: String },
+    uniteQuantiteGlobale: { type: String, enum: QUANTITE_UNITES, default: null },
   },
   { timestamps: true, collection: "identite_entreprise" }
 );

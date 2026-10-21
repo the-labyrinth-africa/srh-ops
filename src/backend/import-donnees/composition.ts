@@ -1,5 +1,6 @@
 import { creerSite, identifiantDuClient, trouverSiteDuClientParNom } from "@/backend/clients-sites/index";
 import { enregistrerOperationRealisee, existeOperationCollectee } from "@/backend/operations/index";
+import { obtenirUniteQuantiteGlobale } from "@/backend/identite-entreprise";
 import { creerCasDUsageImport } from "./application/cas-d-usage";
 import { LecteurExcelJs } from "./infrastructure/excel/lecteur-excel.exceljs";
 
@@ -15,4 +16,5 @@ export const casDUsageImport = creerCasDUsageImport({
     existe: (siteId, dateHeurePrevue, quantiteCollectee) => existeOperationCollectee(siteId, dateHeurePrevue, quantiteCollectee),
     enregistrer: (collecte) => enregistrerOperationRealisee(collecte),
   },
+  obtenirUniteQuantiteGlobale,
 });

@@ -4,4 +4,8 @@ export {
   notifierChangementStatut,
   programmerAlertesQuotidiennes,
   traiterFileNotifications,
+  clePubliquePush,
+  enregistrerAbonnementPush,
+  retirerAbonnementPush,
+  envoyerPushAuxAbonnes,
 } from "./composition";

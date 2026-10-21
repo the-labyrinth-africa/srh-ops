@@ -26,6 +26,8 @@ export interface ChangementStatut extends DemandeChangementStatut {
 /** Ce qu'il faut savoir d'une opération pour autoriser une écriture de terrain. */
 export interface EtatTerrain {
   statut: OperationStatus;
+  quantiteCollectee?: number;
+  uniteQuantite?: QuantiteUnite;
   /** Absent : jamais affectée. */
   equipeId?: string | null;
   photos: { url?: string }[];

@@ -16,6 +16,7 @@ import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { Vehicule } from "@/backend/vehicules/infrastructure/mongoose/vehicule.model";
 import { Equipement } from "@/backend/equipements/infrastructure/mongoose/equipement.model";
 import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
+import { IdentiteEntrepriseModel } from "@/backend/identite-entreprise/infrastructure/mongoose/identite-entreprise.model";
 
 /** Document relu directement en base (le modèle n'est pas typé à la lecture). */
 interface DocumentLu {
@@ -94,6 +95,25 @@ describe("Caractérisation — statut, données de terrain et photos (formes exa
   });
 
   describe("PATCH /api/operations/[id]/statut", () => {
+    it("applique l'unité globale aux quantités saisies sur le terrain", async () => {
+      await IdentiteEntrepriseModel.create({
+        cle: "principale",
+        nomEntreprise: "Entreprise Exemple",
+        sigle: "EX",
+        uniteQuantiteGlobale: "M3",
+      });
+      const id = await creer({ statut: "En cours", quantiteCollectee: 5, uniteQuantite: "Litres" });
+
+      const response = await patch(id, {
+        statut: "Terminée",
+        quantiteCollectee: 8,
+        uniteQuantite: "Bacs",
+      });
+
+      expect(response.status).toBe(200);
+      expect(await response.json()).toMatchObject({ quantiteCollectee: 8, uniteQuantite: "M3" });
+    });
+
     it("corps exact : relations peuplées (site avec adresse, équipements avec nom), historique complété", async () => {
       const id = await creer();
 

@@ -32,6 +32,7 @@ export async function PUT(request: NextRequest) {
     nomEntreprise: form.get("nomEntreprise"),
     sigle: form.get("sigle"),
     siteWeb: form.get("siteWeb"),
+    uniteQuantiteGlobale: form.get("uniteQuantiteGlobale") ?? undefined,
   });
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message || "Identité invalide." }, { status: 400 });
@@ -73,6 +74,10 @@ export async function PUT(request: NextRequest) {
   const identite = await enregistrerIdentiteEntreprise({
     ...parsed.data,
     logoDataUrl,
+    uniteQuantiteGlobale:
+      parsed.data.uniteQuantiteGlobale === undefined
+        ? existing.uniteQuantiteGlobale
+        : parsed.data.uniteQuantiteGlobale || null,
   });
   return NextResponse.json(identite, {
     headers: { "Cache-Control": "private, no-store" },

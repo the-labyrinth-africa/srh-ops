@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth, requireTerrainWrite } from "@/backend/comptes";
 import type { AuthSuccess } from "@/backend/comptes";
 import { guardObjectId } from "@/backend/platform/http/identifiants";
+import { obtenirUniteQuantiteGlobale } from "@/backend/identite-entreprise";
 import { isClientUser } from "@/shared/acces/permissions";
 import type { Acteur } from "@/shared/acces/acteur";
 import { casDUsageTracabilite } from "../composition";
@@ -56,7 +57,9 @@ export async function POST(request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
   try {
-    const item = await casDUsageTracabilite.creer(versActeur(auth), id, parsed.data);
+    const uniteGlobale = await obtenirUniteQuantiteGlobale();
+    const saisie = uniteGlobale ? { ...parsed.data, unite: uniteGlobale } : parsed.data;
+    const item = await casDUsageTracabilite.creer(versActeur(auth), id, saisie);
     return NextResponse.json(versReponseTraceabilite(item), { status: 201 });
   } catch (erreur) {
     return versReponseErreurTracabilite(erreur);
@@ -81,11 +84,17 @@ export async function PUT(request: NextRequest, { params }: TraceParams) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
   try {
+    const lignesExistantes = await casDUsageTracabilite.listerParOperation(versActeur(auth), id);
+    const ligneExistante = lignesExistantes.find((ligne) => ligne.id === traceId);
+    const uniteGlobale = await obtenirUniteQuantiteGlobale();
+    const saisie = uniteGlobale
+      ? { ...parsed.data, unite: ligneExistante?.volume !== parsed.data.volume ? uniteGlobale : ligneExistante?.unite ?? uniteGlobale }
+      : parsed.data;
     const item = await casDUsageTracabilite.modifier(
       versActeur(auth),
       id,
       traceId,
-      parsed.data
+      saisie
     );
     return NextResponse.json(versReponseTraceabilite(item));
   } catch (erreur) {
