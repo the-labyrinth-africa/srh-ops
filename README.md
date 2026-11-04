@@ -10,6 +10,16 @@ Plateforme de planification et de suivi des opérations de collecte.
 - Tailwind CSS v4 (design system Industrial Integrity)
 - FullCalendar (planning)
 
+## Prévisions des collectes
+
+La page `/previsions` estime les passages à venir à partir des collectes positives relevées dans
+les bilans Excel. Les données de juin à octobre 2026 fournies pour le démarrage sont conservées
+sous forme compacte dans `src/backend/previsions/historique-fourni.json` (noms de site et dates,
+sans volumes). Un Admin ou Dispatcher peut charger un ou plusieurs classeurs `.xlsx` pour recalculer
+le mois affiché ; ces fichiers sont traités en mémoire et ne sont pas enregistrés. La page indique
+les intervalles estimés, l’historique disponible et les sites sans passage prévu. Les résultats
+restent des propositions à confirmer et ne créent pas automatiquement d’opérations.
+
 ## Architecture
 
 Tout le code applicatif vit sous `src/` (les dossiers `scripts/`, `public/`, `tests/`, `docs/` et `sketch/` restent à la racine, ainsi que `next.config.ts`). Le middleware d'authentification est `src/middleware.ts` (export par défaut explicite, exigé par Next 16).

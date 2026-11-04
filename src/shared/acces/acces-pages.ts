@@ -28,6 +28,7 @@ const RULES: AccessRule[] = [
   { matches: (p) => OPERATION_DETAIL.test(p), roles: [...STAFF, "chauffeur"] },
   { matches: under("/operations"), roles: STAFF },
   { matches: under("/recurrences"), roles: STAFF },
+  { matches: under("/previsions"), roles: STAFF },
   { matches: under("/tracabilite"), roles: STAFF },
   { matches: under("/demandes"), roles: WRITERS },
   { matches: under("/espace-client"), roles: ["client"] },

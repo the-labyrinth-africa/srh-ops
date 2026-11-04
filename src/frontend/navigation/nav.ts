@@ -59,6 +59,12 @@ const NAV_SECTIONS: NavSection[] = [
         match: (p) => p.startsWith("/recurrences"),
       },
       {
+        href: "/previsions",
+        label: "Prévisions de collecte",
+        icon: "event_upcoming",
+        match: (p) => p.startsWith("/previsions"),
+      },
+      {
         href: "/tracabilite",
         label: "Traçabilité des déchets",
         icon: "recycling",
