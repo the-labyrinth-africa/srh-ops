@@ -1,730 +1,867 @@
 [
   {
     "site": "PMC",
-    "date": "2026-08-01"
+    "date": "2026-08-01",
+    "quantite": 700
   },
   {
     "site": "PARIS",
-    "date": "2026-08-01"
+    "date": "2026-08-01",
+    "quantite": 200
   },
   {
-    "site": "SAINT JEAN",
-    "date": "2026-08-01"
+    "site": "ST JEANT",
+    "date": "2026-08-01",
+    "quantite": 150
   },
   {
-    "site": "8E TRANCHE",
-    "date": "2026-08-01"
+    "site": "LA ANGRE 8E TRANCHE",
+    "date": "2026-08-01",
+    "quantite": 350
   },
   {
     "site": "ROUME",
-    "date": "2026-08-01"
+    "date": "2026-08-01",
+    "quantite": 200
   },
   {
     "site": "PO ANOUMABO",
-    "date": "2026-08-05"
+    "date": "2026-08-05",
+    "quantite": 300
   },
   {
-    "site": "ANONO",
-    "date": "2026-08-05"
+    "site": "SHELL ANONO",
+    "date": "2026-08-05",
+    "quantite": 300
   },
   {
     "site": "UNIVERSITE 2",
-    "date": "2026-08-05"
+    "date": "2026-08-05",
+    "quantite": 400
   },
   {
     "site": "SS PREMOTO",
-    "date": "2026-08-05"
+    "date": "2026-08-05",
+    "quantite": 375
   },
   {
     "site": "AVENUE CHRISTIANI",
-    "date": "2026-08-05"
+    "date": "2026-08-05",
+    "quantite": 200
   },
   {
     "site": "NOTRE DAME",
-    "date": "2026-08-05"
+    "date": "2026-08-05",
+    "quantite": 50
   },
   {
     "site": "HABITAT",
-    "date": "2026-08-05"
+    "date": "2026-08-05",
+    "quantite": 150
   },
   {
     "site": "LYCEE TECHNIQUE",
-    "date": "2026-08-06"
+    "date": "2026-08-06",
+    "quantite": 450
   },
   {
     "site": "ANGRE CHU",
-    "date": "2026-08-06"
+    "date": "2026-08-06",
+    "quantite": 200
   },
   {
-    "site": "ANGRE 7E TRANCHE 1",
-    "date": "2026-08-06"
+    "site": "ANGRE 7E TRANCHE1",
+    "date": "2026-08-06",
+    "quantite": 200
   },
   {
     "site": "LATRILLE A",
-    "date": "2026-08-06"
+    "date": "2026-08-06",
+    "quantite": 200
   },
   {
     "site": "LATRILLE B",
-    "date": "2026-08-06"
+    "date": "2026-08-06",
+    "quantite": 400
   },
   {
     "site": "RUE DES JARDINS",
-    "date": "2026-08-06"
+    "date": "2026-08-06",
+    "quantite": 350
   },
   {
     "site": "PO ABATTA",
-    "date": "2026-08-06"
+    "date": "2026-08-06",
+    "quantite": 600
   },
   {
-    "site": "GFCI 2",
-    "date": "2026-08-11"
+    "site": "GFCI2",
+    "date": "2026-08-11",
+    "quantite": 350
   },
   {
     "site": "SAINTE THERESE",
-    "date": "2026-08-11"
+    "date": "2026-08-11",
+    "quantite": 400
   },
   {
     "site": "AUTOROUTE SUD",
-    "date": "2026-08-11"
+    "date": "2026-08-11",
+    "quantite": 400
   },
   {
-    "site": "ZONE INDUSTRIELLE",
-    "date": "2026-08-11"
+    "site": "Z.INDUSTRIELLE",
+    "date": "2026-08-11",
+    "quantite": 400
   },
   {
     "site": "REMBLAIS",
-    "date": "2026-08-11"
+    "date": "2026-08-11",
+    "quantite": 625
   },
   {
     "site": "CAP NORD",
-    "date": "2026-08-12"
+    "date": "2026-08-12",
+    "quantite": 500
   },
   {
     "site": "BOXING CLUB",
-    "date": "2026-08-12"
+    "date": "2026-08-12",
+    "quantite": 300
   },
   {
     "site": "HOPITAL",
-    "date": "2026-08-12"
+    "date": "2026-08-12",
+    "quantite": 400
   },
   {
     "site": "PMC",
-    "date": "2026-08-12"
+    "date": "2026-08-12",
+    "quantite": 600
   },
   {
     "site": "AP MAGIC",
-    "date": "2026-08-12"
+    "date": "2026-08-12",
+    "quantite": 100
   },
   {
     "site": "RESIDENTIEL",
-    "date": "2026-08-12"
+    "date": "2026-08-12",
+    "quantite": 200
   },
   {
     "site": "UNIVERSITE 2",
-    "date": "2026-08-19"
+    "date": "2026-08-19",
+    "quantite": 300
   },
   {
     "site": "LATRILLE A",
-    "date": "2026-08-19"
+    "date": "2026-08-19",
+    "quantite": 100
   },
   {
     "site": "LATRILLE B",
-    "date": "2026-08-19"
+    "date": "2026-08-19",
+    "quantite": 250
   },
   {
     "site": "AERO CITE",
-    "date": "2026-08-19"
+    "date": "2026-08-19",
+    "quantite": 150
   },
   {
     "site": "PO ABATTA",
-    "date": "2026-08-19"
+    "date": "2026-08-19",
+    "quantite": 500
   },
   {
     "site": "JULES VERNE",
-    "date": "2026-08-19"
+    "date": "2026-08-19",
+    "quantite": 350
   },
   {
     "site": "ROUME",
-    "date": "2026-08-22"
+    "date": "2026-08-22",
+    "quantite": 300
   },
   {
-    "site": "SAINT JEAN",
-    "date": "2026-08-22"
+    "site": "ST JEANT",
+    "date": "2026-08-22",
+    "quantite": 300
   },
   {
-    "site": "8E TRANCHE",
-    "date": "2026-08-22"
+    "site": "LA ANGRE 8E TRANCHE",
+    "date": "2026-08-22",
+    "quantite": 200
   },
   {
     "site": "BONOUMIN",
-    "date": "2026-08-22"
+    "date": "2026-08-22",
+    "quantite": 200
   },
   {
     "site": "PO ANAN",
-    "date": "2026-08-22"
+    "date": "2026-08-22",
+    "quantite": 450
   },
   {
     "site": "SS BOS",
-    "date": "2026-08-22"
+    "date": "2026-08-22",
+    "quantite": 200
   },
   {
     "site": "LYCEE TECHNIQUE",
-    "date": "2026-08-24"
+    "date": "2026-08-24",
+    "quantite": 200
   },
   {
-    "site": "GFCI 2",
-    "date": "2026-08-26"
+    "site": "GFCI2",
+    "date": "2026-08-26",
+    "quantite": 300
   },
   {
     "site": "SAINTE THERESE",
-    "date": "2026-08-26"
+    "date": "2026-08-26",
+    "quantite": 450
   },
   {
     "site": "PMC",
-    "date": "2026-08-26"
+    "date": "2026-08-26",
+    "quantite": 600
   },
   {
     "site": "AUTOROUTE SUD",
-    "date": "2026-08-26"
+    "date": "2026-08-26",
+    "quantite": 300
   },
   {
-    "site": "ZONE INDUSTRIELLE",
-    "date": "2026-08-26"
+    "site": "Z.INDUSTRIELLE",
+    "date": "2026-08-26",
+    "quantite": 300
   },
   {
     "site": "REMBLAIS",
-    "date": "2026-08-26"
+    "date": "2026-08-26",
+    "quantite": 550
   },
   {
     "site": "RESIDENTIEL",
-    "date": "2026-08-27"
+    "date": "2026-08-27",
+    "quantite": 250
   },
   {
     "site": "AVENUE CHRISTIANI",
-    "date": "2026-08-27"
+    "date": "2026-08-27",
+    "quantite": 100
   },
   {
     "site": "BOXING CLUB",
-    "date": "2026-08-27"
+    "date": "2026-08-27",
+    "quantite": 100
   },
   {
     "site": "PO ANOUMABO",
-    "date": "2026-06-11"
+    "date": "2026-06-11",
+    "quantite": 200
   },
   {
     "site": "ANGRE CHU",
-    "date": "2026-06-11"
+    "date": "2026-06-11",
+    "quantite": 600
   },
   {
     "site": "LATRILLE B",
-    "date": "2026-06-11"
+    "date": "2026-06-11",
+    "quantite": 200
   },
   {
     "site": "LATRILLE A",
-    "date": "2026-06-11"
+    "date": "2026-06-11",
+    "quantite": 300
   },
   {
-    "site": "8E TRANCHE",
-    "date": "2026-06-11"
+    "site": "LA ANGRE 8E TRANCHE",
+    "date": "2026-06-11",
+    "quantite": 200
   },
   {
     "site": "UNIVERSITE 2",
-    "date": "2026-06-11"
+    "date": "2026-06-11",
+    "quantite": 300
   },
   {
     "site": "PO ABATTA",
-    "date": "2026-06-11"
+    "date": "2026-06-11",
+    "quantite": 500
   },
   {
     "site": "PMC",
-    "date": "2026-06-19"
+    "date": "2026-06-19",
+    "quantite": 900
   },
   {
     "site": "REMBLAIS",
-    "date": "2026-06-19"
+    "date": "2026-06-19",
+    "quantite": 850
   },
   {
-    "site": "GFCI 2",
-    "date": "2026-06-19"
+    "site": "GFCI2",
+    "date": "2026-06-19",
+    "quantite": 450
   },
   {
     "site": "SAINTE THERESE",
-    "date": "2026-06-19"
+    "date": "2026-06-19",
+    "quantite": 600
   },
   {
     "site": "AUTOROUTE SUD",
-    "date": "2026-06-19"
+    "date": "2026-06-19",
+    "quantite": 500
   },
   {
-    "site": "ZONE INDUSTRIELLE",
-    "date": "2026-06-19"
+    "site": "Z.INDUSTRIELLE",
+    "date": "2026-06-19",
+    "quantite": 650
   },
   {
-    "site": "SAINT JEAN",
-    "date": "2026-06-20"
+    "site": "ST JEANT",
+    "date": "2026-06-20",
+    "quantite": 600
   },
   {
     "site": "CAP NORD",
-    "date": "2026-06-20"
+    "date": "2026-06-20",
+    "quantite": 400
   },
   {
     "site": "RESIDENTIEL",
-    "date": "2026-06-20"
+    "date": "2026-06-20",
+    "quantite": 600
   },
   {
-    "site": "ANGRE 7E TRANCHE 1",
-    "date": "2026-06-20"
+    "site": "ANGRE 7E TRANCHE1",
+    "date": "2026-06-20",
+    "quantite": 400
   },
   {
     "site": "7E TRANCHE 2",
-    "date": "2026-06-20"
+    "date": "2026-06-20",
+    "quantite": 200
   },
   {
     "site": "BOXING CLUB",
-    "date": "2026-06-20"
+    "date": "2026-06-20",
+    "quantite": 350
   },
   {
     "site": "SS PREMOTO",
-    "date": "2026-06-22"
-  },
-  {
-    "site": "BASSAM",
-    "date": "2026-06-23"
-  },
-  {
-    "site": "SS MOOSSOU",
-    "date": "2026-06-23"
-  },
-  {
-    "site": "ABOISSO",
-    "date": "2026-06-23"
-  },
-  {
-    "site": "ADIAKE",
-    "date": "2026-06-23"
+    "date": "2026-06-22",
+    "quantite": 200
   },
   {
     "site": "UNIVERSITE 2",
-    "date": "2026-10-06"
+    "date": "2026-10-06",
+    "quantite": 300
   },
   {
     "site": "UNIVERSITE 2",
-    "date": "2026-10-23"
+    "date": "2026-10-23",
+    "quantite": 500
   },
   {
     "site": "LATRILLE A",
-    "date": "2026-10-06"
+    "date": "2026-10-06",
+    "quantite": 100
   },
   {
     "site": "LATRILLE A",
-    "date": "2026-10-22"
+    "date": "2026-10-22",
+    "quantite": 400
   },
   {
     "site": "LATRILLE B",
-    "date": "2026-10-06"
+    "date": "2026-10-06",
+    "quantite": 150
   },
   {
     "site": "CAP NORD",
-    "date": "2026-10-09"
+    "date": "2026-10-09",
+    "quantite": 200
   },
   {
     "site": "CAP NORD",
-    "date": "2026-10-23"
+    "date": "2026-10-23",
+    "quantite": 200
   },
   {
-    "site": "ANGRE 7E TRANCHE 1",
-    "date": "2026-10-09"
+    "site": "ANGRE 7E TRANCHE1",
+    "date": "2026-10-09",
+    "quantite": 100
   },
   {
-    "site": "ANGRE 7E TRANCHE 1",
-    "date": "2026-10-23"
+    "site": "ANGRE 7E TRANCHE1",
+    "date": "2026-10-23",
+    "quantite": 150
   },
   {
-    "site": "ANONO",
-    "date": "2026-10-09"
+    "site": "SHELL ANONO",
+    "date": "2026-10-09",
+    "quantite": 200
   },
   {
-    "site": "8E TRANCHE",
-    "date": "2026-10-10"
+    "site": "LA ANGRE 8E TRANCHE",
+    "date": "2026-10-10",
+    "quantite": 250
   },
   {
     "site": "PO ABATTA",
-    "date": "2026-10-06"
+    "date": "2026-10-06",
+    "quantite": 500
   },
   {
     "site": "PO ABATTA",
-    "date": "2026-10-23"
+    "date": "2026-10-23",
+    "quantite": 550
   },
   {
     "site": "SS BOS",
-    "date": "2026-10-09"
+    "date": "2026-10-09",
+    "quantite": 225
   },
   {
     "site": "SS BOS",
-    "date": "2026-10-26"
+    "date": "2026-10-26",
+    "quantite": 200
   },
   {
     "site": "PO ANAN",
-    "date": "2026-10-09"
+    "date": "2026-10-09",
+    "quantite": 300
   },
   {
     "site": "PO ANAN",
-    "date": "2026-10-26"
+    "date": "2026-10-26",
+    "quantite": 300
   },
   {
     "site": "JULES VERNE",
-    "date": "2026-10-09"
+    "date": "2026-10-09",
+    "quantite": 100
   },
   {
     "site": "JULES VERNE",
-    "date": "2026-10-26"
+    "date": "2026-10-26",
+    "quantite": 300
   },
   {
     "site": "PMC",
-    "date": "2026-10-06"
+    "date": "2026-10-06",
+    "quantite": 300
   },
   {
     "site": "PMC",
-    "date": "2026-10-21"
+    "date": "2026-10-21",
+    "quantite": 550
   },
   {
     "site": "PO ANOUMABO",
-    "date": "2026-10-07"
+    "date": "2026-10-07",
+    "quantite": 90
   },
   {
     "site": "RESIDENTIEL",
-    "date": "2026-10-09"
+    "date": "2026-10-09",
+    "quantite": 200
   },
   {
     "site": "RESIDENTIEL",
-    "date": "2026-10-21"
+    "date": "2026-10-21",
+    "quantite": 150
   },
   {
-    "site": "AUTOROUTE",
-    "date": "2026-10-06"
+    "site": "AUTOROUTE SUD",
+    "date": "2026-10-06",
+    "quantite": 300
   },
   {
-    "site": "AUTOROUTE",
-    "date": "2026-10-22"
+    "site": "AUTOROUTE SUD",
+    "date": "2026-10-22",
+    "quantite": 350
   },
   {
-    "site": "AUTOROUTE",
-    "date": "2026-10-27"
+    "site": "AUTOROUTE SUD",
+    "date": "2026-10-27",
+    "quantite": 200
   },
   {
     "site": "ROUME",
-    "date": "2026-10-10"
+    "date": "2026-10-10",
+    "quantite": 250
   },
   {
     "site": "ROUME",
-    "date": "2026-10-24"
+    "date": "2026-10-24",
+    "quantite": 400
   },
   {
     "site": "REMBLAIS",
-    "date": "2026-10-21"
+    "date": "2026-10-21",
+    "quantite": 500
   },
   {
-    "site": "GFCI 2",
-    "date": "2026-10-21"
+    "site": "GFCI2",
+    "date": "2026-10-21",
+    "quantite": 350
   },
   {
     "site": "AP MAGIC",
-    "date": "2026-10-21"
-  },
-  {
-    "site": "MARCORY",
-    "date": "2026-10-21"
+    "date": "2026-10-21",
+    "quantite": 200
   },
   {
     "site": "BOXING CLUB",
-    "date": "2026-10-22"
+    "date": "2026-10-22",
+    "quantite": 300
   },
   {
     "site": "BOXING CLUB",
-    "date": "2026-10-27"
+    "date": "2026-10-27",
+    "quantite": 200
   },
   {
-    "site": "ZONE INDUSTRIELLE",
-    "date": "2026-10-22"
+    "site": "Z.INDUSTRIELLE",
+    "date": "2026-10-22",
+    "quantite": 350
   },
   {
     "site": "RUE DES JARDINS",
-    "date": "2026-10-22"
+    "date": "2026-10-22",
+    "quantite": 400
   },
   {
     "site": "ANGRE CHU",
-    "date": "2026-10-23"
+    "date": "2026-10-23",
+    "quantite": 100
   },
   {
     "site": "7E TRANCHE 2",
-    "date": "2026-10-23"
+    "date": "2026-10-23",
+    "quantite": 250
   },
   {
-    "site": "L.A.T.B",
-    "date": "2026-10-23"
+    "site": "LATRILLE B",
+    "date": "2026-10-23",
+    "quantite": 100
   },
   {
     "site": "BONOUMIN",
-    "date": "2026-10-23"
+    "date": "2026-10-23",
+    "quantite": 250
   },
   {
-    "site": "SAINT JEAN",
-    "date": "2026-10-24"
+    "site": "ST JEANT",
+    "date": "2026-10-24",
+    "quantite": 400
   },
   {
     "site": "HABITAT",
-    "date": "2026-10-24"
+    "date": "2026-10-24",
+    "quantite": 200
   },
   {
     "site": "HOPITAL",
-    "date": "2026-10-26"
+    "date": "2026-10-26",
+    "quantite": 200
   },
   {
     "site": "LYCEE TECHNIQUE",
-    "date": "2026-10-26"
+    "date": "2026-10-26",
+    "quantite": 100
   },
   {
-    "site": "KOUMASSI",
-    "date": "2026-10-27"
+    "site": "CAMP COMMANDO",
+    "date": "2026-10-27",
+    "quantite": 375
   },
   {
     "site": "AERO CITE",
-    "date": "2026-10-27"
+    "date": "2026-10-27",
+    "quantite": 625
   },
   {
     "site": "AVENUE CHRISTIANI",
-    "date": "2026-10-27"
+    "date": "2026-10-27",
+    "quantite": 100
   },
   {
-    "site": "ZONE INDUSTRIELLE",
-    "date": "2026-10-27"
-  },
-  {
-    "site": "SS MOOSSOU",
-    "date": "2026-10-27"
-  },
-  {
-    "site": "ABOISSO",
-    "date": "2026-10-27"
-  },
-  {
-    "site": "ADIAKE",
-    "date": "2026-10-27"
+    "site": "Z.INDUSTRIELLE",
+    "date": "2026-10-27",
+    "quantite": 200
   },
   {
     "site": "UNIVERSITE 2",
-    "date": "2026-09-02"
+    "date": "2026-09-02",
+    "quantite": 400
   },
   {
     "site": "UNIVERSITE 2",
-    "date": "2026-09-24"
+    "date": "2026-09-24",
+    "quantite": 500
   },
   {
     "site": "ANGRE CHU",
-    "date": "2026-09-02"
+    "date": "2026-09-02",
+    "quantite": 200
   },
   {
     "site": "ANGRE CHU",
-    "date": "2026-09-30"
+    "date": "2026-09-30",
+    "quantite": 150
   },
   {
     "site": "CAP NORD",
-    "date": "2026-09-02"
+    "date": "2026-09-02",
+    "quantite": 100
   },
   {
     "site": "CAP NORD",
-    "date": "2026-09-24"
+    "date": "2026-09-24",
+    "quantite": 350
   },
   {
-    "site": "ANONO",
-    "date": "2026-09-30"
+    "site": "SHELL ANONO",
+    "date": "2026-09-30",
+    "quantite": 400
   },
   {
     "site": "RUE DES JARDINS",
-    "date": "2026-09-02"
+    "date": "2026-09-02",
+    "quantite": 200
   },
   {
     "site": "7E TRANCHE 2",
-    "date": "2026-09-03"
+    "date": "2026-09-03",
+    "quantite": 100
   },
   {
-    "site": "ANGRE 7E TRANCHE 1",
-    "date": "2026-09-03"
+    "site": "ANGRE 7E TRANCHE1",
+    "date": "2026-09-03",
+    "quantite": 100
   },
   {
-    "site": "ANGRE 7E TRANCHE 1",
-    "date": "2026-09-26"
+    "site": "ANGRE 7E TRANCHE1",
+    "date": "2026-09-26",
+    "quantite": 100
   },
   {
     "site": "LATRILLE A",
-    "date": "2026-09-03"
+    "date": "2026-09-03",
+    "quantite": 200
   },
   {
     "site": "LATRILLE A",
-    "date": "2026-09-24"
+    "date": "2026-09-24",
+    "quantite": 200
   },
   {
     "site": "LATRILLE B",
-    "date": "2026-09-03"
+    "date": "2026-09-03",
+    "quantite": 350
   },
   {
     "site": "LATRILLE B",
-    "date": "2026-09-26"
+    "date": "2026-09-26",
+    "quantite": 180
   },
   {
-    "site": "8E TRANCHE",
-    "date": "2026-09-05"
+    "site": "LA ANGRE 8E TRANCHE",
+    "date": "2026-09-05",
+    "quantite": 300
   },
   {
-    "site": "8E TRANCHE",
-    "date": "2026-09-26"
+    "site": "LA ANGRE 8E TRANCHE",
+    "date": "2026-09-26",
+    "quantite": 300
   },
   {
     "site": "BONOUMIN",
-    "date": "2026-09-24"
+    "date": "2026-09-24",
+    "quantite": 150
   },
   {
     "site": "LYCEE TECHNIQUE",
-    "date": "2026-09-24"
+    "date": "2026-09-24",
+    "quantite": 100
   },
   {
-    "site": "SAINT JEAN",
-    "date": "2026-09-26"
+    "site": "ST JEANT",
+    "date": "2026-09-26",
+    "quantite": 350
   },
   {
     "site": "PO ABATTA",
-    "date": "2026-09-02"
+    "date": "2026-09-02",
+    "quantite": 500
   },
   {
     "site": "PO ABATTA",
-    "date": "2026-09-24"
-  },
-  {
-    "site": "PO BINGERVILLE",
-    "date": "2026-09-02"
+    "date": "2026-09-24",
+    "quantite": 550
   },
   {
     "site": "JULES VERNE",
-    "date": "2026-09-02"
+    "date": "2026-09-02",
+    "quantite": 200
   },
   {
     "site": "JULES VERNE",
-    "date": "2026-09-24"
+    "date": "2026-09-24",
+    "quantite": 200
   },
   {
     "site": "PO ANAN",
-    "date": "2026-09-26"
+    "date": "2026-09-26",
+    "quantite": 400
   },
   {
     "site": "ROUME",
-    "date": "2026-09-05"
+    "date": "2026-09-05",
+    "quantite": 200
   },
   {
     "site": "ROUME",
-    "date": "2026-09-26"
+    "date": "2026-09-26",
+    "quantite": 400
   },
   {
     "site": "PARIS",
-    "date": "2026-09-05"
+    "date": "2026-09-05",
+    "quantite": 300
   },
   {
     "site": "PARIS",
-    "date": "2026-09-26"
+    "date": "2026-09-26",
+    "quantite": 200
   },
   {
     "site": "REMBLAIS",
-    "date": "2026-09-08"
+    "date": "2026-09-08",
+    "quantite": 500
   },
   {
     "site": "REMBLAIS",
-    "date": "2026-09-23"
+    "date": "2026-09-23",
+    "quantite": 650
   },
   {
-    "site": "ZONE INDUSTRIELLE",
-    "date": "2026-09-08"
+    "site": "Z.INDUSTRIELLE",
+    "date": "2026-09-08",
+    "quantite": 250
   },
   {
-    "site": "ZONE INDUSTRIELLE",
-    "date": "2026-09-23"
+    "site": "Z.INDUSTRIELLE",
+    "date": "2026-09-23",
+    "quantite": 300
   },
   {
-    "site": "GFCI 2",
-    "date": "2026-09-08"
+    "site": "GFCI2",
+    "date": "2026-09-08",
+    "quantite": 250
   },
   {
-    "site": "GFCI 2",
-    "date": "2026-09-23"
+    "site": "GFCI2",
+    "date": "2026-09-23",
+    "quantite": 500
   },
   {
     "site": "SAINTE THERESE",
-    "date": "2026-09-08"
+    "date": "2026-09-08",
+    "quantite": 300
   },
   {
     "site": "SAINTE THERESE",
-    "date": "2026-09-23"
+    "date": "2026-09-23",
+    "quantite": 450
   },
   {
     "site": "PMC",
-    "date": "2026-09-08"
+    "date": "2026-09-08",
+    "quantite": 600
   },
   {
     "site": "PMC",
-    "date": "2026-09-23"
+    "date": "2026-09-23",
+    "quantite": 700
   },
   {
     "site": "RESIDENTIEL",
-    "date": "2026-09-09"
+    "date": "2026-09-09",
+    "quantite": 200
   },
   {
     "site": "RESIDENTIEL",
-    "date": "2026-09-30"
+    "date": "2026-09-30",
+    "quantite": 180
   },
   {
     "site": "PO ANOUMABO",
-    "date": "2026-09-09"
+    "date": "2026-09-09",
+    "quantite": 100
   },
   {
     "site": "AP MAGIC",
-    "date": "2026-09-11"
+    "date": "2026-09-11",
+    "quantite": 100
   },
   {
     "site": "LA GABON",
-    "date": "2026-09-11"
+    "date": "2026-09-11",
+    "quantite": 50
   },
   {
     "site": "BOXING CLUB",
-    "date": "2026-09-09"
+    "date": "2026-09-09",
+    "quantite": 200
   },
   {
     "site": "BOXING CLUB",
-    "date": "2026-09-30"
+    "date": "2026-09-30",
+    "quantite": 200
   },
   {
     "site": "AUTOROUTE SUD",
-    "date": "2026-09-09"
+    "date": "2026-09-09",
+    "quantite": 300
   },
   {
     "site": "AUTOROUTE SUD",
-    "date": "2026-09-23"
+    "date": "2026-09-23",
+    "quantite": 200
   },
   {
     "site": "HOPITAL",
-    "date": "2026-09-09"
+    "date": "2026-09-09",
+    "quantite": 400
   },
   {
     "site": "HOPITAL",
-    "date": "2026-09-30"
+    "date": "2026-09-30",
+    "quantite": 150
   },
   {
     "site": "AVENUE CHRISTIANI",
-    "date": "2026-09-11"
+    "date": "2026-09-11",
+    "quantite": 100
   },
   {
     "site": "HABITAT",
-    "date": "2026-09-11"
+    "date": "2026-09-11",
+    "quantite": 200
   },
   {
     "site": "SS PREMOTO",
-    "date": "2026-09-30"
+    "date": "2026-09-30",
+    "quantite": 50
   }
 ]

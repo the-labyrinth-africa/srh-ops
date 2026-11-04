@@ -1,0 +1,202 @@
+[
+  {
+    "numero": 1,
+    "commune": "COCODY",
+    "site": "SHELL ANONO"
+  },
+  {
+    "numero": 2,
+    "commune": "COCODY",
+    "site": "ANGRE CHU"
+  },
+  {
+    "numero": 3,
+    "commune": "COCODY",
+    "site": "ANGRE 7E TRANCHE1"
+  },
+  {
+    "numero": 4,
+    "commune": "COCODY",
+    "site": "RUE DES JARDINS"
+  },
+  {
+    "numero": 5,
+    "commune": "COCODY",
+    "site": "7E TRANCHE 2"
+  },
+  {
+    "numero": 6,
+    "commune": "COCODY",
+    "site": "CAP NORD"
+  },
+  {
+    "numero": 7,
+    "commune": "COCODY",
+    "site": "LATRILLE A"
+  },
+  {
+    "numero": 8,
+    "commune": "COCODY",
+    "site": "LATRILLE B"
+  },
+  {
+    "numero": 9,
+    "commune": "COCODY",
+    "site": "UNIVERSITE 2"
+  },
+  {
+    "numero": 10,
+    "commune": "COCODY",
+    "site": "ST JEANT"
+  },
+  {
+    "numero": 11,
+    "commune": "COCODY",
+    "site": "LYCEE TECHNIQUE"
+  },
+  {
+    "numero": 12,
+    "commune": "COCODY",
+    "site": "LA ANGRE 8E TRANCHE"
+  },
+  {
+    "numero": 13,
+    "commune": "COCODY",
+    "site": "BONOUMIN"
+  },
+  {
+    "numero": 14,
+    "commune": "BINGERVILLE",
+    "site": "PO ABATTA"
+  },
+  {
+    "numero": 15,
+    "commune": "BINGERVILLE",
+    "site": "JULES VERNE"
+  },
+  {
+    "numero": 16,
+    "commune": "BINGERVILLE",
+    "site": "PO ANAN"
+  },
+  {
+    "numero": 17,
+    "commune": "BINGERVILLE",
+    "site": "SS BOS"
+  },
+  {
+    "numero": 18,
+    "commune": "MARCORY",
+    "site": "PO ANOUMABO"
+  },
+  {
+    "numero": 19,
+    "commune": "MARCORY",
+    "site": "LA GABON"
+  },
+  {
+    "numero": 20,
+    "commune": "MARCORY",
+    "site": "SS RO GABON"
+  },
+  {
+    "numero": 21,
+    "commune": "MARCORY",
+    "site": "GFCI2"
+  },
+  {
+    "numero": 22,
+    "commune": "MARCORY",
+    "site": "SAINTE THERESE"
+  },
+  {
+    "numero": 23,
+    "commune": "MARCORY",
+    "site": "PMC"
+  },
+  {
+    "numero": 24,
+    "commune": "MARCORY",
+    "site": "AMECA 2"
+  },
+  {
+    "numero": 25,
+    "commune": "MARCORY",
+    "site": "RESIDENTIEL"
+  },
+  {
+    "numero": 26,
+    "commune": "MARCORY",
+    "site": "AP MAGIC"
+  },
+  {
+    "numero": 27,
+    "commune": "PORT-BOUET",
+    "site": "SS PREMOTO"
+  },
+  {
+    "numero": 28,
+    "commune": "PORT-BOUET",
+    "site": "AERO CITE"
+  },
+  {
+    "numero": 29,
+    "commune": "TREICHVILLE",
+    "site": "NOTRE DAME"
+  },
+  {
+    "numero": 30,
+    "commune": "TREICHVILLE",
+    "site": "AVENUE CHRISTIANI"
+  },
+  {
+    "numero": 31,
+    "commune": "TREICHVILLE",
+    "site": "AUTOROUTE SUD"
+  },
+  {
+    "numero": 32,
+    "commune": "TREICHVILLE",
+    "site": "BOXING CLUB"
+  },
+  {
+    "numero": 33,
+    "commune": "TREICHVILLE",
+    "site": "HABITAT"
+  },
+  {
+    "numero": 34,
+    "commune": "TREICHVILLE",
+    "site": "HOPITAL"
+  },
+  {
+    "numero": 35,
+    "commune": "PLATEAU",
+    "site": "ROUME"
+  },
+  {
+    "numero": 36,
+    "commune": "PLATEAU",
+    "site": "PARIS"
+  },
+  {
+    "numero": 37,
+    "commune": "KOUMASSI",
+    "site": "Z.INDUSTRIELLE"
+  },
+  {
+    "numero": 38,
+    "commune": "KOUMASSI",
+    "site": "REMBLAIS"
+  },
+  {
+    "numero": 39,
+    "commune": "KOUMASSI",
+    "site": "CAMP COMMANDO"
+  },
+  {
+    "numero": 40,
+    "commune": "SONGON",
+    "site": "SONGON"
+  }
+]

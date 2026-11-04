@@ -12,13 +12,13 @@ Plateforme de planification et de suivi des opérations de collecte.
 
 ## Prévisions des collectes
 
-La page `/previsions` estime les passages à venir à partir des collectes positives relevées dans
-les bilans Excel. Les données de juin à octobre 2026 fournies pour le démarrage sont conservées
-sous forme compacte dans `src/backend/previsions/historique-fourni.json` (noms de site et dates,
-sans volumes). Un Admin ou Dispatcher peut charger un ou plusieurs classeurs `.xlsx` pour recalculer
-le mois affiché ; ces fichiers sont traités en mémoire et ne sont pas enregistrés. La page indique
-les intervalles estimés, l’historique disponible et les sites sans passage prévu. Les résultats
-restent des propositions à confirmer et ne créent pas automatiquement d’opérations.
+La page `/previsions` regroupe les 40 stations du référentiel `STATIONS SHELL 2026.xlsx` en tournées
+par secteurs et équilibre la charge avec les médianes de volumes observées. Chaque date de tournée
+contient au moins cinq stations ; un second passage est proposé lorsque l’historique le justifie.
+Le référentiel et les collectes positives de juin à octobre 2026 sont conservés dans
+`src/backend/previsions/` (les historiques contiennent station, date et quantité). Un Admin ou
+Dispatcher peut charger un ou plusieurs classeurs `.xlsx` pour recalculer le mois ; ils sont traités
+en mémoire et ne sont pas enregistrés. Les propositions ne créent pas automatiquement d’opérations.
 
 ## Architecture
 

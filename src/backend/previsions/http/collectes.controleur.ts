@@ -1,16 +1,27 @@
 import { NextResponse } from "next/server";
 import { requireInternalAuth } from "@/backend/comptes";
-import { lireClasseurCollectes, lireHistoriqueCollectes, prevoirCollectes, type HistoriqueCollecte } from "../collectes";
+import { listerStationsShell, lireClasseurCollectes, lireHistoriqueCollectes, prevoirCollectes, type HistoriqueCollecte } from "../collectes";
 
 function resultat(mois: string, previsions: Awaited<ReturnType<typeof prevoirCollectes>>, historique: HistoriqueCollecte[]) {
-  const sitesSources = [...new Set(historique.map((ligne) => ligne.site))].sort((a, b) => a.localeCompare(b, "fr"));
-  const sitesPlanifies = new Set(previsions.map((ligne) => ligne.site));
+  const stations = listerStationsShell();
+  const sitesSources = new Set(historique.map((ligne) => ligne.site));
+  const tournees = [...new Set(previsions.map((ligne) => ligne.datePrevue))].map((date) => {
+    const lignes = previsions.filter((ligne) => ligne.datePrevue === date);
+    return {
+      date,
+      nom: lignes[0]?.tournee,
+      secteur: lignes[0]?.secteur,
+      nombreStations: new Set(lignes.map((ligne) => ligne.site)).size,
+      volumeEstimeLitres: lignes.reduce((total, ligne) => total + (ligne.quantiteEstimeeLitres ?? 0), 0),
+    };
+  });
   return {
     mois,
     previsions,
-    sites: sitesPlanifies.size,
-    sitesHistorique: sitesSources.length,
-    sitesSansPrevision: sitesSources.filter((site) => !sitesPlanifies.has(site)),
+    nombreStations: stations.length,
+    stationsAvecHistorique: sitesSources.size,
+    stationsSansHistorique: stations.filter((station) => !sitesSources.has(station.site)).map((station) => station.site),
+    tournees,
   };
 }
 
