@@ -20,17 +20,9 @@ describe("dateHeurePrevueImportee", () => {
 });
 
 describe("historiqueImporte", () => {
-  it("six entrées reconstituées autour de l'heure prévue, sans auteur", () => {
+  it("n'enregistre que le statut rapporté, sans inventer les étapes antérieures", () => {
     const prevue = new Date(2026, 5, 11, 8, 0);
-    const a = (minutes: number) => new Date(prevue.getTime() + minutes * 60_000);
-    expect(historiqueImporte(prevue)).toEqual([
-      { statut: "Planifiée", date: a(-24 * 60) },
-      { statut: "Affectée", date: a(0) },
-      { statut: "En route", date: a(30) },
-      { statut: "En cours", date: a(60) },
-      { statut: "Terminée", date: a(120) },
-      { statut: "Rapportée", date: a(180) },
-    ]);
+    expect(historiqueImporte(prevue)).toEqual([{ statut: "Rapportée", date: prevue }]);
   });
 });
 

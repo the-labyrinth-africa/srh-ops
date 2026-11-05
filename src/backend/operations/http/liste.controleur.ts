@@ -5,11 +5,9 @@ import { casDUsageOperations } from "../composition";
 import type { FiltreOperations } from "../domain/operation";
 import { versActeur } from "./acteur";
 import { versReponseErreur } from "./erreurs-http";
-import { operationSchema, versSaisieOperation } from "./operation.schema";
 import { versReponseOperation } from "./presentation";
 import { versReponseOperationClient } from "./presentation";
 import { isClientUser } from "@/shared/acces/permissions";
-import { obtenirUniteQuantiteGlobale } from "@/backend/identite-entreprise";
 
 export async function GET(req: NextRequest) {
   const auth = await requireAuth();
@@ -23,16 +21,27 @@ export async function GET(req: NextRequest) {
   const equipeId = sp.get("equipeId");
   const vehiculeId = sp.get("vehiculeId");
   const statut = sp.get("statut");
+  const collectesRealisees = sp.get("collectes");
   if (clientId) filtre.clientId = clientId;
   if (siteId) filtre.siteId = siteId;
   if (equipeId) filtre.equipeId = equipeId;
   if (vehiculeId) filtre.vehiculeId = vehiculeId;
   if (statut) filtre.statut = statut;
+  if (collectesRealisees === "1") filtre.collectesRealisees = true;
 
   const dateDebut = sp.get("dateDebut");
   const dateFin = sp.get("dateFin");
-  if (dateDebut) filtre.dateDebut = new Date(dateDebut);
-  if (dateFin) filtre.dateFin = new Date(dateFin);
+  if (dateDebut) {
+    const date = new Date(dateDebut);
+    if (!Number.isFinite(date.getTime())) return NextResponse.json({ error: "Date de début invalide." }, { status: 400 });
+    filtre.dateDebut = date;
+  }
+  if (dateFin) {
+    const date = new Date(dateFin);
+    if (!Number.isFinite(date.getTime())) return NextResponse.json({ error: "Date de fin invalide." }, { status: 400 });
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateFin)) date.setUTCHours(23, 59, 59, 999);
+    filtre.dateFin = date;
+  }
 
   // Calcul historique, volontairement sans garde-fou (valeurs hors norme renvoyées telles quelles).
   const page = Math.max(1, parseInt(sp.get("page") || "1", 10));
@@ -50,24 +59,9 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(_req: NextRequest) {
+  void _req;
   const auth = await requireAuth(true);
   if (auth.error) return auth.error;
-
-  const body = await req.json();
-  const parsed = operationSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
-  }
-
-  try {
-    const saisie = versSaisieOperation(parsed.data);
-    const uniteGlobale = await obtenirUniteQuantiteGlobale();
-    if (uniteGlobale) saisie.uniteQuantite = uniteGlobale;
-    saisie.uniteQuantite ??= "Litres";
-    const operation = await casDUsageOperations.creer(versActeur(auth), saisie);
-    return NextResponse.json(versReponseOperation(operation), { status: 201 });
-  } catch (erreur) {
-    return versReponseErreur(erreur);
-  }
+  return NextResponse.json({ error: "La planification manuelle est désactivée. Enregistrez une collecte réalisée ou importez son fichier Excel." }, { status: 410 });
 }

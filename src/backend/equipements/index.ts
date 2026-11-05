@@ -1,2 +1,2 @@
-// API publique du domaine `equipements` pour les autres domaines : aucune pour l'instant.
-export {};
+// API publique minimale du domaine `equipements` pour les prévisions.
+export { listerEquipements } from "./composition";

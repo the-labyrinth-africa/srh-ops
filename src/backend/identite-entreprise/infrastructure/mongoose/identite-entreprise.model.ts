@@ -10,6 +10,7 @@ export interface IIdentiteEntrepriseModel {
   logoMimeType?: "image/png";
   logoBase64?: string;
   uniteQuantiteGlobale?: QuantiteUnite | null;
+  objectifLitresParStation?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -23,6 +24,7 @@ const IdentiteEntrepriseSchema = new Schema<IIdentiteEntrepriseModel>(
     logoMimeType: { type: String, enum: ["image/png"] },
     logoBase64: { type: String },
     uniteQuantiteGlobale: { type: String, enum: QUANTITE_UNITES, default: null },
+    objectifLitresParStation: { type: Number, min: 1, default: 2000 },
   },
   { timestamps: true, collection: "identite_entreprise" }
 );

@@ -5,10 +5,10 @@ import { navForRole } from "@/frontend/navigation";
 const hrefs = (role: string) => navForRole(role).flatMap((s) => s.items.map((i) => i.href));
 
 describe("navForRole", () => {
-  it("admin voit tout, dont les demandes clients, Utilisateurs et Import", () => {
+  it("admin voit tout, dont les prévisions, demandes clients, Utilisateurs et Import", () => {
     const h = hrefs("admin");
     expect(h).toEqual(
-      expect.arrayContaining(["/", "/guide", "/terrain", "/operations/planning", "/operations", "/recurrences", "/tracabilite", "/demandes", "/import", "/clients", "/equipes", "/vehicules", "/equipements", "/utilisateurs"])
+      expect.arrayContaining(["/", "/guide", "/terrain", "/operations/planning", "/operations", "/previsions", "/tracabilite", "/demandes", "/import", "/clients", "/equipes", "/vehicules", "/equipements", "/utilisateurs"])
     );
   });
 
@@ -30,13 +30,13 @@ describe("navForRole", () => {
 
   it("lecture : liste exacte des entrées", () => {
     expect(hrefs("lecture")).toEqual([
-      "/", "/guide", "/operations/planning", "/operations", "/recurrences", "/tracabilite", "/clients", "/equipes", "/vehicules", "/equipements",
+      "/", "/guide", "/operations/planning", "/operations", "/previsions", "/tracabilite", "/clients", "/equipes", "/vehicules", "/equipements",
     ]);
   });
 
   it("dispatcher : liste exacte des entrées (lecture + terrain + import)", () => {
     expect([...hrefs("dispatcher")].sort()).toEqual(
-      ["/", "/guide", "/operations/planning", "/operations", "/recurrences", "/tracabilite", "/demandes", "/clients", "/equipes", "/vehicules", "/equipements", "/terrain", "/import"].sort()
+      ["/", "/guide", "/operations/planning", "/operations", "/previsions", "/tracabilite", "/demandes", "/clients", "/equipes", "/vehicules", "/equipements", "/terrain", "/import"].sort()
     );
   });
 

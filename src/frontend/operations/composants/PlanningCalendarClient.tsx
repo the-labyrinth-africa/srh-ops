@@ -8,59 +8,54 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import frLocale from "@fullcalendar/core/locales/fr";
 import { useCallback, useState } from "react";
-import type { OperationStatus } from "@/shared/operations/statuts";
 
 interface CalendarEvent {
   id: string;
   title: string;
   start: string;
-  end: string;
+  end?: string;
+  allDay?: boolean;
   backgroundColor: string;
   borderColor: string;
   extendedProps: {
-    statut: OperationStatus;
+    statut: string;
     site?: string;
-    equipe?: string;
     vehicule?: string;
+    capaciteVehiculeLitres?: number;
+    volume?: number;
+    dureeEstimeeMinutes?: number;
+    secteur?: string;
   };
 }
 
 export function PlanningCalendarClient() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [statutFilter, setStatutFilter] = useState<string[]>([
-    "Demande",
-    "Planifiée",
-    "Affectée",
-    "En route",
-    "En cours",
-    "Terminée",
-    "Rapportée",
-    "Retardée",
-    "Annulée",
-  ]);
-
-  const fetchEvents = useCallback(async (startStr: string, endStr: string) => {
+  const [error, setError] = useState("");
+  const fetchEvents = useCallback(async (currentStart: Date) => {
+    setError("");
     try {
-      const res = await fetch(`/api/operations/planning?start=${startStr}&end=${endStr}`);
-      if (res.ok) {
-        const data = await res.json();
-        setEvents(data);
-      }
-    } catch {
-      // Ignorer
+      const mois = currentStart.toISOString().slice(0, 7);
+      const res = await fetch(`/api/previsions/collectes?mois=${mois}`);
+      const data: { previsions?: unknown; error?: unknown } = await res.json();
+      if (!res.ok) throw new Error(typeof data.error === "string" ? data.error : "Impossible de charger le planning prévisionnel.");
+      if (!Array.isArray(data.previsions)) throw new Error("Les prévisions reçues sont invalides.");
+      setEvents(data.previsions.map((item: { datePrevue: string; site: string; commune: string; quantiteEstimeeLitres: number; dureeEstimeeMinutes: number; capaciteVehiculeLitres?: number; numeroPassage: number; tournee: string; secteur: string; vehicule?: string }) => ({
+        id: `${item.datePrevue}-${item.site}-${item.tournee}-${item.numeroPassage}`,
+        title: `${item.tournee} · ${item.quantiteEstimeeLitres} L`,
+        start: item.datePrevue,
+        allDay: true,
+        backgroundColor: "#247a59",
+        borderColor: "#1b6046",
+        extendedProps: { statut: "Prévision", site: `${item.site} · ${item.commune}`, volume: item.quantiteEstimeeLitres, dureeEstimeeMinutes: item.dureeEstimeeMinutes, capaciteVehiculeLitres: item.capaciteVehiculeLitres, secteur: item.secteur, vehicule: item.vehicule },
+      })));
+    } catch (cause) {
+      setEvents([]);
+      setError(cause instanceof Error ? cause.message : "Erreur réseau lors du chargement du planning.");
     }
   }, []);
 
-  const handleDatesSet = (arg: { startStr: string; endStr: string }) => {
-    fetchEvents(arg.startStr, arg.endStr);
-  };
-
-  const filteredEvents = events.filter((ev) => statutFilter.includes(ev.extendedProps.statut));
-
-  const toggleStatut = (statut: string) => {
-    setStatutFilter((prev) =>
-      prev.includes(statut) ? prev.filter((s) => s !== statut) : [...prev, statut]
-    );
+  const handleDatesSet = (arg: { view: { currentStart: Date } }) => {
+    fetchEvents(arg.view.currentStart);
   };
 
   return (
@@ -68,13 +63,13 @@ export function PlanningCalendarClient() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-headline-lg text-headline-lg font-bold text-on-surface">
-            Planning des interventions
+            Planning prévisionnel des collectes
           </h1>
           <p className="font-body-md text-body-md text-on-surface-variant">
-            Vue calendrier des opérations planifiées, en cours et réalisées.
+            Tournées calculées depuis les collectes enregistrées et les ressources disponibles.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Link
             href="/operations"
             className="inline-flex items-center gap-2 rounded-xl border border-outline-variant bg-surface px-4 py-2.5 font-label-md text-label-md font-semibold text-on-surface hover:bg-surface-container-high"
@@ -83,48 +78,17 @@ export function PlanningCalendarClient() {
             Vue liste
           </Link>
           <Link
-            href="/operations/nouveau"
+            href="/previsions"
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 font-label-md text-label-md font-semibold text-on-primary shadow-sm hover:bg-primary/90"
           >
             <span className="material-symbols-outlined text-[20px]">add</span>
-            Nouvelle opération
+            Prévisions détaillées
           </Link>
+          <Link href="/operations/nouveau" className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 font-label-md text-label-md font-semibold text-on-primary"><span className="material-symbols-outlined text-[20px]">add</span>Enregistrer une collecte</Link>
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-surface-container-high bg-surface-container-lowest p-gutter-sm">
-        <span className="font-label-sm text-label-sm font-bold uppercase text-outline">
-          Filtres :
-        </span>
-        {[
-          { label: "Demande", val: "Demande", color: "bg-amber-600" },
-          { label: "Planifiée", val: "Planifiée", color: "bg-status-planned" },
-          { label: "Affectée", val: "Affectée", color: "bg-status-assigned" },
-          { label: "En route", val: "En route", color: "bg-status-on-route" },
-          { label: "En cours", val: "En cours", color: "bg-status-in-progress" },
-          { label: "Terminée", val: "Terminée", color: "bg-status-completed" },
-          { label: "Rapportée", val: "Rapportée", color: "bg-status-reported" },
-          { label: "Retardée", val: "Retardée", color: "bg-status-delayed" },
-          { label: "Annulée", val: "Annulée", color: "bg-status-cancelled" },
-        ].map((item) => {
-          const active = statutFilter.includes(item.val);
-          return (
-            <button
-              key={item.val}
-              type="button"
-              onClick={() => toggleStatut(item.val)}
-              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 font-label-md text-label-md transition-all ${
-                active
-                  ? "bg-surface-container-high text-on-surface"
-                  : "bg-surface text-outline line-through"
-              }`}
-            >
-              <span className={`h-2.5 w-2.5 rounded-full ${item.color}`} />
-              {item.label}
-            </button>
-          );
-        })}
-      </div>
+      {error && <p role="alert" className="rounded-lg border border-error/30 bg-error-container/20 p-4 text-error">{error}</p>}
 
       <div className="rounded-xl border border-surface-container-high bg-surface-container-lowest p-gutter-md shadow-sm">
         <FullCalendar
@@ -136,21 +100,20 @@ export function PlanningCalendarClient() {
             center: "title",
             right: "dayGridMonth,timeGridWeek,timeGridDay",
           }}
-          events={filteredEvents}
+          events={events}
           datesSet={handleDatesSet}
           eventContent={(eventInfo) => (
             <div className="overflow-hidden p-1">
-              <div className="font-bold truncate">{eventInfo.event.title}</div>
+              <div className="truncate text-xs font-bold">{eventInfo.event.title}</div>
               {eventInfo.event.extendedProps.site && (
-                <div className="text-[11px] opacity-90 truncate">
+                <div className="truncate text-xs opacity-90">
                   {eventInfo.event.extendedProps.site}
                 </div>
               )}
+              <div className="text-xs opacity-80">{eventInfo.event.extendedProps.secteur} · {eventInfo.event.extendedProps.vehicule ?? "véhicule à affecter"}{eventInfo.event.extendedProps.capaciteVehiculeLitres ? ` (${eventInfo.event.extendedProps.capaciteVehiculeLitres} L)` : ""} · {eventInfo.event.extendedProps.dureeEstimeeMinutes} min</div>
             </div>
           )}
-          eventClick={(info) => {
-            window.location.href = `/operations/${info.event.id}`;
-          }}
+          eventClick={(info) => info.jsEvent.preventDefault()}
           height="auto"
         />
       </div>

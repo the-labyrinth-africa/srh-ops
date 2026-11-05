@@ -4,309 +4,131 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { formatApiError } from "@/frontend/design-system";
+import { QUANTITE_UNITES, type QuantiteUnite } from "@/shared/operations/quantites";
 
-interface Option {
-  _id: string;
-  nom?: string;
-  identification?: string;
+interface Option { _id: string; nom?: string; }
+
+function dateHeureLocale(): string {
+  const date = new Date();
+  const deuxChiffres = (valeur: number) => String(valeur).padStart(2, "0");
+  return `${date.getFullYear()}-${deuxChiffres(date.getMonth() + 1)}-${deuxChiffres(date.getDate())}T${deuxChiffres(date.getHours())}:${deuxChiffres(date.getMinutes())}`;
 }
 
 export function OperationFormClient() {
   const router = useRouter();
   const [clients, setClients] = useState<Option[]>([]);
   const [sites, setSites] = useState<Option[]>([]);
-  const [equipes, setEquipes] = useState<Option[]>([]);
-  const [vehicules, setVehicules] = useState<Option[]>([]);
-  const [equipements, setEquipements] = useState<Option[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [chargementReferentiels, setChargementReferentiels] = useState(true);
+  const [uniteQuantiteGlobale, setUniteQuantiteGlobale] = useState<QuantiteUnite | null>(null);
   const [form, setForm] = useState({
-    clientId: "",
-    siteId: "",
-    natureIntervention: "",
-    dateHeurePrevue: "",
-    dureeEstimeeMinutes: "120",
-    equipeId: "",
-    vehiculeId: "",
-    equipementIds: [] as string[],
-    informationsParticulieres: "",
+    clientId: "", siteId: "", dateCollecte: dateHeureLocale(),
+    quantiteCollectee: "", uniteQuantite: "Litres", natureIntervention: "Collecte d'huiles usagées", remarquesTerrain: "",
   });
 
   useEffect(() => {
-    fetch("/api/clients")
-      .then((res) => (res.ok ? res.json() : []))
-      .then(setClients);
-    fetch("/api/equipes")
-      .then((res) => (res.ok ? res.json() : []))
-      .then(setEquipes);
-    fetch("/api/vehicules")
-      .then((res) => (res.ok ? res.json() : []))
-      .then(setVehicules);
-    fetch("/api/equipements")
-      .then((res) => (res.ok ? res.json() : []))
-      .then(setEquipements);
+    let actif = true;
+    async function chargerReferentiels() {
+      try {
+        const [clientsResponse, uniteResponse] = await Promise.all([
+          fetch("/api/clients"),
+          fetch("/api/plateforme/unite-quantite"),
+        ]);
+        if (!clientsResponse.ok || !uniteResponse.ok) throw new Error("Impossible de charger les clients ou les paramètres d'unité.");
+        const [clientsData, uniteData] = await Promise.all([
+          clientsResponse.json() as Promise<unknown>,
+          uniteResponse.json() as Promise<{ uniteQuantiteGlobale?: unknown }>,
+        ]);
+        if (!Array.isArray(clientsData)) throw new Error("La liste des clients reçue est invalide.");
+        const uniteGlobale = QUANTITE_UNITES.find((unite) => unite === uniteData.uniteQuantiteGlobale) ?? null;
+        if (actif) {
+          setClients(clientsData);
+          setUniteQuantiteGlobale(uniteGlobale);
+          if (uniteGlobale) setForm((previous) => ({ ...previous, uniteQuantite: uniteGlobale }));
+        }
+      } catch (cause) {
+        if (actif) setError(cause instanceof Error ? cause.message : "Erreur réseau lors du chargement des paramètres.");
+      } finally {
+        if (actif) setChargementReferentiels(false);
+      }
+    }
+    void chargerReferentiels();
+    return () => { actif = false; };
   }, []);
 
-  const handleClientChange = (clientId: string) => {
+  async function handleClientChange(clientId: string) {
     setForm((prev) => ({ ...prev, clientId, siteId: "" }));
-    if (clientId) {
-      fetch(`/api/sites?clientId=${clientId}`)
-        .then((res) => (res.ok ? res.json() : []))
-        .then(setSites);
-    } else {
+    setError("");
+    if (!clientId) {
       setSites([]);
+      return;
     }
-  };
+    try {
+      const response = await fetch(`/api/sites?clientId=${clientId}`);
+      const data: unknown = await response.json();
+      if (!response.ok || !Array.isArray(data)) throw new Error("Impossible de charger les sites de ce client.");
+      setSites(data);
+    } catch (cause) {
+      setSites([]);
+      setError(cause instanceof Error ? cause.message : "Erreur réseau lors du chargement des sites.");
+    }
+  }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
     setError("");
     setLoading(true);
-
     try {
-      const payload = {
-        ...form,
-        dureeEstimeeMinutes: Number(form.dureeEstimeeMinutes) || 120,
-        equipeId: form.equipeId || undefined,
-        vehiculeId: form.vehiculeId || undefined,
-        dateHeurePrevue: form.dateHeurePrevue
-          ? new Date(form.dateHeurePrevue).toISOString()
-          : "",
-      };
-
-      const res = await fetch("/api/operations", {
+      const response = await fetch("/api/operations/collectes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...form, quantiteCollectee: Number(form.quantiteCollectee), dateCollecte: new Date(form.dateCollecte).toISOString() }),
       });
-
-      if (!res.ok) {
-        const data = await res.json();
+      if (!response.ok) {
+        const data = await response.json();
         setError(formatApiError(data.error));
         return;
       }
-
       router.push("/operations");
+      router.refresh();
     } catch {
-      setError("Erreur réseau lors de la création.");
+      setError("Erreur réseau lors de l'enregistrement de la collecte.");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const toggleEquipement = (id: string) => {
-    setForm((prev) => ({
-      ...prev,
-      equipementIds: prev.equipementIds.includes(id)
-        ? prev.equipementIds.filter((item) => item !== id)
-        : [...prev.equipementIds, id],
-    }));
-  };
-
-  return (
-    <div className="mx-auto max-w-3xl space-y-gutter-md p-margin-mobile lg:p-margin-desktop">
-      <div className="flex items-center gap-3">
-        <Link
-          href="/operations"
-          className="rounded-lg p-2 text-on-surface-variant hover:bg-surface-container-high"
-        >
-          <span className="material-symbols-outlined text-[20px]">arrow_back</span>
-        </Link>
-        <div>
-          <h1 className="font-headline-lg text-headline-lg font-bold text-on-surface">
-            Nouvelle Opération
-          </h1>
-          <p className="font-body-md text-body-md text-on-surface-variant">
-            Planification d&apos;une intervention de collecte.
-          </p>
+  return <div className="mx-auto max-w-3xl space-y-gutter-md p-margin-mobile lg:p-margin-desktop">
+    <div className="flex items-center gap-3">
+      <Link href="/operations" aria-label="Retour à l’historique" className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 text-on-surface-variant hover:bg-surface-container-high"><span aria-hidden="true" className="material-symbols-outlined text-[20px]">arrow_back</span></Link>
+      <div><h1 className="font-headline-lg text-headline-lg font-bold text-on-surface">Enregistrer une collecte</h1><p className="font-body-md text-body-md text-on-surface-variant">Saisissez une collecte réalisée ; elle sera ajoutée à l’historique utilisé pour les prochaines prévisions.</p></div>
+    </div>
+    {error && <div role="alert" className="rounded-xl bg-error-container p-gutter-sm text-on-error-container">{error}</div>}
+    <form onSubmit={handleSubmit} className="space-y-6 rounded-xl border border-surface-container-high bg-surface-container-lowest p-gutter-md">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label className="font-label-md text-label-md font-semibold text-on-surface">Client *
+          <select required value={form.clientId} onChange={(event) => void handleClientChange(event.target.value)} className="mt-1 min-h-11 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-on-surface"><option value="">Sélectionner un client</option>{clients.map((item) => <option key={item._id} value={item._id}>{item.nom}</option>)}</select>
+        </label>
+        <label className="font-label-md text-label-md font-semibold text-on-surface">Site *
+          <select required disabled={!form.clientId} value={form.siteId} onChange={(event) => setForm({ ...form, siteId: event.target.value })} className="mt-1 min-h-11 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-on-surface disabled:opacity-50"><option value="">Sélectionner un site</option>{sites.map((item) => <option key={item._id} value={item._id}>{item.nom}</option>)}</select>
+        </label>
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label className="font-label-md text-label-md font-semibold text-on-surface">Date et heure de collecte *<input required type="datetime-local" value={form.dateCollecte} onChange={(event) => setForm({ ...form, dateCollecte: event.target.value })} className="mt-1 min-h-11 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-on-surface" /></label>
+        <div className="grid grid-cols-[1fr_130px] gap-2">
+          <label className="font-label-md text-label-md font-semibold text-on-surface">Quantité collectée *<input required type="number" min="0.01" step="0.01" value={form.quantiteCollectee} onChange={(event) => setForm({ ...form, quantiteCollectee: event.target.value })} className="mt-1 min-h-11 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-on-surface" /></label>
+          <label className="font-label-md text-label-md font-semibold text-on-surface">Unité
+            <select disabled={Boolean(uniteQuantiteGlobale)} value={uniteQuantiteGlobale ?? form.uniteQuantite} onChange={(event) => setForm({ ...form, uniteQuantite: event.target.value })} className="mt-1 min-h-11 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-on-surface disabled:opacity-70">
+              {QUANTITE_UNITES.map((unite) => <option key={unite}>{unite}</option>)}
+            </select>
+          </label>
         </div>
       </div>
-
-      {error && (
-        <div className="rounded-xl bg-error-container p-gutter-sm text-on-error-container">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-6 rounded-xl border border-surface-container-high bg-surface-container-lowest p-gutter-md">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <label className="block font-label-md text-label-md font-semibold text-on-surface">
-              Client *
-            </label>
-            <select
-              required
-              value={form.clientId}
-              onChange={(e) => handleClientChange(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-body-md text-on-surface outline-none"
-            >
-              <option value="">Sélectionner un client</option>
-              {clients.map((c) => (
-                <option key={c._id} value={c._id}>
-                  {c.nom}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block font-label-md text-label-md font-semibold text-on-surface">
-              Site d&apos;intervention *
-            </label>
-            <select
-              required
-              disabled={!form.clientId}
-              value={form.siteId}
-              onChange={(e) => setForm({ ...form, siteId: e.target.value })}
-              className="mt-1 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-body-md text-on-surface outline-none disabled:opacity-50"
-            >
-              <option value="">Sélectionner un site</option>
-              {sites.map((s) => (
-                <option key={s._id} value={s._id}>
-                  {s.nom}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label className="block font-label-md text-label-md font-semibold text-on-surface">
-            Nature de l&apos;intervention *
-          </label>
-          <input
-            type="text"
-            required
-            placeholder="Ex: Collecte d'huiles usagées, Vidange cuve..."
-            value={form.natureIntervention}
-            onChange={(e) => setForm({ ...form, natureIntervention: e.target.value })}
-            className="mt-1 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-body-md text-on-surface outline-none"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <label className="block font-label-md text-label-md font-semibold text-on-surface">
-              Date & heure prévues *
-            </label>
-            <input
-              type="datetime-local"
-              required
-              value={form.dateHeurePrevue}
-              onChange={(e) => setForm({ ...form, dateHeurePrevue: e.target.value })}
-              className="mt-1 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-body-md text-on-surface outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block font-label-md text-label-md font-semibold text-on-surface">
-              Durée estimée (minutes)
-            </label>
-            <input
-              type="number"
-              min="15"
-              step="15"
-              value={form.dureeEstimeeMinutes}
-              onChange={(e) => setForm({ ...form, dureeEstimeeMinutes: e.target.value })}
-              className="mt-1 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-body-md text-on-surface outline-none"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <label className="block font-label-md text-label-md font-semibold text-on-surface">
-              Équipe affectée
-            </label>
-            <select
-              value={form.equipeId}
-              onChange={(e) => setForm({ ...form, equipeId: e.target.value })}
-              className="mt-1 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-body-md text-on-surface outline-none"
-            >
-              <option value="">Aucune (Non affectée)</option>
-              {equipes.map((eq) => (
-                <option key={eq._id} value={eq._id}>
-                  {eq.nom}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block font-label-md text-label-md font-semibold text-on-surface">
-              Véhicule affecté
-            </label>
-            <select
-              value={form.vehiculeId}
-              onChange={(e) => setForm({ ...form, vehiculeId: e.target.value })}
-              className="mt-1 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-body-md text-on-surface outline-none"
-            >
-              <option value="">Aucun (Non affecté)</option>
-              {vehicules.map((v) => (
-                <option key={v._id} value={v._id}>
-                  {v.identification}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {equipements.length > 0 && (
-          <div>
-            <label className="block font-label-md text-label-md font-semibold text-on-surface">
-              Équipements requis
-            </label>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {equipements.map((eq) => {
-                const selected = form.equipementIds.includes(eq._id);
-                return (
-                  <button
-                    type="button"
-                    key={eq._id}
-                    onClick={() => toggleEquipement(eq._id)}
-                    className={`rounded-xl border px-3 py-1.5 font-label-md text-label-md transition-all ${
-                      selected
-                        ? "border-primary bg-primary-container font-bold text-on-primary"
-                        : "border-outline-variant bg-surface text-on-surface-variant hover:bg-surface-container-high"
-                    }`}
-                  >
-                    {eq.nom}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        <div>
-          <label className="block font-label-md text-label-md font-semibold text-on-surface">
-            Informations particulières / Consignes
-          </label>
-          <textarea
-            rows={3}
-            placeholder="Code d'accès, précautions particulières..."
-            value={form.informationsParticulieres}
-            onChange={(e) => setForm({ ...form, informationsParticulieres: e.target.value })}
-            className="mt-1 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-body-md text-on-surface outline-none"
-          />
-        </div>
-
-        <div className="flex justify-end gap-3 pt-4">
-          <Link
-            href="/operations"
-            className="rounded-xl border border-outline-variant px-4 py-2.5 font-label-md text-label-md font-semibold text-on-surface hover:bg-surface-container-high"
-          >
-            Annuler
-          </Link>
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-xl bg-primary px-5 py-2.5 font-label-md text-label-md font-semibold text-on-primary shadow-sm hover:bg-primary/90 disabled:opacity-50"
-          >
-            {loading ? "Création..." : "Créer l'opération"}
-          </button>
-        </div>
-      </form>
-    </div>
-  );
+      {uniteQuantiteGlobale && <p className="font-body-sm text-on-surface-variant">L’unité est imposée par les paramètres de l’entreprise.</p>}
+      <label className="block font-label-md text-label-md font-semibold text-on-surface">Nature de la collecte<input required value={form.natureIntervention} onChange={(event) => setForm({ ...form, natureIntervention: event.target.value })} className="mt-1 min-h-11 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-on-surface" /></label>
+      <label className="block font-label-md text-label-md font-semibold text-on-surface">Remarques<textarea rows={3} value={form.remarquesTerrain} onChange={(event) => setForm({ ...form, remarquesTerrain: event.target.value })} className="mt-1 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-on-surface" /></label>
+      <div className="flex justify-end gap-3"><Link href="/operations" className="inline-flex min-h-11 items-center rounded-xl border border-outline-variant px-4 py-2.5 font-label-md font-semibold text-on-surface">Annuler</Link><button type="submit" disabled={loading || chargementReferentiels} className="min-h-11 rounded-xl bg-primary px-5 py-2.5 font-label-md font-semibold text-on-primary disabled:opacity-50">{loading ? "Enregistrement…" : chargementReferentiels ? "Chargement…" : "Enregistrer la collecte"}</button></div>
+    </form>
+  </div>;
 }

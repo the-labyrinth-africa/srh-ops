@@ -187,10 +187,10 @@ export function ImportPageClient() {
           <span className="font-bold text-on-surface">Import Excel</span>
         </nav>
         <h1 className="break-words font-headline-lg-mobile text-headline-lg-mobile text-on-surface lg:font-headline-lg lg:text-headline-lg">
-          Import des interventions sur site
+          Import de l&apos;historique des collectes
         </h1>
         <p className="mt-2 max-w-2xl font-body-md text-body-md leading-6 text-on-surface-variant">
-          Importez un fichier Excel (SITES, DATES, QTES) pour alimenter la base d&apos;interventions.
+          Importez les collectes réellement réalisées. Les lignes valides seront enregistrées et utilisées pour calculer les prochaines prévisions.
         </p>
       </div>
 

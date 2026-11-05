@@ -6,8 +6,8 @@ vi.mock("next-auth", () => ({
   getServerSession: vi.fn(),
 }));
 
-import { POST as createOperation } from "@/app/api/operations/route";
 import { PATCH as updateStatus } from "@/app/api/operations/[id]/statut/route";
+import { Operation } from "@/backend/operations/infrastructure/mongoose/operation.model";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
 
@@ -35,21 +35,20 @@ describe("Status Transition Workflow Integration Tests", () => {
     siteId = site._id.toString();
   });
 
-  it("should advance status step-by-step and append to historiqueStatuts", async () => {
-    // 1. Create operation (Initial status: Planifiée)
-    const reqCreate = new NextRequest("http://localhost:3000/api/operations", {
-      method: "POST",
-      body: JSON.stringify({
-        clientId,
-        siteId,
-        natureIntervention: "Workflow Collecte",
-        dateHeurePrevue: "2026-12-01T08:00:00Z",
-      }),
+  async function creerOperationExistante(natureIntervention: string): Promise<string> {
+    const operation = await Operation.create({
+      clientId,
+      siteId,
+      natureIntervention,
+      dateHeurePrevue: new Date("2026-12-01T08:00:00Z"),
+      statut: "Planifiée",
+      historiqueStatuts: [{ statut: "Planifiée", date: new Date("2026-11-30T08:00:00Z"), parUtilisateur: userId }],
     });
-    const resCreate = await createOperation(reqCreate);
-    const op = await resCreate.json();
-    const opId = op._id;
-    expect(op.statut).toBe("Planifiée");
+    return String(operation._id);
+  }
+
+  it("should advance status step-by-step and append to historiqueStatuts", async () => {
+    const opId = await creerOperationExistante("Workflow Collecte");
 
     // 2. Transition Planifiée -> Affectée
     const req1 = new NextRequest(`http://localhost:3000/api/operations/${opId}/statut`, {
@@ -102,25 +101,14 @@ describe("Status Transition Workflow Integration Tests", () => {
   });
 
   it("should reject illegal status transitions with HTTP 400", async () => {
-    // Create operation in Planifiée state
-    const reqCreate = new NextRequest("http://localhost:3000/api/operations", {
-      method: "POST",
-      body: JSON.stringify({
-        clientId,
-        siteId,
-        natureIntervention: "Illegal Transition Test",
-        dateHeurePrevue: "2026-12-01T08:00:00Z",
-      }),
-    });
-    const resCreate = await createOperation(reqCreate);
-    const op = await resCreate.json();
+    const opId = await creerOperationExistante("Illegal Transition Test");
 
     // Attempt illegal jump: Planifiée -> Terminée
-    const reqIllegal = new NextRequest(`http://localhost:3000/api/operations/${op._id}/statut`, {
+    const reqIllegal = new NextRequest(`http://localhost:3000/api/operations/${opId}/statut`, {
       method: "PATCH",
       body: JSON.stringify({ statut: "Terminée" }),
     });
-    const resIllegal = await updateStatus(reqIllegal, { params: Promise.resolve({ id: op._id }) });
+    const resIllegal = await updateStatus(reqIllegal, { params: Promise.resolve({ id: opId }) });
     expect(resIllegal.status).toBe(400);
 
     const body = await resIllegal.json();

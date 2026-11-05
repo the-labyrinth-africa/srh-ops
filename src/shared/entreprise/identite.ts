@@ -7,6 +7,8 @@ export interface IdentiteEntreprise {
   logoDataUrl: string | null;
   /** Unité imposée pour les nouvelles saisies de collecte et de traçabilité, ou null si libre. */
   uniteQuantiteGlobale?: QuantiteUnite | null;
+  /** Objectif mensuel de collecte par station, exprimé en litres. */
+  objectifLitresParStation?: number;
 }
 
 export const IDENTITE_ENTREPRISE_PAR_DEFAUT: IdentiteEntreprise = {
@@ -15,4 +17,5 @@ export const IDENTITE_ENTREPRISE_PAR_DEFAUT: IdentiteEntreprise = {
   siteWeb: "",
   logoDataUrl: null,
   uniteQuantiteGlobale: null,
+  objectifLitresParStation: 2000,
 };

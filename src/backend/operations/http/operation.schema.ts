@@ -30,6 +30,8 @@ export const operationSchema = z.object({
 
 export const statusUpdateSchema = z.object({
   statut: z.enum(OPERATION_STATUSES),
+  dateHeureArrivee: z.string().datetime({ offset: true }).transform((value) => new Date(value)).optional(),
+  dateHeureDepart: z.string().datetime({ offset: true }).transform((value) => new Date(value)).optional(),
   quantiteCollectee: z.coerce.number().positive("Quantité collectée invalide").optional(),
   uniteQuantite: z.enum(QUANTITE_UNITES).optional(),
   remarquesTerrain: z.string().optional(),
@@ -43,6 +45,14 @@ export const statusUpdateSchema = z.object({
       })
     )
     .optional(),
+}).superRefine((entry, context) => {
+  if (entry.dateHeureArrivee && entry.dateHeureDepart && entry.dateHeureDepart < entry.dateHeureArrivee) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["dateHeureDepart"],
+      message: "L'heure de départ doit être postérieure ou égale à l'heure d'arrivée.",
+    });
+  }
 });
 
 export const rapportEmailSchema = z

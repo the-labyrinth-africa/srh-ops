@@ -3,6 +3,8 @@ import type { QuantiteUnite } from "@/shared/operations/quantites";
 
 /** Données saisies sur le terrain ; une clé absente laisse la valeur stockée intacte. */
 export interface DonneesTerrain {
+  dateHeureArrivee?: Date;
+  dateHeureDepart?: Date;
   quantiteCollectee?: number;
   uniteQuantite?: QuantiteUnite;
   remarquesTerrain?: string;
@@ -26,6 +28,8 @@ export interface ChangementStatut extends DemandeChangementStatut {
 /** Ce qu'il faut savoir d'une opération pour autoriser une écriture de terrain. */
 export interface EtatTerrain {
   statut: OperationStatus;
+  dateHeureArrivee?: Date;
+  dateHeureDepart?: Date;
   quantiteCollectee?: number;
   uniteQuantite?: QuantiteUnite;
   /** Absent : jamais affectée. */

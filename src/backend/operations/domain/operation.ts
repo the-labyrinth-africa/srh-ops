@@ -70,6 +70,8 @@ export interface Operation {
   informationsParticulieres: string;
   statut: OperationStatus;
   historiqueStatuts: EntreeHistorique[];
+  dateHeureArrivee?: Date;
+  dateHeureDepart?: Date;
   quantiteCollectee?: number;
   uniteQuantite: QuantiteUnite;
   remarquesTerrain: string;
@@ -120,6 +122,8 @@ export interface FiltreOperations {
   equipeId?: string;
   vehiculeId?: string;
   statut?: string;
+  /** Ne retenir que les opérations rapportées ou terminées avec une quantité collectée. */
+  collectesRealisees?: boolean;
   /** Borne basse incluse. */
   dateDebut?: Date;
   /** Borne haute incluse. */

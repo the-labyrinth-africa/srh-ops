@@ -9,6 +9,7 @@ export {
   enregistrerOperationRealisee,
   verifierAccesOperation,
   listerOperationsPourActeur,
+  listerHistoriqueCollectes,
 } from "./composition";
 export type { Acteur } from "@/shared/acces/acteur";
 export type { ConflictResult, DemandeAffectation } from "./domain/conflits";

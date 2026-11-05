@@ -14,6 +14,7 @@ interface IdentiteDocument {
   logoMimeType?: "image/png";
   logoBase64?: string;
   uniteQuantiteGlobale?: QuantiteUnite | null;
+  objectifLitresParStation?: number;
 }
 
 function versIdentite(document: IdentiteDocument): IdentiteEntreprise {
@@ -26,6 +27,7 @@ function versIdentite(document: IdentiteDocument): IdentiteEntreprise {
         ? `data:image/png;base64,${document.logoBase64}`
         : null,
     uniteQuantiteGlobale: document.uniteQuantiteGlobale ?? null,
+    objectifLitresParStation: document.objectifLitresParStation ?? 2000,
   };
 }
 
@@ -33,7 +35,7 @@ export class IdentiteEntrepriseRepositoryMongoose implements IdentiteEntrepriseR
   async obtenir(): Promise<IdentiteEntreprise> {
     await connectDB();
     const document = (await IdentiteEntrepriseModel.findOne({ cle: "principale" })
-      .select("-_id nomEntreprise sigle siteWeb logoMimeType logoBase64 uniteQuantiteGlobale")
+      .select("-_id nomEntreprise sigle siteWeb logoMimeType logoBase64 uniteQuantiteGlobale objectifLitresParStation")
       .lean()) as IdentiteDocument | null;
     return document ? versIdentite(document) : IDENTITE_ENTREPRISE_PAR_DEFAUT;
   }
@@ -55,6 +57,7 @@ export class IdentiteEntrepriseRepositoryMongoose implements IdentiteEntrepriseR
         sigle: identite.sigle,
         siteWeb: identite.siteWeb,
         uniteQuantiteGlobale: identite.uniteQuantiteGlobale,
+        ...(identite.objectifLitresParStation !== undefined ? { objectifLitresParStation: identite.objectifLitresParStation } : {}),
         ...(logoBase64 ? { logoMimeType: "image/png", logoBase64 } : {}),
       },
       ...(logoBase64 ? {} : { $unset: { logoMimeType: 1, logoBase64: 1 } }),
@@ -65,7 +68,7 @@ export class IdentiteEntrepriseRepositoryMongoose implements IdentiteEntrepriseR
       update,
       { new: true, upsert: true, runValidators: true }
     )
-      .select("-_id nomEntreprise sigle siteWeb logoMimeType logoBase64 uniteQuantiteGlobale")
+      .select("-_id nomEntreprise sigle siteWeb logoMimeType logoBase64 uniteQuantiteGlobale objectifLitresParStation")
       .lean()) as IdentiteDocument | null;
 
     if (!document) {

@@ -26,6 +26,8 @@ export interface OperationRepository {
   lister(filtre: FiltreOperations, pagination: Pagination): Promise<{ items: Operation[]; total: number }>;
   /** Niveau « résumé », sans tri. */
   listerPourPlanning(filtre: FiltreOperations): Promise<Operation[]>;
+  /** Collectes réellement rapportées avec leur site, pour alimenter les prévisions. */
+  listerHistoriqueCollectes(): Promise<Operation[]>;
   /** Niveau « détail » (toutes les relations peuplées) ; null si l'opération n'existe pas. */
   trouverDetailParId(id: string): Promise<Operation | null>;
   /** Le `statut` de la saisie est remplacé par `initial.statut` ; niveau « résumé ». */

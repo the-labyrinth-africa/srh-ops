@@ -21,6 +21,8 @@ import { IdentiteEntrepriseModel } from "@/backend/identite-entreprise/infrastru
 /** Document relu directement en base (le modèle n'est pas typé à la lecture). */
 interface DocumentLu {
   statut: string;
+  dateHeureArrivee?: Date;
+  dateHeureDepart?: Date;
   remarquesTerrain: string;
   __v: number;
   photos: { url: string; nom: string }[];
@@ -112,6 +114,55 @@ describe("Caractérisation — statut, données de terrain et photos (formes exa
 
       expect(response.status).toBe(200);
       expect(await response.json()).toMatchObject({ quantiteCollectee: 8, uniteQuantite: "M3" });
+    });
+
+    it("enregistre l'arrivée et le départ de station, avec correction possible des heures", async () => {
+      const id = await creer({ statut: "En route" });
+      const arrivee = "2030-11-01T10:15:00.000Z";
+      const arriveeCorrigee = "2030-11-01T10:20:00.000Z";
+      const depart = "2030-11-01T10:50:00.000Z";
+
+      const responseArrivee = await patch(id, { statut: "En cours", dateHeureArrivee: arrivee });
+      expect(responseArrivee.status).toBe(200);
+      expect(await responseArrivee.json()).toMatchObject({ dateHeureArrivee: arrivee });
+
+      const responseDepart = await patch(id, {
+        statut: "Terminée",
+        dateHeureArrivee: arriveeCorrigee,
+        dateHeureDepart: depart,
+        quantiteCollectee: 750,
+      });
+
+      expect(responseDepart.status).toBe(200);
+      expect(await responseDepart.json()).toMatchObject({
+        dateHeureArrivee: arriveeCorrigee,
+        dateHeureDepart: depart,
+        quantiteCollectee: 750,
+      });
+      const enBase = await lireEnBase(id);
+      expect(enBase.dateHeureArrivee?.toISOString()).toBe(arriveeCorrigee);
+      expect(enBase.dateHeureDepart?.toISOString()).toBe(depart);
+    });
+
+    it("refuse un départ antérieur à l'arrivée déjà enregistrée", async () => {
+      const id = await creer({
+        statut: "En cours",
+        dateHeureArrivee: new Date("2030-11-01T10:30:00.000Z"),
+      });
+
+      const response = await patch(id, {
+        statut: "Terminée",
+        dateHeureDepart: "2030-11-01T10:20:00.000Z",
+        quantiteCollectee: 750,
+      });
+
+      expect(response.status).toBe(400);
+      expect(await response.json()).toEqual({
+        error: "L'heure de départ doit être postérieure ou égale à l'heure d'arrivée.",
+      });
+      const enBase = await lireEnBase(id);
+      expect(enBase.statut).toBe("En cours");
+      expect(enBase.dateHeureDepart).toBeUndefined();
     });
 
     it("corps exact : relations peuplées (site avec adresse, équipements avec nom), historique complété", async () => {

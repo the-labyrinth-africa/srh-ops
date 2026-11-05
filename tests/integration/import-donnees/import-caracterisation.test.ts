@@ -177,7 +177,6 @@ describe("Caractérisation — import Excel (formes exactes)", () => {
       });
 
       const prevue = aHuitHeures(J19);
-      const decale = (minutes: number) => new Date(prevue.getTime() + minutes * 60_000).toISOString();
       const operation = JSON.parse(JSON.stringify(await Operation.findOne({ siteId: sites[1]._id }).lean()));
       expect(operation).toEqual({
         _id: ID,
@@ -189,14 +188,7 @@ describe("Caractérisation — import Excel (formes exactes)", () => {
         equipementIds: [],
         informationsParticulieres: "",
         statut: "Rapportée",
-        historiqueStatuts: [
-          { statut: "Planifiée", date: decale(-24 * 60) },
-          { statut: "Affectée", date: decale(0) },
-          { statut: "En route", date: decale(30) },
-          { statut: "En cours", date: decale(60) },
-          { statut: "Terminée", date: decale(120) },
-          { statut: "Rapportée", date: decale(180) },
-        ],
+        historiqueStatuts: [{ statut: "Rapportée", date: prevue.toISOString() }],
         quantiteCollectee: 900,
         uniteQuantite: "Litres",
         remarquesTerrain: "Intervention importée depuis un fichier Excel",

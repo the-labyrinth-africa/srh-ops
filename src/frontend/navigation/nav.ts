@@ -47,16 +47,10 @@ const NAV_SECTIONS: NavSection[] = [
       },
       {
         href: "/operations",
-        label: "Interventions",
+        label: "Historique des collectes",
         icon: "local_shipping",
         match: (p) =>
           p.startsWith("/operations") && !p.startsWith("/operations/planning"),
-      },
-      {
-        href: "/recurrences",
-        label: "Collectes Récurrentes",
-        icon: "update",
-        match: (p) => p.startsWith("/recurrences"),
       },
       {
         href: "/previsions",

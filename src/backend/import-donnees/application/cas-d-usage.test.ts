@@ -118,13 +118,13 @@ describe("cas d'usage de l'import", () => {
           dureeEstimeeMinutes: 120,
           informationsParticulieres: "",
           statut: "Rapportée",
-          historiqueStatuts: expect.arrayContaining([{ statut: "Rapportée", date: new Date(prevue.getTime() + 180 * 60_000) }]),
+          historiqueStatuts: [{ statut: "Rapportée", date: prevue }],
           quantiteCollectee: 200,
           uniteQuantite: "Litres",
           remarquesTerrain: "Intervention importée depuis un fichier Excel",
         },
       ]);
-      expect(collectes[0].historiqueStatuts).toHaveLength(6);
+      expect(collectes[0].historiqueStatuts).toHaveLength(1);
     });
 
     it("site existant du client : réutilisé, aucune création de site", async () => {

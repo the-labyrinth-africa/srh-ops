@@ -1,6 +1,6 @@
 # WOM — Waste Operations Manager
 
-Plateforme de planification et de suivi des opérations de collecte.
+Plateforme de suivi des collectes réalisées et de prévision des tournées.
 
 ## Stack
 
@@ -10,15 +10,27 @@ Plateforme de planification et de suivi des opérations de collecte.
 - Tailwind CSS v4 (design system Industrial Integrity)
 - FullCalendar (planning)
 
-## Prévisions des collectes
+## Collectes et prévisions
+
+Les collectes réalisées sont enregistrées depuis le formulaire de l'application ou importées depuis
+un classeur `.xlsx`. Elles alimentent l'historique et servent de source aux prévisions ; les lignes
+importées sont persistées et les doublons détectés sont ignorés. Le planning `/operations/planning`
+affiche des tournées prévisionnelles, pas des opérations saisies à l'avance. La création manuelle
+d'opérations planifiées et la génération automatique des anciennes récurrences sont désactivées.
 
 La page `/previsions` regroupe les 40 stations du référentiel `STATIONS SHELL 2026.xlsx` en tournées
-par secteurs et équilibre la charge avec les médianes de volumes observées. Chaque date de tournée
-contient au moins cinq stations ; un second passage est proposé lorsque l’historique le justifie.
-Le référentiel et les collectes positives de juin à octobre 2026 sont conservés dans
-`src/backend/previsions/` (les historiques contiennent station, date et quantité). Un Admin ou
-Dispatcher peut charger un ou plusieurs classeurs `.xlsx` pour recalculer le mois ; ils sont traités
-en mémoire et ne sont pas enregistrés. Les propositions ne créent pas automatiquement d’opérations.
+par secteurs, à partir de l'historique des collectes enregistrées et des véhicules/équipements
+disponibles. L'objectif initial est de 2 000 L par station et par mois, soit 80 000 L au total ; un
+Admin ou Dispatcher peut le configurer dans la page Prévisions. Les propositions ne créent pas
+automatiquement d'opérations. Seules les collectes rapportées ou terminées en litres alimentent les
+volumes historiques estimés.
+
+Depuis la console terrain, le chauffeur confirme l'arrivée puis la fin de collecte à chaque station ;
+les heures sont horodatées lors de la confirmation et peuvent être corrigées. Les durées prévisionnelles
+s'appuient sur la médiane des temps réellement passés sur site (2 h par défaut sans historique). Les
+tournées comptent au moins cinq stations distinctes chacune et respectent la capacité du véhicule.
+Lorsque plusieurs capacités sont disponibles, le modèle répartit aussi des passages sur le plus petit
+véhicule, puis ajuste les volumes et passages du plus grand camion pour atteindre l'objectif mensuel.
 
 ## Architecture
 

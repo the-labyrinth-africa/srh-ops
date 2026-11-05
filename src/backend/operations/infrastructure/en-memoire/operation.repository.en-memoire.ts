@@ -33,6 +33,8 @@ export class OperationRepositoryEnMemoire implements OperationRepository {
         (!filtre.equipeId || idDeReference(op.equipeId) === filtre.equipeId) &&
         (!filtre.vehiculeId || idDeReference(op.vehiculeId) === filtre.vehiculeId) &&
         (!filtre.statut || op.statut === filtre.statut) &&
+        (!filtre.collectesRealisees ||
+          ((op.statut === "Terminée" || op.statut === "Rapportée") && (op.quantiteCollectee ?? 0) > 0)) &&
         (!filtre.dateDebut || op.dateHeurePrevue >= filtre.dateDebut) &&
         (!filtre.dateFin || op.dateHeurePrevue <= filtre.dateFin)
     );
@@ -47,6 +49,12 @@ export class OperationRepositoryEnMemoire implements OperationRepository {
   async listerPourPlanning(filtre: FiltreOperations): Promise<Operation[]> {
     this.filtresRecus.push(filtre);
     return this.filtrer(filtre);
+  }
+
+  async listerHistoriqueCollectes(): Promise<Operation[]> {
+    return [...this.donnees.values()].filter((operation) =>
+      (operation.statut === "Rapportée" || operation.statut === "Terminée") && (operation.quantiteCollectee ?? 0) > 0
+    );
   }
 
   async trouverDetailParId(id: string): Promise<Operation | null> {
@@ -143,6 +151,8 @@ export class OperationRepositoryEnMemoire implements OperationRepository {
       uniteQuantite: operation.uniteQuantite,
       photos: operation.photos.map(({ url }) => ({ url })),
     };
+    if (operation.dateHeureArrivee !== undefined) etat.dateHeureArrivee = operation.dateHeureArrivee;
+    if (operation.dateHeureDepart !== undefined) etat.dateHeureDepart = operation.dateHeureDepart;
     if (operation.quantiteCollectee !== undefined) etat.quantiteCollectee = operation.quantiteCollectee;
     const equipeId = idDeReference(operation.equipeId);
     if (equipeId !== undefined) etat.equipeId = equipeId;
@@ -165,6 +175,17 @@ export class OperationRepositoryEnMemoire implements OperationRepository {
         },
       ],
     };
+    if (changement.statut === "En cours") {
+      modifiee.dateHeureArrivee = changement.dateHeureArrivee ?? changement.date;
+    } else if (changement.dateHeureArrivee !== undefined) {
+      modifiee.dateHeureArrivee = changement.dateHeureArrivee;
+    }
+    if (changement.statut === "Terminée") {
+      modifiee.dateHeureArrivee ??= changement.dateHeureArrivee ?? changement.date;
+      modifiee.dateHeureDepart = changement.dateHeureDepart ?? changement.date;
+    } else if (changement.dateHeureDepart !== undefined) {
+      modifiee.dateHeureDepart = changement.dateHeureDepart;
+    }
     if (changement.quantiteCollectee !== undefined) modifiee.quantiteCollectee = changement.quantiteCollectee;
     if (changement.uniteQuantite) modifiee.uniteQuantite = changement.uniteQuantite;
     if (changement.remarquesTerrain !== undefined) modifiee.remarquesTerrain = changement.remarquesTerrain;

@@ -9,6 +9,7 @@ import {
 } from "../domain/changement-statut";
 import {
   ChauffeurSansEquipe,
+  HeuresCollecteIncoherentes,
   OperationHorsEquipe,
   OperationIntrouvable,
   TransitionInterdite,
@@ -52,6 +53,16 @@ export function creerCasDUsageTerrain({
       const etat = await etatAccessible(acteur, id);
 
       if (!canTransition(etat.statut, demande.statut)) throw new TransitionInterdite(etat.statut, demande.statut);
+      const date = horloge.maintenant();
+      const dateHeureArrivee = demande.dateHeureArrivee
+        ?? etat.dateHeureArrivee
+        ?? (demande.statut === "En cours" || demande.statut === "Terminée" ? date : undefined);
+      const dateHeureDepart = demande.dateHeureDepart
+        ?? etat.dateHeureDepart
+        ?? (demande.statut === "Terminée" ? date : undefined);
+      if (dateHeureArrivee && dateHeureDepart && dateHeureDepart < dateHeureArrivee) {
+        throw new HeuresCollecteIncoherentes();
+      }
       if (terminaisonSansEnCours(etat.statut, demande.statut)) {
         alerteCoherence(messageAlerteCoherence(id, etat.statut));
       }
@@ -69,7 +80,7 @@ export function creerCasDUsageTerrain({
       const operation = await operations.changerStatut(id, {
         ...demandeEffective,
         ancienStatut: etat.statut,
-        date: horloge.maintenant(),
+        date,
         parUtilisateur: acteur.id,
       });
       if (!operation) throw new OperationIntrouvable();

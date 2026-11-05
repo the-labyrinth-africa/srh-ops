@@ -1,22 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireInternalAuth } from "@/backend/comptes";
-import { genererOccurrences } from "../composition";
-import { horizonEnJours } from "../domain/occurrences";
 
-export async function POST(req: NextRequest) {
+export async function POST(_req: NextRequest) {
   const auth = await requireInternalAuth(true);
   if (auth.error) return auth.error;
-
-  // Corps absent ou illisible, horizon absent ou non numérique : horizon par défaut.
-  const body = await req.json().catch(() => ({}));
-  const horizonDays = horizonEnJours(body.horizonDays);
-
-  const { generatedCount, conflits } = await genererOccurrences(auth.user.id, horizonDays);
-
-  return NextResponse.json({
-    message: `${generatedCount} opération(s) récurrente(s) générée(s) avec succès.`,
-    generatedCount,
-    horizonDays,
-    conflits,
-  });
+  return NextResponse.json({ error: "La création automatique d'opérations récurrentes est désactivée. Les tournées sont désormais calculées depuis l'historique des collectes." }, { status: 410 });
 }

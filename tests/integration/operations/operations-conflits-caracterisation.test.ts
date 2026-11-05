@@ -10,45 +10,52 @@ import { POST as createOperation } from "@/app/api/operations/route";
 import { PUT as updateOperation } from "@/app/api/operations/[id]/route";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
+import { Operation } from "@/backend/operations/infrastructure/mongoose/operation.model";
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { Vehicule } from "@/backend/vehicules/infrastructure/mongoose/vehicule.model";
 
 const MESSAGE_EQUIPE = "L'équipe est déjà affectée à une opération sur ce créneau";
 const MESSAGE_VEHICULE = "Le véhicule est déjà affecté à une opération sur ce créneau";
 
-describe("Caractérisation — conflits d'affectation (corps exact du 409)", () => {
+describe("Opérations — planification manuelle et conflits", () => {
   let clientId: string;
   let siteId: string;
   let equipeId: string;
   let vehiculeId: string;
 
-  const corps = (surcharge: Record<string, unknown> = {}) => ({
+  const corps = (dateHeurePrevue: string) => ({
     clientId,
     siteId,
     natureIntervention: "Collecte",
-    dateHeurePrevue: "2026-11-01T10:00:00Z",
+    dateHeurePrevue,
     dureeEstimeeMinutes: 120,
     equipeId,
     vehiculeId,
-    ...surcharge,
   });
 
-  const creer = (surcharge: Record<string, unknown> = {}) =>
-    createOperation(
-      new NextRequest("http://localhost:3000/api/operations", {
-        method: "POST",
-        body: JSON.stringify(corps(surcharge)),
-      })
-    );
-
-  const modifier = (id: string, surcharge: Record<string, unknown> = {}) =>
+  const modifier = (id: string, dateHeurePrevue: string) =>
     updateOperation(
       new NextRequest(`http://localhost:3000/api/operations/${id}`, {
         method: "PUT",
-        body: JSON.stringify(corps(surcharge)),
+        body: JSON.stringify(corps(dateHeurePrevue)),
       }),
       { params: Promise.resolve({ id }) }
     );
+
+  const creerOperationHistorique = (dateHeurePrevue: string) =>
+    Operation.create({
+      clientId,
+      siteId,
+      natureIntervention: "Collecte",
+      dateHeurePrevue: new Date(dateHeurePrevue),
+      dureeEstimeeMinutes: 120,
+      equipeId,
+      vehiculeId,
+      equipementIds: [],
+      informationsParticulieres: "",
+      statut: "Affectée",
+      historiqueStatuts: [],
+    });
 
   beforeEach(async () => {
     vi.resetAllMocks();
@@ -66,59 +73,46 @@ describe("Caractérisation — conflits d'affectation (corps exact du 409)", () 
     vehiculeId = String(vehicule._id);
   });
 
-  it("POST : équipe et véhicule occupés → 409, deux entrées, équipe avant véhicule", async () => {
-    const premiere = await (await creer()).json();
+  it("refuse la création d'une opération planifiée", async () => {
+    const response = await createOperation(
+      new NextRequest("http://localhost:3000/api/operations", {
+        method: "POST",
+        body: JSON.stringify(corps("2026-11-01T10:00:00Z")),
+      })
+    );
 
-    const res = await creer({ dateHeurePrevue: "2026-11-01T11:00:00Z" });
+    expect(response.status).toBe(410);
+    expect(await response.json()).toEqual({
+      error: "La planification manuelle est désactivée. Enregistrez une collecte réalisée ou importez son fichier Excel.",
+    });
+  });
 
-    expect(res.status).toBe(409);
-    expect(await res.json()).toEqual({
+  it("exclut l'opération modifiée de sa propre détection de conflit", async () => {
+    const operation = await creerOperationHistorique("2026-11-01T10:00:00Z");
+    const response = await modifier(String(operation._id), "2026-11-01T10:30:00Z");
+
+    expect(response.status).toBe(200);
+  });
+
+  it("empêche de déplacer une opération sur un créneau occupé", async () => {
+    const premiere = await creerOperationHistorique("2026-11-01T10:00:00Z");
+    const seconde = await creerOperationHistorique("2026-11-01T14:00:00Z");
+    const response = await modifier(String(seconde._id), "2026-11-01T11:00:00Z");
+
+    expect(response.status).toBe(409);
+    expect(await response.json()).toEqual({
       error: "Conflit d'affectation",
       conflicts: [
-        { hasConflict: true, message: MESSAGE_EQUIPE, conflictingOperationId: premiere._id },
-        { hasConflict: true, message: MESSAGE_VEHICULE, conflictingOperationId: premiere._id },
+        { hasConflict: true, message: MESSAGE_EQUIPE, conflictingOperationId: String(premiere._id) },
+        { hasConflict: true, message: MESSAGE_VEHICULE, conflictingOperationId: String(premiere._id) },
       ],
     });
   });
 
-  it("POST : seul le véhicule est occupé → 409, une seule entrée véhicule", async () => {
-    const premiere = await (await creer()).json();
-    const autreEquipe = await Equipe.create({ nom: "Autre équipe" });
+  it("autorise deux opérations lorsque le créneau est bord à bord", async () => {
+    const seconde = await creerOperationHistorique("2026-11-01T14:00:00Z");
+    const response = await modifier(String(seconde._id), "2026-11-01T12:00:00Z");
 
-    const res = await creer({ dateHeurePrevue: "2026-11-01T11:00:00Z", equipeId: String(autreEquipe._id) });
-
-    expect(res.status).toBe(409);
-    expect(await res.json()).toEqual({
-      error: "Conflit d'affectation",
-      conflicts: [{ hasConflict: true, message: MESSAGE_VEHICULE, conflictingOperationId: premiere._id }],
-    });
-  });
-
-  it("POST : créneau bord à bord (début = fin de l'existante) → 201", async () => {
-    await creer();
-    const res = await creer({ dateHeurePrevue: "2026-11-01T12:00:00Z" });
-    expect(res.status).toBe(201);
-  });
-
-  it("PUT : une opération ne se bloque pas elle-même → 200", async () => {
-    const premiere = await (await creer()).json();
-    const res = await modifier(premiere._id, { dateHeurePrevue: "2026-11-01T10:30:00Z" });
-    expect(res.status).toBe(200);
-  });
-
-  it("PUT : déplacer une opération sur le créneau d'une autre → 409, corps exact", async () => {
-    const premiere = await (await creer()).json();
-    const seconde = await (await creer({ dateHeurePrevue: "2026-11-01T14:00:00Z" })).json();
-
-    const res = await modifier(seconde._id, { dateHeurePrevue: "2026-11-01T11:00:00Z" });
-
-    expect(res.status).toBe(409);
-    expect(await res.json()).toEqual({
-      error: "Conflit d'affectation",
-      conflicts: [
-        { hasConflict: true, message: MESSAGE_EQUIPE, conflictingOperationId: premiere._id },
-        { hasConflict: true, message: MESSAGE_VEHICULE, conflictingOperationId: premiere._id },
-      ],
-    });
+    expect(response.status).toBe(200);
   });
 });

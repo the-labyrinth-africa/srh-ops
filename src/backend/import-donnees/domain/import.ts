@@ -18,16 +18,9 @@ export function dateHeurePrevueImportee(date: Date): Date {
   return dateHeurePrevue;
 }
 
-/** Historique reconstitué d'une collecte passée (aucun auteur : personne ne l'a saisie dans l'application). */
+/** Statut rapporté de la collecte importée, daté du jour du bilan (aucune étape supposée). */
 export function historiqueImporte(dateHeurePrevue: Date): { statut: OperationStatus; date: Date }[] {
-  return [
-    { statut: "Planifiée", date: new Date(dateHeurePrevue.getTime() - 24 * 3600 * 1000) },
-    { statut: "Affectée", date: new Date(dateHeurePrevue.getTime()) },
-    { statut: "En route", date: new Date(dateHeurePrevue.getTime() + 30 * 60 * 1000) },
-    { statut: "En cours", date: new Date(dateHeurePrevue.getTime() + 60 * 60 * 1000) },
-    { statut: "Terminée", date: new Date(dateHeurePrevue.getTime() + 120 * 60 * 1000) },
-    { statut: "Rapportée", date: new Date(dateHeurePrevue.getTime() + 180 * 60 * 1000) },
-  ];
+  return [{ statut: "Rapportée", date: new Date(dateHeurePrevue) }];
 }
 
 export interface ResumeImport {

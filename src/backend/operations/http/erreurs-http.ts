@@ -15,6 +15,7 @@ import {
   UrlPhotoRequise,
   EmailClientManquant,
   EchecEnvoiRapportEmail,
+  HeuresCollecteIncoherentes,
 } from "../domain/erreurs";
 
 type ClasseErreur = abstract new (...args: never[]) => Error;
@@ -26,6 +27,7 @@ const CODES: [ClasseErreur, number][] = [
   [OperationHorsEquipe, 403],
   [OperationIntrouvable, 404],
   [TransitionInterdite, 400],
+  [HeuresCollecteIncoherentes, 400],
   [PhotoRequise, 400],
   [FormatPhotoInvalide, 400],
   [TropDePhotos, 400],

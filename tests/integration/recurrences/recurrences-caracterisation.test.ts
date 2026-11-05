@@ -309,156 +309,21 @@ describe("Caractérisation — récurrences (formes exactes)", () => {
   });
 
   describe("POST /api/recurrences/generate", () => {
-    it("réponse exacte ; opération créée avec ses ressources, son historique et les valeurs par défaut du schéma", async () => {
+    it("refuse la génération automatique et laisse l'historique inchangé", async () => {
       const recurrence = await (await poster(complet())).json();
 
       const res = await lancer({ horizonDays: 7 });
 
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(410);
       expect(await res.json()).toEqual({
-        message: "1 opération(s) récurrente(s) générée(s) avec succès.",
-        generatedCount: 1,
-        horizonDays: 7,
-        conflits: [],
+        error: "La création automatique d'opérations récurrentes est désactivée. Les tournées sont désormais calculées depuis l'historique des collectes.",
       });
-
-      const operations = JSON.parse(JSON.stringify(await Operation.find().lean()));
-      expect(operations).toEqual([
-        {
-          _id: expect.any(String),
-          clientId,
-          siteId,
-          natureIntervention: "Collecte hebdomadaire",
-          dateHeurePrevue: demainHuitHeures().toISOString(),
-          dureeEstimeeMinutes: 90,
-          equipeId,
-          vehiculeId,
-          equipementIds: [equipementA, equipementB],
-          informationsParticulieres: "Badge requis",
-          statut: "Affectée",
-          historiqueStatuts: [{ statut: "Affectée", date: DATE_ISO, parUtilisateur: USER_ID }],
-          uniteQuantite: "Litres",
-          remarquesTerrain: "",
-          nomSignataireClient: "",
-          signatureClient: "",
-          rapportPdf: "",
-          photos: [],
-          createdAt: DATE_ISO,
-          updatedAt: DATE_ISO,
-          __v: 0,
-        },
-      ]);
-
-      const apres = JSON.parse(JSON.stringify(await Recurrence.findById(recurrence._id).lean()));
-      expect(apres.derniereGeneration).toBe(demainHuitHeures().toISOString());
-    });
-
-    it("relance : aucune opération en double, message à zéro, ancre inchangée", async () => {
-      const recurrence = await (await poster(base())).json();
-      await lancer({ horizonDays: 7 });
-
-      const res = await lancer({ horizonDays: 7 });
-
-      expect(await res.json()).toEqual({
-        message: "0 opération(s) récurrente(s) générée(s) avec succès.",
-        generatedCount: 0,
-        horizonDays: 7,
-        conflits: [],
-      });
-      expect(await Operation.countDocuments()).toBe(1);
-      const apres = JSON.parse(JSON.stringify(await Recurrence.findById(recurrence._id).lean()));
-      expect(apres.derniereGeneration).toBe(demainHuitHeures().toISOString());
-    });
-
-    it("sans ressources : opération Planifiée, sans équipe ni véhicule", async () => {
-      await poster(base());
-      await lancer({ horizonDays: 7 });
-      const [operation] = JSON.parse(JSON.stringify(await Operation.find().lean()));
-      expect(operation.statut).toBe("Planifiée");
-      expect(operation).not.toHaveProperty("equipeId");
-      expect(operation).not.toHaveProperty("vehiculeId");
-      expect(operation.dureeEstimeeMinutes).toBe(120);
-    });
-
-    it("équipe et véhicule déjà pris : opération créée sans ressource, conflit signalé avec les deux messages joints", async () => {
-      const recurrence = await (await poster(complet())).json();
-      await Operation.create({
-        clientId,
-        siteId: new mongoose.Types.ObjectId(),
-        natureIntervention: "Occupe les ressources",
-        dateHeurePrevue: demainHuitHeures(),
-        dureeEstimeeMinutes: 60,
-        equipeId,
-        vehiculeId,
-        statut: "Affectée",
-      });
-
-      const corps = await (await lancer({ horizonDays: 7 })).json();
-
-      expect(corps).toEqual({
-        message: "1 opération(s) récurrente(s) générée(s) avec succès.",
-        generatedCount: 1,
-        horizonDays: 7,
-        conflits: [
-          {
-            recurrenceId: recurrence._id,
-            date: demainHuitHeures().toISOString(),
-            message:
-              "L'équipe est déjà affectée à une opération sur ce créneau ; Le véhicule est déjà affecté à une opération sur ce créneau",
-          },
-        ],
-      });
-      const generee = JSON.parse(
-        JSON.stringify(await Operation.findOne({ natureIntervention: "Collecte hebdomadaire" }).lean())
-      );
-      expect(generee.statut).toBe("Planifiée");
-      expect(generee).not.toHaveProperty("equipeId");
-      expect(generee).not.toHaveProperty("vehiculeId");
-    });
-
-    it("récurrence inactive : ignorée", async () => {
-      await poster(base({ active: false }));
-      const corps = await (await lancer({ horizonDays: 7 })).json();
-      expect(corps.generatedCount).toBe(0);
       expect(await Operation.countDocuments()).toBe(0);
+      const stored = JSON.parse(JSON.stringify(await Recurrence.findById(recurrence._id).lean()));
+      expect(stored.derniereGeneration).toBeUndefined();
     });
 
-    it("horizon : 30 jours par défaut (corps absent, illisible ou à zéro), borné entre 1 et 90", async () => {
-      const horizon = async (corps?: unknown) => (await (await lancer(corps)).json()).horizonDays;
-
-      expect(await horizon()).toBe(30);
-      expect(await horizon({})).toBe(30);
-      expect(await horizon({ horizonDays: 0 })).toBe(30);
-      expect(await horizon({ horizonDays: 500 })).toBe(90);
-      expect(await horizon({ horizonDays: -5 })).toBe(1);
-      expect(await horizon({ horizonDays: 12 })).toBe(12);
-
-      const illisible = await generer(
-        new NextRequest("http://localhost:3000/api/recurrences/generate", { method: "POST", body: "{pas du json" })
-      );
-      expect((await illisible.json()).horizonDays).toBe(30);
-    });
-
-    it("horizon non numérique : horizon par défaut de 30 jours", async () => {
-      await poster(base());
-      const corps = await (await lancer({ horizonDays: "abc" })).json();
-      expect(corps.horizonDays).toBe(30);
-      expect(corps.generatedCount).toBeGreaterThanOrEqual(4);
-      expect(corps.generatedCount).toBeLessThanOrEqual(5);
-    });
-
-    it("horizon non numérique et récurrence personnalisée : génération bornée à l'horizon par défaut", async () => {
-      await poster(base({ frequence: "personnalisee", intervalleJours: 1, jourSemaine: undefined }));
-
-      const corps = await (await lancer({ horizonDays: "abc" })).json();
-
-      expect(corps.horizonDays).toBe(30);
-      expect(corps.generatedCount).toBeGreaterThanOrEqual(29);
-      expect(corps.generatedCount).toBeLessThanOrEqual(31);
-      expect(await Operation.countDocuments()).toBe(corps.generatedCount);
-    });
-
-    it("rôles : lecture et chauffeur 403 « Permission insuffisante » (le droit d'écriture est contrôlé en premier)", async () => {
+    it("garde le refus d'accès pour lecture et chauffeur", async () => {
       connecter("lecture");
       const lecture = await lancer({});
       expect(lecture.status).toBe(403);

@@ -236,6 +236,22 @@ describe("OperationRepositoryMongoose (contrat)", () => {
       expect(await noms({ dateDebut: j("02"), dateFin: j("04") })).toEqual([]);
     });
 
+    it("filtre les collectes effectivement rapportées ou terminées avec une quantité", async () => {
+      const rapportee = await depot.creer(saisie({ natureIntervention: "Rapportée", dateHeurePrevue: j("01") }), initial());
+      const terminee = await depot.creer(saisie({ natureIntervention: "Terminée", dateHeurePrevue: j("02") }), initial());
+      const sansQuantite = await depot.creer(saisie({ natureIntervention: "Sans quantité", dateHeurePrevue: j("03") }), initial());
+      const planifiee = await depot.creer(saisie({ natureIntervention: "Planifiée", dateHeurePrevue: j("04") }), initial());
+      await OperationModel.updateOne({ _id: rapportee.id }, { statut: "Rapportée", quantiteCollectee: 12 });
+      await OperationModel.updateOne({ _id: terminee.id }, { statut: "Terminée", quantiteCollectee: 15 });
+      await OperationModel.updateOne({ _id: sansQuantite.id }, { statut: "Rapportée" });
+      await OperationModel.updateOne({ _id: planifiee.id }, { quantiteCollectee: 20 });
+
+      const { items, total } = await depot.lister({ collectesRealisees: true }, { skip: 0, limit: 20 });
+
+      expect(total).toBe(2);
+      expect(items.map((operation) => operation.natureIntervention).sort()).toEqual(["Rapportée", "Terminée"]);
+    });
+
     it("filtre illisible : l'erreur Mongoose remonte", async () => {
       await expect(depot.lister({ clientId: "abc" }, { skip: 0, limit: 20 })).rejects.toThrow(/Cast to ObjectId failed/);
       await expect(depot.lister({ dateDebut: new Date("bidon") }, { skip: 0, limit: 20 })).rejects.toThrow(

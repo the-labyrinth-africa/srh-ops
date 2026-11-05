@@ -1,6 +1,4 @@
 import "server-only";
-import ExcelJS from "exceljs";
-import passagesFournis from "./historique-fourni.json";
 import stationsFournies from "./stations-shell-2026.json";
 
 export interface StationShell {
@@ -13,6 +11,14 @@ export interface HistoriqueCollecte {
   site: string;
   date: Date;
   quantite: number;
+  dateHeureArrivee?: Date;
+  dateHeureDepart?: Date;
+}
+
+export interface RessourceTournee {
+  id: string;
+  nom: string;
+  capacite?: number;
 }
 
 export interface PrevisionCollecte {
@@ -22,10 +28,15 @@ export interface PrevisionCollecte {
   derniereCollecte?: string;
   intervalleEstimeJours: number;
   quantiteEstimeeLitres?: number;
+  dureeEstimeeMinutes: number;
+  capaciteVehiculeLitres?: number;
+  numeroPassage: number;
   passagesHistoriques: number;
   confiance: "élevée" | "moyenne" | "faible";
   tournee: string;
   secteur: string;
+  vehicule?: string;
+  equipements: string[];
 }
 
 const ALIAS_SITES: Record<string, string> = {
@@ -79,42 +90,9 @@ export function listerStationsShell(): StationShell[] {
   return STATIONS;
 }
 
-/** Historique compact des bilans fournis, limité aux sites du référentiel officiel. */
-export async function lireHistoriqueCollectes(): Promise<HistoriqueCollecte[]> {
-  return passagesFournis.map(({ site, date, quantite }) => ({
-    site,
-    date: new Date(`${date}T12:00:00Z`),
-    quantite,
-  }));
-}
-
-/** Lit les feuilles de bilan utilisées jusque-là et rapproche les noms au référentiel des stations. */
-export async function lireClasseurCollectes(nom: string, contenu: Uint8Array): Promise<HistoriqueCollecte[]> {
-  const classeur = new ExcelJS.Workbook();
-  await classeur.xlsx.load(contenu as unknown as ExcelJS.Buffer);
-  const feuille = classeur.worksheets[0];
-  if (!feuille) return [];
-
-  const fichier = nom.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-  const bilanAout = fichier.includes("aout");
-  const recapAncien = fichier.includes("juin") || fichier.includes("septembre");
-  const historique: HistoriqueCollecte[] = [];
-  for (let index = 1; index <= feuille.rowCount; index++) {
-    const valeurs = feuille.getRow(index).values as ExcelJS.CellValue[];
-    const nomSite = bilanAout ? valeurs[9] : recapAncien ? valeurs[1] : valeurs[2];
-    const dateBrute = bilanAout ? valeurs[7] : recapAncien ? valeurs[2] : valeurs[3];
-    const quantite = bilanAout ? valeurs[10] : recapAncien ? valeurs[3] : valeurs[4];
-    if (typeof nomSite !== "string" || typeof quantite !== "number" || quantite <= 0) continue;
-    const station = rapprocherSite(nomSite);
-    if (!station) continue;
-    const date = dateBrute instanceof Date
-      ? dateBrute
-      : typeof dateBrute === "string" && /^\d{4}-\d{2}-\d{2}/.test(dateBrute)
-        ? new Date(`${dateBrute.slice(0, 10)}T12:00:00Z`)
-        : null;
-    if (date && !Number.isNaN(date.getTime())) historique.push({ site: station.site, date, quantite });
-  }
-  return historique;
+/** Rapproche les libellés historiques persistés aux 40 stations du référentiel Shell. */
+export function rapprocherNomStation(nom: string): StationShell | undefined {
+  return rapprocherSite(nom);
 }
 
 function jourISO(date: Date): string {
@@ -146,12 +124,23 @@ interface ProfilStation {
   station: StationShell;
   dates: Date[];
   intervalle: number;
-  volume?: number;
+  volumeMensuelObserve: number;
+  dureeVisite: number;
   confiance: PrevisionCollecte["confiance"];
   passages: number;
 }
 
+interface PassageTournee {
+  profil: ProfilStation;
+  index: number;
+  quantite: number;
+}
+
 function profilsStations(historique: HistoriqueCollecte[]): ProfilStation[] {
+  const datesHistorique = historique.map((ligne) => ligne.date.getTime()).filter(Number.isFinite);
+  const debut = datesHistorique.length ? new Date(Math.min(...datesHistorique)) : new Date();
+  const fin = datesHistorique.length ? new Date(Math.max(...datesHistorique)) : debut;
+  const moisObserves = Math.max(1, (fin.getUTCFullYear() - debut.getUTCFullYear()) * 12 + fin.getUTCMonth() - debut.getUTCMonth() + 1);
   return STATIONS.map((station) => {
     const passages = historique.filter((ligne) => ligne.site === station.site);
     const dates = [...new Map(passages.map((ligne) => [jourISO(ligne.date), ligne.date])).values()].sort((a, b) => a.getTime() - b.getTime());
@@ -160,29 +149,16 @@ function profilsStations(historique: HistoriqueCollecte[]): ProfilStation[] {
       .filter((jours) => jours >= 7 && jours <= 35)
       .slice(-4);
     const intervalle = intervalles.length ? mediane(intervalles) : 30;
-    const volumes = passages.map((passage) => passage.quantite).sort((a, b) => a - b);
-    const volume = volumes.length ? Math.round(mediane(volumes)) : undefined;
+    const volumeMensuelObserve = passages.reduce((total, passage) => total + passage.quantite, 0) / moisObserves;
+    const dureesVisite = passages.flatMap((passage) => {
+      if (!passage.dateHeureArrivee || !passage.dateHeureDepart) return [];
+      const minutes = (passage.dateHeureDepart.getTime() - passage.dateHeureArrivee.getTime()) / 60_000;
+      return Number.isFinite(minutes) && minutes > 0 && minutes <= 12 * 60 ? [minutes] : [];
+    });
     const confiance = intervalles.length >= 3 ? "élevée" : intervalles.length ? "moyenne" : "faible";
-    return { station, dates, intervalle, volume, confiance, passages: passages.length };
+    const dureeVisite = dureesVisite.length ? mediane(dureesVisite) : 120;
+    return { station, dates, intervalle, volumeMensuelObserve, confiance, passages: passages.length, dureeVisite };
   });
-}
-
-/** Répartit les stations par volume décroissant, en équilibrant les litres estimés des groupes. */
-function repartirParVolume(profils: ProfilStation[], nombreGroupes: number): ProfilStation[][] {
-  const groupes = Array.from({ length: nombreGroupes }, () => [] as ProfilStation[]);
-  const volumes = Array.from({ length: nombreGroupes }, () => 0);
-  const tries = [...profils].sort((a, b) => (b.volume ?? 0) - (a.volume ?? 0) || a.station.site.localeCompare(b.station.site, "fr"));
-  for (const profil of tries) {
-    let index = 0;
-    for (let candidate = 1; candidate < groupes.length; candidate++) {
-      if (volumes[candidate] < volumes[index] || (volumes[candidate] === volumes[index] && groupes[candidate].length < groupes[index].length)) {
-        index = candidate;
-      }
-    }
-    groupes[index].push(profil);
-    volumes[index] += profil.volume ?? 0;
-  }
-  return groupes;
 }
 
 function profilVisite(
@@ -190,7 +166,9 @@ function profilVisite(
   mois: string,
   jourTournee: number,
   tournee: string,
-  secteur: string
+  secteur: string,
+  quantiteEstimeeLitres: number,
+  ressources: { vehicule?: RessourceTournee; equipements: string[] }
 ): PrevisionCollecte {
   const derniere = profil.dates.at(-1);
   const datePrevue = dateTournee(mois, jourTournee);
@@ -200,59 +178,170 @@ function profilVisite(
     datePrevue: jourISO(datePrevue),
     derniereCollecte: derniere ? jourISO(derniere) : undefined,
     intervalleEstimeJours: profil.intervalle,
-    quantiteEstimeeLitres: profil.volume,
+    quantiteEstimeeLitres,
+    dureeEstimeeMinutes: profil.dureeVisite,
+    capaciteVehiculeLitres: ressources.vehicule?.capacite,
+    numeroPassage: 1,
     passagesHistoriques: profil.passages,
     confiance: profil.confiance,
     tournee,
     secteur,
+    vehicule: ressources.vehicule?.nom,
+    equipements: ressources.equipements,
   };
 }
 
-/** Construit des tournées par secteurs proches, avec au moins cinq stations sur chaque date. */
-export async function prevoirCollectes(mois: string, historiqueSaisi?: HistoriqueCollecte[]): Promise<PrevisionCollecte[]> {
-  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(mois)) throw new Error("Mois invalide");
-  const historique = historiqueSaisi ?? await lireHistoriqueCollectes();
-  const profils = profilsStations(historique);
-  const nord = profils.filter((profil) => secteurDe(profil.station.commune) === "Nord");
-  const sud = profils.filter((profil) => secteurDe(profil.station.commune) === "Sud");
-  const centre = profils.filter((profil) => secteurDe(profil.station.commune) === "Centre");
-  const tournees: { date: number; nom: string; secteur: string; sites: ProfilStation[] }[] = [];
-
-  const groupesNord = repartirParVolume(nord, 2);
-  tournees.push({ date: 5, nom: "Nord 1", secteur: "Cocody · Bingerville · Songon", sites: groupesNord[0] });
-  tournees.push({ date: 6, nom: "Nord 2", secteur: "Cocody · Bingerville · Songon", sites: groupesNord[1] });
-  tournees.push({ date: 7, nom: "Sud", secteur: "Marcory · Port-Bouët", sites: sud });
-  tournees.push({ date: 10, nom: "Centre", secteur: "Treichville · Plateau · Koumassi", sites: centre });
-
-  const repetitionsNord = nord.filter((profil) => profil.passages >= 3 && profil.intervalle <= 21);
-  if (repetitionsNord.length >= 5) {
-    const nombreGroupes = repetitionsNord.length >= 10 ? 2 : 1;
-    const groupes = repartirParVolume(repetitionsNord, nombreGroupes);
-    groupes.forEach((sites, index) => tournees.push({
-      date: index === 0 ? 19 : 20,
-      nom: `Nord ${index + 1} — second passage`,
-      secteur: "Cocody · Bingerville · Songon",
-      sites,
-    }));
+function datesTournees(mois: string, nombre: number): string[] {
+  const [annee, numeroMois] = mois.split("-").map(Number);
+  const dernierJour = new Date(Date.UTC(annee, numeroMois, 0)).getUTCDate();
+  const joursOuvres: string[] = [];
+  for (let jour = 1; jour <= dernierJour; jour++) {
+    const date = new Date(Date.UTC(annee, numeroMois - 1, jour));
+    if (date.getUTCDay() !== 0 && date.getUTCDay() !== 6) joursOuvres.push(jourISO(date));
   }
-
-  const repetitionsCentreSud = [...sud, ...centre].filter((profil) => profil.passages >= 3 && profil.intervalle <= 21);
-  if (repetitionsCentreSud.length >= 5) {
-    const nombreGroupes = repetitionsCentreSud.length >= 10 ? 2 : 1;
-    const groupes = repartirParVolume(repetitionsCentreSud, nombreGroupes);
-    groupes.forEach((sites, index) => tournees.push({
-      date: index === 0 ? 24 : 25,
-      nom: `Centre-Sud ${index + 1} — second passage`,
-      secteur: "Treichville · Plateau · Koumassi · Marcory",
-      sites,
-    }));
-  }
-
-  const resultats = tournees.flatMap((tournee) => tournee.sites.map((profil) =>
-    profilVisite(profil, mois, tournee.date, tournee.nom, tournee.secteur)
-  ));
-
-  // Une visite d'une même station ne peut pas être proposée deux fois lors d'une même tournée.
-  const visitesUniques = [...new Map(resultats.map((visite) => [`${visite.site}-${visite.datePrevue}`, visite])).values()];
-  return visitesUniques.sort((a, b) => a.datePrevue.localeCompare(b.datePrevue) || a.tournee.localeCompare(b.tournee, "fr") || a.site.localeCompare(b.site, "fr"));
+  return Array.from({ length: nombre }, (_, index) => joursOuvres[Math.floor(((index + 0.5) * joursOuvres.length) / nombre)] ?? joursOuvres.at(-1) ?? "");
 }
+
+/** Prévoit les passages depuis les collectes persistées, le volume cible et les ressources disponibles. */
+export async function prevoirCollectes(
+  mois: string,
+  historique: HistoriqueCollecte[],
+  objectifLitresParStation = 2000,
+  vehicules: RessourceTournee[] = [],
+  equipements: RessourceTournee[] = []
+): Promise<PrevisionCollecte[]> {
+  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(mois)) throw new Error("Mois invalide");
+  const profils = profilsStations(historique);
+  const ressourcesVehicules = vehicules.filter((item) => item.capacite && item.capacite > 0).sort((a, b) => (a.capacite ?? 0) - (b.capacite ?? 0));
+  const capaciteMaximale = ressourcesVehicules.at(-1)?.capacite ?? Number.POSITIVE_INFINITY;
+  const ressourcesEquipements = equipements.map((item) => item.nom);
+  const cibleBrute = profils.map((profil) => (objectifLitresParStation + profil.volumeMensuelObserve) / 2);
+  const totalBrut = cibleBrute.reduce((sum, volume) => sum + volume, 0) || profils.length;
+  const objectifParStation = new Map(
+    profils.map((profil, index) => [
+      profil.station.site,
+      Math.round(cibleBrute[index] * objectifLitresParStation * profils.length / totalBrut),
+    ])
+  );
+  const profilsRepetitionParSecteur = new Map<string, number>();
+  for (const profil of profils) {
+    if (profil.passages >= 3 && profil.intervalle <= 21) {
+      const secteur = secteurDe(profil.station.commune);
+      profilsRepetitionParSecteur.set(secteur, (profilsRepetitionParSecteur.get(secteur) ?? 0) + 1);
+    }
+  }
+  const passagesBaseParStation = new Map(profils.map((profil) => {
+    const secteur = secteurDe(profil.station.commune);
+    const passagesBase = profil.passages >= 3 && profil.intervalle <= 21 && (profilsRepetitionParSecteur.get(secteur) ?? 0) >= 5 && (profilsRepetitionParSecteur.get(secteur) ?? 0) <= 8
+      ? Math.min(3, Math.max(1, Math.ceil(30 / profil.intervalle))): 1;
+    return [profil.station.site, passagesBase] as const;
+  }));
+  const vehiculePlusPetit = ressourcesVehicules[0];
+  const vehiculePlusGrand = ressourcesVehicules.at(-1);
+  const repartirEntreVehicules = Boolean(
+    vehiculePlusPetit &&
+    vehiculePlusGrand &&
+    vehiculePlusPetit.id !== vehiculePlusGrand.id &&
+    (vehiculePlusPetit.capacite ?? 0) < (vehiculePlusGrand.capacite ?? 0)
+  );
+  const volumeMaxParStationEtTournee = capaciteMaximale / MINIMUM_STATIONS_PAR_TOURNEE;
+  const volumePetitCamionParStation = repartirEntreVehicules
+    ? Math.floor((vehiculePlusPetit?.capacite ?? 0) / MINIMUM_STATIONS_PAR_TOURNEE)
+    : 0;
+  const passagesParVehicule = new Map<RessourceTournee | undefined, PassageTournee[]>();
+  const ajouterPassage = (
+    vehicule: RessourceTournee | undefined,
+    profil: ProfilStation,
+    index: number,
+    quantite: number
+  ) => {
+    const passages = passagesParVehicule.get(vehicule) ?? [];
+    passages.push({ profil, index, quantite });
+    passagesParVehicule.set(vehicule, passages);
+  };
+
+  for (const profil of profils) {
+    const volumeMensuel = objectifParStation.get(profil.station.site) ?? objectifLitresParStation;
+    const volumePetitCamion = Math.min(volumeMensuel, volumePetitCamionParStation);
+    const volumeRestant = volumeMensuel - volumePetitCamion;
+    if (volumePetitCamion > 0) {
+      ajouterPassage(vehiculePlusPetit, profil, 0, volumePetitCamion);
+    }
+    if (volumeRestant <= 0) continue;
+
+    const nombrePassages = Math.max(
+      passagesBaseParStation.get(profil.station.site) ?? 1,
+      Math.ceil(volumeRestant / volumeMaxParStationEtTournee)
+    );
+    const volumeParPassage = Math.floor(volumeRestant / nombrePassages);
+    const volumeRestantARepartir = volumeRestant - volumeParPassage * nombrePassages;
+    for (let index = 0; index < nombrePassages; index++) {
+      ajouterPassage(
+        vehiculePlusGrand,
+        profil,
+        index + (volumePetitCamion > 0 ? 1 : 0),
+        volumeParPassage + (index < volumeRestantARepartir ? 1 : 0)
+      );
+    }
+  }
+
+  const groupes: { vehicule?: RessourceTournee; passages: PassageTournee[] }[] = [];
+  for (const [vehicule, passages] of passagesParVehicule) {
+    while (passages.length % MINIMUM_STATIONS_PAR_TOURNEE !== 0) {
+      const passageAScinder = passages
+        .filter((passage) => passage.quantite > 0)
+        .sort((a, b) => b.quantite - a.quantite)[0];
+      if (!passageAScinder) throw new Error("Impossible de compléter une tournée avec cinq stations.");
+      passageAScinder.quantite /= 2;
+      const indexSuivant = Math.max(
+        ...passages.filter((passage) => passage.profil === passageAScinder.profil).map((passage) => passage.index)
+      ) + 1;
+      passages.push({
+        ...passageAScinder,
+        index: indexSuivant,
+        quantite: passageAScinder.quantite,
+      });
+    }
+
+    const groupesVehicule: PassageTournee[][] = Array.from(
+      { length: passages.length / MINIMUM_STATIONS_PAR_TOURNEE },
+      () => []
+    );
+    const passagesTries = [...passages].sort((a, b) =>
+      a.index - b.index ||
+      b.quantite - a.quantite ||
+      secteurDe(a.profil.station.commune).localeCompare(secteurDe(b.profil.station.commune), "fr") ||
+      a.profil.station.site.localeCompare(b.profil.station.site, "fr")
+    );
+    for (const passage of passagesTries) {
+      const groupe = groupesVehicule.find((candidat) =>
+        candidat.length < MINIMUM_STATIONS_PAR_TOURNEE &&
+        !candidat.some((item) => item.profil.station.site === passage.profil.station.site)
+      );
+      if (!groupe) throw new Error("Impossible de composer une tournée avec cinq stations distinctes.");
+      groupe.push(passage);
+    }
+    groupes.push(...groupesVehicule.map((groupe) => ({ vehicule, passages: groupe })));
+  }
+  if (groupes.length === 0) return [];
+  const dates = datesTournees(mois, groupes.length);
+  const resultats: PrevisionCollecte[] = [];
+  groupes.forEach(({ vehicule, passages }, index) => {
+    const secteurs = [...new Set(passages.map(({ profil }) => secteurDe(profil.station.commune)))];
+    const secteur = secteurs.length === 1 ? secteurs[0] : secteurs.join(" · ");
+    const nomTournee = `Tournée ${index + 1}`;
+    for (const { profil, index: numeroPassage, quantite } of passages) {
+      const visite = profilVisite(profil, mois, 1, nomTournee, secteur, quantite, {
+        vehicule,
+        equipements: ressourcesEquipements,
+      });
+      visite.datePrevue = dates[index];
+      visite.tournee = nomTournee;
+      visite.numeroPassage = numeroPassage + 1;
+      resultats.push(visite);
+    }
+  });
+  return resultats.sort((a, b) => a.datePrevue.localeCompare(b.datePrevue) || a.tournee.localeCompare(b.tournee, "fr") || a.site.localeCompare(b.site, "fr"));
+}
+
+const MINIMUM_STATIONS_PAR_TOURNEE = 5;

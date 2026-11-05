@@ -1,2 +1,2 @@
-// API publique du domaine `vehicules` pour les autres domaines : aucune pour l'instant.
-export {};
+// API publique minimale du domaine `vehicules` pour les prévisions.
+export { listerVehicules } from "./composition";

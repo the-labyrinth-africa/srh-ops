@@ -17,6 +17,8 @@ interface OperationTerrain {
   _id: string;
   natureIntervention: string;
   dateHeurePrevue: string;
+  dateHeureArrivee?: string;
+  dateHeureDepart?: string;
   statut: OperationStatus;
   quantiteCollectee?: number;
   uniteQuantite?: QuantiteUnite;
@@ -29,6 +31,12 @@ interface OperationTerrain {
   equipeId?: { _id: string; nom: string };
   vehiculeId?: { identification: string };
   informationsParticulieres?: string;
+}
+
+function dateHeureLocale(dateHeure?: string): string {
+  const date = dateHeure ? new Date(dateHeure) : new Date();
+  const deuxChiffres = (valeur: number) => String(valeur).padStart(2, "0");
+  return `${date.getFullYear()}-${deuxChiffres(date.getMonth() + 1)}-${deuxChiffres(date.getDate())}T${deuxChiffres(date.getHours())}:${deuxChiffres(date.getMinutes())}`;
 }
 
 export function TerrainViewClient() {
@@ -47,6 +55,10 @@ export function TerrainViewClient() {
   // Formulaire d'édition de terrain
   const [nextStatut, setNextStatut] = useState<OperationStatus | "">("");
   const [quantite, setQuantite] = useState("");
+  const [heureArrivee, setHeureArrivee] = useState("");
+  const [heureDepart, setHeureDepart] = useState("");
+  const [heureArriveeModifiee, setHeureArriveeModifiee] = useState(false);
+  const [heureDepartModifiee, setHeureDepartModifiee] = useState(false);
   const [unite, setUnite] = useState<QuantiteUnite>("Litres");
   const [remarques, setRemarques] = useState("");
   const [nomSignataire, setNomSignataire] = useState("");
@@ -92,6 +104,10 @@ export function TerrainViewClient() {
     setSelectedOp(op);
     setNextStatut("");
     setQuantite(op.quantiteCollectee ? String(op.quantiteCollectee) : "");
+    setHeureArrivee(dateHeureLocale(op.dateHeureArrivee));
+    setHeureDepart(dateHeureLocale(op.dateHeureDepart));
+    setHeureArriveeModifiee(false);
+    setHeureDepartModifiee(false);
     setUnite(op.uniteQuantite || "Litres");
     setRemarques(op.remarquesTerrain || "");
     setNomSignataire(op.nomSignataireClient || "");
@@ -106,10 +122,38 @@ export function TerrainViewClient() {
     if (!selectedOp) return;
     setActionError("");
     setActionSuccess("");
+    if (heureArriveeModifiee && (!heureArrivee || !Number.isFinite(new Date(heureArrivee).getTime()))) {
+      setActionError("Saisissez une heure d’arrivée valide.");
+      return;
+    }
+    if (targetStatus === "Terminée" && heureDepartModifiee && (!heureDepart || !Number.isFinite(new Date(heureDepart).getTime()))) {
+      setActionError("Saisissez une heure de départ valide.");
+      return;
+    }
+    if (targetStatus === "Terminée" && (!quantite || !Number.isFinite(Number(quantite)) || Number(quantite) <= 0)) {
+      setActionError("Saisissez une quantité collectée supérieure à zéro avant de quitter la station.");
+      return;
+    }
+    const dateArriveeVerifiee = heureArriveeModifiee
+      ? new Date(heureArrivee)
+      : selectedOp.dateHeureArrivee
+        ? new Date(selectedOp.dateHeureArrivee)
+        : new Date();
+    const dateDepartVerifiee = heureDepartModifiee ? new Date(heureDepart) : new Date();
+    if (targetStatus === "Terminée" && dateDepartVerifiee < dateArriveeVerifiee) {
+      setActionError("L’heure de départ doit être postérieure ou égale à l’heure d’arrivée.");
+      return;
+    }
     setSaving(true);
 
     const payload = {
       statut: targetStatus,
+      ...(heureArriveeModifiee && (targetStatus === "En cours" || targetStatus === "Terminée")
+        ? { dateHeureArrivee: new Date(heureArrivee).toISOString() }
+        : {}),
+      ...(targetStatus === "Terminée" && heureDepartModifiee
+        ? { dateHeureDepart: new Date(heureDepart).toISOString() }
+        : {}),
       quantiteCollectee: quantite ? Number(quantite) : undefined,
       uniteQuantite: quantite ? uniteAffichee : undefined,
       remarquesTerrain: remarques || undefined,
@@ -131,8 +175,13 @@ export function TerrainViewClient() {
       }
 
       setActionSuccess(`Statut mis à jour : ${targetStatus}`);
+      const updatedOperation = await res.json() as OperationTerrain;
       await fetchTerrainOps();
-      setSelectedOp((prev) => (prev ? { ...prev, ...payload, statut: targetStatus } : null));
+      setSelectedOp(updatedOperation);
+      setHeureArrivee(dateHeureLocale(updatedOperation.dateHeureArrivee));
+      setHeureDepart(dateHeureLocale(updatedOperation.dateHeureDepart));
+      setHeureArriveeModifiee(false);
+      setHeureDepartModifiee(false);
     } catch {
       setActionError("Impossible de mettre à jour le statut. Vérifiez votre connexion Internet puis réessayez.");
     } finally {
@@ -306,27 +355,63 @@ export function TerrainViewClient() {
             )}
 
             {selectedOp.statut === "En route" && (
-              <button
-                type="button"
-                disabled={saving}
-                onClick={() => handleUpdateStatus("En cours")}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 font-label-md text-label-md font-bold text-on-primary shadow-md hover:bg-primary/90 disabled:opacity-50"
-              >
-                <span className="material-symbols-outlined text-[20px]">pin_drop</span>
-                {saving ? "Mise à jour..." : "2. Arrivé sur site (Passer En cours)"}
-              </button>
+              <div className="space-y-3">
+                <label className="block font-label-md text-label-md font-semibold text-on-surface">
+                  Heure d’arrivée à la station
+                  <input
+                    required
+                    type="datetime-local"
+                    value={heureArrivee}
+                    onChange={(event) => {
+                      setHeureArrivee(event.target.value);
+                      setHeureArriveeModifiee(true);
+                    }}
+                    className="mt-1 min-h-11 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-on-surface"
+                  />
+                  <span className="mt-1 block text-xs font-normal text-on-surface-variant">
+                    Si vous ne modifiez pas cette heure, l’heure de confirmation sera enregistrée.
+                  </span>
+                </label>
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={() => void handleUpdateStatus("En cours")}
+                  className="min-h-11 w-full flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 font-label-md text-label-md font-bold text-on-primary shadow-md hover:bg-primary/90 disabled:opacity-50"
+                >
+                  <span aria-hidden="true" className="material-symbols-outlined text-[20px]">pin_drop</span>
+                  {saving ? "Enregistrement..." : "2. Confirmer l’arrivée"}
+                </button>
+              </div>
             )}
 
             {/* Formulaire de collecte (actif quand en cours ou modifiable) */}
             {(selectedOp.statut === "En cours" || selectedOp.statut === "Retardée" || nextStatut) && (
               <div className="space-y-4 pt-2">
+                <label className="block font-label-md text-label-md font-semibold text-on-surface">
+                  Heure d’arrivée à la station
+                  <input
+                    required
+                    type="datetime-local"
+                    value={heureArrivee}
+                    onChange={(event) => {
+                      setHeureArrivee(event.target.value);
+                      setHeureArriveeModifiee(true);
+                    }}
+                    className="mt-1 min-h-11 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-on-surface"
+                  />
+                  <span className="mt-1 block text-xs font-normal text-on-surface-variant">
+                    Si vous ne modifiez pas cette heure, l’heure de confirmation sera enregistrée.
+                  </span>
+                </label>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block font-label-md text-label-md font-semibold text-on-surface">
                       Quantité collectée
                     </label>
                     <input
+                      required
                       type="number"
+                      min="0.01"
                       step="0.1"
                       placeholder="0.0"
                       value={quantite}
@@ -355,6 +440,25 @@ export function TerrainViewClient() {
                     )}
                   </div>
                 </div>
+
+                {(selectedOp.statut === "En cours" || nextStatut === "Terminée") && (
+                  <label className="block font-label-md text-label-md font-semibold text-on-surface">
+                    Heure de départ de la station
+                    <input
+                      required
+                      type="datetime-local"
+                      value={heureDepart}
+                      onChange={(event) => {
+                        setHeureDepart(event.target.value);
+                        setHeureDepartModifiee(true);
+                      }}
+                      className="mt-1 min-h-11 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-on-surface"
+                    />
+                    <span className="mt-1 block text-xs font-normal text-on-surface-variant">
+                      Si vous ne modifiez pas cette heure, l’heure de confirmation sera enregistrée.
+                    </span>
+                  </label>
+                )}
 
                 <div>
                   <label className="block font-label-md text-label-md font-semibold text-on-surface">
@@ -431,10 +535,10 @@ export function TerrainViewClient() {
                   <button
                     type="button"
                     disabled={saving}
-                    onClick={() => handleUpdateStatus("Terminée")}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 font-label-md text-label-md font-bold text-on-primary shadow-md hover:bg-primary/90 disabled:opacity-50"
+                    onClick={() => void handleUpdateStatus("Terminée")}
+                    className="min-h-11 w-full flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 font-label-md text-label-md font-bold text-on-primary shadow-md hover:bg-primary/90 disabled:opacity-50"
                   >
-                    <span className="material-symbols-outlined text-[20px]">task_alt</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-[20px]">task_alt</span>
                     {saving ? "Enregistrement..." : "3. Clôturer l'intervention (Terminée)"}
                   </button>
                 )}

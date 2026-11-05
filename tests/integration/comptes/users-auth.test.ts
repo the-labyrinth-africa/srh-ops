@@ -11,13 +11,13 @@ import { connectDB } from "@/backend/platform/base-de-donnees/connexion";
 import { getMemoryTransport } from "@/backend/platform/email";
 import mongoose from "mongoose";
 import { User } from "@/backend/comptes/infrastructure/mongoose/utilisateur.model";
+import { Operation } from "@/backend/operations/infrastructure/mongoose/operation.model";
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
 import { GET as getUsers, POST as createUser } from "@/app/api/users/route";
 import { POST as changePassword } from "@/app/api/auth/change-password/route";
 import { POST as forgotPassword } from "@/app/api/auth/forgot-password/route";
 import { POST as createClient } from "@/app/api/clients/route";
 import { POST as createSite } from "@/app/api/sites/route";
-import { POST as createOperation } from "@/app/api/operations/route";
 import { PATCH as updateStatus } from "@/app/api/operations/[id]/statut/route";
 
 describe("Users, Authentication Roles & Operations Quantities Tests", () => {
@@ -256,19 +256,14 @@ describe("Users, Authentication Roles & Operations Quantities Tests", () => {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
 
-      const op = await (
-        await createOperation(
-          new NextRequest("http://localhost:3000/api/operations", {
-            method: "POST",
-            body: JSON.stringify({
-              clientId: client._id,
-              siteId: site._id,
-              natureIntervention: "Vidange bacs à huile",
-              dateHeurePrevue: tomorrow.toISOString(),
-            }),
-          })
-        )
-      ).json();
+      const op = await Operation.create({
+        clientId: client._id,
+        siteId: site._id,
+        natureIntervention: "Vidange bacs à huile",
+        dateHeurePrevue: tomorrow,
+        statut: "Planifiée",
+        historiqueStatuts: [],
+      });
 
       // 3. Progress status step-by-step: Planifiée → Affectée → En route → En cours
       await updateStatus(

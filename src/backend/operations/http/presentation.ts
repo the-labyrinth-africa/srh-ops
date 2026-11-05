@@ -40,6 +40,8 @@ export function versReponseOperation(operation: Operation) {
     informationsParticulieres: operation.informationsParticulieres,
     statut: operation.statut,
     historiqueStatuts: operation.historiqueStatuts.map(versEntreeJson),
+    dateHeureArrivee: operation.dateHeureArrivee,
+    dateHeureDepart: operation.dateHeureDepart,
     quantiteCollectee: operation.quantiteCollectee,
     uniteQuantite: operation.uniteQuantite,
     remarquesTerrain: operation.remarquesTerrain,

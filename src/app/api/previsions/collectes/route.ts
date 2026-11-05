@@ -1,1 +1,1 @@
-export { GET, POST } from "@/backend/previsions/http/collectes.controleur";
+export { GET } from "@/backend/previsions/http/collectes.controleur";

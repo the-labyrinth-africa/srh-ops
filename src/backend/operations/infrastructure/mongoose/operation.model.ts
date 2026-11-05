@@ -28,6 +28,8 @@ export interface IOperation {
   informationsParticulieres: string;
   statut: OperationStatus;
   historiqueStatuts: IStatusHistory[];
+  dateHeureArrivee?: Date;
+  dateHeureDepart?: Date;
   quantiteCollectee?: number;
   uniteQuantite?: QuantiteUnite;
   remarquesTerrain?: string;
@@ -86,6 +88,8 @@ const OperationSchema = new Schema<IOperation>(
       default: "Planifiée",
     },
     historiqueStatuts: [StatusHistorySchema],
+    dateHeureArrivee: { type: Date },
+    dateHeureDepart: { type: Date },
     quantiteCollectee: { type: Number, min: 0 },
     uniteQuantite: {
       type: String,

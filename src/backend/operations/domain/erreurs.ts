@@ -46,6 +46,13 @@ export class TransitionInterdite extends Error {
   }
 }
 
+export class HeuresCollecteIncoherentes extends Error {
+  constructor() {
+    super("L'heure de départ doit être postérieure ou égale à l'heure d'arrivée.");
+    this.name = "HeuresCollecteIncoherentes";
+  }
+}
+
 export class PhotoRequise extends Error {
   constructor() {
     super("Photo requise (base64 data URL)");

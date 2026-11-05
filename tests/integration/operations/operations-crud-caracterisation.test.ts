@@ -52,7 +52,35 @@ describe("Caractérisation — CRUD et planning des opérations (formes exactes)
   const complet = (surcharge: Record<string, unknown> = {}) =>
     base({ equipeId, vehiculeId, equipementIds: [equipementA, equipementB], ...surcharge });
 
-  const poster = (corps: unknown) => creer(avecCorps("/api/operations", "POST", corps));
+  const posterApi = (corps: unknown) => creer(avecCorps("/api/operations", "POST", corps));
+  const poster = async (corps: Record<string, unknown>) => {
+    const equipe = typeof corps.equipeId === "string" ? corps.equipeId : undefined;
+    const vehicule = typeof corps.vehiculeId === "string" ? corps.vehiculeId : undefined;
+    const statut = equipe && vehicule ? "Affectée" : "Planifiée";
+    const dateHeurePrevue = new Date(String(corps.dateHeurePrevue));
+    const uniteQuantite = QUANTITE_UNITES.find((unite) => unite === corps.uniteQuantite) ?? "Litres";
+    const operation = await Operation.create({
+      clientId: typeof corps.clientId === "string" ? corps.clientId : clientId,
+      siteId: typeof corps.siteId === "string" ? corps.siteId : siteId,
+      natureIntervention: typeof corps.natureIntervention === "string" ? corps.natureIntervention : "Collecte",
+      dateHeurePrevue,
+      dureeEstimeeMinutes: typeof corps.dureeEstimeeMinutes === "number" ? corps.dureeEstimeeMinutes : 120,
+      equipeId: equipe,
+      vehiculeId: vehicule,
+      equipementIds: Array.isArray(corps.equipementIds)
+        ? corps.equipementIds.filter((id): id is string => typeof id === "string")
+        : [],
+      informationsParticulieres: typeof corps.informationsParticulieres === "string" ? corps.informationsParticulieres : "",
+      statut,
+      historiqueStatuts: [{ statut, date: new Date("2030-10-30T08:00:00Z"), parUtilisateur: userId }],
+      quantiteCollectee: typeof corps.quantiteCollectee === "number" ? corps.quantiteCollectee : undefined,
+      uniteQuantite,
+      remarquesTerrain: "",
+      nomSignataireClient: "",
+      signatureClient: "",
+    });
+    return lire(String(operation._id));
+  };
   const mettre = (id: string, corps: unknown) => modifier(avecCorps(`/api/operations/${id}`, "PUT", corps), parametres(id));
   const lire = (id: string) => obtenir(get(`/api/operations/${id}`), parametres(id));
 
@@ -83,102 +111,19 @@ describe("Caractérisation — CRUD et planning des opérations (formes exactes)
   });
 
   describe("POST /api/operations", () => {
-    it.each(QUANTITE_UNITES)("sans configuration globale, accepte la sélection de %s pour la collecte", async (unite) => {
-      const response = await poster(base({ quantiteCollectee: 2.5, uniteQuantite: unite }));
+    it("refuse la création manuelle d'une opération planifiée", async () => {
+      const res = await posterApi(complet());
 
-      expect(response.status).toBe(201);
-      expect(await response.json()).toMatchObject({ quantiteCollectee: 2.5, uniteQuantite: unite });
-    });
-
-    it("applique l'unité globale à la quantité créée même si le formulaire en envoie une autre", async () => {
-      await IdentiteEntrepriseModel.create({
-        cle: "principale",
-        nomEntreprise: "Entreprise Exemple",
-        sigle: "EX",
-        uniteQuantiteGlobale: "M3",
-      });
-
-      const res = await poster(complet({ quantiteCollectee: 4.5, uniteQuantite: "Litres" }));
-
-      expect(res.status).toBe(201);
-      const created = await res.json();
-      expect(created).toMatchObject({ quantiteCollectee: 4.5, uniteQuantite: "M3" });
-    });
-
-    it("opération complète : 201, corps exact, statut du corps ignoré", async () => {
-      const res = await poster(complet({ statut: "Terminée" }));
-
-      expect(res.status).toBe(201);
+      expect(res.status).toBe(410);
       expect(await res.json()).toEqual({
-        _id: expect.stringMatching(/^[a-f\d]{24}$/),
-        clientId: { _id: clientId, nom: "Client A" },
-        siteId: { _id: siteId, nom: "Site A" },
-        natureIntervention: "Collecte",
-        dateHeurePrevue: "2030-11-01T10:00:00.000Z",
-        dureeEstimeeMinutes: 120,
-        equipeId: { _id: equipeId, nom: "Équipe A" },
-        vehiculeId: { _id: vehiculeId, identification: "V-001" },
-        equipementIds: [equipementA, equipementB],
-        informationsParticulieres: "",
-        statut: "Affectée",
-        historiqueStatuts: [{ statut: "Affectée", date: DATE_ISO, parUtilisateur: userId }],
-        uniteQuantite: "Litres",
-        remarquesTerrain: "",
-        nomSignataireClient: "",
-        signatureClient: "",
-        rapportPdf: "",
-        photos: [],
-        createdAt: DATE_ISO,
-        updatedAt: DATE_ISO,
-        __v: 0,
+        error: "La planification manuelle est désactivée. Enregistrez une collecte réalisée ou importez son fichier Excel.",
       });
+      expect(await Operation.countDocuments()).toBe(0);
     });
 
-    it("sans équipe ni véhicule : Planifiée, clés equipeId/vehiculeId absentes", async () => {
-      const corps = await (await poster(base())).json();
-
-      expect(corps.statut).toBe("Planifiée");
-      expect(corps.historiqueStatuts).toEqual([{ statut: "Planifiée", date: DATE_ISO, parUtilisateur: userId }]);
-      expect(corps).not.toHaveProperty("equipeId");
-      expect(corps).not.toHaveProperty("vehiculeId");
-      expect(corps).not.toHaveProperty("quantiteCollectee");
-      expect(corps.equipementIds).toEqual([]);
-    });
-
-    it("avec une équipe seulement : Planifiée", async () => {
-      const corps = await (await poster(base({ equipeId }))).json();
-      expect(corps.statut).toBe("Planifiée");
-      expect(corps.equipeId).toEqual({ _id: equipeId, nom: "Équipe A" });
-    });
-
-    it("corps invalide : 400 avec le détail Zod exact", async () => {
-      const res = await poster({ natureIntervention: "" });
-
-      expect(res.status).toBe(400);
-      expect(await res.json()).toEqual({
-        error: {
-          formErrors: [],
-          fieldErrors: {
-            clientId: ["Required"],
-            siteId: ["Required"],
-            natureIntervention: ["Nature requise"],
-            dateHeurePrevue: ["Required"],
-          },
-        },
-      });
-    });
-
-    it("identifiant d'équipe vide : accepté par Zod, rejeté par Mongoose (exception non interceptée)", async () => {
-      await expect(poster(base({ equipeId: "", vehiculeId: "" }))).rejects.toThrow(/Cast to ObjectId failed/);
-    });
-
-    it("date illisible : exception non interceptée", async () => {
-      await expect(poster(base({ dateHeurePrevue: "pas-une-date" }))).rejects.toThrow(/Cast to date failed/);
-    });
-
-    it("rôle lecture : 403 « Permission insuffisante », rien n'est créé", async () => {
+    it("rôle lecture : 403, rien n'est créé", async () => {
       connecter("lecture");
-      const res = await poster(base());
+      const res = await posterApi(base());
       expect(res.status).toBe(403);
       expect(await res.json()).toEqual({ error: "Permission insuffisante" });
       expect(await Operation.countDocuments()).toBe(0);
@@ -192,11 +137,16 @@ describe("Caractérisation — CRUD et planning des opérations (formes exactes)
       const res = await lister(get("/api/operations"));
 
       expect(res.status).toBe(200);
-      expect(await res.json()).toEqual({
+      expect(await res.json()).toMatchObject({
         items: [
           {
-            ...creee,
+            _id: creee._id,
+            clientId: { _id: clientId, nom: "Client A" },
             siteId: { _id: siteId, nom: "Site A", adresse: "Rue 1" },
+            equipeId: { _id: equipeId, nom: "Équipe A" },
+            vehiculeId: { _id: vehiculeId, identification: "V-001" },
+            equipementIds: [equipementA, equipementB],
+            historiqueStatuts: [{ statut: "Affectée", parUtilisateur: userId }],
           },
         ],
         total: 1,
@@ -263,9 +213,11 @@ describe("Caractérisation — CRUD et planning des opérations (formes exactes)
       expect(await noms("dateDebut=2030-11-01T10:00:01Z&dateFin=2030-11-05T09:59:59Z")).toEqual([]);
     });
 
-    it("filtre d'identifiant ou de date illisible : exception non interceptée", async () => {
+    it("identifiant invalide rejeté par le dépôt, date illisible rejetée explicitement", async () => {
       await expect(lister(get("/api/operations?clientId=abc"))).rejects.toThrow(/Cast to ObjectId failed/);
-      await expect(lister(get("/api/operations?dateDebut=bidon"))).rejects.toThrow(/Cast to date failed/);
+      const response = await lister(get("/api/operations?dateDebut=bidon"));
+      expect(response.status).toBe(400);
+      expect(await response.json()).toEqual({ error: "Date de début invalide." });
     });
 
     it("périmètre : un compte client et un chauffeur ne voient que le leur, quels que soient les filtres envoyés", async () => {
@@ -440,8 +392,8 @@ describe("Caractérisation — CRUD et planning des opérations (formes exactes)
       const res = await mettre(creee._id, base({ natureIntervention: "Modifiée", dateHeurePrevue: "2030-11-02T08:00:00Z" }));
 
       expect(res.status).toBe(200);
-      expect(await res.json()).toEqual({
-        ...creee,
+      expect(await res.json()).toMatchObject({
+        _id: creee._id,
         natureIntervention: "Modifiée",
         dateHeurePrevue: "2030-11-02T08:00:00.000Z",
         equipementIds: [],

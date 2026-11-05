@@ -34,6 +34,8 @@ interface DocumentOperation {
   informationsParticulieres?: string;
   statut?: OperationStatus;
   historiqueStatuts?: { statut: OperationStatus; date: Date; parUtilisateur?: unknown; ancienStatut?: OperationStatus }[];
+  dateHeureArrivee?: Date;
+  dateHeureDepart?: Date;
   quantiteCollectee?: number;
   uniteQuantite?: QuantiteUnite;
   remarquesTerrain?: string;
@@ -55,6 +57,11 @@ const RESUME: Peuplement[] = [
   { path: "siteId", select: "nom" },
   { path: "equipeId", select: "nom" },
   { path: "vehiculeId", select: "identification" },
+];
+
+const HISTORIQUE_COLLECTES: Peuplement[] = [
+  { path: "clientId", select: "nom" },
+  { path: "siteId", select: "nom" },
 ];
 
 const LISTE: Peuplement[] = [
@@ -129,6 +136,8 @@ function versEntite(doc: DocumentOperation): Operation {
     photos: (doc.photos ?? []).map(versPhoto),
     rapportPdf: doc.rapportPdf ?? "",
   };
+  if (doc.dateHeureArrivee !== undefined) operation.dateHeureArrivee = doc.dateHeureArrivee;
+  if (doc.dateHeureDepart !== undefined) operation.dateHeureDepart = doc.dateHeureDepart;
   // Champs facultatifs : la clé n'existe que si la valeur existe (les tests comparent les clés).
   const equipe = versReferenceFacultative<EquipePeuplee>(doc.equipeId);
   if (equipe !== undefined) operation.equipeId = equipe;
@@ -149,6 +158,12 @@ function versFiltreMongo(filtre: FiltreOperations): Record<string, unknown> {
   if (filtre.equipeId) mongo.equipeId = filtre.equipeId;
   if (filtre.vehiculeId) mongo.vehiculeId = filtre.vehiculeId;
   if (filtre.statut) mongo.statut = filtre.statut;
+  if (filtre.collectesRealisees) {
+    mongo.$and = [
+      { statut: { $in: ["Terminée", "Rapportée"] } },
+      { quantiteCollectee: { $gt: 0 } },
+    ];
+  }
   if (filtre.dateDebut || filtre.dateFin) {
     const bornes: Record<string, Date> = {};
     if (filtre.dateDebut) bornes.$gte = filtre.dateDebut;
@@ -172,6 +187,15 @@ export class OperationRepositoryMongoose implements OperationRepository {
   async listerPourPlanning(filtre: FiltreOperations): Promise<Operation[]> {
     await connectDB();
     const docs = await OperationModel.find(versFiltreMongo(filtre)).populate(RESUME).lean();
+    return (docs as unknown as DocumentOperation[]).map(versEntite);
+  }
+
+  async listerHistoriqueCollectes(): Promise<Operation[]> {
+    await connectDB();
+    const docs = await OperationModel.find({
+      quantiteCollectee: { $gt: 0 },
+      statut: { $in: ["Terminée", "Rapportée"] },
+    }).populate(HISTORIQUE_COLLECTES).sort({ dateHeurePrevue: 1 }).lean();
     return (docs as unknown as DocumentOperation[]).map(versEntite);
   }
 
@@ -264,6 +288,8 @@ export class OperationRepositoryMongoose implements OperationRepository {
       uniteQuantite: doc.uniteQuantite ?? "Litres",
       photos: (doc.photos ?? []).map((photo) => ({ url: photo.url })),
     };
+    if (doc.dateHeureArrivee !== undefined) etat.dateHeureArrivee = doc.dateHeureArrivee;
+    if (doc.dateHeureDepart !== undefined) etat.dateHeureDepart = doc.dateHeureDepart;
     if (doc.quantiteCollectee !== undefined) etat.quantiteCollectee = doc.quantiteCollectee;
     if (doc.equipeId !== undefined) etat.equipeId = doc.equipeId === null ? null : String(doc.equipeId);
     return etat;
@@ -278,6 +304,17 @@ export class OperationRepositoryMongoose implements OperationRepository {
     if (!doc) return null;
 
     doc.statut = changement.statut;
+    if (changement.statut === "En cours") {
+      doc.dateHeureArrivee = changement.dateHeureArrivee ?? changement.date;
+    } else if (changement.dateHeureArrivee !== undefined) {
+      doc.dateHeureArrivee = changement.dateHeureArrivee;
+    }
+    if (changement.statut === "Terminée") {
+      doc.dateHeureArrivee ??= changement.dateHeureArrivee ?? changement.date;
+      doc.dateHeureDepart = changement.dateHeureDepart ?? changement.date;
+    } else if (changement.dateHeureDepart !== undefined) {
+      doc.dateHeureDepart = changement.dateHeureDepart;
+    }
     if (changement.quantiteCollectee !== undefined) doc.quantiteCollectee = changement.quantiteCollectee;
     // Véracité (et non `!== undefined`) : une unité vide est ignorée, comme dans la route d'origine.
     if (changement.uniteQuantite) doc.uniteQuantite = changement.uniteQuantite;

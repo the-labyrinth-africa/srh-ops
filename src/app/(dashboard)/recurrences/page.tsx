@@ -1,7 +1,5 @@
-import { RecurrencesListClient } from "@/frontend/recurrences";
-import { requirePageAccess } from "@/backend/comptes";
+import { redirect } from "next/navigation";
 
 export default async function RecurrencesPage() {
-  await requirePageAccess("/recurrences");
-  return <RecurrencesListClient />;
+  redirect("/previsions");
 }

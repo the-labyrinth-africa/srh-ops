@@ -117,6 +117,11 @@ export function existeOperationCollectee(siteId: string, dateHeurePrevue: Date, 
   return operations.existeCollecte(siteId, dateHeurePrevue, quantiteCollectee);
 }
 
+/** Historique des collectes rapportées, source de calcul des prévisions. */
+export function listerHistoriqueCollectes(): Promise<import("./domain/operation").Operation[]> {
+  return operations.listerHistoriqueCollectes();
+}
+
 /** Enregistre une collecte déjà réalisée (import de données passées). */
 export function enregistrerOperationRealisee(collecte: OperationRealisee): Promise<void> {
   return operations.creerRealisee(collecte);

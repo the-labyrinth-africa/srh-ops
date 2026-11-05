@@ -7,7 +7,9 @@ vi.mock("next-auth", () => ({
 }));
 
 import { GET as getOperations, POST as createOperation } from "@/app/api/operations/route";
+import { POST as recordCollection } from "@/app/api/operations/collectes/route";
 import { GET as getOperationById, PUT as updateOperation, DELETE as deleteOperation } from "@/app/api/operations/[id]/route";
+import { Operation } from "@/backend/operations/infrastructure/mongoose/operation.model";
 import { Client } from "@/backend/clients-sites/infrastructure/mongoose/client.model";
 import { Site } from "@/backend/clients-sites/infrastructure/mongoose/site.model";
 import { Equipe } from "@/backend/equipes/infrastructure/mongoose/equipe.model";
@@ -42,7 +44,7 @@ describe("Operations API Integration Tests", () => {
     vehiculeId = vehicule._id.toString();
   });
 
-  it("should create an operation with status Affectée when equipe and vehicule are assigned", async () => {
+  it("should reject manual creation of a planned operation", async () => {
     const req = new NextRequest("http://localhost:3000/api/operations", {
       method: "POST",
       body: JSON.stringify({
@@ -58,94 +60,89 @@ describe("Operations API Integration Tests", () => {
     });
 
     const res = await createOperation(req);
-    expect(res.status).toBe(201);
-    const op = await res.json();
-
-    expect(op._id).toBeDefined();
-    expect(op.statut).toBe("Affectée");
-    expect(op.historiqueStatuts).toHaveLength(1);
-    expect(op.historiqueStatuts[0].statut).toBe("Affectée");
+    expect(res.status).toBe(410);
+    expect(await res.json()).toMatchObject({ error: expect.stringContaining("planification manuelle est désactivée") });
+    expect(await Operation.countDocuments()).toBe(0);
   });
 
-  it("should return HTTP 409 Conflict when assigning an already busy team/vehicle", async () => {
-    // 1. Create first operation from 10:00 to 12:00
-    const req1 = new NextRequest("http://localhost:3000/api/operations", {
+  it("should persist a manually recorded collection as reported", async () => {
+    const req = new NextRequest("http://localhost:3000/api/operations/collectes", {
       method: "POST",
       body: JSON.stringify({
         clientId,
         siteId,
-        natureIntervention: "Opération 1",
-        dateHeurePrevue: "2026-11-01T10:00:00Z",
-        dureeEstimeeMinutes: 120,
-        equipeId,
-        vehiculeId,
+        natureIntervention: "Collecte réelle",
+        dateCollecte: "2026-11-01T10:00:00.000Z",
+        quantiteCollectee: 650,
+        uniteQuantite: "Litres",
       }),
     });
-    const res1 = await createOperation(req1);
-    expect(res1.status).toBe(201);
 
-    // 2. Attempt to create conflicting operation from 10:30 to 12:30 with same team & vehicle
-    const req2 = new NextRequest("http://localhost:3000/api/operations", {
-      method: "POST",
-      body: JSON.stringify({
-        clientId,
-        siteId,
-        natureIntervention: "Opération Conflit",
-        dateHeurePrevue: "2026-11-01T10:30:00Z",
-        dureeEstimeeMinutes: 120,
-        equipeId,
-        vehiculeId,
-      }),
+    const response = await recordCollection(req);
+    expect(response.status).toBe(201);
+    const [saved] = await Operation.find({ siteId }).lean();
+    expect(String(saved?.clientId)).toBe(clientId);
+    expect(String(saved?.siteId)).toBe(siteId);
+    expect(saved).toMatchObject({
+      statut: "Rapportée",
+      quantiteCollectee: 650,
+      uniteQuantite: "Litres",
     });
-    const res2 = await createOperation(req2);
-    expect(res2.status).toBe(409);
-
-    const body = await res2.json();
-    expect(body.error).toBe("Conflit d'affectation");
-    expect(body.conflicts.some((c: any) => c.hasConflict)).toBe(true);
+    expect(saved?.historiqueStatuts).toHaveLength(1);
+    expect(saved?.historiqueStatuts[0].statut).toBe("Rapportée");
   });
 
-  it("should list operations with filtering and pagination", async () => {
-    // Create an operation
-    const reqCreate = new NextRequest("http://localhost:3000/api/operations", {
+  it("should list recorded collections while excluding planned operations", async () => {
+    const reqCreate = new NextRequest("http://localhost:3000/api/operations/collectes", {
       method: "POST",
       body: JSON.stringify({
         clientId,
         siteId,
         natureIntervention: "Filtrage Opération",
-        dateHeurePrevue: "2026-11-02T14:00:00Z",
+        dateCollecte: "2026-11-02T14:00:00.000Z",
+        quantiteCollectee: 300,
+        uniteQuantite: "Litres",
       }),
     });
-    await createOperation(reqCreate);
+    await recordCollection(reqCreate);
+    await Operation.create({
+      clientId,
+      siteId,
+      natureIntervention: "Prévision historique",
+      dateHeurePrevue: new Date("2026-11-03T14:00:00.000Z"),
+      statut: "Planifiée",
+    });
 
     // List with query params
     const reqList = new NextRequest(
-      `http://localhost:3000/api/operations?clientId=${clientId}&page=1&limit=10`
+      `http://localhost:3000/api/operations?clientId=${clientId}&collectes=1&page=1&limit=10`
     );
     const resList = await getOperations(reqList);
     expect(resList.status).toBe(200);
 
     const data = await resList.json();
     expect(data.items).toBeDefined();
-    expect(data.total).toBeGreaterThanOrEqual(1);
+    expect(data.total).toBe(1);
     expect(data.page).toBe(1);
     expect(data.limit).toBe(10);
   });
 
-  it("should fetch, update, and delete an operation", async () => {
-    // Create
-    const reqCreate = new NextRequest("http://localhost:3000/api/operations", {
+  it("should fetch, update, and delete a recorded collection", async () => {
+    const reqCreate = new NextRequest("http://localhost:3000/api/operations/collectes", {
       method: "POST",
       body: JSON.stringify({
         clientId,
         siteId,
         natureIntervention: "Initial Ops",
-        dateHeurePrevue: "2026-11-03T08:00:00Z",
+        dateCollecte: "2026-11-03T08:00:00.000Z",
+        quantiteCollectee: 400,
+        uniteQuantite: "Litres",
       }),
     });
-    const resCreate = await createOperation(reqCreate);
-    const op = await resCreate.json();
-    const opId = op._id;
+    const resCreate = await recordCollection(reqCreate);
+    expect(resCreate.status).toBe(201);
+    const [op] = await Operation.find({ siteId }).lean();
+    const opId = String(op?._id);
 
     // Fetch single
     const resGet = await getOperationById(
