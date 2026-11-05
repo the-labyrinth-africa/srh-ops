@@ -20,6 +20,28 @@ interface Prevision {
   equipements: string[];
 }
 
+interface EquipeDisponible {
+  id: string;
+  nom: string;
+  disponibilite: boolean;
+}
+
+interface VehiculeDisponible {
+  id: string;
+  identification: string;
+  capacite: number;
+  disponibilite: boolean;
+}
+
+interface AffectationTournee {
+  _id: string;
+  date: string;
+  tournee: string;
+  equipeId: string;
+  vehiculeId: string;
+  stations: { site: string; siteId?: string; clientId?: string }[];
+}
+
 const MOIS = new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric", timeZone: "UTC" });
 const DATE = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", timeZone: "UTC" });
 
@@ -38,31 +60,63 @@ export function PrevisionsCollectesPage({ peutConfigurer }: { peutConfigurer: bo
   const [enregistrement, setEnregistrement] = useState(false);
   const [loading, setLoading] = useState(true);
   const [erreur, setErreur] = useState("");
+  const [affectations, setAffectations] = useState<AffectationTournee[]>([]);
+  const [equipes, setEquipes] = useState<EquipeDisponible[]>([]);
+  const [vehicules, setVehicules] = useState<VehiculeDisponible[]>([]);
+  const [choixAffectation, setChoixAffectation] = useState<Record<string, { equipeId: string; vehiculeId: string }>>({});
+  const [affectationEnCours, setAffectationEnCours] = useState("");
 
   useEffect(() => {
     let actif = true;
     setLoading(true);
     setErreur("");
     const charger = async () => {
-      const response = await fetch(`/api/previsions/collectes?mois=${mois}`);
+      const [response, affectationsResponse, equipesResponse, vehiculesResponse] = await Promise.all([
+        fetch(`/api/previsions/collectes?mois=${mois}`),
+        peutConfigurer ? fetch(`/api/previsions/tournees?mois=${mois}`) : Promise.resolve(null),
+        peutConfigurer ? fetch("/api/equipes") : Promise.resolve(null),
+        peutConfigurer ? fetch("/api/vehicules") : Promise.resolve(null),
+      ]);
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Impossible de charger les prévisions.");
-      return data as { previsions: Prevision[]; stationsSansHistorique: string[]; nombreStations: number; objectifLitresParStation: number };
+      const resultat = {
+        previsions: data as { previsions: Prevision[]; stationsSansHistorique: string[]; nombreStations: number; objectifLitresParStation: number },
+        affectations: [] as AffectationTournee[],
+        equipes: [] as EquipeDisponible[],
+        vehicules: [] as VehiculeDisponible[],
+      };
+      if (affectationsResponse && equipesResponse && vehiculesResponse) {
+        const [affectationsData, equipesData, vehiculesData] = await Promise.all([
+          affectationsResponse.json(),
+          equipesResponse.json(),
+          vehiculesResponse.json(),
+        ]);
+        if (!affectationsResponse.ok || !equipesResponse.ok || !vehiculesResponse.ok) {
+          throw new Error("Impossible de charger les équipes, véhicules ou affectations.");
+        }
+        resultat.affectations = affectationsData.affectations;
+        resultat.equipes = equipesData;
+        resultat.vehicules = vehiculesData;
+      }
+      return resultat;
     };
     charger()
-      .then((data) => {
+      .then(({ previsions, affectations: affectationsMois, equipes: equipesDisponibles, vehicules: vehiculesDisponibles }) => {
         if (actif) {
-          setLignes(data.previsions);
-          setStationsSansHistorique(data.stationsSansHistorique);
-          setStationsTotal(data.nombreStations);
-          setObjectifParStation(data.objectifLitresParStation);
-          setObjectifEdite(String(data.objectifLitresParStation));
+          setLignes(previsions.previsions);
+          setStationsSansHistorique(previsions.stationsSansHistorique);
+          setStationsTotal(previsions.nombreStations);
+          setObjectifParStation(previsions.objectifLitresParStation);
+          setObjectifEdite(String(previsions.objectifLitresParStation));
+          setAffectations(affectationsMois);
+          setEquipes(equipesDisponibles);
+          setVehicules(vehiculesDisponibles);
         }
       })
       .catch((error: Error) => { if (actif) setErreur(error.message); })
       .finally(() => { if (actif) setLoading(false); });
     return () => { actif = false; };
-  }, [mois]);
+  }, [mois, peutConfigurer]);
 
   async function enregistrerObjectif(event: React.FormEvent) {
     event.preventDefault();
@@ -164,9 +218,83 @@ export function PrevisionsCollectesPage({ peutConfigurer }: { peutConfigurer: bo
             const date = items[0]?.datePrevue ?? "";
             const volume = items.reduce((total, item) => total + (item.quantiteEstimeeLitres ?? 0), 0);
             const duree = items.reduce((total, item) => total + item.dureeEstimeeMinutes, 0);
+            const affectation = affectations.find((item) => item.date === date && item.tournee === items[0]?.tournee);
+            const choix = choixAffectation[cle] ?? {
+              equipeId: affectation?.equipeId ?? "",
+              vehiculeId: affectation?.vehiculeId ?? vehicules.find((item) => item.identification === items[0]?.vehicule)?.id ?? "",
+            };
+            const vehiculeChoisi = vehicules.find((item) => item.id === choix.vehiculeId);
+            const stationsSansCorrespondance = affectation?.stations
+              .filter((station) => !station.siteId || !station.clientId)
+              .map((station) => station.site) ?? [];
+            const affectationPossible = Boolean(
+              choix.equipeId &&
+              equipes.some((item) => item.id === choix.equipeId && item.disponibilite) &&
+              vehiculeChoisi?.disponibilite &&
+              vehiculeChoisi.capacite >= volume
+            );
             return <div key={cle} className="grid gap-3 p-4 md:grid-cols-[180px_1fr]">
               <div><p className="font-title-sm text-title-sm font-bold capitalize text-on-surface">{DATE.format(new Date(`${date}T12:00:00Z`))}</p><p className="text-sm text-on-surface-variant">{items.length} station{items.length === 1 ? "" : "s"}</p><p className="mt-1 text-xs text-on-surface-variant">{items[0]?.secteur}</p></div>
-              <div><p className="mb-1 font-label-md text-label-md font-semibold text-on-surface">{items[0]?.tournee} · {volume.toLocaleString("fr-FR")} L estimés · {duree} min sur site</p><p className="mb-2 text-xs text-on-surface-variant">Véhicule : {items[0]?.vehicule ?? "à affecter"}{items[0]?.capaciteVehiculeLitres ? ` · capacité ${items[0].capaciteVehiculeLitres.toLocaleString("fr-FR")} L` : ""} · Équipements : {items[0]?.equipements.join(", ") || "à affecter"}</p><ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">{items.map((item, index) => <li key={`${cle}-${item.site}-${index}`} className="rounded-lg bg-surface-container-low px-3 py-2"><p className="font-label-md text-label-md font-semibold text-on-surface">{item.site} <span className="font-normal text-on-surface-variant">· {item.commune}</span></p><p className="mt-1 text-xs text-on-surface-variant">Passage {item.numeroPassage} · ≈ {item.quantiteEstimeeLitres?.toLocaleString("fr-FR")} L · ≈ {item.dureeEstimeeMinutes} min sur site · médiane tous les {item.intervalleEstimeJours} j · historique {item.passagesHistoriques} passage{item.passagesHistoriques > 1 ? "s" : ""} · confiance {item.confiance}</p></li>)}</ul></div>
+              <div>
+                <p className="mb-1 font-label-md text-label-md font-semibold text-on-surface">{items[0]?.tournee} · {volume.toLocaleString("fr-FR")} L estimés · {duree} min sur site</p>
+                <p className="mb-2 text-xs text-on-surface-variant">Véhicule suggéré : {items[0]?.vehicule ?? "à affecter"}{items[0]?.capaciteVehiculeLitres ? ` · capacité ${items[0].capaciteVehiculeLitres.toLocaleString("fr-FR")} L` : ""} · Équipements : {items[0]?.equipements.join(", ") || "à affecter"}</p>
+                {peutConfigurer && <form
+                  onSubmit={async (event) => {
+                    event.preventDefault();
+                    setErreur("");
+                    setAffectationEnCours(cle);
+                    try {
+                      const response = await fetch("/api/previsions/tournees", {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ date, tournee: items[0]?.tournee, ...choix }),
+                      });
+                      const data = await response.json();
+                      if (!response.ok) throw new Error(data.error ?? "Impossible d’affecter cette tournée.");
+                      setAffectations((precedentes) => [
+                        ...precedentes.filter((item) => item.date !== date || item.tournee !== items[0]?.tournee),
+                        data.affectation,
+                      ]);
+                    } catch (error) {
+                      setErreur(error instanceof Error ? error.message : "Erreur réseau pendant l’affectation.");
+                    } finally {
+                      setAffectationEnCours("");
+                    }
+                  }}
+                  className="mb-3 grid gap-2 rounded-xl border border-outline/20 bg-surface-container-low p-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
+                >
+                  <label className="flex min-h-11 flex-col gap-1 font-label-sm text-label-sm font-semibold text-on-surface">
+                    Équipe
+                    <select
+                      required
+                      value={choix.equipeId}
+                      onChange={(event) => setChoixAffectation((precedents) => ({ ...precedents, [cle]: { ...choix, equipeId: event.target.value } }))}
+                      className="min-h-11 rounded-lg border border-outline/40 bg-surface-container-lowest px-3 text-on-surface"
+                    >
+                      <option value="">Choisir une équipe</option>
+                      {equipes.map((equipe) => <option key={equipe.id} value={equipe.id} disabled={!equipe.disponibilite && equipe.id !== choix.equipeId}>{equipe.nom}{equipe.disponibilite ? "" : " (indisponible)"}</option>)}
+                    </select>
+                  </label>
+                  <label className="flex min-h-11 flex-col gap-1 font-label-sm text-label-sm font-semibold text-on-surface">
+                    Véhicule — capacité ≥ {volume.toLocaleString("fr-FR")} L
+                    <select
+                      required
+                      value={choix.vehiculeId}
+                      onChange={(event) => setChoixAffectation((precedents) => ({ ...precedents, [cle]: { ...choix, vehiculeId: event.target.value } }))}
+                      className="min-h-11 rounded-lg border border-outline/40 bg-surface-container-lowest px-3 text-on-surface"
+                    >
+                      <option value="">Choisir un véhicule</option>
+                      {vehicules.map((vehicule) => <option key={vehicule.id} value={vehicule.id} disabled={(!vehicule.disponibilite || vehicule.capacite < volume) && vehicule.id !== choix.vehiculeId}>{vehicule.identification} · {vehicule.capacite.toLocaleString("fr-FR")} L{vehicule.disponibilite ? "" : " (indisponible)"}</option>)}
+                    </select>
+                  </label>
+                  <button type="submit" disabled={!affectationPossible || date < new Date().toISOString().slice(0, 10) || affectationEnCours === cle} className="min-h-11 rounded-lg bg-primary px-4 font-label-sm text-label-sm font-semibold text-on-primary hover:opacity-90 disabled:opacity-50">
+                    {affectationEnCours === cle ? "Enregistrement…" : affectation ? "Mettre à jour" : "Affecter"}
+                  </button>
+                  {affectation && <p className="sm:col-span-3 font-label-sm text-label-sm text-on-surface-variant">Affectée à {equipes.find((item) => item.id === affectation.equipeId)?.nom ?? "une équipe"} avec {vehicules.find((item) => item.id === affectation.vehiculeId)?.identification ?? "un véhicule"}.</p>}
+                  {affectation && stationsSansCorrespondance.length > 0 && <p role="status" className="sm:col-span-3 rounded-lg bg-amber-500/10 p-2 font-body-sm text-amber-900 dark:text-amber-200">Sites non rattachés au référentiel : {stationsSansCorrespondance.join(", ")}. Les pointages seront conservés dans la tournée et les prévisions ; ces collectes ne pourront pas être ajoutées à l’historique central des opérations.</p>}
+                </form>}
+                <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">{items.map((item, index) => <li key={`${cle}-${item.site}-${index}`} className="rounded-lg bg-surface-container-low px-3 py-2"><p className="font-label-md text-label-md font-semibold text-on-surface">{item.site} <span className="font-normal text-on-surface-variant">· {item.commune}</span></p><p className="mt-1 text-xs text-on-surface-variant">Passage {item.numeroPassage} · ≈ {item.quantiteEstimeeLitres?.toLocaleString("fr-FR")} L · ≈ {item.dureeEstimeeMinutes} min sur site · médiane tous les {item.intervalleEstimeJours} j · historique {item.passagesHistoriques} passage{item.passagesHistoriques > 1 ? "s" : ""} · confiance {item.confiance}</p></li>)}</ul>
+              </div>
             </div>;
           })}
           </div>}

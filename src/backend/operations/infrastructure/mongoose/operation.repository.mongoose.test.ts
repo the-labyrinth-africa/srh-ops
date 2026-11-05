@@ -420,6 +420,26 @@ describe("OperationRepositoryMongoose (contrat)", () => {
       expect(await depot.existeCollecte(siteId, j("12"), 900)).toBe(false);
       expect(await depot.existeCollecte(String(new mongoose.Types.ObjectId()), j("11"), 900)).toBe(false);
     });
+
+    it("creerRealisee conserve les horaires terrain et les affectations de tournée", async () => {
+      const dateHeureArrivee = j("10");
+      const dateHeureDepart = j("11");
+      await depot.creerRealisee({
+        ...collecte(),
+        dateHeureArrivee,
+        dateHeureDepart,
+        equipeId,
+        vehiculeId,
+      });
+
+      const [operation] = await OperationModel.find({ siteId }).lean();
+      expect(operation).toMatchObject({
+        dateHeureArrivee,
+        dateHeureDepart,
+      });
+      expect(String(operation?.equipeId)).toBe(equipeId);
+      expect(String(operation?.vehiculeId)).toBe(vehiculeId);
+    });
   });
 
   describe("supprimer", () => {

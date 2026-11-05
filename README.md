@@ -25,10 +25,25 @@ Admin ou Dispatcher peut le configurer dans la page Prévisions. Les proposition
 automatiquement d'opérations. Seules les collectes rapportées ou terminées en litres alimentent les
 volumes historiques estimés.
 
-Depuis la console terrain, le chauffeur confirme l'arrivée puis la fin de collecte à chaque station ;
-les heures sont horodatées lors de la confirmation et peuvent être corrigées. Les durées prévisionnelles
-s'appuient sur la médiane des temps réellement passés sur site (2 h par défaut sans historique). Les
-tournées comptent au moins cinq stations distinctes chacune et respectent la capacité du véhicule.
+Un Dispatcher peut affecter chaque tournée prévisionnelle du mois à une équipe et à un véhicule
+disponibles. L'affectation est persistée séparément des opérations planifiées ; une équipe ou un
+véhicule ne peut pas être affecté à deux tournées le même jour, et la capacité du véhicule doit
+couvrir le volume prévu. Les tournées ne sont pas saisies manuellement : elles restent calculées à
+partir des collectes.
+
+À sa connexion, un chauffeur voit dans la console terrain les tournées affectées à son équipe pour
+la journée. À chaque station, il horodate son arrivée, puis son départ et la quantité réelle collectée
+(en litres, zéro accepté). Une quantité positive crée une collecte rapportée dans l'historique ; les
+visites sans collecte gardent leurs horaires afin d'améliorer les estimations de durée. Les pointages
+d'un chauffeur sont limités à l'équipe de sa session et à la date du jour.
+Si une station de prévision ne peut pas être rattachée sans ambiguïté à un client et à un site du
+référentiel, son pointage reste enregistré dans l'affectation et alimente les prévisions, mais une
+collecte positive n'apparaît pas dans l'historique central des opérations. Le dispatcher voit ces
+stations signalées lors de l'affectation.
+
+Les durées prévisionnelles s'appuient sur la médiane des temps réellement passés sur site (2 h par
+défaut sans historique). Les tournées comptent au moins cinq stations distinctes chacune et
+respectent la capacité du véhicule.
 Lorsque plusieurs capacités sont disponibles, le modèle répartit aussi des passages sur le plus petit
 véhicule, puis ajuste les volumes et passages du plus grand camion pour atteindre l'objectif mensuel.
 

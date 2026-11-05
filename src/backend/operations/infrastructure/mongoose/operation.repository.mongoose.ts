@@ -276,7 +276,12 @@ export class OperationRepositoryMongoose implements OperationRepository {
 
   async creerRealisee(collecte: OperationRealisee): Promise<void> {
     await connectDB();
-    await OperationModel.create({ ...collecte, photos: [] });
+    await OperationModel.create({
+      ...collecte,
+      ...(collecte.equipeId ? { equipeId: collecte.equipeId } : {}),
+      ...(collecte.vehiculeId ? { vehiculeId: collecte.vehiculeId } : {}),
+      photos: [],
+    });
   }
 
   async trouverEtatTerrain(id: string): Promise<EtatTerrain | null> {

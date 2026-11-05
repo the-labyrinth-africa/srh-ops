@@ -5,5 +5,6 @@ export {
   trouverSiteDuClientParNom,
   creerSite,
   siteAppartientAuClient,
+  listerTousSites,
   listerSitesDuClient,
 } from "./composition";

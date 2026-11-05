@@ -33,10 +33,42 @@ interface OperationTerrain {
   informationsParticulieres?: string;
 }
 
+interface StationTourneeTerrain {
+  site: string;
+  commune: string;
+  siteId?: string;
+  clientId?: string;
+  quantiteEstimeeLitres: number;
+  dureeEstimeeMinutes: number;
+  dateHeureArrivee?: string;
+  dateHeureDepart?: string;
+  quantiteCollectee?: number;
+}
+
+interface AffectationTourneeTerrain {
+  _id: string;
+  date: string;
+  tournee: string;
+  secteur: string;
+  equipeNom: string;
+  vehiculeIdentification: string;
+  volumeEstimeLitres: number;
+  stations: StationTourneeTerrain[];
+}
+
 function dateHeureLocale(dateHeure?: string): string {
-  const date = dateHeure ? new Date(dateHeure) : new Date();
+  if (!dateHeure) return "";
+  const date = new Date(dateHeure);
   const deuxChiffres = (valeur: number) => String(valeur).padStart(2, "0");
   return `${date.getFullYear()}-${deuxChiffres(date.getMonth() + 1)}-${deuxChiffres(date.getDate())}T${deuxChiffres(date.getHours())}:${deuxChiffres(date.getMinutes())}`;
+}
+
+function heureStationAffichee(dateHeure?: string): string {
+  if (!dateHeure) return "";
+  return new Date(dateHeure).toLocaleString("fr-FR", {
+    dateStyle: "short",
+    timeStyle: "short",
+  });
 }
 
 export function TerrainViewClient() {
@@ -51,6 +83,12 @@ export function TerrainViewClient() {
   const [actionError, setActionError] = useState("");
   const [actionSuccess, setActionSuccess] = useState("");
   const [saving, setSaving] = useState(false);
+  const [tourneesDuJour, setTourneesDuJour] = useState<AffectationTourneeTerrain[]>([]);
+  const [chargementTournee, setChargementTournee] = useState(false);
+  const [erreurTournee, setErreurTournee] = useState("");
+  const [messagePointage, setMessagePointage] = useState("");
+  const [pointageEnCours, setPointageEnCours] = useState("");
+  const [quantitesTournee, setQuantitesTournee] = useState<Record<string, string>>({});
 
   // Formulaire d'édition de terrain
   const [nextStatut, setNextStatut] = useState<OperationStatus | "">("");
@@ -99,6 +137,69 @@ export function TerrainViewClient() {
   useEffect(() => {
     fetchTerrainOps();
   }, [fetchTerrainOps]);
+
+  useEffect(() => {
+    let actif = true;
+    if (!isChauffeur(session?.user?.role)) {
+      setTourneesDuJour([]);
+      return () => { actif = false; };
+    }
+
+    setChargementTournee(true);
+    setErreurTournee("");
+    fetch("/api/previsions/tournees/aujourdhui")
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) throw new Error(formatApiError(data.error));
+        return data as { affectations: AffectationTourneeTerrain[] };
+      })
+      .then((data) => { if (actif) setTourneesDuJour(data.affectations); })
+      .catch((error: Error) => { if (actif) setErreurTournee(error.message); })
+      .finally(() => { if (actif) setChargementTournee(false); });
+    return () => { actif = false; };
+  }, [session?.user?.role]);
+
+  const enregistrerPointageTournee = async (
+    affectation: AffectationTourneeTerrain,
+    indexStation: number,
+    action: "arrivee" | "depart"
+  ) => {
+    const cle = `${affectation._id}:${indexStation}`;
+    setErreurTournee("");
+    setMessagePointage("");
+    const quantite = quantitesTournee[cle];
+    if (action === "depart" && (quantite === undefined || quantite === "" || !Number.isFinite(Number(quantite)) || Number(quantite) < 0)) {
+      setErreurTournee("Saisissez la quantité réelle récupérée en litres (0 est accepté).");
+      return;
+    }
+
+    setPointageEnCours(cle);
+    try {
+      const response = await fetch("/api/previsions/tournees/visites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          affectationId: affectation._id,
+          indexStation,
+          action,
+          ...(action === "depart" ? { quantiteCollectee: Number(quantite) } : {}),
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(formatApiError(data.error));
+      setTourneesDuJour((precedentes) => precedentes.map((item) => item._id === affectation._id
+        ? { ...data.affectation, equipeNom: item.equipeNom, vehiculeIdentification: item.vehiculeIdentification }
+        : item));
+      const collecteNonRattachee = action === "depart" && Number(quantite) > 0 && data.collecteOperationEnregistree === false;
+      setMessagePointage(collecteNonRattachee
+        ? "Pointage enregistré dans la tournée, mais la station n’est pas rattachée à un client/site : la collecte ne figure pas dans l’historique central des opérations."
+        : action === "arrivee" ? "Heure d’arrivée enregistrée." : "Heure de départ et collecte enregistrées.");
+    } catch (error) {
+      setErreurTournee(error instanceof Error ? error.message : "Impossible d’enregistrer le pointage.");
+    } finally {
+      setPointageEnCours("");
+    }
+  };
 
   const selectOperation = (op: OperationTerrain) => {
     setSelectedOp(op);
@@ -290,6 +391,62 @@ export function TerrainViewClient() {
         </Link>
       </div>
 
+      {isChauffeur(session?.user?.role) && (
+        <section aria-labelledby="tournee-du-jour-titre" className="space-y-4 rounded-xl border border-primary/30 bg-surface-container-lowest p-gutter-md shadow-sm">
+          <div>
+            <p className="font-label-sm text-label-sm font-semibold uppercase tracking-wide text-primary">Affectation terrain</p>
+            <h2 id="tournee-du-jour-titre" className="mt-1 font-title-lg text-title-lg font-bold text-on-surface">Ma tournée d’aujourd’hui</h2>
+            <p className="mt-1 font-body-sm text-on-surface-variant">Enregistrez l’arrivée à chaque station, puis le départ et le volume réellement collecté.</p>
+          </div>
+          {erreurTournee && <p role="alert" className="rounded-lg border border-error/30 bg-error-container/20 p-3 font-body-sm text-error">{erreurTournee}</p>}
+          {messagePointage && <p role="status" className="rounded-lg border border-primary/20 bg-primary/5 p-3 font-body-sm text-on-surface">{messagePointage}</p>}
+          {chargementTournee ? <p className="font-body-sm text-on-surface-variant">Chargement de votre tournée…</p>
+            : tourneesDuJour.length === 0 ? <p className="rounded-lg bg-surface-container-low p-3 font-body-sm text-on-surface-variant">Aucune tournée ne vous est affectée aujourd’hui. Contactez le dispatcher si cela semble incorrect.</p>
+              : tourneesDuJour.map((affectation) => (
+                <article key={affectation._id} className="space-y-3 rounded-xl border border-outline/20 bg-surface-container-lowest p-3">
+                  <header className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <h3 className="font-title-md text-title-md font-bold text-on-surface">{affectation.tournee} · {affectation.secteur}</h3>
+                      <p className="font-label-sm text-label-sm text-on-surface-variant">{affectation.vehiculeIdentification || "Véhicule"} · {affectation.volumeEstimeLitres.toLocaleString("fr-FR")} L estimés · {affectation.stations.length} stations</p>
+                    </div>
+                    <span className="rounded-full bg-primary/10 px-3 py-1 font-label-sm text-label-sm font-semibold text-primary">{affectation.equipeNom}</span>
+                  </header>
+                  <ol className="space-y-3">
+                    {affectation.stations.map((station, index) => {
+                      const cle = `${affectation._id}:${index}`;
+                      const enCours = pointageEnCours === cle;
+                      const terminee = Boolean(station.dateHeureDepart);
+                      return <li key={`${affectation._id}-${station.site}-${index}`} className="rounded-lg border border-outline/15 bg-surface-container-low p-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <h4 className="font-label-md text-label-md font-bold text-on-surface">{index + 1}. {station.site}</h4>
+                            <p className="font-body-sm text-on-surface-variant">{station.commune} · prévu ≈ {station.quantiteEstimeeLitres.toLocaleString("fr-FR")} L · ≈ {station.dureeEstimeeMinutes} min</p>
+                          </div>
+                          <span className={`shrink-0 rounded-full px-2 py-1 font-label-sm text-label-sm font-semibold ${terminee ? "bg-primary/10 text-primary" : station.dateHeureArrivee ? "bg-amber-500/10 text-amber-800 dark:text-amber-300" : "bg-surface-container-high text-on-surface-variant"}`}>
+                            {terminee ? "Terminée" : station.dateHeureArrivee ? "Sur site" : "À faire"}
+                          </span>
+                        </div>
+                        <dl className="mt-3 grid grid-cols-2 gap-2 font-body-sm">
+                          <div className="rounded-md bg-surface-container-lowest p-2"><dt className="text-on-surface-variant">Arrivée réelle</dt><dd className="font-semibold text-on-surface">{heureStationAffichee(station.dateHeureArrivee) || "Non enregistrée"}</dd></div>
+                          <div className="rounded-md bg-surface-container-lowest p-2"><dt className="text-on-surface-variant">Départ réel</dt><dd className="font-semibold text-on-surface">{heureStationAffichee(station.dateHeureDepart) || "Non enregistré"}</dd></div>
+                        </dl>
+                        {station.quantiteCollectee !== undefined && <p className="mt-2 font-label-sm text-label-sm font-semibold text-on-surface">Collecté : {station.quantiteCollectee.toLocaleString("fr-FR")} L</p>}
+                        {!station.dateHeureArrivee && <button type="button" onClick={() => enregistrerPointageTournee(affectation, index, "arrivee")} disabled={enCours} className="mt-3 min-h-11 w-full rounded-lg bg-primary px-4 font-label-md text-label-md font-semibold text-on-primary disabled:opacity-50">{enCours ? "Enregistrement…" : "Enregistrer mon arrivée"}</button>}
+                        {station.dateHeureArrivee && !terminee && <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto] sm:items-end">
+                          <label className="flex min-h-11 flex-col gap-1 font-label-sm text-label-sm font-semibold text-on-surface">
+                            Quantité réellement collectée (L)
+                            <input type="number" min="0" step="1" inputMode="numeric" required value={quantitesTournee[cle] ?? ""} onChange={(event) => setQuantitesTournee((precedentes) => ({ ...precedentes, [cle]: event.target.value }))} className="min-h-11 rounded-lg border border-outline/40 bg-surface-container-lowest px-3 text-on-surface" />
+                          </label>
+                          <button type="button" onClick={() => enregistrerPointageTournee(affectation, index, "depart")} disabled={enCours} className="min-h-11 rounded-lg bg-primary px-4 font-label-md text-label-md font-semibold text-on-primary disabled:opacity-50">{enCours ? "Enregistrement…" : "Enregistrer mon départ"}</button>
+                        </div>}
+                      </li>;
+                    })}
+                  </ol>
+                </article>
+              ))}
+        </section>
+      )}
+
       {/* Vue détail / action sur opération sélectionnée */}
       {selectedOp ? (
         <div className="space-y-4 rounded-xl border border-surface-container-high bg-surface-container-lowest p-gutter-md shadow-sm">
@@ -317,6 +474,52 @@ export function TerrainViewClient() {
             </p>
           </div>
 
+          <section
+            aria-labelledby="horaires-station-titre"
+            className="rounded-xl border-l-4 border-primary bg-primary/5 p-4"
+          >
+            <h3 id="horaires-station-titre" className="flex items-center gap-2 font-label-md text-label-md font-bold text-on-surface">
+              <span aria-hidden="true" className="material-symbols-outlined text-[20px]">schedule</span>
+              Horaires réels de cette station
+            </h3>
+            <p className="mt-1 font-body-sm text-on-surface-variant">
+              Le responsable du camion enregistre l’heure d’arrivée en se présentant sur le site, puis l’heure de départ avant de quitter la station.
+            </p>
+            <dl className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <div className="rounded-lg bg-surface-container-lowest p-3">
+                <dt className="font-label-sm text-label-sm font-semibold text-on-surface-variant">Arrivée à la station</dt>
+                <dd className="mt-1 font-body-md text-body-md font-bold text-on-surface">
+                  {heureStationAffichee(selectedOp.dateHeureArrivee) || (
+                    selectedOp.statut === "En route"
+                      ? "À confirmer par le responsable"
+                      : selectedOp.statut === "En cours"
+                        ? "Heure non enregistrée"
+                        : "En attente de l’arrivée"
+                  )}
+                </dd>
+              </div>
+              <div className="rounded-lg bg-surface-container-lowest p-3">
+                <dt className="font-label-sm text-label-sm font-semibold text-on-surface-variant">Départ de la station</dt>
+                <dd className="mt-1 font-body-md text-body-md font-bold text-on-surface">
+                  {heureStationAffichee(selectedOp.dateHeureDepart) || (
+                    selectedOp.statut === "En cours"
+                      ? "À confirmer avant de quitter le site"
+                      : selectedOp.statut === "Terminée" || selectedOp.statut === "Rapportée"
+                        ? "Heure non enregistrée"
+                        : "En attente de la collecte"
+                  )}
+                </dd>
+              </div>
+            </dl>
+            {(selectedOp.statut === "En route" || selectedOp.statut === "En cours") && (
+              <p className="mt-3 rounded-lg bg-surface-container-lowest px-3 py-2 font-label-sm text-label-sm font-semibold text-primary">
+                {selectedOp.statut === "En route"
+                  ? "À l’arrivée : vérifiez ou corrigez l’heure ci-dessous, puis confirmez votre arrivée."
+                  : "Avant de quitter la station : vérifiez ou corrigez les deux heures ci-dessous, saisissez la quantité et clôturez la collecte."}
+              </p>
+            )}
+          </section>
+
           {selectedOp.informationsParticulieres && (
             <div className="rounded-xl bg-surface-container-low p-3">
               <span className="font-label-sm text-label-sm font-bold text-outline uppercase">Consignes</span>
@@ -325,8 +528,6 @@ export function TerrainViewClient() {
               </p>
             </div>
           )}
-
-          <TracabiliteOperation operationId={selectedOp._id} canEdit={canEditTraceabilite} />
 
           {actionSuccess && (
             <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-3 font-body-md text-body-md text-emerald-800 dark:text-emerald-300">
@@ -357,9 +558,8 @@ export function TerrainViewClient() {
             {selectedOp.statut === "En route" && (
               <div className="space-y-3">
                 <label className="block font-label-md text-label-md font-semibold text-on-surface">
-                  Heure d’arrivée à la station
+                  Heure réelle d’arrivée
                   <input
-                    required
                     type="datetime-local"
                     value={heureArrivee}
                     onChange={(event) => {
@@ -369,7 +569,7 @@ export function TerrainViewClient() {
                     className="mt-1 min-h-11 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-on-surface"
                   />
                   <span className="mt-1 block text-xs font-normal text-on-surface-variant">
-                    Si vous ne modifiez pas cette heure, l’heure de confirmation sera enregistrée.
+                    Laissez vide pour enregistrer automatiquement l’heure de confirmation, ou corrigez-la si nécessaire.
                   </span>
                 </label>
                 <button
@@ -388,9 +588,8 @@ export function TerrainViewClient() {
             {(selectedOp.statut === "En cours" || selectedOp.statut === "Retardée" || nextStatut) && (
               <div className="space-y-4 pt-2">
                 <label className="block font-label-md text-label-md font-semibold text-on-surface">
-                  Heure d’arrivée à la station
+                  Heure réelle d’arrivée
                   <input
-                    required
                     type="datetime-local"
                     value={heureArrivee}
                     onChange={(event) => {
@@ -400,7 +599,7 @@ export function TerrainViewClient() {
                     className="mt-1 min-h-11 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-on-surface"
                   />
                   <span className="mt-1 block text-xs font-normal text-on-surface-variant">
-                    Si vous ne modifiez pas cette heure, l’heure de confirmation sera enregistrée.
+                    Vous pouvez corriger l’heure enregistrée à l’arrivée.
                   </span>
                 </label>
                 <div className="grid grid-cols-2 gap-3">
@@ -443,9 +642,8 @@ export function TerrainViewClient() {
 
                 {(selectedOp.statut === "En cours" || nextStatut === "Terminée") && (
                   <label className="block font-label-md text-label-md font-semibold text-on-surface">
-                    Heure de départ de la station
+                    Heure réelle de départ
                     <input
-                      required
                       type="datetime-local"
                       value={heureDepart}
                       onChange={(event) => {
@@ -455,7 +653,7 @@ export function TerrainViewClient() {
                       className="mt-1 min-h-11 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 font-body-md text-on-surface"
                     />
                     <span className="mt-1 block text-xs font-normal text-on-surface-variant">
-                      Si vous ne modifiez pas cette heure, l’heure de confirmation sera enregistrée.
+                      Laissez vide pour enregistrer automatiquement l’heure de clôture, ou corrigez-la si nécessaire.
                     </span>
                   </label>
                 )}
@@ -637,6 +835,8 @@ export function TerrainViewClient() {
               </details>
             </div>
           </div>
+
+          <TracabiliteOperation operationId={selectedOp._id} canEdit={canEditTraceabilite} />
         </div>
       ) : (
         /* Liste des opérations du chauffeur */

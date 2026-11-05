@@ -17,3 +17,8 @@ export async function existeEquipe(equipeId: string): Promise<boolean> {
   await connectDB();
   return Boolean(await EquipeModel.exists({ _id: equipeId }));
 }
+
+/** Équipes disponibles pour l'affectation de tournées. */
+export function listerEquipes() {
+  return casDUsageEquipes.lister();
+}

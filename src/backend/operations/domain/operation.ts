@@ -167,6 +167,10 @@ export interface OperationRealisee {
   natureIntervention: string;
   dateHeurePrevue: Date;
   dureeEstimeeMinutes: number;
+  equipeId?: string;
+  vehiculeId?: string;
+  dateHeureArrivee?: Date;
+  dateHeureDepart?: Date;
   informationsParticulieres: string;
   statut: OperationStatus;
   historiqueStatuts: { statut: OperationStatus; date: Date }[];

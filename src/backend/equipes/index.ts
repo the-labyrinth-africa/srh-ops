@@ -1,2 +1,2 @@
 // API publique du domaine `equipes` pour les autres domaines.
-export { existeEquipe } from "./composition";
+export { existeEquipe, listerEquipes } from "./composition";

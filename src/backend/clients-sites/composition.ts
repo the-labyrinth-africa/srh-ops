@@ -58,6 +58,11 @@ export async function siteAppartientAuClient(siteId: string, clientId: string): 
   return Boolean(await SiteModel.exists({ _id: siteId, clientId }));
 }
 
+/** Tous les sites avec leur client, pour les rattachements internes des prévisions. */
+export function listerTousSites() {
+  return casDUsageSites.lister();
+}
+
 /** Sites visibles pour le portail du client identifié. */
 export function listerSitesDuClient(clientId: string) {
   return casDUsageSites.lister(clientId);
